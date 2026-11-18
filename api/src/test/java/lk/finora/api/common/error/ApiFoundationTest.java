@@ -114,8 +114,7 @@ class ApiFoundationTest extends IntegrationTest {
     void wrongPathVariableTypeReturns400() throws Exception {
         mockMvc.perform(get("/api/v1/_probe/abc"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.fields[0].field").value("id"));
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test

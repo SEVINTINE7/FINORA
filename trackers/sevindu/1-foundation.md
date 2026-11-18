@@ -93,7 +93,7 @@ All tables: `id BIGINT AUTO_INCREMENT PK`, `created_at DATETIME(6)`; every user-
 
 **Handoff notes:**
 - Config now YAML: `application.yml` (+`-dev`, `-prod`; test: `src/test/resources/application-test.yml`). Old `.properties` removed. Run locally with `-Dspring-boot.run.profiles=dev`; no default profile. Secrets bound under `finora.jwt.secret`, `finora.llm.groq-api-key`/`gemini-api-key`; optional `api/application-local.yml` (example file committed).
-- `api:common/error/`: `ApiException` (+`notFound/conflict/forbidden/badRequest`), `ErrorCodes`, `ErrorResponse` (adds `fields` only for `VALIDATION_ERROR`), `GlobalExceptionHandler` (400/401/403/404/405/415/500).
+- `api:common/error/`: `ApiException` (+`notFound/badRequest`), `ErrorCodes`, `ErrorResponse` (`fields` only when a body fails validation), `GlobalExceptionHandler` (simplified 2026-11-19: ApiException, body validation, bad param, bad JSON, 404, 500; 401/403 come from SecurityConfig).
 - `api:config/SecurityConfig`: stateless, CORS/CSRF/basic/form off; public = `/actuator/health`, `/v3/api-docs`, `/error`; rest authenticated → 401/403 error JSON. T05 adds the JWT filter here (default generated password still logged until then).
 - springdoc `springdoc-openapi-starter-webmvc-api` 3.2.0 (built on Boot 4.1.2), enabled in `dev` only. `docs/api-contract.md` started — add a row per endpoint.
 - `api-test:support/IntegrationTest` = SpringBootTest + MockMvc + test profile + `@Transactional` rollback; `json(obj)` helper. Tests: `ApiFoundationTest` (11), `OpenApiDevProfileTest` (1); full suite 24/24.

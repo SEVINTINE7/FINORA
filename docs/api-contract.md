@@ -22,18 +22,16 @@ Every error, including 401/403 from security and 404 for unknown paths:
   "fields": [ { "field": "amount", "message": "must be greater than or equal to 0.01" } ]
 }
 ```
-`fields` appears only for `VALIDATION_ERROR`.
+`fields` appears only when a request body fails validation.
 
 | Status | `code` | When |
 |---|---|---|
-| 400 | `VALIDATION_ERROR` | Bean Validation failed, missing/wrong-type parameter |
+| 400 | `VALIDATION_ERROR` | Bean Validation failed (with `fields`), or a URL/query parameter is missing or the wrong type (no `fields`) |
 | 400 | `BAD_REQUEST` | Body missing or not valid JSON |
 | 401 | `UNAUTHORIZED` | No token, or token invalid/expired |
 | 403 | `FORBIDDEN` | Logged in but the role is not allowed |
 | 404 | `NOT_FOUND` | Unknown path, or resource missing / owned by another user |
-| 405 | `METHOD_NOT_ALLOWED` | Wrong HTTP method for the path |
 | 409 | `CONFLICT` | Duplicate (e.g. email already registered) |
-| 415 | `UNSUPPORTED_MEDIA_TYPE` | Body is not `application/json` |
 | 400 | `UNDER_18` | Register with `over18=false` |
 | 401 | `INVALID_CREDENTIALS` | Login: wrong password **or** unknown email (same body for both) |
 | 401 | `INVALID_REFRESH_TOKEN` | Refresh token unknown, expired, already used or logged out |

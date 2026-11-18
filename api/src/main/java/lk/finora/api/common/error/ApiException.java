@@ -21,14 +21,6 @@ public class ApiException extends RuntimeException {
         return new ApiException(ErrorCodes.NOT_FOUND, HttpStatus.NOT_FOUND, message);
     }
 
-    public static ApiException conflict(String message) {
-        return new ApiException(ErrorCodes.CONFLICT, HttpStatus.CONFLICT, message);
-    }
-
-    public static ApiException forbidden(String message) {
-        return new ApiException(ErrorCodes.FORBIDDEN, HttpStatus.FORBIDDEN, message);
-    }
-
     public static ApiException badRequest(String message) {
         return new ApiException(ErrorCodes.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, message);
     }
