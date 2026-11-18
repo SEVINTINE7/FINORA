@@ -1,0 +1,14 @@
+# Office temp/lock files
+~$*
+*.tmp
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Secrets
+.env
+*.keystore
+*.jks
