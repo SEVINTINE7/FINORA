@@ -1,0 +1,96 @@
+# Sevindu 6 — Admin (5 functions) and Staff API (T41–T47)
+Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles approved (D01).
+**Detail: outline** — expand exact fields/endpoints/tests before coding.
+
+---
+
+### T41 · Admin login and dashboard · `ADMIN-01`
+**Lead:** Sevindu · **Depends on:** T06, T08 · **Touches:** `api:admin/`, `and:ui/admin/`
+- [ ] T41.1 [API] Seed first ADMIN from env vars on startup (no hard-coded password)
+- [ ] T41.2 [API] `GET /api/v1/admin/stats` → user counts by status, staff count, open tickets, active SMS formats (no financial data)
+- [ ] T41.3 [AND] Admin home screen with these counts and links to T42–T45
+
+**Done when**
+- [ ] Tests: USER/STAFF tokens and forged/expired tokens → 401/403; response contains no amounts
+
+**Handoff notes:** —
+
+---
+
+### T42 · Admin manages user accounts · `ADMIN-02`
+**Lead:** Sevindu · **Depends on:** T41 · **Touches:** `api:admin/`, `and:ui/admin/`
+- [ ] T42.1 [API] `GET /api/v1/admin/users?q=` (email/name search) → id, email, name, status, created_at only
+- [ ] T42.2 [API] `PUT /api/v1/admin/users/{id}/status` `{status, reason}` → audit event; disabling revokes tokens
+- [ ] T42.3 [AND] User list + enable/disable dialog with reason
+
+**Done when**
+- [ ] Tests: disabled user cannot log in; admin has no endpoint returning transactions/budgets/goals
+
+**Handoff notes:** —
+
+---
+
+### T43 · Admin manages staff accounts · `ADMIN-03`
+**Lead:** Sevindu · **Depends on:** T41 · **Touches:** `api:admin/`, `and:ui/admin/`
+- [ ] T43.1 [API] `POST /api/v1/admin/staff` create STAFF (temporary password, must change at first login)
+- [ ] T43.2 [API] Disable/enable staff; role field cannot be set to ADMIN by any endpoint
+- [ ] T43.3 [AND] Staff list + create/disable
+
+**Done when**
+- [ ] Tests: staff cannot create staff/admins or change own role; disabled staff session → 403
+
+**Handoff notes:** —
+
+---
+
+### T44 · Admin default categories · `ADMIN-04 / FR12`
+**Lead:** Sevindu · **Depends on:** T41, T09 · **Touches:** `api:admin/`, `api:category/`, `and:ui/admin/`
+- [ ] T44.1 [API] CRUD defaults (`user_id NULL`) with EN + SI names; deactivate instead of delete when in use
+- [ ] T44.2 [API] Unique name per kind; user-owned categories never changed
+- [ ] T44.3 [AND] Category management screen
+
+**Done when**
+- [ ] Tests: USER cannot edit defaults; deactivated default stays on old transactions
+
+**Handoff notes:** —
+
+---
+
+### T45 · Admin bank SMS formats · `ADMIN-05 / FR12`
+**Lead:** Sevindu · **Support:** Sahan · **Depends on:** T41, T14 · **Touches:** `api:smsformat/`, `and:ui/admin/`
+- [ ] T45.1 [API] CRUD versioned formats per bank (pattern + field mapping); only one active version per bank
+- [ ] T45.2 [API] Validate a format against redacted sample text before activating
+- [ ] T45.3 [API] `GET /api/v1/sms-formats` (USER) → active formats for the app's local parser (T14)
+- [ ] T45.4 [API] Roll back = activate an older version
+- [ ] T45.5 [AND] Format list, edit, test-sample, activate/rollback
+
+**Done when**
+- [ ] Tests: invalid pattern rejected; rollback restores previous; T16 regression set still passes after a change
+
+**Handoff notes:** —
+
+---
+
+### T46 · Staff login and dashboard · `STAFF-01`
+**Lead:** Sevindu · **Support:** Sahan · **Depends on:** T06, T08, T43 · **Touches:** `api:staff/`, `and:ui/staff/`
+- [ ] T46.1 [API] `GET /api/v1/staff/stats` → my open tickets, unassigned tickets
+- [ ] T46.2 [AND·Sahan] Staff home screen
+
+**Done when**
+- [ ] Tests: STAFF → `/admin/**` 403; STAFF → user finance endpoints 403; disabled staff → 403
+
+**Handoff notes:** —
+
+---
+
+### T47 · Staff support requests · `STAFF-02`
+**Lead:** Sevindu · **Support:** Sahan · **Depends on:** T46 · **Touches:** `api:support/`, `and:ui/support/`, `and:ui/staff/`
+- [ ] T47.1 [API] USER: `POST /api/v1/support/tickets` (subject, body, optional error_code), list own
+- [ ] T47.2 [API] STAFF: list unassigned/assigned, claim, reply, change status
+- [ ] T47.3 [API] Strip/reject text that looks like card or account numbers; no attachments in v1
+- [ ] T47.4 [AND·Sahan] User "Help" form + staff ticket screens
+
+**Done when**
+- [ ] Tests: user sees only own tickets; staff can reply only to claimed tickets; account-number text redacted
+
+**Handoff notes:** —
