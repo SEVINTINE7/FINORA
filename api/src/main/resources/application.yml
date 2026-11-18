@@ -17,6 +17,9 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+    properties:
+      # Store all timestamps in UTC
+      hibernate.jdbc.time_zone: UTC
   jackson:
     time-zone: UTC
 

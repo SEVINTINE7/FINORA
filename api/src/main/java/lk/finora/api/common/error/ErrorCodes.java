@@ -13,6 +13,13 @@ public final class ErrorCodes {
     public static final String UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE";
     public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
 
+    // Auth (T05)
+    public static final String EMAIL_TAKEN = "EMAIL_TAKEN";
+    public static final String UNDER_18 = "UNDER_18";
+    public static final String INVALID_CREDENTIALS = "INVALID_CREDENTIALS";
+    public static final String ACCOUNT_DISABLED = "ACCOUNT_DISABLED";
+    public static final String INVALID_REFRESH_TOKEN = "INVALID_REFRESH_TOKEN";
+
     private ErrorCodes() {
     }
 }

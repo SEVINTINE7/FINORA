@@ -9,25 +9,37 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.finora.api.common.error.ErrorCodes;
 import lk.finora.api.common.error.ErrorResponse;
+import lk.finora.api.security.JwtAuthFilter;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Stateless API security. Only health (and dev-only OpenAPI docs) are public; everything else needs
- * authentication. The JWT filter and role rules are added in T05/T06.
+ * Stateless API security. Public: health, dev-only OpenAPI docs and /api/v1/auth/**.
+ * Everything else needs a valid access token (checked by JwtAuthFilter). Role rules come in T06.
  */
 @Configuration
 public class SecurityConfig {
 
     private final JsonMapper jsonMapper;
+    private final JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(JsonMapper jsonMapper) {
+    public SecurityConfig(JsonMapper jsonMapper, JwtAuthFilter jwtAuthFilter) {
         this.jsonMapper = jsonMapper;
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
+
+    /** BCrypt with cost 12 (decision D09). */
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -44,8 +56,10 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         // Only served when springdoc.api-docs.enabled=true (dev profile)
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) ->
                                 write(req, res, HttpStatus.UNAUTHORIZED, ErrorCodes.UNAUTHORIZED, "Authentication required"))

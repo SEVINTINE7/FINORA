@@ -5,6 +5,11 @@ spring:
     username: ${DB_USER:finora}
     password: ${DB_PASS:finora}
 
+finora:
+  jwt:
+    # Dev-only fallback so the app starts locally; set JWT_SECRET for anything shared
+    secret: ${JWT_SECRET:dev-only-jwt-secret-change-me-0123456789abcdef}
+
 springdoc:
   api-docs:
     enabled: true

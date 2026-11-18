@@ -5,19 +5,24 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T05 · Secure authentication · `FR01`
 **Lead:** Sevindu · **Depends on:** T03, T04 · **Touches:** `api:auth/`, `api:user/`, `api:security/`
-- [ ] T05.1 `POST /api/v1/auth/register` `{email, password, fullName, language, over18, consentVersion}` → 201 `{userId}`. BCrypt per D09; role USER. `over18=false` → 400 `UNDER_18`; duplicate email → 409 `EMAIL_TAKEN`. Creates consent row
-- [ ] T05.2 `POST /api/v1/auth/login` `{email, password}` → 200 `{accessToken, refreshToken, expiresIn, role, language}`. Wrong password **and** unknown email → identical 401 `INVALID_CREDENTIALS`. DISABLED → 403 `ACCOUNT_DISABLED`
-- [ ] T05.3 JWT HS256 with `JWT_SECRET`; claims `sub`=userId, `role`; lifetimes per D07; `JwtAuthFilter` in security chain
-- [ ] T05.4 `POST /auth/refresh` `{refreshToken}` → new pair, old one revoked (store SHA-256 only). `POST /auth/logout` revokes the refresh token
-- [ ] T05.5 Add endpoints to `docs/api-contract.md`
+- [x] T05.1 `POST /api/v1/auth/register` `{email, password, fullName, language, over18, consentVersion}` → 201 `{userId}`. BCrypt per D09; role USER. `over18=false` → 400 `UNDER_18`; duplicate email → 409 `EMAIL_TAKEN`. Creates consent row
+- [x] T05.2 `POST /api/v1/auth/login` `{email, password}` → 200 `{accessToken, refreshToken, expiresIn, role, language}`. Wrong password **and** unknown email → identical 401 `INVALID_CREDENTIALS`. DISABLED → 403 `ACCOUNT_DISABLED`
+- [x] T05.3 JWT HS256 with `JWT_SECRET`; claims `sub`=userId, `role`; lifetimes per D07; `JwtAuthFilter` in security chain
+- [x] T05.4 `POST /auth/refresh` `{refreshToken}` → new pair, old one revoked (store SHA-256 only). `POST /auth/logout` revokes the refresh token
+- [x] T05.5 Add endpoints to `docs/api-contract.md`
 
 **Done when** (integration tests)
-- [ ] register ok / duplicate / under-18 / weak password
-- [ ] login ok / wrong password and unknown email give same body / disabled → 403
-- [ ] expired access token → 401; reusing a rotated refresh token → 401
-- [ ] password or hash never appears in any response or log line
+- [x] register ok / duplicate / under-18 / weak password
+- [x] login ok / wrong password and unknown email give same body / disabled → 403
+- [x] expired access token → 401; reusing a rotated refresh token → 401
+- [x] password or hash never appears in any response or log line
 
-**Handoff notes:** —
+**Handoff notes:**
+- `api:user/`: `User`, `Consent` entities (+ enums `Role`, `UserStatus`, `Language`, repositories); `user_id` is a plain `Long`, no JPA relations. `api:auth/`: `AuthController`, `AuthService`, `RefreshToken`, `dto/`. `api:security/`: `JwtService` (jjwt 0.13.0), `JwtAuthFilter`.
+- Logged-in principal = user id: use `@AuthenticationPrincipal Long userId` in controllers. Authority = `ROLE_<role>` (ready for T06 `hasRole`).
+- Emails stored trimmed + lower-case. Register also rejects `consentVersion` ≠ `"1.0"` (400 `VALIDATION_ERROR`). Logout is public and always 204.
+- `PasswordEncoder` (BCrypt 12) bean in `config/SecurityConfig`; Spring's default in-memory user excluded in `ApiApplication`. Dev profile has a dev-only JWT secret fallback.
+- Test tip: tests share one transaction, so after a raw SQL update call `entityManager.clear()`. Tests: `AuthControllerTest` (13); suite 37/37.
 
 ---
 

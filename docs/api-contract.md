@@ -34,6 +34,11 @@ Every error, including 401/403 from security and 404 for unknown paths:
 | 405 | `METHOD_NOT_ALLOWED` | Wrong HTTP method for the path |
 | 409 | `CONFLICT` | Duplicate (e.g. email already registered) |
 | 415 | `UNSUPPORTED_MEDIA_TYPE` | Body is not `application/json` |
+| 400 | `UNDER_18` | Register with `over18=false` |
+| 401 | `INVALID_CREDENTIALS` | Login: wrong password **or** unknown email (same body for both) |
+| 401 | `INVALID_REFRESH_TOKEN` | Refresh token unknown, expired, already used or logged out |
+| 403 | `ACCOUNT_DISABLED` | Login/refresh for a disabled account |
+| 409 | `EMAIL_TAKEN` | Register with an email that already exists (case-insensitive) |
 | 500 | `INTERNAL_ERROR` | Unexpected server error (details only in server logs) |
 
 Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.java`.
@@ -44,3 +49,9 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 |---|---|---|---|---|---|
 | GET | `/actuator/health` | Public | — | `200 {"status":"UP"}` | T04 |
 | GET | `/v3/api-docs` | Public, **dev profile only** (404 elsewhere) | — | `200` OpenAPI 3 JSON | T04 |
+| POST | `/api/v1/auth/register` | Public | `{email, password, fullName, language: "EN"\|"SI", over18: true, consentVersion: "1.0"}` | `201 {userId}` · 400 `VALIDATION_ERROR`/`UNDER_18` · 409 `EMAIL_TAKEN` | T05 |
+| POST | `/api/v1/auth/login` | Public | `{email, password}` | `200 {accessToken, refreshToken, expiresIn: 1800, role, language}` · 401 `INVALID_CREDENTIALS` · 403 `ACCOUNT_DISABLED` | T05 |
+| POST | `/api/v1/auth/refresh` | Public | `{refreshToken}` | `200` same as login (new pair; old refresh token revoked) · 401 `INVALID_REFRESH_TOKEN` | T05 |
+| POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
+
+**Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.
