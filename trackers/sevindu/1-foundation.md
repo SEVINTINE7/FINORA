@@ -23,16 +23,21 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T02 · Repository and build setup · `BASE`
 **Lead:** Sevindu · **Depends on:** T01 · **Touches:** `/api`, `/docs`, `.gitignore`, `README.md`, `.github/workflows/ci.yml`
-- [ ] T02.1 Generate Spring Boot 4.1 project (D14) in `/api` — Maven wrapper, Java 17, group `lk.finora`, artifact `api`, package `lk.finora.api`. Starters: web, validation, security, data-jpa, flyway, mysql driver, actuator, test
-- [ ] T02.2 Add to `.gitignore`: `target/`, `build/`, `.gradle/`, `local.properties`, `*.iml`, `application-local.yml`, `google-services.json`
-- [ ] T02.3 Root `README.md`: prerequisites, clone, create MySQL DB `finora`, set env vars, run API, open `/android` in Android Studio
-- [ ] T02.4 GitHub Actions `ci.yml`: on push/PR → JDK 17 → `cd api && ./mvnw -B test`. (Android job added in T37.6)
+- [x] T02.1 Generate Spring Boot 4.1 project (D14) in `/api` — Maven wrapper, Java 17, group `lk.finora`, artifact `api`, package `lk.finora.api`. Starters: web, validation, security, data-jpa, flyway, mysql driver, actuator, test
+- [x] T02.2 Add to `.gitignore`: `target/`, `build/`, `.gradle/`, `local.properties`, `*.iml`, `application-local.yml`, `google-services.json`
+- [x] T02.3 Root `README.md`: prerequisites, clone, create MySQL DB `finora`, set env vars, run API, open `/android` in Android Studio
+- [x] T02.4 GitHub Actions `ci.yml`: on push/PR → JDK 17 → `cd api && ./mvnw -B test`. (Android job added in T37.6)
 
 **Done when**
-- [ ] Fresh clone → `cd api && ./mvnw test` passes
-- [ ] CI run is green on GitHub
+- [x] Fresh clone → `cd api && ./mvnw test` passes
+- [x] CI run is green on GitHub
 
-**Handoff notes:** —
+**Handoff notes:**
+- `api/` = Spring Boot 4.1.2 (D14), Java 17, Maven wrapper 3.10.1. Starters: actuator, data-jpa, flyway (+flyway-mysql), security, validation, webmvc, mysql-connector-j; Boot 4 `*-test` starters. Testcontainers removed (D11).
+- Config: `application.properties` (DB_URL/DB_USER/DB_PASS, defaults finora/finora local), `ddl-auto=validate`, empty `db/migration/`. Test profile `application-test.properties` → `finora_test` (TEST_DB_*).
+- Each machine runs `api/scripts/create-local-db.sql` once as root (README step 2).
+- CI `.github/workflows/ci.yml`: MySQL 8 service + `./mvnw -B test`; first run green (run 44360240545). Android job comes in T37.8.
+- Verified: local and fresh-clone `./mvnw test` → 1 test, 0 failures. Default Spring Security password still generated until T05.
 
 ---
 
