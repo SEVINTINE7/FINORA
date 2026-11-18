@@ -17,7 +17,6 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D11 Test database** — local schema `finora_test`.
 - **D12 Consent version** — `"1.0"`; bump when consent text changes.
 - **D13 Git workflow** — PR to `main`, one reviewer from the team.
-- **D14 Git workflow** — PR to `main`, one reviewer from the team.
 
 ## Proposed — confirm in T01
 
