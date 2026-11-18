@@ -6,12 +6,12 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T01 · Confirm implementation decisions · `BASE`
 **Lead:** Sevindu · **Support:** Sahan, Thilina · **Depends on:** — · **Touches:** `docs/decisions.md`
 - [x] T01.1 Admin/Staff roles approved by lecturer (D01)
-- [ ] T01.2 Review P01–P03, P06–P08 with the team; move agreed items to **Decided**
+- [x] T01.2 Review P01–P03, P06–P08 with the team; move agreed items to **Decided**
 - [ ] T01.3 Agree P04 thresholds and P05 weights with Thilina; Thilina adds each score part's formula
-- [ ] T01.4 Each member confirms their local setup: JDK 17, MySQL 8, Android Studio, Git
+- [x] T01.4 Each member confirms their local setup: JDK 17, MySQL 8, Android Studio, Git
 
 **Done when**
-- [ ] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md`
+- [x] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md`
 
 **Handoff notes:** —
 
