@@ -6,7 +6,9 @@
 
 **Team:** Sevindu = API/database/admin · Sahan = Android/UI/SMS · Thilina = analytics/AI/QA. **ChatGPT and Claude are coding/review tools, not the app’s AI provider.**
 
-**Scope:** Original proposal FR01–FR15 (13 Must, 2 Should). Added roles: User 10 functions, Admin 5, Staff 4. **Admin/Staff expansion needs group/lecturer approval before release.**
+**Scope:** Original proposal FR01–FR15 (13 Must, 2 Should). Added roles: User 10 functions, Admin 5, Staff 4. **Admin/Staff roles and functions approved by lecturer (Nov 2026).** FR12 "reference data" = default categories + bank SMS formats only.
+
+**Release versions:** `beta` (pilot) shows rule-based and AI advice side by side, unlabeled, random order, both rated 1–5 (blind experiment). `v1` shows the AI advice when it passes the number check, otherwise the rule-based advice. No runtime experiment-mode switch.
 
 **Non-negotiables:** SMS content stays on device; only user-confirmed fields reach server. Never send names/bank details to LLM. Check every AI number; fallback to rules. No bank login. User data isolated by account and roles. All sensitive operations need real tests.
 
@@ -19,12 +21,12 @@
 ## 00 — Foundation and architecture
 
 - [ ] **T01 · Confirm implementation decisions** · Sevindu + all · `BASE`
-  - [ ] Confirm Admin/Staff expansion with lecturer/group before enabling the new roles
+  - [x] Confirm Admin/Staff expansion with lecturer/group before enabling the new roles (approved)
   - [ ] Agree health-score formula, thresholds, API contracts and test strategy
   - [ ] Record only decisions that affect development
 
 - [ ] **T02 · Repository and build setup** · Sevindu · `BASE`
-  - [ ] Create API, Android and shared-docs folders/repos; add ignore rules
+  - [ ] Single repo with `/api`, `/android` and `/docs` folders; add ignore rules
   - [ ] Set Java 17, Gradle/Maven, Android 8.0+ and MySQL 8 environments
   - [ ] Add clean-clone build/run instructions and CI build checks
 
@@ -177,9 +179,10 @@
   - [ ] Test manipulated percentages, rounding and fabricated numbers
 
 - [ ] **T30 · Advice delivery and ratings** · Sahan + Thilina · `FR09 / FR10`
-  - [ ] Display checked AI or fallback advice with readable source context
-  - [ ] Add 1–5 advice rating UI and rating storage
-  - [ ] Test privacy, duplicate ratings and honest AI/rules provenance
+  - [ ] `beta`: show rule-based + AI advice unlabeled in random order; store which was shown where
+  - [ ] `v1`: show AI advice if it passes the number check, else rule-based advice, with readable source context
+  - [ ] Add 1–5 advice rating UI and rating storage (per advice, per version)
+  - [ ] Separate `beta`/`v1` Android build flavors; test privacy, duplicate ratings and correct per-version display
 
 ## 07 — Planning, history, alerts and data rights
 
@@ -235,7 +238,7 @@
   - [ ] Minimize local storage and protect sensitive backups/screens
   - [ ] Test background, network loss, rotation and expired-session behaviour
 
-## 09 — Admin login and five functions (gated change)
+## 09 — Admin login and five functions
 
 - [ ] **T41 · Admin login/dashboard** · Sevindu · `ADMIN-01`
   - [ ] Build secure ADMIN-only login route and compact status dashboard
@@ -262,7 +265,7 @@
   - [ ] Publish safe updates for supported banks without exposing real SMS data
   - [ ] Test rollout/rollback and parser regressions
 
-## 10 — Staff login and four functions (gated change)
+## 10 — Staff login and four functions
 
 - [ ] **T46 · Staff login/dashboard** · Sevindu + Sahan · `STAFF-01`
   - [ ] Build STAFF-only login and limited support dashboard
@@ -323,7 +326,7 @@
 
 - [ ] **T57 · End-to-end acceptance and handoff** · All · `ALL`
   - [ ] Demonstrate user signup→record→analysis→advice→planning on a real device
-  - [ ] Demonstrate Admin and Staff only if role change is approved
+  - [ ] Demonstrate Admin and Staff login and all their functions
   - [ ] Review open defects and document only verified working features
 
 ---

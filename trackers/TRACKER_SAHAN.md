@@ -1,7 +1,7 @@
 # FINORA — Sahan's Tracker
 
 **Role:** Android / UI / SMS  
-**Lead tasks:** 16 (48 subtasks) · **Supporting tasks:** 18  
+**Lead tasks:** 16 (49 subtasks) · **Supporting tasks:** 18  
 **Master list:** [FINORA_IMPLEMENTATION_ONLY_LEAN_TRACKER.md](../FINORA_IMPLEMENTATION_ONLY_LEAN_TRACKER.md)
 
 **Rules:** Tick a box only after the code is reviewed and real build/test output exists. Lead = you own delivery and tick the boxes here. Supporting = help the lead; boxes are ticked in the lead's tracker.
@@ -63,9 +63,10 @@
 ### 06 — Rule-based and verified AI advice
 
 - [ ] **T30 · Advice delivery and ratings** · `FR09 / FR10` · with Thilina
-  - [ ] Display checked AI or fallback advice with readable source context
-  - [ ] Add 1–5 advice rating UI and rating storage
-  - [ ] Test privacy, duplicate ratings and honest AI/rules provenance
+  - [ ] `beta`: show rule-based + AI advice unlabeled in random order; store which was shown where
+  - [ ] `v1`: show AI advice if it passes the number check, else rule-based advice, with readable source context
+  - [ ] Add 1–5 advice rating UI and rating storage (per advice, per version)
+  - [ ] Separate `beta`/`v1` Android build flavors; test privacy, duplicate ratings and correct per-version display
 
 ### 08 — Android app experience
 
@@ -89,7 +90,7 @@
   - [ ] Minimize local storage and protect sensitive backups/screens
   - [ ] Test background, network loss, rotation and expired-session behaviour
 
-### 10 — Staff login and four functions (gated change)
+### 10 — Staff login and four functions
 
 - [ ] **T48 · Staff application assistance** · `STAFF-03`
   - [ ] Provide non-sensitive help for login, navigation and common app issues

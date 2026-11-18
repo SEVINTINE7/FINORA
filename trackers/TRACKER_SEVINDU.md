@@ -13,12 +13,12 @@
 ### 00 — Foundation and architecture
 
 - [ ] **T01 · Confirm implementation decisions** · `BASE` · with all
-  - [ ] Confirm Admin/Staff expansion with lecturer/group before enabling the new roles
+  - [x] Confirm Admin/Staff expansion with lecturer/group before enabling the new roles (approved)
   - [ ] Agree health-score formula, thresholds, API contracts and test strategy
   - [ ] Record only decisions that affect development
 
 - [ ] **T02 · Repository and build setup** · `BASE`
-  - [ ] Create API, Android and shared-docs folders/repos; add ignore rules
+  - [ ] Single repo with `/api`, `/android` and `/docs` folders; add ignore rules
   - [ ] Set Java 17, Gradle/Maven, Android 8.0+ and MySQL 8 environments
   - [ ] Add clean-clone build/run instructions and CI build checks
 
@@ -106,7 +106,7 @@
   - [ ] Define backup-retention behavior before launch
   - [ ] Test deletion/re-registration and privacy audit trail without sensitive payloads
 
-### 09 — Admin login and five functions (gated change)
+### 09 — Admin login and five functions
 
 - [ ] **T41 · Admin login/dashboard** · `ADMIN-01`
   - [ ] Build secure ADMIN-only login route and compact status dashboard
@@ -133,7 +133,7 @@
   - [ ] Publish safe updates for supported banks without exposing real SMS data
   - [ ] Test rollout/rollback and parser regressions
 
-### 10 — Staff login and four functions (gated change)
+### 10 — Staff login and four functions
 
 - [ ] **T46 · Staff login/dashboard** · `STAFF-01` · with Sahan
   - [ ] Build STAFF-only login and limited support dashboard
@@ -159,7 +159,7 @@
 
 - [ ] **T57 · End-to-end acceptance and handoff** · `ALL` · with All
   - [ ] Demonstrate user signup→record→analysis→advice→planning on a real device
-  - [ ] Demonstrate Admin and Staff only if role change is approved
+  - [ ] Demonstrate Admin and Staff login and all their functions
   - [ ] Review open defects and document only verified working features
 
 ---
