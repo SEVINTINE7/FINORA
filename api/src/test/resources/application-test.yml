@@ -1,0 +1,11 @@
+# Test profile: local MySQL schema finora_test (D11). CI sets TEST_DB_* env vars.
+spring:
+  datasource:
+    url: ${TEST_DB_URL:jdbc:mysql://localhost:3306/finora_test}
+    username: ${TEST_DB_USER:finora}
+    password: ${TEST_DB_PASS:finora}
+
+finora:
+  jwt:
+    # Test-only value; never used outside JUnit
+    secret: test-only-jwt-secret-0123456789abcdef0123456789abcdef

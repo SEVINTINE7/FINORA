@@ -1,0 +1,11 @@
+# Local development. DB defaults match api/scripts/create-local-db.sql (local only, D14).
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/finora}
+    username: ${DB_USER:finora}
+    password: ${DB_PASS:finora}
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs

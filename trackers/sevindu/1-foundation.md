@@ -81,14 +81,19 @@ All tables: `id BIGINT AUTO_INCREMENT PK`, `created_at DATETIME(6)`; every user-
 
 ### T04 · Backend API foundation · `ALL`
 **Lead:** Sevindu · **Depends on:** T02 · **Touches:** `api:common/`, `api:config/`, `api/src/main/resources/application*.yml`, `docs/api-contract.md`, `api-test:support/`
-- [ ] T04.1 Profiles `dev`, `test`, `prod`. Env vars: `DB_URL`, `DB_USER`, `DB_PASS`, `JWT_SECRET`, `GROQ_API_KEY`, `GEMINI_API_KEY`. Optional git-ignored `application-local.yml`
-- [ ] T04.2 `api:common/error/`: `ApiException(code, HttpStatus)`, `GlobalExceptionHandler` → error JSON from CLAUDE.md (validation → 400 `VALIDATION_ERROR` with field list)
-- [ ] T04.3 CORS disabled (Android-only clients). `/actuator/health` public
-- [ ] T04.4 springdoc-openapi enabled in `dev` only at `/v3/api-docs`; start `docs/api-contract.md` (table: method, path, role, request, response)
-- [ ] T04.5 `api-test:support/IntegrationTest.java` base class using D11 DB + `MockMvc`
+- [x] T04.1 Profiles `dev`, `test`, `prod`. Env vars: `DB_URL`, `DB_USER`, `DB_PASS`, `JWT_SECRET`, `GROQ_API_KEY`, `GEMINI_API_KEY`. Optional git-ignored `application-local.yml`
+- [x] T04.2 `api:common/error/`: `ApiException(code, HttpStatus)`, `GlobalExceptionHandler` → error JSON from CLAUDE.md (validation → 400 `VALIDATION_ERROR` with field list)
+- [x] T04.3 CORS disabled (Android-only clients). `/actuator/health` public
+- [x] T04.4 springdoc-openapi enabled in `dev` only at `/v3/api-docs`; start `docs/api-contract.md` (table: method, path, role, request, response)
+- [x] T04.5 `api-test:support/IntegrationTest.java` base class using D11 DB + `MockMvc`
 
 **Done when**
-- [ ] Test: invalid DTO → 400 with error JSON; unknown path → 404 error JSON; `/actuator/health` → 200
-- [ ] `./mvnw test` passes
+- [x] Test: invalid DTO → 400 with error JSON; unknown path → 404 error JSON; `/actuator/health` → 200
+- [x] `./mvnw test` passes
 
-**Handoff notes:** —
+**Handoff notes:**
+- Config now YAML: `application.yml` (+`-dev`, `-prod`; test: `src/test/resources/application-test.yml`). Old `.properties` removed. Run locally with `-Dspring-boot.run.profiles=dev`; no default profile. Secrets bound under `finora.jwt.secret`, `finora.llm.groq-api-key`/`gemini-api-key`; optional `api/application-local.yml` (example file committed).
+- `api:common/error/`: `ApiException` (+`notFound/conflict/forbidden/badRequest`), `ErrorCodes`, `ErrorResponse` (adds `fields` only for `VALIDATION_ERROR`), `GlobalExceptionHandler` (400/401/403/404/405/415/500).
+- `api:config/SecurityConfig`: stateless, CORS/CSRF/basic/form off; public = `/actuator/health`, `/v3/api-docs`, `/error`; rest authenticated → 401/403 error JSON. T05 adds the JWT filter here (default generated password still logged until then).
+- springdoc `springdoc-openapi-starter-webmvc-api` 3.2.0 (built on Boot 4.1.2), enabled in `dev` only. `docs/api-contract.md` started — add a row per endpoint.
+- `api-test:support/IntegrationTest` = SpringBootTest + MockMvc + test profile + `@Transactional` rollback; `json(obj)` helper. Tests: `ApiFoundationTest` (11), `OpenApiDevProfileTest` (1); full suite 24/24.

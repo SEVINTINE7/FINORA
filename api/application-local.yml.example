@@ -1,0 +1,8 @@
+# Copy to api/application-local.yml (git-ignored) to set local secrets without env vars.
+# Loaded automatically by every profile. Never commit the real file.
+finora:
+  jwt:
+    secret: change-me-to-a-long-random-string-at-least-32-bytes
+  llm:
+    groq-api-key: your-groq-key
+    gemini-api-key: your-gemini-key

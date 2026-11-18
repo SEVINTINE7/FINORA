@@ -1,0 +1,42 @@
+# Shared config for all profiles. Pick a profile: dev (local), test (JUnit), prod (server).
+# Secrets come only from env vars or a git-ignored application-local.yml (see application-local.yml.example).
+spring:
+  application:
+    name: finora-api
+  config:
+    # Optional local overrides; both locations are git-ignored
+    import:
+      - optional:classpath:application-local.yml
+      - optional:file:./application-local.yml
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    # Flyway owns the schema (db/migration); Hibernate only validates
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  jackson:
+    time-zone: UTC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# OpenAPI docs are off unless the dev profile turns them on
+springdoc:
+  api-docs:
+    enabled: false
+
+finora:
+  jwt:
+    secret: ${JWT_SECRET:}
+  llm:
+    groq-api-key: ${GROQ_API_KEY:}
+    gemini-api-key: ${GEMINI_API_KEY:}

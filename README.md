@@ -35,24 +35,26 @@ Creates `finora` (dev) and `finora_test` (tests) plus a **local-only** user `fin
   ```
 
 ## 3. Environment variables (optional locally)
-Local defaults match step 2. Override when needed (always on the server):
+Profiles: `dev` (local run), `test` (JUnit), `prod` (server). Defaults below apply in `dev`/`test` only; `prod` has no defaults, so every variable must be set there.
 
-| Variable | Default | Used for |
+| Variable | Default (dev / test) | Used for |
 |---|---|---|
 | `DB_URL` | `jdbc:mysql://localhost:3306/finora` | running the API |
 | `DB_USER` / `DB_PASS` | `finora` / `finora` | running the API |
 | `TEST_DB_URL` | `jdbc:mysql://localhost:3306/finora_test` | tests |
 | `TEST_DB_USER` / `TEST_DB_PASS` | `finora` / `finora` | tests |
+| `JWT_SECRET` | — (test profile has a test-only value) | signing tokens (T05) |
+| `GROQ_API_KEY` / `GEMINI_API_KEY` | — | AI advice (T27) |
 
-Later tasks add `JWT_SECRET`, `GROQ_API_KEY`, `GEMINI_API_KEY` — never commit them.
+Instead of env vars you can copy `api/application-local.yml.example` to `api/application-local.yml` (git-ignored) and put local secrets there. Never commit keys.
 
 ## 4. Build, test, run the API
 ```bash
 cd api
 ./mvnw test                 # Windows: mvnw.cmd test
-./mvnw spring-boot:run      # Windows: mvnw.cmd spring-boot:run
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev   # Windows: mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
 ```
-Check it is up: <http://localhost:8080/actuator/health>
+Check it is up: <http://localhost:8080/actuator/health>. In `dev` the OpenAPI JSON is at <http://localhost:8080/v3/api-docs>. Endpoint list: [`docs/api-contract.md`](docs/api-contract.md).
 
 ## 5. Android app
 Open the `android/` folder in Android Studio (available after T37).

@@ -1,0 +1,17 @@
+# Server deployment. No defaults: DB_URL, DB_USER, DB_PASS, JWT_SECRET, GROQ_API_KEY, GEMINI_API_KEY must be set.
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+
+finora:
+  jwt:
+    secret: ${JWT_SECRET}
+  llm:
+    groq-api-key: ${GROQ_API_KEY}
+    gemini-api-key: ${GEMINI_API_KEY}
+
+springdoc:
+  api-docs:
+    enabled: false
