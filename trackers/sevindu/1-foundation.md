@@ -44,33 +44,38 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T03 · Database design and migrations · `FR01–FR15`
 **Lead:** Sevindu · **Depends on:** T02 · **Touches:** `mig:`, `docs/db-schema.md`
 All tables: `id BIGINT AUTO_INCREMENT PK`, `created_at DATETIME(6)`; every user-owned table has `user_id FK → users ON DELETE CASCADE`.
-- [ ] T03.1 `docs/db-schema.md`: Mermaid ER diagram + one line per table
-- [ ] T03.2 `V1__auth.sql`
+- [x] T03.1 `docs/db-schema.md`: Mermaid ER diagram + one line per table
+- [x] T03.2 `V1__auth.sql`
   - `users(email VARCHAR(254) UNIQUE, password_hash VARCHAR(100), full_name VARCHAR(100), role ENUM('USER','ADMIN','STAFF'), status ENUM('ACTIVE','DISABLED'), language ENUM('EN','SI') DEFAULT 'EN', updated_at)`
   - `consents(user_id, version VARCHAR(10), over18 BOOLEAN, accepted_at, withdrawn_at NULL)`
   - `refresh_tokens(user_id, token_hash CHAR(64) UNIQUE, expires_at, revoked_at NULL)`
-- [ ] T03.3 `V2__finance_core.sql`
+- [x] T03.3 `V2__finance_core.sql`
   - `accounts(user_id, name VARCHAR(60), type ENUM('BANK','CASH','CARD','WALLET'), opening_balance DECIMAL(15,2), archived BOOLEAN)` UNIQUE(user_id,name)
   - `categories(user_id NULL /*NULL = default*/, name VARCHAR(60), name_si VARCHAR(60) NULL, kind ENUM('INCOME','EXPENSE'), need_or_want ENUM('NEED','WANT') NULL, active BOOLEAN)`
   - `transactions(user_id, account_id, category_id, type ENUM('INCOME','EXPENSE'), amount DECIMAL(15,2) CHECK (amount>0), txn_date DATE, merchant VARCHAR(100) NULL, note VARCHAR(255) NULL, source ENUM('MANUAL','SMS','PASTE','CSV'), dedup_hash CHAR(64) NULL, updated_at)` INDEX(user_id,txn_date), UNIQUE(user_id,dedup_hash)
-- [ ] T03.4 `V3__planning.sql`
+- [x] T03.4 `V3__planning.sql`
   - `budgets(user_id, category_id, month CHAR(7) /*YYYY-MM*/, limit_amount DECIMAL(15,2))` UNIQUE(user_id,category_id,month)
   - `bills(user_id, name, amount, due_day TINYINT 1–31, category_id, active)` · `bill_payments(bill_id, month CHAR(7), paid_at)` UNIQUE(bill_id,month)
   - `goals(user_id, name, target_amount, target_date, status ENUM('ACTIVE','DONE','CANCELLED'))` · `goal_contributions(goal_id, amount, contrib_date)`
-- [ ] T03.5 `V4__insights_advice.sql`
+- [x] T03.5 `V4__insights_advice.sql`
   - `insights(user_id, month, type VARCHAR(40), facts JSON)` · `health_scores(user_id, month, total TINYINT 0–100, parts JSON)` UNIQUE(user_id,month)
   - `advice(user_id, month, source ENUM('RULE','AI'), mode ENUM('BETA','V1'), body JSON, verified BOOLEAN)` · `advice_ratings(advice_id, user_id, rating TINYINT 1–5)` UNIQUE(advice_id,user_id)
-- [ ] T03.6 `V5__ops.sql`
+- [x] T03.6 `V5__ops.sql`
   - `device_tokens(user_id, token VARCHAR(255) UNIQUE, platform)` · `sms_formats(bank_code VARCHAR(20), version INT, pattern TEXT, active BOOLEAN)` UNIQUE(bank_code,version)
   - `support_tickets(user_id, staff_id NULL, subject, body, status ENUM('OPEN','IN_PROGRESS','CLOSED'), error_code NULL)` · `ticket_replies(ticket_id, author_id, body)`
   - `audit_events(actor_id, action VARCHAR(40), target_type, target_id, reason VARCHAR(255))` — never financial data
-- [ ] T03.7 `V6__seed_categories.sql`: default EN/SI categories (Salary, Allowance, Part-time, Food, Food delivery, Transport, Rent, Utilities, Mobile/Internet, Shopping, Entertainment, Health, Education, Loan payment, Savings, Other) with need/want
+- [x] T03.7 `V6__seed_categories.sql`: default EN/SI categories (Salary, Allowance, Part-time, Food, Food delivery, Transport, Rent, Utilities, Mobile/Internet, Shopping, Entertainment, Health, Education, Loan payment, Savings, Other) with need/want
 
 **Done when**
-- [ ] `./mvnw test` runs Flyway on an empty MySQL 8 DB without errors
-- [ ] Tests: duplicate budget (same user/category/month) and duplicate rating fail; deleting a user cascades all their rows
+- [x] `./mvnw test` runs Flyway on an empty MySQL 8 DB without errors
+- [x] Tests: duplicate budget (same user/category/month) and duplicate rating fail; deleting a user cascades all their rows
 
-**Handoff notes:** —
+**Handoff notes:**
+- V1–V6 in `mig:`; schema + delete rules in `docs/db-schema.md`. Extras beyond plan: CHECKs on amounts/months/due_day/score/rating, `ticket_replies`, `bill_payments`, Sinhala `name_si` seeded (needs native review, T39.4).
+- FK rules: user delete cascades everything owned; `transactions.category_id`/`bills.category_id` SET NULL; account delete cascades (API must archive instead, T09); audit `actor_id` + ticket `staff_id`/`author_id` SET NULL.
+- **For T04:** MySQL CHECK failure = error 3819 → Spring `UncategorizedSQLException` (not DataIntegrityViolation); map it to 400.
+- No JPA entities yet — each feature task adds its own (`ddl-auto=validate` will check them).
+- Verified: `./mvnw test` → 12 tests, 0 failures (`api-test:db/SchemaMigrationTest`).
 
 ---
 
