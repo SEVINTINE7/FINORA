@@ -23,7 +23,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T02 · Repository and build setup · `BASE`
 **Lead:** Sevindu · **Depends on:** T01 · **Touches:** `/api`, `/docs`, `.gitignore`, `README.md`, `.github/workflows/ci.yml`
-- [ ] T02.1 Generate Spring Boot 3 project in `/api` — Maven wrapper, Java 17, group `lk.finora`, artifact `api`, package `lk.finora.api`. Starters: web, validation, security, data-jpa, flyway, mysql driver, actuator, test
+- [ ] T02.1 Generate Spring Boot 4.1 project (D14) in `/api` — Maven wrapper, Java 17, group `lk.finora`, artifact `api`, package `lk.finora.api`. Starters: web, validation, security, data-jpa, flyway, mysql driver, actuator, test
 - [ ] T02.2 Add to `.gitignore`: `target/`, `build/`, `.gradle/`, `local.properties`, `*.iml`, `application-local.yml`, `google-services.json`
 - [ ] T02.3 Root `README.md`: prerequisites, clone, create MySQL DB `finora`, set env vars, run API, open `/android` in Android Studio
 - [ ] T02.4 GitHub Actions `ci.yml`: on push/PR → JDK 17 → `cd api && ./mvnw -B test`. (Android job added in T37.6)

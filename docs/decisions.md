@@ -17,6 +17,7 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D11 Test database** (was P06) — local MySQL 8 schema `finora_test` on every machine (no Docker/Testcontainers). Test profile connects via `TEST_DB_URL`, `TEST_DB_USER`, `TEST_DB_PASS`.
 - **D12 Consent version** (was P07) — `"1.0"`; bump when consent text changes.
 - **D13 Git workflow** (was P08) — everyone commits directly to `main`. Always `git pull --rebase` before starting a task and before pushing; push small commits often; never force-push `main`. Commit message starts with the task ID, e.g. `T09.2: categories CRUD`.
+- **D14 Spring Boot version** — Spring Boot 4.1.x (4.1.2 at T02). Use Boot 4 starter names (`spring-boot-starter-webmvc`, `spring-boot-starter-flyway`, `*-test` starters). Local dev/test DB user `finora`/`finora` via `api/scripts/create-local-db.sql` (local only).
 
 ## Proposed — still open
 

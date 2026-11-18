@@ -3,7 +3,7 @@
 Android app + REST API that helps young adults in Sri Lanka (18–30) track spending, see patterns, get a 0–100 health score and checked advice. ICBT CSE5015, Group 9. Team: Sevindu (lead, API/DB/admin), Sahan (Android/UI/SMS), Thilina (analytics/AI/QA).
 
 ## Stack
-- `/api` — Java 17 · Spring Boot 3 · Maven wrapper · Spring Security + JWT · Spring Data JPA · Flyway · MySQL 8 · JUnit 5 / Mockito
+- `/api` — Java 17 · Spring Boot 4.1 (D14) · Maven wrapper · Spring Security + JWT · Spring Data JPA · Flyway · MySQL 8 · JUnit 5 / Mockito
 - `/android` — Java · minSdk 26 (Android 8.0) · Gradle wrapper · Retrofit/OkHttp · MPAndroidChart · EncryptedSharedPreferences · FCM · Espresso · flavors `beta` and `v1`
 - `/docs` — `decisions.md`, `db-schema.md` (from T03), `api-contract.md` (from T04)
 - LLM: Groq, Gemini backup — called **only** from `/api`.

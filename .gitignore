@@ -12,3 +12,17 @@ Thumbs.db
 .env
 *.keystore
 *.jks
+
+# Build output
+target/
+build/
+.gradle/
+*.iml
+
+# Android / Firebase local files
+local.properties
+google-services.json
+
+# Local Spring overrides (may hold secrets)
+application-local.yml
+application-local.properties
