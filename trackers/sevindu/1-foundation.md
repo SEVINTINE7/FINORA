@@ -6,14 +6,18 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T01 · Confirm implementation decisions · `BASE`
 **Lead:** Sevindu · **Support:** Sahan, Thilina · **Depends on:** — · **Touches:** `docs/decisions.md`
 - [x] T01.1 Admin/Staff roles approved by lecturer (D01)
-- [x] T01.2 Review P01–P03, P06–P08 with the team; move agreed items to **Decided**
-- [ ] T01.3 Agree P04 thresholds and P05 weights with Thilina; Thilina adds each score part's formula
-- [x] T01.4 Each member confirms their local setup: JDK 17, MySQL 8, Android Studio, Git
+- [x] T01.2 Review P01–P03, P06–P08 with the team; move agreed items to **Decided** (now D07–D13)
+- [ ] T01.3 Agree P04 thresholds and P05 weights with Thilina; Thilina adds each score part's formula — P04 done (D10); **P05 open: Thilina sets weights + formulas**
+- [x] T01.4 Each member confirms their local setup: JDK 17, MySQL 8, Android Studio, Git — all three confirmed
 
 **Done when**
-- [x] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md`
+- [x] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md` (only P05 left, needed by T23)
 
-**Handoff notes:** —
+**Handoff notes:**
+- P01, P03, P04, P06–P08 accepted → D07, D09–D13. P02 rate limit removed (D08). Git: direct push to `main` (D13). Test DB: local `finora_test` (D11).
+- P05 left open for Thilina (weights + formulas); blocks only T23.
+- Sevindu's machine: JDK 17.0.12, Maven 3.9.11, Git 2.50, MySQL Server 8.0 (service running), Android Studio + SDK. `mysql` CLI and `adb` not on PATH (optional). No Docker.
+- All three members confirmed local setup (T01.4).
 
 ---
 
@@ -71,7 +75,7 @@ All tables: `id BIGINT AUTO_INCREMENT PK`, `created_at DATETIME(6)`; every user-
 - [ ] T04.2 `api:common/error/`: `ApiException(code, HttpStatus)`, `GlobalExceptionHandler` → error JSON from CLAUDE.md (validation → 400 `VALIDATION_ERROR` with field list)
 - [ ] T04.3 CORS disabled (Android-only clients). `/actuator/health` public
 - [ ] T04.4 springdoc-openapi enabled in `dev` only at `/v3/api-docs`; start `docs/api-contract.md` (table: method, path, role, request, response)
-- [ ] T04.5 `api-test:support/IntegrationTest.java` base class using P06 DB + `MockMvc`
+- [ ] T04.5 `api-test:support/IntegrationTest.java` base class using D11 DB + `MockMvc`
 
 **Done when**
 - [ ] Test: invalid DTO → 400 with error JSON; unknown path → 404 error JSON; `/actuator/health` → 200

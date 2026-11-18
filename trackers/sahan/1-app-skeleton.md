@@ -27,7 +27,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] T08.1 After login route by `role`: USER → `MainActivity` (bottom nav), ADMIN → `AdminHomeActivity`, STAFF → `StaffHomeActivity` (placeholders until T41/T46)
 - [ ] T08.2 OkHttp `Authenticator`: on 401 call `/auth/refresh` once; if it fails clear `TokenStore` → login screen
 - [ ] T08.3 Remember session on app restart; logout calls `/auth/logout` and clears storage
-- [ ] T08.4 Show messages for `ACCOUNT_DISABLED`, `TOO_MANY_ATTEMPTS`, `INVALID_CREDENTIALS` (EN/SI)
+- [ ] T08.4 Show messages for `ACCOUNT_DISABLED`, `INVALID_CREDENTIALS` (EN/SI)
 - [ ] T08.5 [API·Sevindu] Confirm login response has `role` and `language` (from T05)
 
 **Done when**

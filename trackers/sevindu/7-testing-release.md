@@ -7,7 +7,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T50 · Backend API test suite · `ALL`
 **Lead:** Sevindu · **Support:** Thilina · **Depends on:** T05 (grows with every API task) · **Touches:** `api-test:`
 - [ ] T50.1 Every controller has integration tests for success, validation, auth and ownership
-- [ ] T50.2 Full suite runs against real MySQL 8 (P06) in CI
+- [ ] T50.2 Full suite runs against real MySQL 8 (D11) in CI
 - [ ] T50.3 Add JaCoCo coverage report; target ≥70% line coverage on services
 
 **Done when**

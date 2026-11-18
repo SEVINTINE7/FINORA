@@ -35,6 +35,7 @@ Android app + REST API that helps young adults in Sri Lanka (18–30) track spen
 5. Never claim tests passed without running them and showing the output.
 
 ## How to do a task ("do T09" or "do T09.1–T09.3")
+0. `git pull --rebase` first. Everyone commits straight to `main` (D13): message starts with the task ID (`T09.2: categories CRUD`), pull again before pushing, never force-push.
 1. Look up the task in `trackers/INDEX.md` (file + status). Open that file and read **only that task's section**, plus the **Handoff notes** of the tasks it depends on.
 2. If a dependency is not `done`, stop and say which one.
 3. Read only the `docs/decisions.md` entries and the files listed under **Touches** (plus what they import).

@@ -1,6 +1,6 @@
 # Thilina 1 — Spending metrics and pattern detection (T21, T22)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
-**Detail: outline** — expand before coding. Thresholds: `docs/decisions.md` P04.
+**Detail: outline** — expand before coding. Thresholds: `docs/decisions.md` D10.
 
 ---
 
@@ -19,7 +19,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T22 · Spending-pattern detection · `FR06`
 **Lead:** Thilina · **Depends on:** T21 · **Touches:** `api:analytics/`, `api:insight/`
-- [ ] T22.1 Rules from P04: high wants, payday spending, weekend spending, high fixed bills
+- [ ] T22.1 Rules from D10: high wants, payday spending, weekend spending, high fixed bills
 - [ ] T22.2 Each insight = `{type, facts{...numbers}, period}` saved in `insights`; text built later from facts
 - [ ] T22.3 `GET /api/v1/insights?month=` (USER)
 
