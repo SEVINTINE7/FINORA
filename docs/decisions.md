@@ -17,10 +17,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D11 Test database** — local schema `finora_test`.
 - **D12 Consent version** — `"1.0"`; bump when consent text changes.
 - **D13 Git workflow** — PR to `main`, one reviewer from the team.
+- **D14 Git workflow** — PR to `main`, one reviewer from the team.
 
 ## Proposed — confirm in T01
 
-
-- 
 - **P05 Health score weights (total 100)** — savings 25, spending control 25, debt payments 15, emergency savings 20, goal progress 15. Thilina to define each part's formula.
-- **P08 Git workflow** — branch per task `t09-accounts-categories`, PR to `main`, one reviewer from the team.
