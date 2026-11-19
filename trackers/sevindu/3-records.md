@@ -28,15 +28,21 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T10 · Income and expense records · `FR02`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T09 · **Touches:** `api:transaction/`, `and:ui/transactions/`
-- [ ] T10.1 [API] CRUD `/api/v1/transactions`; account and category must belong to user (or be default)
-- [ ] T10.2 [API] List with filters `from`, `to`, `type`, `categoryId`, `accountId`, paging; sorted by `txn_date` desc
-- [ ] T10.3 [API] `GET /api/v1/transactions/summary?from&to` → totals income/expense/net (BigDecimal)
+- [x] T10.1 [API] CRUD `/api/v1/transactions`; account and category must belong to user (or be default)
+- [x] T10.2 [API] List with filters `from`, `to`, `type`, `categoryId`, `accountId`, paging; sorted by `txn_date` desc
+- [x] T10.3 [API] `GET /api/v1/transactions/summary?from&to` → totals income/expense/net (BigDecimal)
 - [ ] T10.4 [AND·Sahan] Transaction list with filters + edit/delete
 
 **Done when**
-- [ ] Tests: totals exact to the cent after create/edit/delete; filters; other user's account/category rejected; isolation 404
+- [x] Tests: totals exact to the cent after create/edit/delete; filters; other user's account/category rejected; isolation 404
 
-**Handoff notes:** —
+**Handoff notes:**
+- API part done (T10.1–T10.3); **T10.4 (Android, Sahan) still open — blocked by T37**.
+- `api:transaction/`: `Transaction`, `TransactionType`, `TransactionSource`, repo (`search` = one JPQL query with optional filters, `sumAmount`), service, controller, `dto/` (incl. `TransactionPage`, `SummaryResponse`).
+- Another user's account/category in the body → **400** `VALIDATION_ERROR` ("Account not found"/"Category not found"), not 404 — 404 is only for the transaction in the URL. Category kind must equal type. Archived account: no new records, existing ones still editable.
+- Summary sums in MySQL (DECIMAL), returned with scale 2; `from` > `to` → 400. `dedup_hash` not mapped yet (T15). `AccountRepository.countTransactions` is still a native query — fine to leave.
+- Tests: `TransactionControllerTest` (11); suite 78/78. `docs/api-contract.md` updated.
+
 
 ---
 

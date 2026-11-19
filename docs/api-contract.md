@@ -67,5 +67,11 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 | POST | `/api/v1/categories` | USER | `{name, nameSi?, kind: "INCOME"\|"EXPENSE", needOrWant?: "NEED"\|"WANT"}` | `201` category · 400 · 409 `CONFLICT` | T09 |
 | PUT | `/api/v1/categories/{id}` | USER | `{name, nameSi?, needOrWant?}` (kind cannot change) | `200` category · 403 `FORBIDDEN` (default) · 404 · 409 `CONFLICT` | T09 |
 | DELETE | `/api/v1/categories/{id}` | USER | — | `204` · 403 `FORBIDDEN` (default) · 404 · 409 `IN_USE` | T09 |
+| GET | `/api/v1/transactions` | USER | query (all optional): `from`, `to` (YYYY-MM-DD), `type` INCOME\|EXPENSE, `categoryId`, `accountId`, `page` (0-based, default 0), `size` (default 20, max 100) | `200 {items: [transaction], page, size, totalItems, totalPages}`, newest `txnDate` first · 400 bad filter | T10 |
+| GET | `/api/v1/transactions/summary` | USER | query `from`, `to` (both required, inclusive) | `200 {from, to, income, expense, net}` (2 decimals, `net` may be negative) · 400 | T10 |
+| GET | `/api/v1/transactions/{id}` | USER | — | `200 {id, accountId, categoryId, type, amount, txnDate, merchant, note, source}` · 404 | T10 |
+| POST | `/api/v1/transactions` | USER | `{accountId, categoryId?, type, amount: "1250.00" (≥ 0.01, 2 dp), txnDate, merchant?, note?, source?: MANUAL\|SMS\|PASTE\|CSV (default MANUAL)}` | `201` transaction · 400 (validation; account not own/archived; category not visible or kind ≠ type) | T10 |
+| PUT | `/api/v1/transactions/{id}` | USER | same as POST | `200` transaction · 400 · 404 | T10 |
+| DELETE | `/api/v1/transactions/{id}` | USER | — | `204` · 404 | T10 |
 
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.
