@@ -5,6 +5,7 @@ The single list of REST endpoints. Every task that adds or changes an endpoint a
 ## Conventions
 - Base path `/api/v1` (except `/actuator/health` and dev-only `/v3/api-docs`). JSON only (`Content-Type: application/json`).
 - Auth: `Authorization: Bearer <access JWT>` (T05). Roles `USER`, `ADMIN`, `STAFF` (D01). **Public** = no token.
+- Role rules (T06, default deny): `/api/v1/auth/**` public · `/api/v1/admin/**` ADMIN only · `/api/v1/staff/**` STAFF only · every other `/api/v1/**` path USER only (Admin/Staff get 403 on user finance endpoints). Wrong role → 403 `FORBIDDEN`; no/invalid token → 401.
 - Money: JSON strings or numbers with 2 decimals, LKR (D06), e.g. `"1250.00"`. Dates `YYYY-MM-DD`; timestamps ISO-8601 UTC, e.g. `2026-11-18T10:15:30.123Z`.
 - Another user's resource → `404 NOT_FOUND` (never 403).
 - No CORS (Android clients only), no cookies or sessions.
@@ -35,7 +36,7 @@ Every error, including 401/403 from security and 404 for unknown paths:
 | 400 | `UNDER_18` | Register with `over18=false` |
 | 401 | `INVALID_CREDENTIALS` | Login: wrong password **or** unknown email (same body for both) |
 | 401 | `INVALID_REFRESH_TOKEN` | Refresh token unknown, expired, already used or logged out |
-| 403 | `ACCOUNT_DISABLED` | Login/refresh for a disabled account |
+| 403 | `ACCOUNT_DISABLED` | Login/refresh for a disabled account, or any request with a still-valid token of a disabled account (T06) |
 | 409 | `EMAIL_TAKEN` | Register with an email that already exists (case-insensitive) |
 | 500 | `INTERNAL_ERROR` | Unexpected server error (details only in server logs) |
 

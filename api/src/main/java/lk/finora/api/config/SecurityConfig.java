@@ -23,7 +23,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Stateless API security. Public: health, dev-only OpenAPI docs and /api/v1/auth/**.
- * Everything else needs a valid access token (checked by JwtAuthFilter). Role rules come in T06.
+ * Everything else needs a valid access token (checked by JwtAuthFilter) and the right role (T06).
  */
 @Configuration
 public class SecurityConfig {
@@ -58,7 +58,14 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .anyRequest().authenticated())
+                        // Role rules (T06). Order matters: the first matching rule wins.
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/staff/**").hasRole("STAFF")
+                        // Everything else under /api/v1 is the user's own finance data:
+                        // Admin and Staff must never see it, so only USER is allowed
+                        .requestMatchers("/api/v1/**").hasRole("USER")
+                        // Default deny for any other path
+                        .anyRequest().denyAll())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) ->

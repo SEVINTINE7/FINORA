@@ -28,17 +28,23 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T06 · Role-based access control · `ROLE-CR`
 **Lead:** Sevindu · **Depends on:** T05 · **Touches:** `api:security/`, `api-test:support/`
-- [ ] T06.1 URL rules, default deny: `/api/v1/auth/**` public · `/api/v1/admin/**` ADMIN · `/api/v1/staff/**` STAFF · all other `/api/v1/**` USER only (Admin/Staff get 403 on user finance endpoints)
-- [ ] T06.2 `CurrentUser` helper (id, role from JWT). Ownership pattern: `findByIdAndUserId` → not found = 404
-- [ ] T06.3 Check user status on each request: DISABLED → 403 even with a valid token
-- [ ] T06.4 Test helpers: `createUser(role)`, `tokenFor(user)`
+- [x] T06.1 URL rules, default deny: `/api/v1/auth/**` public · `/api/v1/admin/**` ADMIN · `/api/v1/staff/**` STAFF · all other `/api/v1/**` USER only (Admin/Staff get 403 on user finance endpoints)
+- [x] T06.2 `CurrentUser` helper (id, role from JWT). Ownership pattern: `findByIdAndUserId` → not found = 404
+- [x] T06.3 Check user status on each request: DISABLED → 403 even with a valid token
+- [x] T06.4 Test helpers: `createUser(role)`, `tokenFor(user)`
 
 **Done when** (integration tests)
-- [ ] No token → 401; USER → `/admin/**` 403; STAFF → `/admin/**` 403; ADMIN → a USER endpoint 403
-- [ ] User A reading user B's resource → 404 (use `/me` consents or a test-only endpoint)
-- [ ] Disabled user's still-valid token → 403
+- [x] No token → 401; USER → `/admin/**` 403; STAFF → `/admin/**` 403; ADMIN → a USER endpoint 403
+- [x] User A reading user B's resource → 404 (use `/me` consents or a test-only endpoint)
+- [x] Disabled user's still-valid token → 403
 
-**Handoff notes:** —
+**Handoff notes:**
+- `config/SecurityConfig`: role rules + `denyAll()` default. New endpoints under `/api/v1/` are USER-only automatically; admin ones go under `/api/v1/admin/`, staff under `/api/v1/staff/`.
+- `api:security/CurrentUser`: static `CurrentUser.id()` / `CurrentUser.role()`. Ownership: `repo.findByIdAndUserId(id, CurrentUser.id())` else `ApiException.notFound(...)`. Example: `ConsentRepository.findByIdAndUserId`.
+- `JwtAuthFilter` now loads the user each request: DISABLED → 403 `ACCOUNT_DISABLED`; deleted user → treated as logged out (401). Role still comes from the JWT.
+- Test helpers in `support/IntegrationTest`: `createUser(Role)`, `tokenFor(user)`. Test-only USER endpoint `GET /api/v1/test/consents/{id}` in `support/TestOwnershipController` (src/test only).
+- Tests: `security/RoleAccessTest` (11); suite 48/48. `docs/api-contract.md` updated with the role rules.
+
 
 ---
 
