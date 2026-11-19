@@ -73,5 +73,12 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 | POST | `/api/v1/transactions` | USER | `{accountId, categoryId?, type, amount: "1250.00" (≥ 0.01, 2 dp), txnDate, merchant?, note?, source?: MANUAL\|SMS\|PASTE\|CSV (default MANUAL)}` | `201` transaction · 400 (validation; account not own/archived; category not visible or kind ≠ type) | T10 |
 | PUT | `/api/v1/transactions/{id}` | USER | same as POST | `200` transaction · 400 · 404 | T10 |
 | DELETE | `/api/v1/transactions/{id}` | USER | — | `204` · 404 | T10 |
+| GET | `/api/v1/budgets?month=YYYY-MM` | USER | `month` required | `200 [budget]`, budget = `{id, categoryId, month, limitAmount, used, remaining, state: "OK"\|"NEAR"\|"OVER"}` · 400 bad/missing month | T17 |
+| GET | `/api/v1/budgets/{id}` | USER | — | `200` budget · 404 | T17 |
+| POST | `/api/v1/budgets` | USER | `{categoryId (EXPENSE, default or own), month: "2026-11", limitAmount: "20000.00"}` | `201` budget · 400 · 409 `CONFLICT` (already a budget for that category + month) | T17 |
+| PUT | `/api/v1/budgets/{id}` | USER | same as POST | `200` budget · 400 · 404 · 409 `CONFLICT` | T17 |
+| DELETE | `/api/v1/budgets/{id}` | USER | — | `204` · 404 | T17 |
+
+**Budgets (T17):** `used` = sum of the user's EXPENSE transactions in that category from the 1st to the last day of `month`. `remaining` = `limitAmount − used` (negative when over). `state`: `OVER` if used > limit, `NEAR` if used ≥ 80% of limit, else `OK`.
 
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.

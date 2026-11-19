@@ -28,4 +28,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.userId = :userId"
             + " AND t.type = :type AND t.txnDate >= :from AND t.txnDate <= :to")
     BigDecimal sumAmount(Long userId, TransactionType type, LocalDate from, LocalDate to);
+
+    // Money spent in one category in a date range (used by budgets, T17)
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.userId = :userId"
+            + " AND t.categoryId = :categoryId AND t.type = lk.finora.api.transaction.TransactionType.EXPENSE"
+            + " AND t.txnDate >= :from AND t.txnDate <= :to")
+    BigDecimal sumExpenseForCategory(Long userId, Long categoryId, LocalDate from, LocalDate to);
 }

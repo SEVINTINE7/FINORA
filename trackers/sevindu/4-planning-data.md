@@ -6,14 +6,20 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T17 · Monthly budgets · `FR04`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T10 · **Touches:** `api:budget/`, `and:ui/budgets/`
-- [ ] T17.1 [API] CRUD `/api/v1/budgets` per category per month (`YYYY-MM`)
-- [ ] T17.2 [API] `GET /api/v1/budgets?month=` returns limit, used, remaining, state `OK|NEAR(≥80%)|OVER`
+- [x] T17.1 [API] CRUD `/api/v1/budgets` per category per month (`YYYY-MM`)
+- [x] T17.2 [API] `GET /api/v1/budgets?month=` returns limit, used, remaining, state `OK|NEAR(≥80%)|OVER`
 - [ ] T17.3 [AND·Sahan] Budget list with progress bars + add/edit
 
 **Done when**
-- [ ] Tests: used amount counts only that month's expenses in that category; first/last day of month; over-spend state
+- [x] Tests: used amount counts only that month's expenses in that category; first/last day of month; over-spend state
 
-**Handoff notes:** —
+**Handoff notes:**
+- API part done (T17.1–T17.2); **T17.3 (Android, Sahan) still open — blocked by T37**.
+- `api:budget/`: `Budget`, repo, `BudgetService`, `BudgetController`, `dto/`. Spent amount from new `TransactionRepository.sumExpenseForCategory`.
+- Budgets only on EXPENSE categories (default or own); another user's category → 400. One budget per category + month → 409 `CONFLICT`.
+- `remaining` goes negative when over. used == limit is `NEAR` (OVER only when used > limit). 80% check uses multiplication, no division/rounding.
+- Tests: `BudgetControllerTest` (9) incl. first/last day, leap February, 80%/100% edges; suite 87/87. `docs/api-contract.md` updated.
+
 
 ---
 
