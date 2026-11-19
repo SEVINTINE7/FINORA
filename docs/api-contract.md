@@ -78,6 +78,16 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 | POST | `/api/v1/budgets` | USER | `{categoryId (EXPENSE, default or own), month: "2026-11", limitAmount: "20000.00"}` | `201` budget · 400 · 409 `CONFLICT` (already a budget for that category + month) | T17 |
 | PUT | `/api/v1/budgets/{id}` | USER | same as POST | `200` budget · 400 · 404 · 409 `CONFLICT` | T17 |
 | DELETE | `/api/v1/budgets/{id}` | USER | — | `204` · 404 | T17 |
+| GET | `/api/v1/bills?month=YYYY-MM` | USER | `month` required | `200 [{id, name, amount, dueDay, categoryId, month, dueDate, paid}]`, earliest `dueDay` first · 400 | T18 |
+| GET | `/api/v1/bills/summary?month=YYYY-MM` | USER | `month` required | `200 {month, total, paid, unpaid}` (total = all active bills; 2 decimals) · 400 | T18 |
+| GET | `/api/v1/bills/{id}` | USER | — | `200 {id, name, amount, dueDay, categoryId}` · 404 | T18 |
+| POST | `/api/v1/bills` | USER | `{name, amount: "4500.00", dueDay: 1–31, categoryId? (EXPENSE, default or own)}` | `201` bill · 400 | T18 |
+| PUT | `/api/v1/bills/{id}` | USER | same as POST | `200` bill · 400 · 404 | T18 |
+| DELETE | `/api/v1/bills/{id}` | USER | — | `204` (paid markers removed too) · 404 | T18 |
+| POST | `/api/v1/bills/{id}/paid?month=YYYY-MM` | USER | — | `204` · 404 · 409 `CONFLICT` (already paid that month) | T18 |
+| DELETE | `/api/v1/bills/{id}/paid?month=YYYY-MM` | USER | — | `204` (also when it was not paid) · 404 | T18 |
+
+**Bills (T18):** paid is stored per month, so every new month starts unpaid. `dueDate` = `dueDay` in that month, or the last day if the month is shorter (due day 31 → 28/29 Feb, 30 Apr).
 
 **Budgets (T17):** `used` = sum of the user's EXPENSE transactions in that category from the 1st to the last day of `month`. `remaining` = `limitAmount − used` (negative when over). `state`: `OVER` if used > limit, `NEAR` if used ≥ 80% of limit, else `OK`.
 
