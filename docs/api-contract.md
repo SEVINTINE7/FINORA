@@ -52,5 +52,8 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 | POST | `/api/v1/auth/login` | Public | `{email, password}` | `200 {accessToken, refreshToken, expiresIn: 1800, role, language}` · 401 `INVALID_CREDENTIALS` · 403 `ACCOUNT_DISABLED` | T05 |
 | POST | `/api/v1/auth/refresh` | Public | `{refreshToken}` | `200` same as login (new pair; old refresh token revoked) · 401 `INVALID_REFRESH_TOKEN` | T05 |
 | POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
+| GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion}` (`consentVersion` = `null` after withdrawal, D15) | T07 |
+| PUT | `/api/v1/me` | USER | `{fullName, language: "EN"\|"SI"}` | `200` same as GET · 400 `VALIDATION_ERROR` | T07 |
+| POST | `/api/v1/me/consent/withdraw` | USER | — | `204`; sets `withdrawn_at`, revokes all the user's refresh tokens (logged out on every device once the access token expires) | T07 |
 
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.

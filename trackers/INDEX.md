@@ -10,7 +10,7 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T04 | Backend API foundation | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | review |
 | T05 | Secure authentication | Sevindu | — | T03, T04 | [sevindu/2-auth.md](sevindu/2-auth.md) | review |
 | T06 | Role-based access control | Sevindu | — | T05 | [sevindu/2-auth.md](sevindu/2-auth.md) | review |
-| T07 | Consent and account settings | Sevindu | Sahan | T05, T37 | [sevindu/2-auth.md](sevindu/2-auth.md) | todo |
+| T07 | Consent and account settings | Sevindu | Sahan | T05, T37 | [sevindu/2-auth.md](sevindu/2-auth.md) | in-progress |
 | T08 | Three-role login routing | Sahan | Sevindu | T06, T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | todo |
 | T09 | Accounts and categories | Sevindu | Sahan | T03, T06, T37 | [sevindu/3-records.md](sevindu/3-records.md) | todo |
 | T10 | Income and expense records | Sevindu | Sahan | T09 | [sevindu/3-records.md](sevindu/3-records.md) | todo |

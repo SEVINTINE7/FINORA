@@ -50,14 +50,20 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T07 · Consent and account settings · `FR01 / FR11`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T05, T37 · **Touches:** `api:user/`, `and:ui/auth/`, `and:ui/settings/`, `res:values*/strings.xml`
-- [ ] T07.1 [API] Consent row on register (version D12, over18, accepted_at)
-- [ ] T07.2 [API] `GET /api/v1/me` → `{email, fullName, language, consentVersion}`; `PUT /api/v1/me` `{fullName, language}`
-- [ ] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes all refresh tokens; next login asks to re-consent or delete data (deletion = T36)
+- [x] T07.1 [API] Consent row on register (version D12, over18, accepted_at)
+- [x] T07.2 [API] `GET /api/v1/me` → `{email, fullName, language, consentVersion}`; `PUT /api/v1/me` `{fullName, language}`
+- [x] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes all refresh tokens; next login asks to re-consent or delete data (deletion = T36)
 - [ ] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
 - [ ] T07.5 [AND·Sahan] Settings screen: language picker (applies at once, saved via `PUT /me`), withdraw consent, "Delete my data" entry (opens T36 flow)
 
 **Done when**
-- [ ] API tests for `/me` GET/PUT and withdraw (tokens revoked afterwards)
+- [x] API tests for `/me` GET/PUT and withdraw (tokens revoked afterwards)
 - [ ] On a device: cannot register without both ticks; language change switches UI to Sinhala
 
-**Handoff notes:** —
+**Handoff notes:**
+- API part done (T07.1–T07.3); **T07.4–T07.5 (Android, Sahan) still open — blocked by T37** (no `android/` yet). Device check also open.
+- `api:user/`: `MeController`, `MeService`, `dto/MeResponse`, `dto/UpdateMeRequest`. Consent row on register was already done in T05; now tested.
+- D15: withdrawn consent → `GET /me` gives `consentVersion: null`; no re-consent endpoint yet. Withdraw is idempotent (204), revokes all refresh tokens via `RefreshTokenRepository.findByUserIdAndRevokedAtIsNull`.
+- `/me` is USER-only (T06 rule). Access token stays valid until it expires (≤30 min) after withdrawal.
+- Tests: `user/MeControllerTest` (7); suite 55/55. `docs/api-contract.md` updated.
+
