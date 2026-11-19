@@ -6,17 +6,23 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T09 · Accounts and categories · `FR02`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T03, T06, T37 · **Touches:** `api:account/`, `api:category/`, `and:ui/accounts/`, `and:ui/categories/`
-- [ ] T09.1 [API] CRUD `/api/v1/accounts` (owner only; archive instead of delete if it has transactions)
-- [ ] T09.2 [API] `/api/v1/categories`: list = defaults + own; CRUD on own only; defaults read-only
-- [ ] T09.3 [API] Duplicate name per user → 409; delete category in use → 409 `IN_USE`
+- [x] T09.1 [API] CRUD `/api/v1/accounts` (owner only; archive instead of delete if it has transactions)
+- [x] T09.2 [API] `/api/v1/categories`: list = defaults + own; CRUD on own only; defaults read-only
+- [x] T09.3 [API] Duplicate name per user → 409; delete category in use → 409 `IN_USE`
 - [ ] T09.4 [AND·Sahan] Accounts list + add/edit screen
 - [ ] T09.5 [AND·Sahan] Categories list grouped income/expense, add/edit own
 
 **Done when**
-- [ ] Tests: CRUD, duplicate → 409, in-use delete → 409, user B cannot see user A's (404), cannot edit a default category
+- [x] Tests: CRUD, duplicate → 409, in-use delete → 409, user B cannot see user A's (404), cannot edit a default category
 - [ ] Screens create/edit/delete against local API
 
-**Handoff notes:** —
+**Handoff notes:**
+- API part done (T09.1–T09.3); **T09.4–T09.5 (Android, Sahan) and the screens check still open — blocked by T37**.
+- `api:account/` (`Account`, `AccountType`, repo, service, controller, `dto/`) and `api:category/` (`Category`, `CategoryKind`, `NeedOrWant`, …). New error code `IN_USE`.
+- Account DELETE always 204: archived if transactions use it (native count query until T10 adds `Transaction`). Accounts list includes archived ones — T10/T11 should refuse/hide archived accounts for new entries.
+- Category names must be unique per user + kind **including defaults** (can't make own "Food" expense). Defaults: read OK, PUT/DELETE → 403 `FORBIDDEN`. PUT cannot change `kind`. "In use" = transactions, budgets or bills.
+- Tests: `AccountControllerTest` (5), `CategoryControllerTest` (7); suite 67/67. `docs/api-contract.md` updated.
+
 
 ---
 

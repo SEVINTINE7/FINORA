@@ -1,0 +1,6 @@
+package lk.finora.api.account.dto;
+
+import java.math.BigDecimal;
+
+public record AccountResponse(Long id, String name, String type, BigDecimal openingBalance, boolean archived) {
+}
