@@ -6,10 +6,10 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 |---|---|---|---|---|---|---|
 | T01 | Confirm implementation decisions | Sevindu | Sahan, Thilina | — | [sevindu/1-foundation.md](sevindu/1-foundation.md) | in-progress |
 | T02 | Repository and build setup | Sevindu | — | T01 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
-| T03 | Database design and migrations | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | review |
-| T04 | Backend API foundation | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | review |
-| T05 | Secure authentication | Sevindu | — | T03, T04 | [sevindu/2-auth.md](sevindu/2-auth.md) | review |
-| T06 | Role-based access control | Sevindu | — | T05 | [sevindu/2-auth.md](sevindu/2-auth.md) | review |
+| T03 | Database design and migrations | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
+| T04 | Backend API foundation | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
+| T05 | Secure authentication | Sevindu | — | T03, T04 | [sevindu/2-auth.md](sevindu/2-auth.md) | done |
+| T06 | Role-based access control | Sevindu | — | T05 | [sevindu/2-auth.md](sevindu/2-auth.md) | done |
 | T07 | Consent and account settings | Sevindu | Sahan | T05, T37 | [sevindu/2-auth.md](sevindu/2-auth.md) | in-progress |
 | T08 | Three-role login routing | Sahan | Sevindu | T06, T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | todo |
 | T09 | Accounts and categories | Sevindu | Sahan | T03, T06, T37 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
