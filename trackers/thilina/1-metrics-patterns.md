@@ -6,14 +6,19 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T21 · Deterministic spending metrics · `FR06`
 **Lead:** Thilina · **Depends on:** T10, T17, T18 · **Touches:** `api:analytics/`, `api-test:analytics/`
-- [ ] T21.1 `MetricsService.forMonth(userId, YearMonth)` → income, expense, needs, wants, fixed bills, savings, payday-window spend, weekend vs weekday spend (all BigDecimal)
-- [ ] T21.2 Every metric carries its source: amount, period, transaction count
-- [ ] T21.3 Edge cases: no income (ratios = null, not divide-by-zero), refunds/reversals, uncategorised wants/needs
+- [x] T21.1 `MetricsService.forMonth(userId, YearMonth)` → income, expense, needs, wants, fixed bills, savings, payday-window spend, weekend vs weekday spend (all BigDecimal)
+- [x] T21.2 Every metric carries its source: amount, period, transaction count
+- [x] T21.3 Edge cases: no income (ratios = null, not divide-by-zero), refunds/reversals, uncategorised wants/needs
 
 **Done when**
-- [ ] Unit tests with hand-calculated fixtures (write the expected numbers in the test)
+- [x] Unit tests with hand-calculated fixtures (write the expected numbers in the test)
 
-**Handoff notes:** —
+**Handoff notes:**
+- Done by Sevindu (with Claude) for Thilina — please review. No endpoint; service only.
+- `api:analytics/`: `MetricsService.forMonth(userId, YearMonth)` → `MonthMetrics`; each money field is a `Metric {amount, from, to, count}`. New `TransactionRepository.findByUserIdAndTxnDateBetween`.
+- D18: `leftOver` + `savedToCategory`, refunds = INCOME in 'Other', payday = income day + 2, `unclassified` bucket, ratios null when no income.
+- **For T22/T23/T27:** use `wantsRatio`, `fixedBillsRatio` (compare with D10 0.40 / 0.50), `savingsRate`, `paydaySpend`, `weekendSpend`/`weekdaySpend`.
+- Tests: `MetricsServiceTest` (6, Mockito, numbers in comments); suite 117/117.
 
 ---
 

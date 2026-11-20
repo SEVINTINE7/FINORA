@@ -15,6 +15,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     // Ownership check: only finds the record if it belongs to this user
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 
+    // All of a user's records in a date range, both ends included (spending metrics, T21)
+    List<Transaction> findByUserIdAndTxnDateBetween(Long userId, LocalDate from, LocalDate to);
+
     // One query for the list screen. A filter that is null is simply skipped.
     @Query("SELECT t FROM Transaction t WHERE t.userId = :userId"
             + " AND (:from IS NULL OR t.txnDate >= :from)"
