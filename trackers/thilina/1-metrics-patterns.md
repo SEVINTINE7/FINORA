@@ -24,11 +24,16 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T22 · Spending-pattern detection · `FR06`
 **Lead:** Thilina · **Depends on:** T21 · **Touches:** `api:analytics/`, `api:insight/`
-- [ ] T22.1 Rules from D10: high wants, payday spending, weekend spending, high fixed bills
-- [ ] T22.2 Each insight = `{type, facts{...numbers}, period}` saved in `insights`; text built later from facts
-- [ ] T22.3 `GET /api/v1/insights?month=` (USER)
+- [x] T22.1 Rules from D10: high wants, payday spending, weekend spending, high fixed bills
+- [x] T22.2 Each insight = `{type, facts{...numbers}, period}` saved in `insights`; text built later from facts
+- [x] T22.3 `GET /api/v1/insights?month=` (USER)
 
 **Done when**
-- [ ] Tests: normal, exactly-at-threshold, just-below, extreme and empty months
+- [x] Tests: normal, exactly-at-threshold, just-below, extreme and empty months
 
-**Handoff notes:** —
+**Handoff notes:**
+- Done by Sevindu (with Claude) for Thilina — please review (T21 too).
+- `api:analytics/PatternRules` (pure rules on `MonthMetrics` → `SpendingPattern{type, facts}`); `api:insight/`: `Insight` (facts = JSON text), repo (bulk `@Modifying` delete — a derived delete ran after the new inserts), `InsightService`, `InsightController`, `dto/`.
+- D19: payday > 30% of expense, weekend day avg > 1.5× weekday avg; all strict `>`; GET recalculates and replaces the month's rows.
+- **For T23/T27:** MySQL JSON stores `6000.00` as `6000.0` — when reading facts back use `new BigDecimal(text).setScale(2)`. Facts contain numbers only (no merchants/names).
+- Tests: `PatternRulesTest` (10: normal, exactly-at, just-below, one-cent-above, extreme, empty, no income), `InsightControllerTest` (5); suite 132/132. `docs/api-contract.md` updated.
