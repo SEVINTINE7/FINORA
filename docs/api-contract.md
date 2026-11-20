@@ -95,6 +95,10 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 | POST | `/api/v1/goals/{id}/contributions` | USER | `{amount: "1000.00" (> 0), date (today or earlier)}` | `201` goal with new progress · 400 · 404 | T19 |
 | DELETE | `/api/v1/goals/{id}/contributions/{cid}` | USER | — | `200` goal with new progress · 404 | T19 |
 | GET | `/api/v1/dashboard?month=YYYY-MM` | USER | `month` optional (default: current month in Asia/Colombo) | `200 {month, income, expense, net, byCategory: [{categoryId, name, nameSi, total}], trend: [{month, income, expense, net}]}` · 400 | T20 |
+| GET | `/api/v1/insights?month=YYYY-MM` | USER | `month` required | `200 [{id, type, month, from, to, facts{...numbers}}]` (empty list = no patterns) · 400 | T22 |
+
+**Insights (T22, D10, D19):** recalculated on every GET (old rows for that month replaced). Types and facts:
+`HIGH_WANTS` wants > 40% of income `{wants, wantsCount, income, wantsRatio, threshold}` · `HIGH_FIXED_BILLS` bills > 50% of income `{fixedBills, billCount, income, fixedBillsRatio, threshold}` · `PAYDAY_SPENDING` payday spend > 30% of expense `{paydaySpend, paydayCount, expense, paydayShare, threshold}` · `WEEKEND_SPENDING` weekend-day average > 1.5 × weekday average `{weekendSpend, weekendCount, weekendDays, weekendDailyAverage, weekdaySpend, weekdayDays, weekdayDailyAverage, threshold}`. Exactly at a threshold = no insight; no income = no income-based insights. The app builds the text from `type` + `facts`.
 
 **Dashboard (T20, D17):** totals use the user's transactions from the 1st to the last day of `month`. `byCategory` = EXPENSE only, biggest first; records without a category are one item with `categoryId`/`name`/`nameSi` null. `trend` = 6 months ending with `month`, oldest first; empty months are 0.00. All amounts have 2 decimals.
 
