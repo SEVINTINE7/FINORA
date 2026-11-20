@@ -2,6 +2,7 @@ package lk.finora.api.transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -34,4 +35,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             + " AND t.categoryId = :categoryId AND t.type = lk.finora.api.transaction.TransactionType.EXPENSE"
             + " AND t.txnDate >= :from AND t.txnDate <= :to")
     BigDecimal sumExpenseForCategory(Long userId, Long categoryId, LocalDate from, LocalDate to);
+
+    // Expenses per category in a date range (dashboard pie, T20). Each row is [categoryId (can be null), total].
+    @Query("SELECT t.categoryId, SUM(t.amount) FROM Transaction t WHERE t.userId = :userId"
+            + " AND t.type = lk.finora.api.transaction.TransactionType.EXPENSE"
+            + " AND t.txnDate >= :from AND t.txnDate <= :to"
+            + " GROUP BY t.categoryId ORDER BY SUM(t.amount) DESC")
+    List<Object[]> sumExpenseByCategory(Long userId, LocalDate from, LocalDate to);
 }

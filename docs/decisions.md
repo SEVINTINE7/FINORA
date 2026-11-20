@@ -20,6 +20,7 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D14 Spring Boot version** — Spring Boot 4.1.x (4.1.2 at T02). Use Boot 4 starter names (`spring-boot-starter-webmvc`, `spring-boot-starter-flyway`, `*-test` starters). Local dev/test DB user `finora`/`finora` via `api/scripts/create-local-db.sql` (local only).
 - **D15 Withdrawn consent (T07.3)** — after withdrawal, `GET /api/v1/me` returns `consentVersion: null`; the app checks it after login and offers re-consent or data deletion. No re-consent endpoint for now (add later / with T36 if needed). Login response unchanged.
 - **D16 Savings goals (T19)** — target date (optional) must be after today on create **and** on every edit. Status is automatic: `DONE` when saved ≥ target, back to `ACTIVE` if it drops below (new target or deleted contribution); the user can only cancel (`cancelled: true` on PUT). Contributions are add/delete only, no edit.
+- **D17 Dashboard (T20)** — pie (`byCategory`) shows expenses only, uncategorised as one slice. `month` is optional on `GET /dashboard`; missing = current month in Asia/Colombo. Trend = 6 months ending with the chosen month.
 
 ## Proposed — still open
 

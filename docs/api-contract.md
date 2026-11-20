@@ -94,6 +94,9 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 | GET | `/api/v1/goals/{id}/contributions` | USER | — | `200 [{id, goalId, amount, date}]`, newest date first · 404 | T19 |
 | POST | `/api/v1/goals/{id}/contributions` | USER | `{amount: "1000.00" (> 0), date (today or earlier)}` | `201` goal with new progress · 400 · 404 | T19 |
 | DELETE | `/api/v1/goals/{id}/contributions/{cid}` | USER | — | `200` goal with new progress · 404 | T19 |
+| GET | `/api/v1/dashboard?month=YYYY-MM` | USER | `month` optional (default: current month in Asia/Colombo) | `200 {month, income, expense, net, byCategory: [{categoryId, name, nameSi, total}], trend: [{month, income, expense, net}]}` · 400 | T20 |
+
+**Dashboard (T20, D17):** totals use the user's transactions from the 1st to the last day of `month`. `byCategory` = EXPENSE only, biggest first; records without a category are one item with `categoryId`/`name`/`nameSi` null. `trend` = 6 months ending with `month`, oldest first; empty months are 0.00. All amounts have 2 decimals.
 
 **Goals (T19, D16):** `saved` = sum of the goal's contributions (can be more than the target). `remaining` = target − saved, never below 0.00. `progressPercent` = saved × 100 / target, rounded down, max 100. `status` is set by the server: `DONE` when saved ≥ target, else `ACTIVE`; `CANCELLED` only via PUT `cancelled: true` (a PUT without it un-cancels). Contributions are not transactions and cannot be edited (delete and add again).
 

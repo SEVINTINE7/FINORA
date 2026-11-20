@@ -6,15 +6,20 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T20 · Dashboard and charts · `FR05`
 **Lead:** Sahan · **Support:** Sevindu · **Depends on:** T10, T17 · **Touches:** `and:ui/dashboard/`, `api:dashboard/`
-- [ ] T20.1 [API·Sevindu] `GET /api/v1/dashboard?month=` → income, expense, net, by-category totals, 6-month trend
+- [x] T20.1 [API·Sevindu] `GET /api/v1/dashboard?month=` → income, expense, net, by-category totals, 6-month trend
 - [ ] T20.2 [AND] Dashboard: totals cards, category pie, trend bar chart (MPAndroidChart), month picker
 - [ ] T20.3 [AND] Empty state for new users
 
 **Done when**
-- [ ] API test: dashboard totals equal sum of raw transactions for fixture data
+- [x] API test: dashboard totals equal sum of raw transactions for fixture data
 - [ ] Screen loads < 2 s with one year of data on a mid-range phone
 
-**Handoff notes:** —
+**Handoff notes:**
+- API part done (T20.1); **T20.2–T20.3 (Android) still open — blocked by T37**. Screen-load check (< 2 s) also waits for the app.
+- `api:dashboard/`: `DashboardController`, `DashboardService`, `dto/` (`DashboardResponse`, `CategoryTotal`, `MonthTotal`). New `TransactionRepository.sumExpenseByCategory` (GROUP BY).
+- D17: pie = expenses only (null category = one slice, app shows "Uncategorised" from strings.xml); `month` optional → current month (Asia/Colombo); trend = 6 months oldest first.
+- Empty state (T20.3): new user gets 0.00 totals, `byCategory: []`, 6 zero trend months.
+- Tests: `DashboardControllerTest` (6); suite 111/111. `docs/api-contract.md` updated.
 
 ---
 
