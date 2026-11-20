@@ -86,6 +86,16 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 | DELETE | `/api/v1/bills/{id}` | USER | — | `204` (paid markers removed too) · 404 | T18 |
 | POST | `/api/v1/bills/{id}/paid?month=YYYY-MM` | USER | — | `204` · 404 · 409 `CONFLICT` (already paid that month) | T18 |
 | DELETE | `/api/v1/bills/{id}/paid?month=YYYY-MM` | USER | — | `204` (also when it was not paid) · 404 | T18 |
+| GET | `/api/v1/goals` | USER | — | `200 [goal]`, oldest first. goal = `{id, name, targetAmount, targetDate, status, saved, remaining, progressPercent}` | T19 |
+| GET | `/api/v1/goals/{id}` | USER | — | `200` goal · 404 | T19 |
+| POST | `/api/v1/goals` | USER | `{name, targetAmount: "250000.00" (> 0), targetDate? (after today)}` | `201` goal · 400 | T19 |
+| PUT | `/api/v1/goals/{id}` | USER | same as POST + `cancelled?: true` | `200` goal · 400 · 404 | T19 |
+| DELETE | `/api/v1/goals/{id}` | USER | — | `204` (contributions removed too) · 404 | T19 |
+| GET | `/api/v1/goals/{id}/contributions` | USER | — | `200 [{id, goalId, amount, date}]`, newest date first · 404 | T19 |
+| POST | `/api/v1/goals/{id}/contributions` | USER | `{amount: "1000.00" (> 0), date (today or earlier)}` | `201` goal with new progress · 400 · 404 | T19 |
+| DELETE | `/api/v1/goals/{id}/contributions/{cid}` | USER | — | `200` goal with new progress · 404 | T19 |
+
+**Goals (T19, D16):** `saved` = sum of the goal's contributions (can be more than the target). `remaining` = target − saved, never below 0.00. `progressPercent` = saved × 100 / target, rounded down, max 100. `status` is set by the server: `DONE` when saved ≥ target, else `ACTIVE`; `CANCELLED` only via PUT `cancelled: true` (a PUT without it un-cancels). Contributions are not transactions and cannot be edited (delete and add again).
 
 **Bills (T18):** paid is stored per month, so every new month starts unpaid. `dueDate` = `dueDay` in that month, or the last day if the month is shorter (due day 31 → 28/29 Feb, 30 Apr).
 

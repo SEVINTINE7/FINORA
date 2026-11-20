@@ -45,14 +45,19 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T19 · Savings goals · `FR04`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T10 · **Touches:** `api:goal/`, `and:ui/goals/`
-- [ ] T19.1 [API] CRUD `/api/v1/goals` (target > 0, target date in future)
-- [ ] T19.2 [API] Contributions add/delete; progress = sum(contributions) / target, capped display at 100%
+- [x] T19.1 [API] CRUD `/api/v1/goals` (target > 0, target date in future)
+- [x] T19.2 [API] Contributions add/delete; progress = sum(contributions) / target, capped display at 100%
 - [ ] T19.3 [AND·Sahan] Goals list + detail with contributions
 
 **Done when**
-- [ ] Tests: progress after edit/delete of contributions, invalid targets, no double counting
+- [x] Tests: progress after edit/delete of contributions, invalid targets, no double counting
 
-**Handoff notes:** —
+**Handoff notes:**
+- API part done (T19.1–T19.2); **T19.3 (Android, Sahan) still open — blocked by T37**.
+- `api:goal/`: `Goal`, `GoalStatus`, `GoalContribution`, repos, `GoalService`, `GoalController`, `dto/`. No migration (V3 tables).
+- D16: target date future on create and edit; status automatic (DONE when saved ≥ target), user can only cancel via `cancelled: true`; contributions add/delete only. Add/delete contribution returns the updated goal.
+- **For T23/T31/T32:** `GoalService.saved(goal)` (scale 2) and static `GoalService.progressPercent(saved, target)` (rounded down, max 100).
+- Tests: `GoalControllerTest` (9); suite 105/105. `docs/api-contract.md` updated.
 
 ---
 
