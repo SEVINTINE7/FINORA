@@ -7,11 +7,12 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T50 · Backend API test suite · `ALL`
 **Lead:** Sevindu · **Support:** Thilina · **Depends on:** T05 (grows with every API task) · **Touches:** `api-test:`, `api/pom.xml`, `.github/workflows/ci.yml`
 - [x] T50.1 Every controller has integration tests for success, validation, auth and ownership — per-controller tests cover success/400/ownership-404; `api-test:security/EndpointAuthTest` reads every `/api/v1` endpoint from Spring's mappings and checks no/bad token → 401 `UNAUTHORIZED`, wrong role → 403 `FORBIDDEN` (rule 4), auth endpoints public
-- [ ] T50.2 Full suite runs against real MySQL 8 (D11) in CI — CI runs `./mvnw -B verify` on the `mysql:8.0` service; uploads `jacoco-report` (always) and `surefire-reports` (on failure). Tick after the first green CI run
+- [x] T50.2 Full suite runs against real MySQL 8 (D11) in CI — CI runs `./mvnw -B verify` on the `mysql:8.0` service; uploads `jacoco-report` (always) and `surefire-reports` (on failure). First CI run green (a41041f)
 - [x] T50.3 Add JaCoCo coverage report; target ≥70% line coverage on services — `jacoco-maven-plugin` 0.8.14, report at `target/site/jacoco/`; `check-services` fails `verify` below 70% (all `*Service` classes together)
 
+
 **Done when**
-- [ ] `./mvnw verify` green in CI; coverage report saved as CI artifact - combined local verify: 146/146 tests passed; JaCoCo >=70% gate passed. CI run and artifact verification still pending.
+- [x] `./mvnw verify` green in CI; coverage report saved as CI artifact — Sevindu reported successful CI on `a41041f`, with 98.5% service coverage and 96.4% overall coverage locally. Thilina independently verified the combined code on 2026-11-21: 146/146 tests passed, 0 failures/errors/skips, BUILD SUCCESS (exit 0), JaCoCo >=70% service coverage gate passed.
 
 **Handoff notes:**
 
