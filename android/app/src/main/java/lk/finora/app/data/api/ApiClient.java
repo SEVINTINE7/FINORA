@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -24,12 +25,14 @@ public final class ApiClient {
     private final AuthApi auth;
     private final OkHttpClient http;
     private final SessionAuthenticator sessions;
+    private final Call.Factory calls;
 
     public ApiClient(String baseUrl, Supplier<String> accessToken) {
         HttpUrl origin = HttpUrl.get(baseUrl);
         sessions = null;
         http = baseClient().addInterceptor(new AuthInterceptor(origin, accessToken)).build();
-        auth = retrofit(origin, http);
+        calls = http;
+        auth = retrofit(origin, calls);
     }
 
     public ApiClient(String baseUrl, TokenStore store) {
@@ -54,15 +57,17 @@ public final class ApiClient {
                     return chain.proceed(chain.request());
                 })
                 .build();
-        auth = retrofit(origin, http);
+        calls = request -> http.newCall(AuthInterceptor.isProtected(origin, request.url())
+                ? request.newBuilder().tag(Session.class, store.verifiedSession()).build() : request);
+        auth = retrofit(origin, calls);
     }
 
     public SessionAuthenticator sessions() {
         return sessions;
     }
 
-    public OkHttpClient http() {
-        return http;
+    public Call newCall(Request request) {
+        return calls.newCall(request);
     }
 
     private static OkHttpClient.Builder baseClient() {
@@ -71,8 +76,8 @@ public final class ApiClient {
                 .callTimeout(10, TimeUnit.SECONDS);
     }
 
-    private AuthApi retrofit(HttpUrl origin, OkHttpClient client) {
-        return new Retrofit.Builder().baseUrl(origin).client(client)
+    private AuthApi retrofit(HttpUrl origin, Call.Factory factory) {
+        return new Retrofit.Builder().baseUrl(origin).callFactory(factory)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build().create(AuthApi.class);
     }

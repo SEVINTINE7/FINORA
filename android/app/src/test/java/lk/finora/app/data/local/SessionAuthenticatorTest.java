@@ -2,6 +2,8 @@ package lk.finora.app.data.local;
 
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,7 +12,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import lk.finora.app.data.api.ApiClient;
 import lk.finora.app.data.api.SessionAuthenticator.Outcome;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -37,10 +42,62 @@ public class SessionAuthenticatorTest {
     }
 
     private static int call(ApiClient client, MockWebServer server) throws Exception {
-        try (var response = client.http().newCall(
+        try (var response = client.newCall(
                 new Request.Builder().url(server.url("/api/v1/me")).build()).execute()) {
             return response.code();
         }
+    }
+
+    @Test
+    public void queuedProtectedCallCannotUseReplacementAccountCredentials() throws Exception {
+        CountDownLatch occupied = new CountDownLatch(5);
+        CountDownLatch release = new CountDownLatch(1);
+        AtomicInteger unexpected = new AtomicInteger();
+        try (MockWebServer server = new MockWebServer()) {
+            server.setDispatcher(new Dispatcher() {
+                @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                    if ("/api/v1/me".equals(request.getPath())) {
+                        unexpected.incrementAndGet();
+                        return new MockResponse();
+                    }
+                    occupied.countDown();
+                    return new MockResponse().setResponseCode(release.await(8, TimeUnit.SECONDS) ? 200 : 500);
+                }
+            });
+            TokenStore store = store(true, true);
+            ApiClient client = new ApiClient(server.url("/").toString(), store);
+            try {
+                Request blocker = new Request.Builder().url(server.url("/hold")).build();
+                for (int index = 0; index < 5; index++) {
+                    enqueue(client.newCall(blocker));
+                }
+                assertTrue(occupied.await(4, TimeUnit.SECONDS));
+                Call queued = client.newCall(new Request.Builder().url(server.url("/api/v1/me")).build());
+                var outcome = enqueue(queued);
+                store.save("other", "other-refresh", "STAFF", "EN");
+                release.countDown();
+                assertEquals("Session changed before request could be sent", outcome.get(4, TimeUnit.SECONDS));
+                assertEquals(0, unexpected.get());
+            } finally {
+                release.countDown();
+            }
+        }
+    }
+
+    private static CompletableFuture<String> enqueue(Call call) {
+        CompletableFuture<String> outcome = new CompletableFuture<>();
+        call.enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException failure) {
+                outcome.complete(failure.getMessage());
+            }
+
+            @Override public void onResponse(Call call, Response response) {
+                try (response) {
+                    outcome.complete("HTTP " + response.code());
+                }
+            }
+        });
+        return outcome;
     }
 
     @Test
@@ -123,7 +180,7 @@ public class SessionAuthenticatorTest {
             try {
                 var delayed = worker.submit(() -> {
                     Request request = new Request.Builder().url(server.url("/api/v1/me?late=true")).build();
-                    try (var response = client.http().newCall(request).execute()) {
+                    try (var response = client.newCall(request).execute()) {
                         return response.code();
                     }
                 });

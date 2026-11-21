@@ -1,6 +1,5 @@
 package lk.finora.app.ui.auth;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,19 +31,14 @@ public final class HomeViewModel extends ViewModel {
         signingOut = true;
         worker.execute(() -> {
             TokenStore store = TokenStore.current();
-            boolean failed = false;
-            Session revoke = null;
-            try {
-                if (store != null) {
-                    revoke = store.clearAccount(expected);
-                }
-            } catch (IOException | RuntimeException exception) {
-                failed = true;
-                revoke = expected;
+            if (store == null) {
+                signedOut.postValue(false);
+                return;
             }
-            signedOut.postValue(failed);
-            if (revoke != null) {
-                SessionClient.get(store).sessions().revoke(revoke.refresh);
+            TokenStore.LogoutResult result = store.clearAccount(expected);
+            signedOut.postValue(result.storageFailure != null);
+            if (result.invalidated != null) {
+                SessionClient.get(store).sessions().revoke(result.invalidated.refresh);
             }
         });
     }

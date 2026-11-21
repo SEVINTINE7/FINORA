@@ -23,7 +23,6 @@ import lk.finora.app.data.local.TokenStore.Session;
 import lk.finora.app.ui.admin.AdminHomeActivity;
 import lk.finora.app.ui.login.LoginActivity;
 import lk.finora.app.ui.staff.StaffHomeActivity;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -74,18 +73,10 @@ public final class SessionVerificationInstrumentation extends Instrumentation {
         }
         Session before = store.verifiedSession();
         Request request = new Request.Builder().url(BuildConfig.API_BASE_URL + "api/v1/me").build();
-        boolean[] invoked = {false};
-        boolean[] tagged = {false};
-        OkHttpClient observed = client.http().newBuilder().authenticator((route, response) -> {
-            invoked[0] = true;
-            tagged[0] = response.request().tag(Session.class) != null;
-            return client.sessions().authenticate(route, response);
-        }).build();
-        try (Response response = observed.newCall(request).execute()) {
+        try (Response response = client.newCall(request).execute()) {
             if (response.code() != 200 || response.priorResponse() == null
                     || response.priorResponse().code() != 401 || response.priorResponse().priorResponse() != null) {
-                throw new ProbeFailure("HTTP " + response.code() + ", authenticator=" + invoked[0]
-                        + ", session tag=" + tagged[0]);
+                throw new ProbeFailure("Unexpected protected response chain, HTTP " + response.code());
             }
         }
         Session rotated = store.verifiedSession();

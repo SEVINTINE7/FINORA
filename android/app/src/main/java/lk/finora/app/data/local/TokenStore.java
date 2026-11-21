@@ -152,13 +152,27 @@ public final class TokenStore {
         return true;
     }
 
-    public synchronized Session clearAccount(Session expected) throws IOException {
+    public synchronized LogoutResult clearAccount(Session expected) {
         Session current = published;
         if (expected == null || !expected.sameAccount(current)) {
-            return null;
+            return new LogoutResult(null, null);
         }
-        clear(current);
-        return current;
+        try {
+            clear(current);
+            return new LogoutResult(current, null);
+        } catch (IOException | RuntimeException failure) {
+            return new LogoutResult(current, failure);
+        }
+    }
+
+    public static final class LogoutResult {
+        public final Session invalidated;
+        public final Exception storageFailure;
+
+        private LogoutResult(Session invalidated, Exception storageFailure) {
+            this.invalidated = invalidated;
+            this.storageFailure = storageFailure;
+        }
     }
 
     private boolean commit(Session session) {

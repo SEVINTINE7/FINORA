@@ -15,7 +15,7 @@ public final class AuthInterceptor implements Interceptor {
     private final Supplier<Session> sessions;
 
     public AuthInterceptor(HttpUrl origin, Supplier<String> accessToken) {
-        this(origin, accessToken, () -> null);
+        this(origin, accessToken, null);
     }
 
     private AuthInterceptor(HttpUrl origin, Supplier<String> accessToken, Supplier<Session> sessions) {
@@ -40,7 +40,11 @@ public final class AuthInterceptor implements Interceptor {
         HttpUrl url = request.url();
         Request.Builder builder = request.newBuilder().removeHeader("Authorization").tag(Session.class, null);
         if (isProtected(origin, url)) {
-            Session session = sessions.get();
+            Session bound = request.tag(Session.class);
+            Session session = sessions == null ? null : sessions.get();
+            if (sessions != null && (bound == null || !bound.sameAccount(session))) {
+                throw new IOException("Session changed before request could be sent");
+            }
             String token = session == null ? accessToken.get() : session.access;
             builder.tag(Session.class, session);
             if (session != null) {

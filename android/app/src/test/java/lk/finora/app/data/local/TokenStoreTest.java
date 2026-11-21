@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import lk.finora.app.data.api.AuthInterceptor;
+import lk.finora.app.data.api.ApiClient;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -85,7 +86,7 @@ public class TokenStoreTest {
         TokenStore.Session initial = store.verifiedSession();
         TokenStore.Session rotated = store.replace(initial, "new", "new-refresh", "USER", "SI");
         assertEquals("SI", rotated.language);
-        assertEquals(rotated, store.clearAccount(initial));
+        assertEquals(rotated, store.clearAccount(initial).invalidated);
         assertNull(store.verifiedSession());
         assertEquals(Map.of(), preferences.memory);
         assertNull(store.replace(rotated, "stale", "stale-refresh", "ADMIN", "EN"));
@@ -99,7 +100,7 @@ public class TokenStoreTest {
         TokenStore.Session first = store.session();
         store.save("second", "second-refresh", "STAFF", "SI");
         assertNull(store.replace(first, "stale", "stale-refresh", "ADMIN", "EN"));
-        assertNull(store.clearAccount(first));
+        assertNull(store.clearAccount(first).invalidated);
         assertEquals("second", store.verifiedSession().access);
     }
 
@@ -120,12 +121,45 @@ public class TokenStoreTest {
         TokenStore store = new TokenStore(preferences.proxy);
         store.save("stored", "refresh", "USER", "EN");
         TokenStore.Session session = store.verifiedSession();
-        assertThrows(IOException.class, () -> store.clearAccount(session));
+        assertNotNull(store.clearAccount(session).storageFailure);
         assertNull(store.verifiedSession());
         assertNull(store.session());
         preferences.memory.put("access_token", "previously-persisted");
         preferences.memory.put("refresh_token", "previously-persisted-refresh");
         assertNull(new TokenStore(preferences.proxy).session());
+    }
+
+    @Test
+    public void logoutAfterRotationRevokesLatestCredentialEvenWhenBothWritesFail() throws Exception {
+        PreferencesDouble preferences = new PreferencesDouble(true, true, false, false);
+        TokenStore store = new TokenStore(preferences.proxy);
+        store.save("old", "old-refresh", "USER", "EN");
+        TokenStore.Session initial = store.verifiedSession();
+        TokenStore.Session rotated = store.replace(initial, "new", "new-refresh", "USER", "EN");
+        Map<String, String> lastDurableState = Map.copyOf(preferences.memory);
+
+        TokenStore.LogoutResult result = store.clearAccount(initial);
+        assertEquals(rotated, result.invalidated);
+        assertEquals(1, result.storageFailure.getSuppressed().length);
+        assertNull(store.session());
+        assertNull(store.verifiedSession());
+        assertBearer(store, null);
+        assertEquals(Map.of(), preferences.attempts.get(2));
+        assertEquals(Map.of("session_blocked", "1"), preferences.attempts.get(3));
+
+        PreferencesDouble reopened = new PreferencesDouble();
+        reopened.memory.putAll(lastDurableState);
+        assertEquals("new-refresh", new TokenStore(reopened.proxy).session().refresh);
+        assertNull(new TokenStore(reopened.proxy).verifiedSession());
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(new MockResponse().setResponseCode(204));
+            new ApiClient(server.url("/").toString(), store).sessions().revoke(result.invalidated.refresh);
+            var logout = server.takeRequest(2, java.util.concurrent.TimeUnit.SECONDS);
+            assertNotNull(logout);
+            assertEquals("/api/v1/auth/logout", logout.getPath());
+            assertEquals("{\"refreshToken\":\"new-refresh\"}", logout.getBody().readUtf8());
+        }
     }
 
     @Test
