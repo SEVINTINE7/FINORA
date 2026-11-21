@@ -16,6 +16,8 @@ import java.util.concurrent.Executors;
 
 import lk.finora.app.BuildConfig;
 import lk.finora.app.data.api.ApiClient;
+import lk.finora.app.data.api.SessionClient;
+import lk.finora.app.data.local.TokenStore.Session;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.repo.LoginRepository;
 import lk.finora.app.data.repo.LoginRepository.Attempt;
@@ -27,6 +29,8 @@ public final class LoginViewModel extends AndroidViewModel {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private Attempt activeAttempt;
     private LoginRepository repository;
+    private boolean restorationStarted;
+    private boolean cleared;
 
     public LoginViewModel(@NonNull Application application) {
         super(application);
@@ -36,8 +40,61 @@ public final class LoginViewModel extends AndroidViewModel {
         return state;
     }
 
+    void restore(boolean storageError) {
+        if (restorationStarted) {
+            return;
+        }
+        restorationStarted = true;
+        if (storageError) {
+            state.setValue(new State(false, Result.STORAGE_ERROR));
+            return;
+        }
+        retryRestore();
+    }
+
+    void retryRestore() {
+        if (state.getValue().loading) {
+            return;
+        }
+        state.setValue(new State(true, null));
+        worker.execute(() -> {
+            Result result = restoreSession();
+            main.post(() -> {
+                if (!cleared) {
+                    state.setValue(new State(false, result));
+                }
+            });
+        });
+    }
+
+    private Result restoreSession() {
+        if (BuildConfig.API_BASE_URL.isEmpty()) {
+            return Result.CONFIGURATION_ERROR;
+        }
+        try {
+            TokenStore store = TokenStore.open(getApplication());
+            if (store.verifiedSession() != null) {
+                return Result.SUCCESS;
+            }
+            Session stored = store.session();
+            if (stored == null) {
+                return null;
+            }
+            switch (SessionClient.get(store).sessions().refresh(stored)) {
+                case RESTORED: return Result.SUCCESS;
+                case DISABLED: return Result.ACCOUNT_DISABLED;
+                case EXPIRED: return Result.SESSION_EXPIRED;
+                case STORAGE_ERROR: return Result.STORAGE_ERROR;
+                case SUPERSEDED: return null;
+                default: return Result.RESTORE_UNAVAILABLE;
+            }
+        } catch (IOException | GeneralSecurityException | RuntimeException failure) {
+            return Result.STORAGE_ERROR;
+        }
+    }
+
     void submit(String email, String password) {
-        if (activeAttempt != null) {
+        if (activeAttempt != null || state.getValue().loading) {
             return;
         }
         Attempt attempt = new Attempt();
@@ -61,8 +118,8 @@ public final class LoginViewModel extends AndroidViewModel {
         try {
             if (repository == null) {
                 TokenStore tokens = TokenStore.open(getApplication());
-                repository = new LoginRepository(new ApiClient(BuildConfig.API_BASE_URL,
-                        tokens::accessToken), (LoginRepository.SessionWriter) tokens::save);
+                ApiClient client = SessionClient.get(tokens);
+                repository = new LoginRepository(client, (LoginRepository.SessionWriter) tokens::save);
             }
             return repository.login(email, password, attempt);
         } catch (IOException | GeneralSecurityException | RuntimeException exception) {
@@ -72,6 +129,7 @@ public final class LoginViewModel extends AndroidViewModel {
 
     @Override
     protected void onCleared() {
+        cleared = true;
         Attempt attempt = activeAttempt;
         activeAttempt = null;
         if (attempt != null) {

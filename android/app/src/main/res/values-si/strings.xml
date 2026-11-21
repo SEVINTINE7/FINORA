@@ -6,7 +6,6 @@
     <string name="invalid_email">වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න.</string>
     <string name="required_password">ඔබේ මුරපදය ඇතුළත් කරන්න.</string>
     <string name="signing_in">පිවිසෙමින්…</string>
-    <string name="signed_in">සාර්ථකව පිවිසුණි.</string>
     <string name="invalid_credentials">විද්‍යුත් තැපෑල හෝ මුරපදය වැරදියි.</string>
     <string name="account_disabled">මෙම ගිණුම අක්‍රිය කර ඇත.</string>
     <string name="invalid_input">විද්‍යුත් තැපෑල සහ මුරපදය පරීක්ෂා කරන්න.</string>
@@ -26,5 +25,6 @@
     <string name="home_tab">මුල් පිටුව</string>
     <string name="sign_out">ඉවත් වන්න</string>
     <string name="session_expired">කරුණාකර නැවත පිවිසෙන්න.</string>
+    <string name="restore_unavailable">ඔබේ සැසිය යළි ආරම්භ කළ නොහැක. නැවත උත්සාහ කිරීමට මෙතැන ඔබන්න.</string>
     <string name="unsupported_role">මෙම ගිණුමෙන් FINORA වෙත පිවිසිය නොහැක.</string>
 </resources>

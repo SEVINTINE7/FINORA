@@ -8,12 +8,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import lk.finora.app.BuildConfig;
-import lk.finora.app.data.api.ApiClient;
-import lk.finora.app.data.api.AuthApi.RefreshRequest;
+import lk.finora.app.data.api.SessionClient;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
-import okhttp3.ResponseBody;
 
 public final class HomeViewModel extends ViewModel {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
@@ -24,6 +21,10 @@ public final class HomeViewModel extends ViewModel {
         return signedOut;
     }
 
+    boolean signingOut() {
+        return signingOut;
+    }
+
     void logout(Session expected) {
         if (signingOut) {
             return;
@@ -32,28 +33,20 @@ public final class HomeViewModel extends ViewModel {
         worker.execute(() -> {
             TokenStore store = TokenStore.current();
             boolean failed = false;
+            Session revoke = null;
             try {
                 if (store != null) {
-                    store.clear(expected);
+                    revoke = store.clearAccount(expected);
                 }
             } catch (IOException | RuntimeException exception) {
                 failed = true;
+                revoke = expected;
             }
             signedOut.postValue(failed);
-            revoke(expected);
-        });
-    }
-
-    private static void revoke(Session session) {
-        try {
-            ApiClient client = new ApiClient(BuildConfig.API_BASE_URL, () -> null);
-            try (ResponseBody unused = client.auth().logout(
-                    new RefreshRequest(session.refresh)).execute().errorBody()) {
-                // Local logout completes independently of remote revocation.
+            if (revoke != null) {
+                SessionClient.get(store).sessions().revoke(revoke.refresh);
             }
-        } catch (IOException | RuntimeException ignored) {
-            // A network error cannot restore an invalidated local session.
-        }
+        });
     }
 
     @Override

@@ -6,7 +6,6 @@
     <string name="invalid_email">Enter a valid email address.</string>
     <string name="required_password">Enter your password.</string>
     <string name="signing_in">Signing in…</string>
-    <string name="signed_in">Signed in successfully.</string>
     <string name="invalid_credentials">The email or password is incorrect.</string>
     <string name="account_disabled">This account is disabled.</string>
     <string name="invalid_input">Check your email and password.</string>
@@ -26,5 +25,6 @@
     <string name="home_tab">Home</string>
     <string name="sign_out">Sign out</string>
     <string name="session_expired">Please sign in again.</string>
+    <string name="restore_unavailable">Could not restore your session. Tap here to retry.</string>
     <string name="unsupported_role">This account cannot open FINORA.</string>
 </resources>

@@ -77,6 +77,57 @@ public class TokenStoreTest {
         assertEquals(pair("old", "old-refresh"), preferences.attempts.get(2));
     }
 
+    @Test
+    public void rotationKeepsIdentityAndLogoutClearsTheLatestPair() throws Exception {
+        PreferencesDouble preferences = new PreferencesDouble(true, true, true);
+        TokenStore store = new TokenStore(preferences.proxy);
+        store.save("old", "old-refresh", "USER", "EN");
+        TokenStore.Session initial = store.verifiedSession();
+        TokenStore.Session rotated = store.replace(initial, "new", "new-refresh", "USER", "SI");
+        assertEquals("SI", rotated.language);
+        assertEquals(rotated, store.clearAccount(initial));
+        assertNull(store.verifiedSession());
+        assertEquals(Map.of(), preferences.memory);
+        assertNull(store.replace(rotated, "stale", "stale-refresh", "ADMIN", "EN"));
+    }
+
+    @Test
+    public void lateRefreshCannotOverwriteNewLogin() throws Exception {
+        PreferencesDouble preferences = new PreferencesDouble(true, true);
+        TokenStore store = new TokenStore(preferences.proxy);
+        store.save("first", "first-refresh", "USER", "EN");
+        TokenStore.Session first = store.session();
+        store.save("second", "second-refresh", "STAFF", "SI");
+        assertNull(store.replace(first, "stale", "stale-refresh", "ADMIN", "EN"));
+        assertNull(store.clearAccount(first));
+        assertEquals("second", store.verifiedSession().access);
+    }
+
+    @Test
+    public void reloadRequiresServerValidationEvenWithCompleteMetadata() throws Exception {
+        PreferencesDouble preferences = new PreferencesDouble(true);
+        TokenStore store = new TokenStore(preferences.proxy);
+        store.save("stored", "refresh", "ADMIN", "SI");
+        TokenStore restored = new TokenStore(preferences.proxy);
+        assertEquals("ADMIN", restored.session().role);
+        assertEquals("SI", restored.session().language);
+        assertNull(restored.verifiedSession());
+    }
+
+    @Test
+    public void failedLogoutClearRemovesInMemoryAccess() throws Exception {
+        PreferencesDouble preferences = new PreferencesDouble(true, false, true);
+        TokenStore store = new TokenStore(preferences.proxy);
+        store.save("stored", "refresh", "USER", "EN");
+        TokenStore.Session session = store.verifiedSession();
+        assertThrows(IOException.class, () -> store.clearAccount(session));
+        assertNull(store.verifiedSession());
+        assertNull(store.session());
+        preferences.memory.put("access_token", "previously-persisted");
+        preferences.memory.put("refresh_token", "previously-persisted-refresh");
+        assertNull(new TokenStore(preferences.proxy).session());
+    }
+
     private static void assertBearer(TokenStore store, String expected) throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             server.enqueue(new MockResponse());
@@ -98,7 +149,7 @@ public class TokenStoreTest {
     }
 
     /** Models Android's immediate in-memory update even when the disk commit fails. */
-    private static final class PreferencesDouble {
+    static final class PreferencesDouble {
         final ArrayDeque<Boolean> results = new ArrayDeque<>();
         final Map<String, String> memory = new HashMap<>();
         final List<Map<String, String>> attempts = new ArrayList<>();

@@ -16,6 +16,7 @@ public final class TokenStore {
     private static final String REFRESH = "refresh_token";
     private static final String ROLE = "role";
     private static final String LANGUAGE = "language";
+    private static final String BLOCKED = "session_blocked";
     private static volatile TokenStore instance;
 
     private final SharedPreferences preferences;
@@ -40,9 +41,9 @@ public final class TokenStore {
         this.preferences = preferences;
         String access = preferences.getString(ACCESS, null);
         String refresh = preferences.getString(REFRESH, null);
-        if (access != null && !access.trim().isEmpty()
+        if (preferences.getString(BLOCKED, null) == null && access != null && !access.trim().isEmpty()
                 && refresh != null && !refresh.trim().isEmpty()) {
-            published = new Session(access, refresh, preferences.getString(ROLE, null),
+            published = new Session(new Object(), access, refresh, preferences.getString(ROLE, null),
                     preferences.getString(LANGUAGE, null));
         }
     }
@@ -58,7 +59,17 @@ public final class TokenStore {
 
     public synchronized void save(String accessToken, String refreshToken,
                                   String role, String language) throws IOException {
-        persist(new Session(accessToken, refreshToken, role, language));
+        persist(new Session(new Object(), accessToken, refreshToken, role, language));
+    }
+
+    public synchronized Session replace(Session expected, String access, String refresh,
+                                        String role, String language) throws IOException {
+        if (published != expected || expected == null) {
+            return null;
+        }
+        Session replacement = new Session(expected.identity, access, refresh, role, language);
+        persist(replacement);
+        return replacement;
     }
 
     private void persist(Session replacement) throws IOException {
@@ -103,14 +114,37 @@ public final class TokenStore {
         }
         verified = null;
         published = null;
-        if (!commit(null)) {
-            throw new IOException("Could not clear persisted session");
+        try {
+            if (!commit(null)) {
+                throw new IOException("Could not clear persisted session");
+            }
+        } catch (IOException | RuntimeException failure) {
+            // If deletion fails, separately try to make the old record unusable on restart.
+            try {
+                if (!preferences.edit().putString(BLOCKED, "1").commit()) {
+                    failure.addSuppressed(new IOException("Could not block persisted session"));
+                }
+            } catch (RuntimeException markerFailure) {
+                if (markerFailure != failure) {
+                    failure.addSuppressed(markerFailure);
+                }
+            }
+            throw failure;
         }
         return true;
     }
 
+    public synchronized Session clearAccount(Session expected) throws IOException {
+        Session current = published;
+        if (expected == null || !expected.sameAccount(current)) {
+            return null;
+        }
+        clear(current);
+        return current;
+    }
+
     private boolean commit(Session session) {
-        SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences.Editor editor = preferences.edit().remove(BLOCKED);
         if (session == null) {
             editor.remove(ACCESS).remove(REFRESH).remove(ROLE).remove(LANGUAGE);
         } else {
@@ -121,16 +155,22 @@ public final class TokenStore {
     }
 
     public static final class Session {
+        private final Object identity;
         public final String access;
         public final String refresh;
         public final String role;
         public final String language;
 
-        private Session(String access, String refresh, String role, String language) {
+        private Session(Object identity, String access, String refresh, String role, String language) {
+            this.identity = identity;
             this.access = access;
             this.refresh = refresh;
             this.role = role;
             this.language = language;
+        }
+
+        public boolean sameAccount(Session other) {
+            return other != null && identity == other.identity;
         }
 
         public boolean supported() {

@@ -25,7 +25,7 @@ public abstract class ProtectedHomeActivity extends ComponentActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         entry = currentSession();
-        if (entry == null || !requiredRole().equals(entry.role)) {
+        if (!RoleGuard.permits(requiredRole(), entry == null ? null : entry.role)) {
             SessionNavigation.openLogin(this, false);
             return;
         }
@@ -39,29 +39,32 @@ public abstract class ProtectedHomeActivity extends ComponentActivity {
         layout.setBackgroundColor(getColor(R.color.finora_ink));
         TextView title = new TextView(this);
         title.setText(titleResource());
-        title.setTextColor(0xffffffff);
+        title.setTextColor(getColor(R.color.finora_on_navy));
         title.setTextSize(28);
         layout.addView(title);
         TextView message = new TextView(this);
         message.setText(R.string.home_placeholder);
-        message.setTextColor(0xffffffff);
+        message.setTextColor(getColor(R.color.finora_on_navy));
         message.setGravity(Gravity.CENTER);
         layout.addView(message, new LinearLayout.LayoutParams(-1, 0, 1));
         if ("USER".equals(requiredRole())) {
             TextView home = new TextView(this);
             home.setText(R.string.home_tab);
             home.setGravity(Gravity.CENTER);
-            home.setTextColor(0xffffffff);
+            home.setTextColor(getColor(R.color.finora_on_navy));
             layout.addView(home);
         }
         Button logout = new Button(this);
         logout.setText(R.string.sign_out);
-        logout.setBackgroundTintList(ColorStateList.valueOf(0xffdff2e4));
+        logout.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.finora_mint)));
         layout.addView(logout);
         logout.setOnClickListener(view -> {
             layout.setVisibility(View.INVISIBLE);
             model.logout(entry);
         });
+        if (model.signingOut()) {
+            layout.setVisibility(View.INVISIBLE);
+        }
         setContentView(layout);
         model.signedOut().observe(this, failed -> {
             if (failed != null) {
@@ -73,7 +76,9 @@ public abstract class ProtectedHomeActivity extends ComponentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isFinishing() && (entry == null || currentSession() != entry)) {
+        Session current = currentSession();
+        if (!isFinishing() && (entry == null || !entry.sameAccount(current)
+                || !RoleGuard.permits(requiredRole(), current.role))) {
             SessionNavigation.openLogin(this, false);
         }
     }

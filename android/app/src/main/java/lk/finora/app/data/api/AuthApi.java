@@ -8,6 +8,9 @@ public interface AuthApi {
     @POST("/api/v1/auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
 
+    @POST("/api/v1/auth/refresh")
+    Call<LoginResponse> refresh(@Body RefreshRequest request);
+
     @POST("/api/v1/auth/logout")
     Call<Void> logout(@Body RefreshRequest request);
 
