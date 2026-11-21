@@ -24,6 +24,7 @@
     <dimen name="finora_space_l">22dp</dimen>
     <dimen name="finora_space_xl">28dp</dimen>
     <dimen name="finora_outer_margin">24dp</dimen>
+    <dimen name="finora_login_content_width">480dp</dimen>
     <dimen name="finora_touch">48dp</dimen>
     <dimen name="finora_control_height">56dp</dimen>
     <dimen name="finora_control_radius">14dp</dimen>

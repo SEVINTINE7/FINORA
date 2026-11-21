@@ -19,8 +19,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] App installs on a real Android 8+ phone, both flavors side by side, login works against the local API
 
 **Handoff notes:**
-- Native Java/XML login redesign with original FINORA mark, adaptive icon, English/Sinhala, and reusable UI states; both app IDs retained.
-- Redesign: both debug builds passed; 19 unit tests per flavor, zero lint issues; Pixel emulator confirmed validation, keyboard, and compact Sinhala scrolling.
+- Original FINORA branding and adaptive icon; login caps content at 480dp and compacts the header for the keyboard. Both app IDs retained.
+- Redesign: both debug builds passed; 19 unit tests per flavor, zero lint issues. Pixel emulator verified keyboard submission, validation and local API login.
 - Teardown cancels Retrofit without waiting for disk. Started writes may finish; tokens publish after commit, with best-effort restoration on failure.
 - Release URL requires an approved HTTPS origin with path /; 7 validation cases passed. Debug cleartext is limited to 10.0.2.2.
 - 2026-11-21 Sevindu: D22 approved - debug URL/cleartext switched to 127.0.0.1 (use `adb reverse tcp:8080 tcp:8080`). D23 - release URL comes from T56; T37 does not wait for it.

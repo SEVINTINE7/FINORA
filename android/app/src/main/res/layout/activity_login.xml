@@ -16,14 +16,16 @@
             android:layout_height="wrap_content">
 
             <ImageView
+                android:id="@+id/login_brand_art"
                 android:layout_width="@dimen/finora_art_size"
                 android:layout_height="@dimen/finora_art_size"
                 android:layout_gravity="end|bottom"
                 android:importantForAccessibility="no"
-                android:alpha="0.38"
+                android:alpha="0.26"
                 android:src="@drawable/finora_orbit" />
 
             <LinearLayout
+                android:id="@+id/login_brand_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -42,6 +44,7 @@
                     android:text="@string/app_name" />
 
                 <TextView
+                    android:id="@+id/login_brand_headline"
                     style="@style/FinoraText.Display"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

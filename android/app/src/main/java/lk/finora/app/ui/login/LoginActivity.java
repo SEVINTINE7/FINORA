@@ -1,5 +1,6 @@
 package lk.finora.app.ui.login;
 
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -51,10 +52,11 @@ public final class LoginActivity extends ComponentActivity {
         visibility.setOnClickListener(view -> setPasswordVisible(
                 password.getTransformationMethod() instanceof PasswordTransformationMethod));
         submit = findViewById(R.id.sign_in);
+        configureInsets();
         emailFeedback = new FieldFeedback(email, findViewById(R.id.email_field),
-                findViewById(R.id.email_error));
+                findViewById(R.id.email_error), null);
         passwordFeedback = new FieldFeedback(password, findViewById(R.id.password_field),
-                findViewById(R.id.password_error));
+                findViewById(R.id.password_error), this::revealSubmitWithKeyboard);
         feedback = new StateView(findViewById(R.id.login_feedback));
         ViewCompat.setAccessibilityHeading(findViewById(R.id.login_heading), true);
 
@@ -82,17 +84,52 @@ public final class LoginActivity extends ComponentActivity {
     private void configureInsets() {
         View root = findViewById(R.id.login_root);
         View sheet = findViewById(R.id.login_sheet);
+        View brand = findViewById(R.id.login_brand_content);
+        View headline = findViewById(R.id.login_brand_headline);
+        View artwork = findViewById(R.id.login_brand_art);
+        int margin = getResources().getDimensionPixelSize(R.dimen.finora_outer_margin);
+        int maxWidth = getResources().getDimensionPixelSize(R.dimen.finora_login_content_width);
         int bottomSpacing = sheet.getPaddingBottom();
+
+        root.addOnLayoutChangeListener((view, left, top, right, bottom,
+                oldLeft, oldTop, oldRight, oldBottom) -> {
+            int available = view.getWidth() - view.getPaddingLeft() - view.getPaddingRight();
+            int gutter = Math.max(margin, (available - maxWidth) / 2);
+            if (sheet.getPaddingStart() != gutter) {
+                sheet.setPaddingRelative(gutter, sheet.getPaddingTop(), gutter,
+                        sheet.getPaddingBottom());
+                brand.setPaddingRelative(gutter, brand.getPaddingTop(), gutter,
+                        brand.getPaddingBottom());
+            }
+        });
+
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
             Insets safe = insets.getInsets(WindowInsetsCompat.Type.systemBars()
                     | WindowInsetsCompat.Type.displayCutout());
             int keyboard = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
-            view.setPadding(safe.left, safe.top, safe.right, 0);
+            boolean keyboardChanged = view.getPaddingBottom() != keyboard;
+            int heroVisibility = keyboard == 0 ? View.VISIBLE : View.GONE;
+            headline.setVisibility(heroVisibility);
+            artwork.setVisibility(heroVisibility);
+            view.setPadding(safe.left, safe.top, safe.right, keyboard);
             sheet.setPaddingRelative(sheet.getPaddingStart(), sheet.getPaddingTop(),
-                    sheet.getPaddingEnd(), bottomSpacing + Math.max(safe.bottom, keyboard));
+                    sheet.getPaddingEnd(), bottomSpacing + (keyboard == 0 ? safe.bottom : 0));
+            if (keyboardChanged && keyboard > 0 && password.hasFocus()) {
+                revealSubmitWithKeyboard();
+            }
             return insets;
         });
         ViewCompat.requestApplyInsets(root);
+    }
+
+    private void revealSubmitWithKeyboard() {
+        View root = findViewById(R.id.login_root);
+        submit.post(() -> {
+            if (password.hasFocus() && root.getPaddingBottom() > 0) {
+                submit.requestRectangleOnScreen(
+                        new Rect(0, 0, submit.getWidth(), submit.getHeight()), true);
+            }
+        });
     }
 
     private void signIn(LoginViewModel model) {
@@ -160,10 +197,15 @@ public final class LoginActivity extends ComponentActivity {
         private final View outline;
         private final TextView message;
 
-        FieldFeedback(EditText input, View outline, TextView message) {
+        FieldFeedback(EditText input, View outline, TextView message, Runnable onFocus) {
             this.outline = outline;
             this.message = message;
-            input.setOnFocusChangeListener((view, focused) -> outline.setActivated(focused));
+            input.setOnFocusChangeListener((view, focused) -> {
+                outline.setActivated(focused);
+                if (focused && onFocus != null) {
+                    onFocus.run();
+                }
+            });
             input.addTextChangedListener(this);
             ViewCompat.setAccessibilityDelegate(input, new AccessibilityDelegateCompat() {
                 @Override
