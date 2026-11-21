@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">FINORA</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="invalid_email">Enter a valid email address.</string>
+    <string name="required_password">Enter your password.</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="signed_in">Signed in successfully.</string>
+    <string name="invalid_credentials">The email or password is incorrect.</string>
+    <string name="account_disabled">This account is disabled.</string>
+    <string name="invalid_input">Check your email and password.</string>
+    <string name="network_error">Could not connect. Check your connection and try again.</string>
+    <string name="server_error">Could not sign in. Try again later.</string>
+    <string name="storage_error">Could not securely save your session.</string>
+    <string name="configuration_error">The server address has not been configured.</string>
+</resources>

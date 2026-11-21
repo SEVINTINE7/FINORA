@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">FINORA</string>
+    <string name="email">විද්‍යුත් තැපෑල</string>
+    <string name="password">මුරපදය</string>
+    <string name="sign_in">පිවිසෙන්න</string>
+    <string name="invalid_email">වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න.</string>
+    <string name="required_password">ඔබේ මුරපදය ඇතුළත් කරන්න.</string>
+    <string name="signing_in">පිවිසෙමින්…</string>
+    <string name="signed_in">සාර්ථකව පිවිසුණි.</string>
+    <string name="invalid_credentials">විද්‍යුත් තැපෑල හෝ මුරපදය වැරදියි.</string>
+    <string name="account_disabled">මෙම ගිණුම අක්‍රිය කර ඇත.</string>
+    <string name="invalid_input">විද්‍යුත් තැපෑල සහ මුරපදය පරීක්ෂා කරන්න.</string>
+    <string name="network_error">සම්බන්ධ විය නොහැක. සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.</string>
+    <string name="server_error">පිවිසිය නොහැක. පසුව නැවත උත්සාහ කරන්න.</string>
+    <string name="storage_error">ඔබේ සැසිය ආරක්ෂිතව සුරැකිය නොහැක.</string>
+    <string name="configuration_error">සේවාදායක ලිපිනය සකසා නැත.</string>
+</resources>

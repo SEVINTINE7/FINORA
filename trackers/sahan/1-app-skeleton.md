@@ -6,11 +6,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T37 · Mobile app skeleton · `ALL`
 **Lead:** Sahan · **Depends on:** T02 · **Touches:** `/android`, `.github/workflows/ci.yml`
 - [ ] T37.1 Create `/android` project in Android Studio: Java, package `lk.finora.app`, minSdk 26, target latest stable SDK, Gradle wrapper committed
-- [ ] T37.2 Product flavors `beta` (applicationIdSuffix `.beta`) and `v1`; `buildConfigField ADVICE_MODE` = `"BETA"` / `"V1"` (D03)
+- [x] T37.2 Product flavors `beta` (applicationIdSuffix `.beta`) and `v1`; `buildConfigField ADVICE_MODE` = `"BETA"` / `"V1"` (D03)
 - [ ] T37.3 `buildConfigField API_BASE_URL`: debug = `http://10.0.2.2:8080/` (emulator), release = server HTTPS URL. `network_security_config.xml` allows cleartext only for `10.0.2.2` in debug
-- [ ] T37.4 Retrofit + OkHttp + Gson; `and:data/api/ApiClient.java` with `AuthInterceptor` (adds `Bearer` token); error JSON → `ApiError` model
+- [x] T37.4 Retrofit + OkHttp + Gson; `and:data/api/ApiClient.java` with `AuthInterceptor` (adds `Bearer` token); error JSON → `ApiError` model
 - [ ] T37.5 Structure: `and:data/{api,repo,local}`, `and:ui/<feature>/`, `and:util/`; ViewModel + LiveData; `TokenStore` on EncryptedSharedPreferences
-- [ ] T37.6 Reusable loading / empty / error view; `res/values/strings.xml` + `res/values-si/strings.xml` from day one
+- [x] T37.6 Reusable loading / empty / error view; `res/values/strings.xml` + `res/values-si/strings.xml` from day one
 - [ ] T37.7 Login screen (email, password) calling `POST /api/v1/auth/login`
 - [ ] T37.8 Add Android job to CI: `./gradlew assembleV1Debug assembleBetaDebug testV1DebugUnitTest`
 
@@ -18,7 +18,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] CI Android job green
 - [ ] App installs on a real Android 8+ phone, both flavors side by side, login works against the local API
 
-**Handoff notes:** —
+**Handoff notes:**
+- Java Android 17 scaffold (minSdk 26), Gradle 9.5.0/AGP 9.3.0, Beta and V1 APKs with distinct IDs.
+- Both debug builds and lint tasks passed; 5 unit tests per flavor, 0 failures. Android CI workflow has yet to run remotely.
+- Login contract inspected at 1f379e1; sign-in uses Retrofit and EncryptedSharedPreferences. Real API login and device-backed storage remain unverified.
+- Release requires FINORA_RELEASE_API_URL with the approved HTTPS origin; debug cleartext is restricted to 10.0.2.2.
+- Pending: approve phone debug networking, install both APKs side by side, verify local API login, and capture green Android CI.
+- Local commit pending: git add exited 128 because the sandbox denied .git/index.lock. Stage and commit from normal Windows CMD.
 
 ---
 
