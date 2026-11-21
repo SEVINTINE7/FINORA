@@ -6,7 +6,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T37 · Mobile app skeleton · `ALL`
 **Lead:** Sahan · **Depends on:** T02 · **Touches:** `/android`, `.github/workflows/ci.yml`
 - [x] T37.1 Create `/android` project in Android Studio: Java, package `lk.finora.app`, minSdk 26, target latest stable SDK, Gradle wrapper committed
-- [x] T37.2 Single named `v1` flavor, application ID `lk.finora.app`, `ADVICE_MODE = "V1"`. D03 previously required two flavors; formal reconciliation is pending.
+- [x] T37.2 Ship one Android application using the `v1` flavor, application ID `lk.finora.app`, and `ADVICE_MODE = "V1"` (D03).
 - [x] T37.3 Debug API uses `http://127.0.0.1:8080/` with ADB reverse on phone or emulator (D22); map to the actual host API port. Release remains HTTPS-only with the origin deferred to T56 (D23).
 - [x] T37.4 Retrofit + OkHttp + Gson; `and:data/api/ApiClient.java` with `AuthInterceptor` (adds `Bearer` token); error JSON → `ApiError` model
 - [x] T37.5 Structure: `and:data/{api,repo,local}`, `and:ui/<feature>/`, `and:util/`; ViewModel + LiveData; `TokenStore` on EncryptedSharedPreferences
@@ -15,17 +15,17 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T37.8 V1 Android CI runs `./gradlew assembleV1Debug testV1DebugUnitTest`.
 
 **Done when**
-- [x] V1 Android CI job green on the consolidated revision (`fb79650`)
+- [x] V1 Android CI job passed on `c20087e` ([run 44940716004](https://github.com/SEVINTINE7/FINORA/actions/runs/44940716004)).
 - [x] V1 installs on an authorized Android 8+ phone, signs in to the dev API via ADB reverse, and reopens encrypted tokens after app restart.
-- [ ] Original D03 side-by-side phone criterion remains unverified; confirm its replacement with the V1-only criterion.
+- [x] The Android build provides only the D03-approved V1 application with ID `lk.finora.app`.
 
 **Handoff notes:**
-- V1 only (lk.finora.app); retained professional sign-in, adaptive icon and T56 environment-driven signing. Formal D03 reconciliation pending.
+- D03 at `c20087e` records V1 only (`lk.finora.app`). The V1-only build and acceptance criteria are verified.
 - V1 debug and restart APKs built, 19 unit tests passed, and lint found no issues. [CI run 44928880221](https://github.com/SEVINTINE7/FINORA/actions/runs/44928880221) passed Android and API on `9dd5e0c`.
 - SDK ADB 37.0.3 detected the Android 17 emulator. D22 reverse mapped device 8080 to dev API 18080. Gradle resolved OkHttp and MockWebServer 4.12.1.
 - After emulator force-stop, instrumentation reopened both encrypted tokens and the recovered access token passed /me.
 - D23 defers the release origin to T56; HTTPS validation and release cleartext denial are retained.
-- Sahan accepted HMD Crest 5G (Android 14) install, login and encrypted restart evidence on 2026-11-22. Formal D03 reconciliation and independent review remain pending.
+- Sahan accepted HMD Crest 5G (Android 14) install, login and encrypted restart evidence on 2026-11-22. T37 is in review pending independent human approval.
 
 ---
 
