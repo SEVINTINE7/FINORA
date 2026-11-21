@@ -55,7 +55,7 @@ jobs:
 
   android:
     name: Android builds and unit tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: android
@@ -66,6 +66,6 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
-      - run: sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0'
+      - run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0"'
       - run: chmod +x gradlew
       - run: ./gradlew assembleV1Debug assembleBetaDebug testV1DebugUnitTest
