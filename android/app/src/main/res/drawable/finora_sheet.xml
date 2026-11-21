@@ -1,0 +1,5 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/finora_surface" />
+    <corners android:topLeftRadius="@dimen/finora_sheet_radius"
+        android:topRightRadius="@dimen/finora_sheet_radius" />
+</shape>

@@ -1,0 +1,4 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/finora_error_surface" />
+    <corners android:radius="@dimen/finora_control_radius" />
+</shape>

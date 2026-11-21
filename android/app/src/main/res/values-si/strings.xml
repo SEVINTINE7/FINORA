@@ -14,4 +14,9 @@
     <string name="server_error">පිවිසිය නොහැක. පසුව නැවත උත්සාහ කරන්න.</string>
     <string name="storage_error">ඔබේ සැසිය ආරක්ෂිතව සුරැකිය නොහැක.</string>
     <string name="configuration_error">සේවාදායක ලිපිනය සකසා නැත.</string>
+    <string name="login_brand_headline">ඔබේ වියදම්\nතේරුම් ගන්න.</string>
+    <string name="login_heading">නැවත සාදරයෙන් පිළිගනිමු</string>
+    <string name="login_support">FINORA වෙත පිවිස ඉදිරියට යන්න.</string>
+    <string name="login_show_password">මුරපදය පෙන්වන්න</string>
+    <string name="login_hide_password">මුරපදය සඟවන්න</string>
 </resources>

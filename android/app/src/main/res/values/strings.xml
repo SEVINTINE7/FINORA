@@ -14,4 +14,9 @@
     <string name="server_error">Could not sign in. Try again later.</string>
     <string name="storage_error">Could not securely save your session.</string>
     <string name="configuration_error">The server address has not been configured.</string>
+    <string name="login_brand_headline">Make sense of\nyour spending.</string>
+    <string name="login_heading">Welcome back</string>
+    <string name="login_support">Sign in to continue to FINORA.</string>
+    <string name="login_show_password">Show password</string>
+    <string name="login_hide_password">Hide password</string>
 </resources>
