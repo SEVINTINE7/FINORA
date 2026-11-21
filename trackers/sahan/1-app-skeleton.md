@@ -31,23 +31,23 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T08 · Three-role login routing · `ROLE-CR`
 **Lead:** Sahan · **Support:** Sevindu · **Depends on:** T06, T37 · **Touches:** `and:ui/auth/`, `and:ui/main/`, `and:ui/admin/`, `and:ui/staff/`, `and:data/api/`
-- [ ] T08.1 After login route by `role`: USER → `MainActivity` (bottom nav), ADMIN → `AdminHomeActivity`, STAFF → `StaffHomeActivity` (placeholders until T41/T46)
-- [ ] T08.2 OkHttp `Authenticator`: on 401 call `/auth/refresh` once; if it fails clear `TokenStore` → login screen
-- [ ] T08.3 Remember session on app restart; logout calls `/auth/logout` and clears storage
-- [ ] T08.4 Show messages for `ACCOUNT_DISABLED`, `INVALID_CREDENTIALS` (EN/SI)
+- [x] T08.1 After login route by `role`: USER → `MainActivity` (bottom nav), ADMIN → `AdminHomeActivity`, STAFF → `StaffHomeActivity` (placeholders until T41/T46)
+- [x] T08.2 OkHttp `Authenticator`: on 401 call `/auth/refresh` once; if it fails clear `TokenStore` → login screen
+- [x] T08.3 Remember session on app restart; logout calls `/auth/logout` and clears storage
+- [x] T08.4 Show messages for `ACCOUNT_DISABLED`, `INVALID_CREDENTIALS` (EN/SI)
 - [ ] T08.5 [API·Sevindu] Confirm login response has `role` and `language` (from T05)
 
 **Done when**
-- [ ] Each role lands on its own home on a device
-- [ ] Expired refresh → back to login; disabled account shows message; USER cannot open admin screens by intent
+- [x] Each role lands on its own home on a device
+- [x] Expired refresh → back to login; disabled account shows message; USER cannot open admin screens by intent
 
 **Handoff notes:**
-- T08.1–T08.4 implemented locally for pre-push review. Role homes are non-exported and verify the current session role independently.
-- The encrypted store preserves role and language with the token pair. Restore validates through refresh before routing. Local logout clears that session even offline when storage is writable.
-- One refresh per in-flight generation, one protected-request retry, and conditional publication protect rotation, sign-out, and account replacement.
-- V1 build, test APK, 32 unit tests and lint passed. Regressions cover late 401s after transient failure and prevent replay of a rotating refresh request. OkHttp and MockWebServer resolve to 4.12.1.
-- Dev API verified USER, ADMIN and STAFF roles, EN language, disabled-account rejection and rejection of a server-issued refresh row set past expiry in isolated test data. T08.5 remains with Sevindu.
-- Pending: remaining device role and negative-path acceptance, independent security review, explicit push instruction, and final remote CI.
+- HMD Crest 5G (Android 14) routed actual USER, ADMIN and STAFF logins. Both external and app-internal launches of privileged screens were denied while USER was signed in.
+- After one controlled protected-request 401, the app refreshed against the real dev API once, retried once, and persisted the rotated pair encrypted. An expired disposable refresh row returned the app to login.
+- The phone restored USER after force-stop, verified online revocation and offline local sign-out, blocked Back from reopening home, and rendered both login errors in English and Sinhala.
+- V1 debug and test APKs built, 32 unit tests passed, and lint reported zero issues. OkHttp and MockWebServer resolve to 4.12.1.
+- The live login response included role and language. T08.5 remains with Sevindu.
+- Pending: device evidence confirmation, independent security review, explicit push instruction, and exact-revision remote CI.
 
 ---
 
