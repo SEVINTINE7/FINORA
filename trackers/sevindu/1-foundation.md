@@ -7,7 +7,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sevindu · **Support:** Sahan, Thilina · **Depends on:** — · **Touches:** `docs/decisions.md`
 - [x] T01.1 Admin/Staff roles approved by lecturer (D01)
 - [x] T01.2 Review P01–P03, P06–P08 with the team; move agreed items to **Decided** (now D07–D13)
-- [ ] T01.3 Agree P04 thresholds and P05 weights with Thilina; Thilina adds each score part's formula — P04 done (D10); **P05 open: Thilina sets weights + formulas**
+- [x] T01.3 Agree P04 thresholds and P05 weights with Thilina; Thilina adds each score part's formula — P04 done (D10); **P05 approved as D20**
 - [x] T01.4 Each member confirms their local setup: JDK 17, MySQL 8, Android Studio, Git — all three confirmed
 
 **Done when**
@@ -15,11 +15,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - P01, P03, P04, P06–P08 accepted → D07, D09–D13. P02 rate limit removed (D08). Git: direct push to `main` (D13). Test DB: local `finora_test` (D11).
-- T01.3/P05: Thilina prepared a scoring proposal; awaiting team approval, not a decided policy. Latest proposed weights: Spending Control 45, Debt Payments 20, Goal Progress 15, Savings 10, Emergency Savings 10 (score points, not income percentages).
-- P05 formulas, debt paid-marker proxy, missing-data handling and minimum emergency-reserve input remain proposed; the approximately-76-point example needs complete assumptions. T01.3 stays unchecked; T23 remains blocked.
+- T01.3/P05: All three team members approved the weights, formulas and missing-data rules on 2026-11-21; recorded as D20.
+- P05 formulas, paid-marker limitations, missing-data policy and emergency-reserve requirements are recorded in D20. T01.3 complete; T23 awaits other dependencies.
 - Sevindu's machine: JDK 17.0.12, Maven 3.9.11, Git 2.50, MySQL Server 8.0 (service running), Android Studio + SDK. `mysql` CLI and `adb` not on PATH (optional). No Docker.
 - All three members confirmed local setup (T01.4).
-- 2026-11-21 P05 evidence: current categories/APIs and reference HTML reviewed; 13 synthetic cases evaluated with Python Decimal (not application tests or model validation). Next: clarify the Rs.100,000 example, agree formulas/missing-data policy and emergency input with the team, then record an approved decision; no approval or implementation claimed.
+- 2026-11-21 P05 evidence: 13 synthetic Python Decimal cases were evaluated as proposal evidence; team approval is now D20. Application implementation remains pending.
 
 ---
 

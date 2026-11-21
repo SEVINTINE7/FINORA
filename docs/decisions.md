@@ -24,6 +24,16 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D18 Spending metrics (T21)** — savings = two metrics: `leftOver` = income − expense, and `savedToCategory` = expenses in the default 'Savings' category (already inside expense, so not counted twice). No refund type: a refund is entered as INCOME in the 'Other' income category (known limit). Payday window (D10) = the income day + the next 2 days, from every INCOME record; overlapping windows count an expense once. Needs/wants from the category's need/want; no category or neither = `unclassified`. Ratios = part ÷ income, 4 decimals HALF_UP, `null` when income is 0. `fixedBills` = active bills (planned amounts).
 - **D19 Pattern rules (T22)** — extra thresholds not in D10: payday spending = payday-window spend > 30% of the month's expense; weekend spending = average per weekend day > 1.5 × average per weekday (days counted in the month). All rules strict `>` (exactly at threshold = no insight). `GET /insights?month=` recalculates every time and replaces that month's saved rows.
 
+- **D20 Health score (formerly P05; team-approved 2026-11-21)** — deterministic 0-100 score, not a forecast. Component weights: Spending Control 45, Debt Payments 20, Goal Progress 15, Savings 10, Emergency Savings 10. Weights are score points, not income percentages.
+  - Inputs: I = monthly income; E = all monthly expenses; S = expenses categorized as Savings; C = E - S; N = monthly NEED expenses; B = explicitly user-declared, dated emergency reserve. `clamp(x)` means max(0,min(1,x)).
+  - Spending Control (45): if I > 0 and C > 0, `27*min(1,I/C) + 18*clamp((I-C)/(0.05*I))`; if C = 0 with I > 0, award 45.
+  - Debt Payments (20): `20*sum(loanBillAmount*paidMarker)/sum(loanBillAmount)` for eligible obligations. This measures recorded paid markers only; it does not prove the amount or timeliness of repayment.
+  - Goal Progress (15): `15*sum(min(contributionsThroughMonthEnd,targetAmount))/sum(targetAmount)` for eligible goals.
+  - Savings (10): `A = min(S,max(0,I-E+S))`; points = `10*clamp(A/(0.05*I))` when I > 0. Savings-category transactions are already expenses and must not be deducted twice.
+  - Emergency Savings (10): use `r=B/N`; linearly interpolate points through `(r,points)=(0,0),(0.25,2.5),(0.5,5),(1,7.5),(3,10)`; cap at 10. B must be explicitly declared for the relevant date; never infer it from balances, savings transactions or goals.
+  - Missing data: missing required inputs make the component and total unavailable, not zero. Zero income makes income-dependent scoring unavailable; missing B or N <= 0 makes emergency scoring unavailable. Explicitly no applicable debt or goals means NOT_APPLICABLE, not automatic full points. Normalize applicable weights: total = HALF_UP integer rounding of `100*sum(componentPoints)/sum(applicableWeights)`, clamped 0-100; component points use 2 decimal HALF_UP.
+  - Implementation: BigDecimal calculations, deterministic results, no predictions. A dated emergency-reserve input and remaining T21/T18/T19 dependencies must be resolved before T23 acceptance. The Rs.100,000 example is illustrative until its full inputs are documented.
+
 ## Proposed — still open
 
-- **P05 Health score (owner: Thilina, needed by T23)** — Thilina sets the five part weights (savings, spending control, debt payments, emergency savings, goal progress; total 100) **and** each part's formula. Starting suggestion: 25 / 25 / 15 / 20 / 15.
+- _None currently._
