@@ -57,7 +57,25 @@ cd api
 Check it is up: <http://localhost:8080/actuator/health>. In `dev` the OpenAPI JSON is at <http://localhost:8080/v3/api-docs>. Endpoint list: [`docs/api-contract.md`](docs/api-contract.md).
 
 ## 5. Android app
-Open the `android/` folder in Android Studio (available after T37).
+Open the `android/` folder in Android Studio and select `v1Debug`. FINORA builds one application (`lk.finora.app`).
+
+Start the API with the `dev` profile, confirm its health endpoint, then use ADB reverse on the phone or emulator:
+
+```sh
+adb reverse --no-rebind tcp:8080 tcp:8080
+adb reverse --list
+```
+
+If FINORA runs on a different host port, replace the second port with the verified API port. For example, use `tcp:18080` when the API is at `127.0.0.1:18080`. If more than one device is attached, add `-s <serial>` after `adb`. Check the mapping again after reconnecting. Use a disposable development account with debug HTTP.
+
+For the encrypted restart check, build `assembleV1DebugAndroidTest` and install its APK alongside the debug application. After signing in with the disposable account, force-stop FINORA, then run the read-only instrumentation:
+
+```sh
+adb shell am force-stop lk.finora.app
+adb shell am instrument -w lk.finora.app.test/lk.finora.app.data.local.SessionVerificationInstrumentation
+```
+
+The check reopens the encrypted access and refresh pair, verifies plaintext is absent from the preference file, and uses the restored access token for `/api/v1/me`. It reports a pass or fail without printing credentials.
 
 ## Git workflow
 Commit straight to `main` (decision D13): `git pull --rebase` before you start and before you push; commit messages start with the task ID, e.g. `T09.2: categories CRUD`; never force-push.

@@ -6,26 +6,26 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T37 · Mobile app skeleton · `ALL`
 **Lead:** Sahan · **Depends on:** T02 · **Touches:** `/android`, `.github/workflows/ci.yml`
 - [x] T37.1 Create `/android` project in Android Studio: Java, package `lk.finora.app`, minSdk 26, target latest stable SDK, Gradle wrapper committed
-- [x] T37.2 Product flavors `beta` (applicationIdSuffix `.beta`) and `v1`; `buildConfigField ADVICE_MODE` = `"BETA"` / `"V1"` (D03)
-- [ ] T37.3 `buildConfigField API_BASE_URL`: debug = `http://127.0.0.1:8080/` + `adb reverse tcp:8080 tcp:8080` (real phone and emulator, D22); release = server HTTPS URL from `FINORA_RELEASE_API_URL` at build time (set in T56, D23). `network_security_config.xml` allows cleartext only for `127.0.0.1` in debug
+- [x] T37.2 Single named `v1` flavor, application ID `lk.finora.app`, `ADVICE_MODE = "V1"`. D03 previously required two flavors; formal reconciliation is pending.
+- [x] T37.3 Debug API uses `http://127.0.0.1:8080/` with ADB reverse on phone or emulator (D22); map to the actual host API port. Release remains HTTPS-only with the origin deferred to T56 (D23).
 - [x] T37.4 Retrofit + OkHttp + Gson; `and:data/api/ApiClient.java` with `AuthInterceptor` (adds `Bearer` token); error JSON → `ApiError` model
-- [ ] T37.5 Structure: `and:data/{api,repo,local}`, `and:ui/<feature>/`, `and:util/`; ViewModel + LiveData; `TokenStore` on EncryptedSharedPreferences
+- [x] T37.5 Structure: `and:data/{api,repo,local}`, `and:ui/<feature>/`, `and:util/`; ViewModel + LiveData; `TokenStore` on EncryptedSharedPreferences
 - [x] T37.6 Reusable loading / empty / error view; `res/values/strings.xml` + `res/values-si/strings.xml` from day one
-- [ ] T37.7 Login screen (email, password) calling `POST /api/v1/auth/login`
-- [x] T37.8 Add Android job to CI: `./gradlew assembleV1Debug assembleBetaDebug testV1DebugUnitTest`
+- [x] T37.7 Login screen (email, password) calling `POST /api/v1/auth/login`
+- [ ] T37.8 V1 Android CI runs `./gradlew assembleV1Debug testV1DebugUnitTest`; verify the updated remote workflow.
 
 **Done when**
-- [x] CI Android job green
-- [ ] App installs on a real Android 8+ phone, both flavors side by side, login works against the local API
+- [ ] V1 Android CI job green on the consolidated revision
+- [ ] V1 installs on an authorized Android 8+ phone, signs in to the dev API via ADB reverse, and reopens encrypted tokens after app restart.
+- [ ] Original D03 side-by-side phone criterion remains unverified; confirm its replacement with the V1-only criterion.
 
 **Handoff notes:**
-- Original FINORA branding and adaptive icon; login caps content at 480dp and compacts the header for the keyboard. Both app IDs retained.
-- Redesign: both debug builds passed; 19 unit tests per flavor, zero lint issues. Pixel emulator verified keyboard submission, validation and local API login.
-- Teardown cancels Retrofit without waiting for disk. Started writes may finish; tokens publish after commit, with best-effort restoration on failure.
-- Release URL requires an approved HTTPS origin with path /; 7 validation cases passed. Debug cleartext is limited to 10.0.2.2.
-- 2026-11-21 Sevindu: D22 approved - debug URL/cleartext switched to 127.0.0.1 (use `adb reverse tcp:8080 tcp:8080`). D23 - release URL comes from T56; T37 does not wait for it.
-- GitHub Actions run 44900175390 passed Android SDK setup, both debug builds, V1 unit tests, and upstream API verify.
-- Pending: approved release URL, phone networking approval, side-by-side install, real API login, device-backed storage and independent review.
+- V1 only (lk.finora.app); retained professional sign-in, adaptive icon and T56 environment-driven signing. Formal D03 reconciliation pending.
+- V1 APK and restart-test APK built; 19 unit tests passed, zero lint issues. Original two-flavor CI evidence is run 44900175390.
+- D22 loopback uses ADB reverse on phone and emulator; emulator mapped device 8080 to dev API 18080 and verified real login.
+- After emulator force-stop, instrumentation reopened both encrypted tokens and the recovered access token passed /me.
+- D23 defers the release origin to T56; HTTPS validation and release cleartext denial are retained.
+- Pending: consolidated remote CI, physical Android 8+ install/login/persistence, acceptance baseline confirmation and independent review.
 
 ---
 

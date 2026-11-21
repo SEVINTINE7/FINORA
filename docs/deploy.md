@@ -105,9 +105,9 @@ Build (PowerShell example; use `export` in bash):
 $env:FINORA_KEYSTORE_FILE="C:\Users\<you>\finora-keys\finora-release.jks"
 $env:FINORA_KEYSTORE_PASSWORD="..."; $env:FINORA_KEY_ALIAS="finora"; $env:FINORA_KEY_PASSWORD="..."
 $env:FINORA_RELEASE_API_URL="https://api.finora.lk/"
-cd android; .\gradlew.bat assembleV1Release assembleBetaRelease
+cd android; .\gradlew.bat assembleV1Release
 ```
-Output: `android/app/build/outputs/apk/{v1,beta}/release/app-*-release.apk`. Check: `apksigner verify --print-certs <apk>`.
+Output: `android/app/build/outputs/apk/v1/release/app-v1-release.apk`. Check: `apksigner verify --print-certs <apk>`.
 If `FINORA_KEYSTORE_FILE` is set but another value is missing (or the API URL is empty), the build stops with a clear message. Without it, release builds stay unsigned (CI and debug are unaffected).
 
 ## 6. Rollback (T56.6)

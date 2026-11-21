@@ -38,6 +38,7 @@ android {
         targetSdk 37
         versionCode 1
         versionName '0.1.0'
+        testInstrumentationRunner 'lk.finora.app.data.local.SessionVerificationInstrumentation'
     }
 
     buildFeatures {
@@ -46,11 +47,6 @@ android {
 
     flavorDimensions += 'advice'
     productFlavors {
-        beta {
-            dimension 'advice'
-            applicationIdSuffix '.beta'
-            buildConfigField 'String', 'ADVICE_MODE', '"BETA"'
-        }
         v1 {
             dimension 'advice'
             buildConfigField 'String', 'ADVICE_MODE', '"V1"'

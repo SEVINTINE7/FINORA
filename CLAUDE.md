@@ -4,7 +4,7 @@ Android app + REST API that helps young adults in Sri Lanka (18–30) track spen
 
 ## Stack
 - `/api` — Java 17 · Spring Boot 4.1 (D14) · Maven wrapper · Spring Security + JWT · Spring Data JPA · Flyway · MySQL 8 · JUnit 5 / Mockito
-- `/android` — Java · minSdk 26 (Android 8.0) · Gradle wrapper · Retrofit/OkHttp · MPAndroidChart · EncryptedSharedPreferences · FCM · Espresso · flavors `beta` and `v1`
+- `/android` — Java · minSdk 26 (Android 8.0) · Gradle wrapper · Retrofit/OkHttp · MPAndroidChart · EncryptedSharedPreferences · FCM · Espresso · the `v1` flavor
 - `/docs` — `decisions.md`, `db-schema.md` (from T03), `api-contract.md` (from T04)
 - LLM: Groq, Gemini backup — called **only** from `/api`.
 
@@ -15,7 +15,7 @@ Android app + REST API that helps young adults in Sri Lanka (18–30) track spen
 
 ## Commands (exist after T02 / T37; on Windows use `mvnw.cmd` / `gradlew.bat`)
 - API test: `cd api && ./mvnw test` · run: `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
-- Android test: `cd android && ./gradlew testV1DebugUnitTest testBetaDebugUnitTest` · build: `./gradlew assembleV1Debug`
+- Android test: `cd android && ./gradlew testV1DebugUnitTest` · build: `./gradlew assembleV1Debug`
 
 ## Conventions
 - Money: `BigDecimal` / `DECIMAL(15,2)`, LKR only. Never `double`/`float`.
