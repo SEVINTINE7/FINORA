@@ -25,7 +25,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - SDK ADB 37.0.3 detected the Android 17 emulator. D22 reverse mapped device 8080 to dev API 18080. Gradle resolved OkHttp and MockWebServer 4.12.1.
 - After emulator force-stop, instrumentation reopened both encrypted tokens and the recovered access token passed /me.
 - D23 defers the release origin to T56; HTTPS validation and release cleartext denial are retained.
-- Sahan accepted HMD Crest 5G (Android 14) install, login and encrypted restart evidence on 2026-11-22. T37 is in review pending independent human approval.
+- Sahan accepted HMD Crest 5G (Android 14) install, login and encrypted restart evidence on 2026-11-22. Sahan relayed Sevindu's independent approval of `51a8d3a` and authorization to close T37. [CI passed on the reviewed revision](https://github.com/SEVINTINE7/FINORA/actions/runs/44941142531).
 
 ---
 
