@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import lk.finora.api.support.IntegrationTest;
 import lk.finora.api.user.Role;
 import lk.finora.api.user.User;
+import lk.finora.api.user.UserStatus;
 
 /**
  * T50.1: every real {@code /api/v1} endpoint rejects a missing token (401 UNAUTHORIZED) and the wrong
@@ -170,4 +171,36 @@ class EndpointAuthTest extends IntegrationTest {
                 .content("{\"refreshToken\":\"unknown\"}"))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void disabledAccountsReturn403Everywhere() throws Exception {
+        List<User> accounts = List.of(
+                createUser(Role.USER),
+                createUser(Role.STAFF),
+                createUser(Role.ADMIN));
+
+        // Issue JWTs while accounts are still active.
+        List<String> tokens = accounts.stream()
+                .map(this::tokenFor).toList();
+
+        for (User account : accounts) {
+            account.setStatus(UserStatus.DISABLED);
+            userRepository.save(account);
+        }
+
+        SoftAssertions soft = new SoftAssertions();
+        for (Endpoint endpoint : protectedEndpoints()) {
+            for (String token : tokens) {
+                var response = mockMvc.perform(
+                        request(endpoint.method(), endpoint.url())
+                                .header("Authorization", "Bearer " + token))
+                        .andReturn().getResponse();
+
+                expectError(soft, endpoint, "disabled account",
+                        response, 403, "ACCOUNT_DISABLED");
+            }
+        }
+        soft.assertAll();
+    }
+
 }
