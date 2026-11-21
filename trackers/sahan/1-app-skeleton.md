@@ -16,7 +16,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Done when**
 - [x] V1 Android CI job green on the consolidated revision (`fb79650`)
-- [ ] V1 installs on an authorized Android 8+ phone, signs in to the dev API via ADB reverse, and reopens encrypted tokens after app restart.
+- [x] V1 installs on an authorized Android 8+ phone, signs in to the dev API via ADB reverse, and reopens encrypted tokens after app restart.
 - [ ] Original D03 side-by-side phone criterion remains unverified; confirm its replacement with the V1-only criterion.
 
 **Handoff notes:**
@@ -25,7 +25,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - SDK ADB 37.0.3 detected the Android 17 emulator. D22 reverse mapped device 8080 to dev API 18080. Gradle resolved OkHttp and MockWebServer 4.12.1.
 - After emulator force-stop, instrumentation reopened both encrypted tokens and the recovered access token passed /me.
 - D23 defers the release origin to T56; HTTPS validation and release cleartext denial are retained.
-- Pending: physical Android 8+ install/login/persistence, acceptance baseline confirmation and independent review.
+- Sahan accepted HMD Crest 5G (Android 14) install, login and encrypted restart evidence on 2026-11-22. Formal D03 reconciliation and independent review remain pending.
 
 ---
 
