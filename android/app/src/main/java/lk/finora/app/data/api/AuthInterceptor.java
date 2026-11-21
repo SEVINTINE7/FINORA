@@ -43,6 +43,9 @@ public final class AuthInterceptor implements Interceptor {
             Session session = sessions.get();
             String token = session == null ? accessToken.get() : session.access;
             builder.tag(Session.class, session);
+            if (session != null) {
+                builder.tag(SessionAuthenticator.Started.class, new SessionAuthenticator.Started());
+            }
             if (token != null && !token.isEmpty()) {
                 builder.header("Authorization", "Bearer " + token);
             }

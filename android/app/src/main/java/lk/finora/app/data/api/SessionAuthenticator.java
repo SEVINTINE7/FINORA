@@ -3,6 +3,7 @@ package lk.finora.app.data.api;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,8 @@ public final class SessionAuthenticator implements Authenticator {
     private final TokenStore store;
     private final AuthApi publicApi;
     private Flight active;
+    private WeakReference<Session> unavailableSession = new WeakReference<>(null);
+    private long unavailableAt;
 
     SessionAuthenticator(HttpUrl origin, TokenStore store, AuthApi publicApi) {
         this.origin = origin;
@@ -41,7 +44,7 @@ public final class SessionAuthenticator implements Authenticator {
                 || (request.body() != null && (request.body().isOneShot() || request.body().isDuplex()))) {
             return null;
         }
-        if (refresh(failed) != Outcome.RESTORED) {
+        if (refresh(failed, request.tag(Started.class)) != Outcome.RESTORED) {
             return null;
         }
         Session replacement = store.verifiedSession();
@@ -54,6 +57,10 @@ public final class SessionAuthenticator implements Authenticator {
     }
 
     public Outcome refresh(Session expected) {
+        return refresh(expected, null);
+    }
+
+    private Outcome refresh(Session expected, Started started) {
         Flight flight;
         boolean startsRequest;
         synchronized (this) {
@@ -63,6 +70,10 @@ public final class SessionAuthenticator implements Authenticator {
             }
             if (current != expected) {
                 return store.verifiedSession() == current ? Outcome.RESTORED : Outcome.SUPERSEDED;
+            }
+            // Requests already sent before a failed refresh share its result. New requests can try again.
+            if (started != null && unavailableSession.get() == expected && started.at - unavailableAt <= 0) {
+                return Outcome.UNAVAILABLE;
             }
             startsRequest = active == null || active.session != expected;
             flight = startsRequest ? new Flight(expected) : active;
@@ -83,12 +94,18 @@ public final class SessionAuthenticator implements Authenticator {
             outcome = exchange(expected);
             return outcome;
         } finally {
-            flight.result.complete(outcome);
             synchronized (this) {
                 if (active == flight) {
+                    if (outcome == Outcome.UNAVAILABLE && store.session() == expected) {
+                        unavailableSession = new WeakReference<>(expected);
+                        unavailableAt = System.nanoTime();
+                    } else if (unavailableSession.get() == expected) {
+                        unavailableSession.clear();
+                    }
                     active = null;
                 }
             }
+            flight.result.complete(outcome);
         }
     }
 
@@ -153,6 +170,10 @@ public final class SessionAuthenticator implements Authenticator {
 
     private static boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    static final class Started {
+        final long at = System.nanoTime();
     }
 
     private static final class Flight {

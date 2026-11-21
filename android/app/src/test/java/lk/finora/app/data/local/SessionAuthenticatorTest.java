@@ -98,6 +98,65 @@ public class SessionAuthenticatorTest {
     }
 
     @Test
+    public void late401FromFailedRefreshWaveDoesNotRefreshAgain() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            CountDownLatch delayedRequest = new CountDownLatch(1);
+            CountDownLatch releaseDelayed = new CountDownLatch(1);
+            AtomicInteger refreshes = new AtomicInteger();
+            server.setDispatcher(new Dispatcher() {
+                @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                    if ("/api/v1/auth/refresh".equals(request.getPath())) {
+                        return refreshes.incrementAndGet() == 1 ? error(503, "UNAVAILABLE") : rotated();
+                    }
+                    if ("/api/v1/me?late=true".equals(request.getPath())) {
+                        delayedRequest.countDown();
+                        if (!releaseDelayed.await(5, TimeUnit.SECONDS)) {
+                            return error(500, "TIMEOUT");
+                        }
+                    }
+                    return "Bearer new".equals(request.getHeader("Authorization"))
+                            ? new MockResponse() : error(401, "UNAUTHORIZED");
+                }
+            });
+            ApiClient client = new ApiClient(server.url("/").toString(), store(true, true));
+            ExecutorService worker = Executors.newSingleThreadExecutor();
+            try {
+                var delayed = worker.submit(() -> {
+                    Request request = new Request.Builder().url(server.url("/api/v1/me?late=true")).build();
+                    try (var response = client.http().newCall(request).execute()) {
+                        return response.code();
+                    }
+                });
+                assertTrue(delayedRequest.await(3, TimeUnit.SECONDS));
+                assertEquals(401, call(client, server));
+                releaseDelayed.countDown();
+                assertEquals(401, delayed.get(5, TimeUnit.SECONDS).intValue());
+                assertEquals(1, refreshes.get());
+                assertEquals(200, call(client, server));
+                assertEquals(2, refreshes.get());
+            } finally {
+                releaseDelayed.countDown();
+                worker.shutdownNow();
+            }
+        }
+    }
+
+    @Test
+    public void rotatingRefreshIgnoresAutomatic503Replay() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(error(503, "UNAVAILABLE").setHeader("Retry-After", "0"));
+            server.enqueue(rotated());
+            TokenStore store = store(true, true);
+            ApiClient client = new ApiClient(server.url("/").toString(), store);
+            assertEquals(Outcome.UNAVAILABLE, client.sessions().refresh(store.session()));
+            assertEquals(1, server.getRequestCount());
+            assertEquals("seed", store.session().refresh);
+            assertEquals(Outcome.RESTORED, client.sessions().refresh(store.session()));
+            assertEquals(2, server.getRequestCount());
+        }
+    }
+
+    @Test
     public void rejectedRefreshClearsButTemporaryFailurePreserves() throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             server.enqueue(error(503, "UNAVAILABLE"));
