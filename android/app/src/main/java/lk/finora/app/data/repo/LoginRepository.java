@@ -10,6 +10,7 @@ import lk.finora.app.data.api.ApiClient;
 import lk.finora.app.data.api.ApiError;
 import lk.finora.app.data.api.AuthApi.LoginRequest;
 import lk.finora.app.data.api.AuthApi.LoginResponse;
+import lk.finora.app.data.local.TokenStore.Session;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -17,7 +18,8 @@ import retrofit2.Response;
 public final class LoginRepository {
     public enum Result {
         SUCCESS, INVALID_CREDENTIALS, ACCOUNT_DISABLED, INVALID_INPUT,
-        NETWORK_ERROR, SERVER_ERROR, STORAGE_ERROR, CONFIGURATION_ERROR, CANCELLED
+        NETWORK_ERROR, SERVER_ERROR, STORAGE_ERROR, CONFIGURATION_ERROR, SESSION_EXPIRED,
+        UNSUPPORTED_ROLE, CANCELLED
     }
 
     @FunctionalInterface
@@ -25,10 +27,19 @@ public final class LoginRepository {
         void save(String accessToken, String refreshToken) throws IOException;
     }
 
+    @FunctionalInterface
+    public interface SessionWriter {
+        void save(String access, String refresh, String role, String language) throws IOException;
+    }
+
     private final ApiClient client;
-    private final TokenWriter tokens;
+    private final SessionWriter tokens;
 
     public LoginRepository(ApiClient client, TokenWriter tokens) {
+        this(client, (access, refresh, role, language) -> tokens.save(access, refresh));
+    }
+
+    public LoginRepository(ApiClient client, SessionWriter tokens) {
         this.client = client;
         this.tokens = tokens;
     }
@@ -49,6 +60,12 @@ public final class LoginRepository {
             LoginResponse session = response.body();
             if (session == null || !hasValue(session.accessToken) || !hasValue(session.refreshToken)
                     || session.expiresIn <= 0 || !hasValue(session.role) || !hasValue(session.language)) {
+                return Result.SERVER_ERROR;
+            }
+            if (!Session.isSupportedRole(session.role)) {
+                return Result.UNSUPPORTED_ROLE;
+            }
+            if (!"EN".equals(session.language) && !"SI".equals(session.language)) {
                 return Result.SERVER_ERROR;
             }
             return attempt.save(tokens, session);
@@ -119,11 +136,15 @@ public final class LoginRepository {
         }
 
         Result save(TokenWriter writer, LoginResponse session) {
+            return save((access, refresh, role, language) -> writer.save(access, refresh), session);
+        }
+
+        Result save(SessionWriter writer, LoginResponse session) {
             if (!beginSave()) {
                 return Result.CANCELLED;
             }
             try {
-                writer.save(session.accessToken, session.refreshToken);
+                writer.save(session.accessToken, session.refreshToken, session.role, session.language);
                 return isCancelled() ? Result.CANCELLED : Result.SUCCESS;
             } catch (IOException | RuntimeException exception) {
                 return isCancelled() ? Result.CANCELLED : Result.STORAGE_ERROR;

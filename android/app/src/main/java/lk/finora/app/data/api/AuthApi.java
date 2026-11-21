@@ -8,6 +8,17 @@ public interface AuthApi {
     @POST("/api/v1/auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
 
+    @POST("/api/v1/auth/logout")
+    Call<Void> logout(@Body RefreshRequest request);
+
+    final class RefreshRequest {
+        private final String refreshToken;
+
+        public RefreshRequest(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+    }
+
     final class LoginRequest {
         private final String email;
         private final String password;

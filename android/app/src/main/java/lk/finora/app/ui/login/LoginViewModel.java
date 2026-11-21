@@ -62,7 +62,7 @@ public final class LoginViewModel extends AndroidViewModel {
             if (repository == null) {
                 TokenStore tokens = TokenStore.open(getApplication());
                 repository = new LoginRepository(new ApiClient(BuildConfig.API_BASE_URL,
-                        tokens::accessToken), tokens::save);
+                        tokens::accessToken), (LoginRepository.SessionWriter) tokens::save);
             }
             return repository.login(email, password, attempt);
         } catch (IOException | GeneralSecurityException | RuntimeException exception) {

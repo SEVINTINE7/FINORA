@@ -19,4 +19,12 @@
     <string name="login_support">FINORA වෙත පිවිස ඉදිරියට යන්න.</string>
     <string name="login_show_password">මුරපදය පෙන්වන්න</string>
     <string name="login_hide_password">මුරපදය සඟවන්න</string>
+    <string name="home_user">FINORA මුල් පිටුව</string>
+    <string name="home_admin">FINORA පරිපාලනය</string>
+    <string name="home_staff">FINORA කාර්ය මණ්ඩලය</string>
+    <string name="home_placeholder">මෙම කොටස ඉදිරි විශේෂාංග සඳහා සූදානම්ය.</string>
+    <string name="home_tab">මුල් පිටුව</string>
+    <string name="sign_out">ඉවත් වන්න</string>
+    <string name="session_expired">කරුණාකර නැවත පිවිසෙන්න.</string>
+    <string name="unsupported_role">මෙම ගිණුමෙන් FINORA වෙත පිවිසිය නොහැක.</string>
 </resources>

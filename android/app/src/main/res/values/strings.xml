@@ -19,4 +19,12 @@
     <string name="login_support">Sign in to continue to FINORA.</string>
     <string name="login_show_password">Show password</string>
     <string name="login_hide_password">Hide password</string>
+    <string name="home_user">FINORA Home</string>
+    <string name="home_admin">FINORA Administration</string>
+    <string name="home_staff">FINORA Staff</string>
+    <string name="home_placeholder">This area is ready for future features.</string>
+    <string name="home_tab">Home</string>
+    <string name="sign_out">Sign out</string>
+    <string name="session_expired">Please sign in again.</string>
+    <string name="unsupported_role">This account cannot open FINORA.</string>
 </resources>

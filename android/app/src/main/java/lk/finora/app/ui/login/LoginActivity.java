@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 import lk.finora.app.R;
 import lk.finora.app.data.repo.LoginRepository.Result;
 import lk.finora.app.ui.common.StateView;
+import lk.finora.app.ui.auth.SessionNavigation;
 import lk.finora.app.util.LoginInput;
 
 public final class LoginActivity extends ComponentActivity {
@@ -62,6 +63,9 @@ public final class LoginActivity extends ComponentActivity {
 
         LoginViewModel model = new ViewModelProvider(this).get(LoginViewModel.class);
         model.state().observe(this, this::render);
+        if (getIntent().getBooleanExtra(SessionNavigation.STORAGE_ERROR, false)) {
+            feedback.error(R.string.storage_error);
+        }
         submit.setOnClickListener(view -> signIn(model));
         email.setOnEditorActionListener((view, action, event) -> {
             if (action == EditorInfo.IME_ACTION_NEXT) {
@@ -175,7 +179,9 @@ public final class LoginActivity extends ComponentActivity {
             feedback.clear();
         } else if (state.result == Result.SUCCESS) {
             password.getText().clear();
-            feedback.success(R.string.signed_in);
+            if (!SessionNavigation.openHome(this)) {
+                feedback.error(R.string.session_expired);
+            }
         } else {
             feedback.error(errorMessage(state.result));
         }
@@ -187,6 +193,8 @@ public final class LoginActivity extends ComponentActivity {
             case ACCOUNT_DISABLED: return R.string.account_disabled;
             case INVALID_INPUT: return R.string.invalid_input;
             case NETWORK_ERROR: return R.string.network_error;
+            case SESSION_EXPIRED: return R.string.session_expired;
+            case UNSUPPORTED_ROLE: return R.string.unsupported_role;
             case STORAGE_ERROR: return R.string.storage_error;
             case CONFIGURATION_ERROR: return R.string.configuration_error;
             default: return R.string.server_error;
