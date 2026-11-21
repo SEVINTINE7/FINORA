@@ -6,8 +6,8 @@ def releaseApi = providers.environmentVariable('FINORA_RELEASE_API_URL').orElse(
 if (!releaseApi.isEmpty()) {
     def uri = URI.create(releaseApi)
     if (uri.scheme != 'https' || !uri.host || uri.rawUserInfo != null ||
-            uri.rawQuery != null || uri.rawFragment != null || !releaseApi.endsWith('/')) {
-        throw new GradleException('FINORA_RELEASE_API_URL must be an HTTPS base URL ending in /')
+            uri.rawQuery != null || uri.rawFragment != null || uri.rawPath != '/') {
+        throw new GradleException('FINORA_RELEASE_API_URL must be an HTTPS origin with path / and no credentials, query or fragment')
     }
 }
 
