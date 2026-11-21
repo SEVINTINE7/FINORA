@@ -19,7 +19,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Full local backend suite: 141 run, 0 failures/errors/skips, BUILD SUCCESS; Java 17.0.21.1, Maven wrapper 3.10.1, isolated MySQL 8.0.46 `finora_test` only (localhost:3307).
 - Evidence: `api/target/surefire-reports/` and `api/target/t50-full-test.log` (ignored local build output); `git diff --check` passed.
 - Partial progress only: CI config uses Java 17/MySQL 8 but runs `test`, not `verify`; CI success unverified. JaCoCo, >=70% service line coverage and coverage artifact upload remain outstanding; no T50 acceptance checkbox marked complete.
-- Next: coordinate minimal JaCoCo/report-upload and CI `verify` changes with Sevindu, check controller success/validation/auth/ownership coverage, then collect real coverage and CI results. Shared configuration unchanged; T50 remains incomplete.
+- Next (coverage plan, not implemented): agree service-only line-coverage measurement with Sevindu (covered / (covered + missed), >=70%, zero executable lines reported N/A); use JaCoCo prepare-agent + report with the full Java 17/MySQL `finora_test` suite, inspect uncovered service paths, add focused tests, then run CI `verify` and upload HTML/XML coverage plus test reports. Controller success/validation/auth/ownership checks also remain; shared configuration unchanged, T50 incomplete.
 
 ---
 
