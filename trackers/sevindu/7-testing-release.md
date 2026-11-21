@@ -10,8 +10,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T50.2 Full suite runs against real MySQL 8 (D11) in CI — CI runs `./mvnw -B verify` on the `mysql:8.0` service; uploads `jacoco-report` (always) and `surefire-reports` (on failure). First CI run green (a41041f)
 - [x] T50.3 Add JaCoCo coverage report; target ≥70% line coverage on services — `jacoco-maven-plugin` 0.8.14, report at `target/site/jacoco/`; `check-services` fails `verify` below 70% (all `*Service` classes together)
 
+
 **Done when**
-- [x] `./mvnw verify` green in CI; coverage report saved as CI artifact — CI green on a41041f (reported by Sevindu); local `verify` green: 137/137 tests, services 98.5% lines, whole API 96.4%
+- [x] `./mvnw verify` green in CI; coverage report saved as CI artifact — Sevindu reported successful CI on `a41041f`, with 98.5% service coverage and 96.4% overall coverage locally. Thilina independently verified the combined code on 2026-11-21: 146/146 tests passed, 0 failures/errors/skips, BUILD SUCCESS (exit 0), JaCoCo >=70% service coverage gate passed.
 
 **Handoff notes:**
 
@@ -19,7 +20,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Sevindu (`a41041f`): `EndpointAuthTest` checks `/api/v1` endpoints for missing/invalid tokens (401), incorrect roles (403) and public authentication routes.
 - Authorization: ADMIN for `/api/v1/admin/**`, STAFF for `/api/v1/staff/**`, USER elsewhere; retain cross-user ownership 404 tests for new controllers.
 - JaCoCo 0.8.14: service-line coverage gate ≥70% in `api/pom.xml`; Sevindu reported 98.5% service coverage and 96.4% overall coverage. A temporary 99% gate correctly failed.
-- Local verification: Sevindu reported 137/137 tests passing with `mvnw.cmd verify`; Thilina separately verified 141/141 before integration. Combined changes require retesting.
+- Local verification (Thilina, 2026-11-21): Combined Maven verify passed: 146/146 tests, 0 failures/errors/skips, BUILD SUCCESS (exit 0). JaCoCo >=70% service coverage gate passed using Java 17 and isolated MySQL 8 finora_test.
 - CI now runs `verify` with MySQL 8 and configured report artifacts. First green CI run and artifact verification remain pending; T50 stays in-progress.
 
 
