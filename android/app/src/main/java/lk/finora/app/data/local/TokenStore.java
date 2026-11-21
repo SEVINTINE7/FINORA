@@ -8,6 +8,7 @@ import androidx.security.crypto.MasterKey;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 // T37 specifies EncryptedSharedPreferences. Keep this deprecated API behind the store.
 @SuppressWarnings("deprecation")
@@ -20,6 +21,7 @@ public final class TokenStore {
     private static volatile TokenStore instance;
 
     private final SharedPreferences preferences;
+    private final CopyOnWriteArrayList<Runnable> listeners = new CopyOnWriteArrayList<>();
     private volatile Session published;
     private volatile Session verified;
 
@@ -93,6 +95,7 @@ public final class TokenStore {
         }
         published = replacement;
         verified = replacement != null && replacement.supported() ? replacement : null;
+        notifySessionChanged();
     }
 
     public static TokenStore current() {
@@ -108,12 +111,27 @@ public final class TokenStore {
         return session == published ? session : null;
     }
 
+    public void addSessionListener(Runnable listener) {
+        listeners.addIfAbsent(listener);
+    }
+
+    public void removeSessionListener(Runnable listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifySessionChanged() {
+        for (Runnable listener : listeners) {
+            listener.run();
+        }
+    }
+
     public synchronized boolean clear(Session expected) throws IOException {
         if (published != expected || expected == null) {
             return false;
         }
         verified = null;
         published = null;
+        notifySessionChanged();
         try {
             if (!commit(null)) {
                 throw new IOException("Could not clear persisted session");

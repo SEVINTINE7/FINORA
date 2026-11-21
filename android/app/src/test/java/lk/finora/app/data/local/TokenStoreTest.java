@@ -128,6 +128,20 @@ public class TokenStoreTest {
         assertNull(new TokenStore(preferences.proxy).session());
     }
 
+    @Test
+    public void activeHomeListenerSeesInvalidationAndCanUnsubscribe() throws Exception {
+        TokenStore store = new TokenStore(new PreferencesDouble(true, true, true).proxy);
+        store.save("first", "first-refresh", "USER", "EN");
+        List<TokenStore.Session> updates = new ArrayList<>();
+        Runnable listener = () -> updates.add(store.verifiedSession());
+        store.addSessionListener(listener);
+        store.clear(store.session());
+        store.removeSessionListener(listener);
+        store.save("second", "second-refresh", "STAFF", "EN");
+        assertEquals(1, updates.size());
+        assertNull(updates.get(0));
+    }
+
     private static void assertBearer(TokenStore store, String expected) throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             server.enqueue(new MockResponse());

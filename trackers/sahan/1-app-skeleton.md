@@ -45,7 +45,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - T08.1–T08.4 implemented locally for pre-push review. Role homes are non-exported and verify the current session role independently.
 - The encrypted store preserves role and language with the token pair. Restore validates through refresh before routing. Local logout clears that session even offline when storage is writable.
 - One refresh per in-flight generation, one protected-request retry, and conditional publication protect rotation, sign-out, and account replacement.
-- V1 build, test APK, 29 unit tests and lint passed. Tests cover refresh rejection, storage failures and logout/new-login races. OkHttp and MockWebServer resolved to 4.12.1.
+- V1 build, test APK, 30 unit tests and lint passed. Tests cover refresh rejection, storage failures and logout/new-login races. OkHttp and MockWebServer resolved to 4.12.1.
 - Dev API USER login returned role and language, rotated refresh credentials, and rejected a credential after logout. T08.5 confirmation belongs to Sevindu.
 - Pending: remaining device role and negative-path acceptance, independent security review, explicit push instruction, and final remote CI.
 

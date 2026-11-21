@@ -17,6 +17,9 @@ import lk.finora.app.data.local.TokenStore.Session;
 
 public abstract class ProtectedHomeActivity extends ComponentActivity {
     private Session entry;
+    private HomeViewModel model;
+    private TokenStore observedStore;
+    private final Runnable sessionChanged = () -> runOnUiThread(this::verifyEntry);
 
     protected abstract String requiredRole();
     protected abstract int titleResource();
@@ -30,7 +33,7 @@ public abstract class ProtectedHomeActivity extends ComponentActivity {
             return;
         }
 
-        HomeViewModel model = new ViewModelProvider(this).get(HomeViewModel.class);
+        model = new ViewModelProvider(this).get(HomeViewModel.class);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -74,11 +77,38 @@ public abstract class ProtectedHomeActivity extends ComponentActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (!isFinishing()) {
+            observedStore = TokenStore.current();
+            if (observedStore != null) {
+                observedStore.addSessionListener(sessionChanged);
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        if (observedStore != null) {
+            observedStore.removeSessionListener(sessionChanged);
+            observedStore = null;
+        }
+        super.onStop();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        verifyEntry();
+    }
+
+    private void verifyEntry() {
+        if (observedStore == null || isFinishing() || model.signingOut()) {
+            return;
+        }
         Session current = currentSession();
-        if (!isFinishing() && (entry == null || !entry.sameAccount(current)
-                || !RoleGuard.permits(requiredRole(), current.role))) {
+        if (entry == null || !entry.sameAccount(current)
+                || !RoleGuard.permits(requiredRole(), current.role)) {
             SessionNavigation.openLogin(this, false);
         }
     }
