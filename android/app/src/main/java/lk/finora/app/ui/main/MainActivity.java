@@ -1,9 +1,57 @@
 package lk.finora.app.ui.main;
 
+import android.content.res.ColorStateList;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+
 import lk.finora.app.R;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
 
 public final class MainActivity extends ProtectedHomeActivity {
+    private static final String DESTINATION = "destination";
+    private static final int[] LABELS = {R.string.home_tab, R.string.records_tab,
+            R.string.plan_tab, R.string.insights_tab, R.string.more_tab};
+    private int destination;
+
     @Override protected String requiredRole() { return "USER"; }
     @Override protected int titleResource() { return R.string.home_user; }
+
+    @Override
+    protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {
+        RadioGroup navigation = new RadioGroup(this);
+        navigation.setOrientation(LinearLayout.HORIZONTAL);
+        int[][] states = {{android.R.attr.state_checked}, {}};
+        ColorStateList colors = new ColorStateList(states,
+                new int[]{getColor(R.color.finora_mint), getColor(R.color.finora_on_navy)});
+        int touchHeight = Math.round(48 * getResources().getDisplayMetrics().density);
+        for (int label : LABELS) {
+            RadioButton tab = new RadioButton(this);
+            tab.setId(View.generateViewId());
+            tab.setText(label);
+            tab.setTextColor(colors);
+            tab.setButtonDrawable(null);
+            tab.setPadding(0, 0, 0, 0);
+            tab.setGravity(Gravity.CENTER);
+            tab.setMinHeight(touchHeight);
+            navigation.addView(tab, new RadioGroup.LayoutParams(0, -1, 1));
+        }
+        navigation.setOnCheckedChangeListener((group, checkedId) -> {
+            destination = group.indexOfChild(group.findViewById(checkedId));
+            title.setText(destination == 0 ? titleResource() : LABELS[destination]);
+        });
+        int restored = state == null ? 0 : state.getInt(DESTINATION);
+        navigation.check(navigation.getChildAt(restored).getId());
+        layout.addView(navigation, new LinearLayout.LayoutParams(-1, -2));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        state.putInt(DESTINATION, destination);
+        super.onSaveInstanceState(state);
+    }
 }

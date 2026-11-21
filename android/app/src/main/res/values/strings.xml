@@ -23,6 +23,10 @@
     <string name="home_staff">FINORA Staff</string>
     <string name="home_placeholder">This area is ready for future features.</string>
     <string name="home_tab">Home</string>
+    <string name="records_tab">Records</string>
+    <string name="plan_tab">Plan</string>
+    <string name="insights_tab">Insights</string>
+    <string name="more_tab">More</string>
     <string name="sign_out">Sign out</string>
     <string name="session_expired">Please sign in again.</string>
     <string name="restore_unavailable">Could not restore your session. Tap here to retry.</string>

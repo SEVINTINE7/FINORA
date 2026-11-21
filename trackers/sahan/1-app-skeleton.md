@@ -43,11 +43,10 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - HMD Crest 5G (Android 14) routed actual USER, ADMIN and STAFF logins. Both external and app-internal launches of privileged screens were denied while USER was signed in.
-- After one controlled protected-request 401, the app refreshed against the real dev API once, retried once, and persisted the rotated pair encrypted. An expired disposable refresh row returned the app to login.
-- The phone restored USER after force-stop, verified online revocation and offline local sign-out, blocked Back from reopening home, and rendered both login errors in English and Sinhala.
-- V1 debug and test APKs built, 32 unit tests passed, and lint reported zero issues. OkHttp and MockWebServer resolve to 4.12.1.
+- Sahan accepted T08.1–T08.4 physical evidence at `3d2b773`, including real refresh after a controlled 401, expired-refresh rejection, restore, online and offline logout, Back protection, and English/Sinhala errors.
+- Independent review corrections add USER navigation placeholders, bind protected calls before dispatch, and retain the latest logout revocation credential on storage failure. Both APKs built, 34 unit tests passed, and lint reported zero issues.
 - The live login response included role and language. T08.5 remains with Sevindu.
-- Pending: device evidence confirmation, independent security review, explicit push instruction, and exact-revision remote CI.
+- Pending: refresh failure policy decision, targeted HMD retest on the corrected build, independent re-review, explicit push authorization, and exact-revision remote CI.
 
 ---
 

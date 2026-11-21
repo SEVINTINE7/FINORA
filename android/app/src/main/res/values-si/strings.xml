@@ -23,6 +23,10 @@
     <string name="home_staff">FINORA කාර්ය මණ්ඩලය</string>
     <string name="home_placeholder">මෙම කොටස ඉදිරි විශේෂාංග සඳහා සූදානම්ය.</string>
     <string name="home_tab">මුල් පිටුව</string>
+    <string name="records_tab">වාර්තා</string>
+    <string name="plan_tab">සැලසුම්</string>
+    <string name="insights_tab">විශ්ලේෂණ</string>
+    <string name="more_tab">තවත්</string>
     <string name="sign_out">ඉවත් වන්න</string>
     <string name="session_expired">කරුණාකර නැවත පිවිසෙන්න.</string>
     <string name="restore_unavailable">ඔබේ සැසිය යළි ආරම්භ කළ නොහැක. නැවත උත්සාහ කිරීමට මෙතැන ඔබන්න.</string>

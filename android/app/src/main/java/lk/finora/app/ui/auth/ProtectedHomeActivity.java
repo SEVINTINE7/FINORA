@@ -24,6 +24,8 @@ public abstract class ProtectedHomeActivity extends ComponentActivity {
     protected abstract String requiredRole();
     protected abstract int titleResource();
 
+    protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {}
+
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -50,17 +52,11 @@ public abstract class ProtectedHomeActivity extends ComponentActivity {
         message.setTextColor(getColor(R.color.finora_on_navy));
         message.setGravity(Gravity.CENTER);
         layout.addView(message, new LinearLayout.LayoutParams(-1, 0, 1));
-        if ("USER".equals(requiredRole())) {
-            TextView home = new TextView(this);
-            home.setText(R.string.home_tab);
-            home.setGravity(Gravity.CENTER);
-            home.setTextColor(getColor(R.color.finora_on_navy));
-            layout.addView(home);
-        }
         Button logout = new Button(this);
         logout.setText(R.string.sign_out);
         logout.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.finora_mint)));
         layout.addView(logout);
+        addNavigation(layout, title, state);
         logout.setOnClickListener(view -> {
             layout.setVisibility(View.INVISIBLE);
             model.logout(entry);
