@@ -6,7 +6,7 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D01 Roles** — USER, ADMIN, STAFF approved by the lecturer (Nov 2026). Admin has 5 functions (T41–T45), Staff has 4 (T46–T49). Admin/Staff use the same Android app, routed by role after login.
 - **D02 Repository** — one repo: `/api`, `/android`, `/docs`.
-- **D03 Advice versions** — `beta` build: rule-based and AI advice shown side by side, unlabeled, random order, user rates both 1–5 (blind experiment). `v1` build: AI advice if it passes the number check, otherwise rule-based. Implemented as Android flavors; the app sends `mode=BETA|V1` with advice requests. No runtime switch.
+- **D03 Advice versions** — `v1` build: AI advice if it passes the number check, otherwise rule-based. Implemented as Android flavors; the app sends `mode=V1` with advice requests. No runtime switch.
 - **D04 Reference data (FR12)** — means only default categories + bank SMS formats.
 - **D05 Languages** — Sinhala and English. Tamil later, not in scope.
 - **D06 Currency** — LKR only; amounts `DECIMAL(15,2)`.
