@@ -1,0 +1,38 @@
+# T56.1 · FINORA API as a systemd service under the non-root user "finora".
+[Unit]
+Description=FINORA API (Spring Boot)
+After=network-online.target mysql.service
+Wants=network-online.target mysql.service
+
+[Service]
+Type=simple
+User=finora
+Group=finora
+WorkingDirectory=/opt/finora
+# Secrets (DB, Flyway, JWT, LLM keys) - owner finora, mode 400 (T56.3)
+EnvironmentFile=/etc/finora/finora.env
+Environment=SPRING_PROFILES_ACTIVE=prod
+# Only Nginx on the same machine can reach the API
+Environment=SERVER_ADDRESS=127.0.0.1
+Environment=SERVER_PORT=8080
+Environment=SERVER_FORWARD_HEADERS_STRATEGY=native
+ExecStart=/usr/bin/java -Xms256m -Xmx512m -jar /opt/finora/app.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+CapabilityBoundingSet=
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

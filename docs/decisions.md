@@ -34,6 +34,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
   - Missing data: missing required inputs make the component and total unavailable, not zero. Zero income makes income-dependent scoring unavailable; missing B or N <= 0 makes emergency scoring unavailable. Explicitly no applicable debt or goals means NOT_APPLICABLE, not automatic full points. Normalize applicable weights: total = HALF_UP integer rounding of `100*sum(componentPoints)/sum(applicableWeights)`, clamped 0-100; component points use 2 decimal HALF_UP.
   - Implementation: BigDecimal calculations, deterministic results, no predictions. A dated emergency-reserve input and remaining T21/T18/T19 dependencies must be resolved before T23 acceptance. The Rs.100,000 example is illustrative until its full inputs are documented.
 
+- **D21 Backups (T56.4, answers T36.3)** — nightly `mysqldump` of the `finora` schema, gzip, encrypted with `gpg --symmetric --cipher-algo AES256` (passphrase file root-only on the server, second copy kept offline by the lead). Backups are kept **30 days**, then deleted automatically; so data a user deletes (T36) is gone from all backups within 30 days.
+
 ## Proposed — still open
 
 - _None currently._

@@ -59,7 +59,7 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T53 | Privacy and security checks | Thilina | Sevindu | T14, T27 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
 | T54 | AI and financial correctness tests | Thilina | — | T29 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
 | T55 | SMS, usability and performance checks | Thilina | Sahan | T16, T38 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
-| T56 | Deployment and backups | Sevindu | — | T04 | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | todo |
+| T56 | Deployment and backups | Sevindu | — | T04 | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | in-progress |
 | T57 | End-to-end acceptance and handoff | Sevindu | Sahan, Thilina | all tasks | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | todo |
 
 ## Your parts inside other members' tasks

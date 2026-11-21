@@ -1,0 +1,2 @@
+# Deploy scripts run on Linux: keep LF even on Windows checkouts (T56)
+deploy/** text eol=lf

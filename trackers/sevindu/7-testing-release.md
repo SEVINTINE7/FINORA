@@ -33,12 +33,17 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] T56.3 Nginx + Let's Encrypt HTTPS reverse proxy; secrets in env file readable only by service user
 - [ ] T56.4 Nightly encrypted `mysqldump` backup, keep per T36.3; do one restore drill
 - [ ] T56.5 Signed release APKs (`v1` and `beta`); keystore never in Git
-- [ ] T56.6 Rollback steps in `docs/deploy.md`
+- [x] T56.6 Rollback steps in `docs/deploy.md` — §6 + `deploy/release.sh` (auto-rollback on failed health check) and `deploy/rollback.sh`
 
 **Done when**
 - [ ] HTTPS health check works from a phone; restore drill done and noted
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-21 Sevindu: all server files in `deploy/` (`server-setup.sh` does T56.1–T56.4 in one run; systemd, Nginx, MySQL bind, certbot hooks, backup/restore/release/rollback scripts). Runbook: `docs/deploy.md`. D21 = backups GPG AES256, kept 30 days (also answers T36.3).
+- MySQL users: `finora_app` (DML only), `finora_migrate` (Flyway DDL via `SPRING_FLYWAY_USER`), `finora_backup` (read-only). Port 80 opens only during certbot runs.
+- Verified locally: `bash -n` on all scripts; backup of `finora_test` → AES256 (`cipher 9`), wrong passphrase rejected, 21 tables + "Dump completed" after decrypt, 31-day file expired / 29-day kept. Restore drill NOT run (needs a DB it may drop).
+- T56.5: signing via `FINORA_KEYSTORE_*` env vars in `android/app/build.gradle`; throwaway keystore → both release APKs pass `apksigner verify`. Real keystore not created yet. Debug build + unit tests unchanged.
+- Left (needs a server + domain): run `server-setup.sh`, restore drill (fill table in deploy.md), phone HTTPS check, then tick T56.1–T56.5.
 
 ---
 

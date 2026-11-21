@@ -1,0 +1,4 @@
+# T56.2 · MySQL accepts connections from this machine only.
+[mysqld]
+bind-address        = 127.0.0.1
+mysqlx-bind-address = 127.0.0.1

@@ -11,6 +11,23 @@ if (!releaseApi.isEmpty()) {
     }
 }
 
+// T56.5 Release signing. The keystore lives outside the repo (never in Git) and is
+// passed in by env vars. Without FINORA_KEYSTORE_FILE, release builds stay unsigned.
+def env = { String name -> providers.environmentVariable(name).orElse('').get() }
+def releaseKeystore = env('FINORA_KEYSTORE_FILE')
+if (!releaseKeystore.isEmpty()) {
+    def missing = ['FINORA_KEYSTORE_PASSWORD', 'FINORA_KEY_ALIAS', 'FINORA_KEY_PASSWORD'].findAll { env(it).isEmpty() }
+    if (!missing.isEmpty()) {
+        throw new GradleException("Release signing needs: ${missing.join(', ')}")
+    }
+    if (!new File(releaseKeystore).isFile()) {
+        throw new GradleException("FINORA_KEYSTORE_FILE not found: ${releaseKeystore}")
+    }
+    if (releaseApi.isEmpty()) {
+        throw new GradleException('Signed release builds need FINORA_RELEASE_API_URL (the server HTTPS URL)')
+    }
+}
+
 android {
     namespace 'lk.finora.app'
     compileSdk 37
@@ -40,11 +57,25 @@ android {
         }
     }
 
+    signingConfigs {
+        if (!releaseKeystore.isEmpty()) {
+            release {
+                storeFile new File(releaseKeystore)
+                storePassword env('FINORA_KEYSTORE_PASSWORD')
+                keyAlias env('FINORA_KEY_ALIAS')
+                keyPassword env('FINORA_KEY_PASSWORD')
+            }
+        }
+    }
+
     buildTypes {
         debug {
             buildConfigField 'String', 'API_BASE_URL', '"http://10.0.2.2:8080/"'
         }
         release {
+            if (!releaseKeystore.isEmpty()) {
+                signingConfig signingConfigs.release
+            }
             buildConfigField 'String', 'API_BASE_URL', groovy.json.JsonOutput.toJson(releaseApi)
         }
     }

@@ -1,0 +1,11 @@
+# T56.4 · Nightly at 02:30 Sri Lanka time; catches up after downtime.
+[Unit]
+Description=Nightly FINORA backup
+
+[Timer]
+OnCalendar=*-*-* 02:30:00 Asia/Colombo
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,12 @@
+# T56.4 · One encrypted backup run (D21). Started by finora-backup.timer and by release.sh.
+[Unit]
+Description=FINORA encrypted MySQL backup
+After=mysql.service
+Requires=mysql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/finora-backup
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true

@@ -26,3 +26,8 @@ google-services.json
 # Local Spring overrides (may hold secrets)
 application-local.yml
 application-local.properties
+
+# Server secrets (T56) - only deploy/finora.env.example is committed
+finora.env
+backup.cnf
+backup.pass
