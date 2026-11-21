@@ -35,6 +35,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
   - Implementation: BigDecimal calculations, deterministic results, no predictions. A dated emergency-reserve input and remaining T21/T18/T19 dependencies must be resolved before T23 acceptance. The Rs.100,000 example is illustrative until its full inputs are documented.
 
 - **D21 Backups (T56.4, answers T36.3)** — nightly `mysqldump` of the `finora` schema, gzip, encrypted with `gpg --symmetric --cipher-algo AES256` (passphrase file root-only on the server, second copy kept offline by the lead). Backups are kept **30 days**, then deleted automatically; so data a user deletes (T36) is gone from all backups within 30 days.
+- **D22 Debug networking (T37.3)** — debug builds call `http://127.0.0.1:8080/`. Before testing, run `adb reverse tcp:8080 tcp:8080` (USB or ADB-over-Wi-Fi; repeat after reconnecting) so the phone's port 8080 reaches the laptop's API. Works on real phones and the emulator. Debug cleartext is allowed only for `127.0.0.1` (replaces `10.0.2.2`); release builds allow no cleartext.
+- **D23 Release API URL** — release builds get the server URL from `FINORA_RELEASE_API_URL` at build time (HTTPS origin, path `/`, checked in `build.gradle`). The real URL is fixed when T56 has a server and domain; T37 and other Android tasks do not wait for it.
 
 ## Proposed — still open
 

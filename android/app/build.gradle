@@ -70,7 +70,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField 'String', 'API_BASE_URL', '"http://10.0.2.2:8080/"'
+            buildConfigField 'String', 'API_BASE_URL', '"http://127.0.0.1:8080/"'  // D22: phone/emulator reach the laptop API via adb reverse tcp:8080 tcp:8080
         }
         release {
             if (!releaseKeystore.isEmpty()) {

@@ -7,7 +7,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sahan · **Depends on:** T02 · **Touches:** `/android`, `.github/workflows/ci.yml`
 - [x] T37.1 Create `/android` project in Android Studio: Java, package `lk.finora.app`, minSdk 26, target latest stable SDK, Gradle wrapper committed
 - [x] T37.2 Product flavors `beta` (applicationIdSuffix `.beta`) and `v1`; `buildConfigField ADVICE_MODE` = `"BETA"` / `"V1"` (D03)
-- [ ] T37.3 `buildConfigField API_BASE_URL`: debug = `http://10.0.2.2:8080/` (emulator), release = server HTTPS URL. `network_security_config.xml` allows cleartext only for `10.0.2.2` in debug
+- [ ] T37.3 `buildConfigField API_BASE_URL`: debug = `http://127.0.0.1:8080/` + `adb reverse tcp:8080 tcp:8080` (real phone and emulator, D22); release = server HTTPS URL from `FINORA_RELEASE_API_URL` at build time (set in T56, D23). `network_security_config.xml` allows cleartext only for `127.0.0.1` in debug
 - [x] T37.4 Retrofit + OkHttp + Gson; `and:data/api/ApiClient.java` with `AuthInterceptor` (adds `Bearer` token); error JSON → `ApiError` model
 - [ ] T37.5 Structure: `and:data/{api,repo,local}`, `and:ui/<feature>/`, `and:util/`; ViewModel + LiveData; `TokenStore` on EncryptedSharedPreferences
 - [x] T37.6 Reusable loading / empty / error view; `res/values/strings.xml` + `res/values-si/strings.xml` from day one
@@ -23,6 +23,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Post-rebase debug builds and lint passed: 19 tests per flavor, 0 failures; 1 lint warning per flavor (missing app icon).
 - Teardown cancels Retrofit without waiting for disk. Started writes may finish; tokens publish after commit, with best-effort restoration on failure.
 - Release URL requires an approved HTTPS origin with path /; 7 validation cases passed. Debug cleartext is limited to 10.0.2.2.
+- 2026-11-21 Sevindu: D22 approved - debug URL/cleartext switched to 127.0.0.1 (use `adb reverse tcp:8080 tcp:8080`). D23 - release URL comes from T56; T37 does not wait for it.
 - GitHub Actions run 44900175390 passed Android SDK setup, both debug builds, V1 unit tests, and upstream API verify.
 - Pending: approved release URL, phone networking approval, side-by-side install, real API login, device-backed storage and independent review.
 
