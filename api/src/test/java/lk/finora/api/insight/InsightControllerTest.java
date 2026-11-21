@@ -147,6 +147,47 @@ class InsightControllerTest extends IntegrationTest {
     }
 
     @Test
+    void unauthenticatedRequestIsRejectedWithoutSavingInsights() throws Exception {
+        mockMvc.perform(get(NOV)).andExpect(status().isUnauthorized());
+        assertThat(savedRows(userA)).isEqualTo(0);
+    }
+
+    @Test
+    void staffAndAdminCannotAccessUserInsights() throws Exception {
+        for (Role role : new Role[] {Role.STAFF, Role.ADMIN}) {
+            User privileged = createUser(role);
+            send(privileged, get(NOV), null).andExpect(status().isForbidden());
+            assertThat(savedRows(privileged)).isEqualTo(0);
+        }
+    }
+
+    @Test
+    void recalculationWithNoPatternsRemovesOnlyCallersMonth() throws Exception {
+        record(userA, accountA, salary, "INCOME", "10000.00", "2026-11-02");
+        record(userA, accountA, shopping, "EXPENSE", "6000.00", "2026-11-03");
+        record(userB, accountB, salary, "INCOME", "10000.00", "2026-11-02");
+        record(userB, accountB, shopping, "EXPENSE", "6000.00", "2026-11-03");
+        send(userA, get(NOV), null).andExpect(jsonPath("$.length()").value(2));
+        send(userB, get(NOV), null).andExpect(jsonPath("$.length()").value(2));
+        jdbc.update("INSERT INTO insights (user_id, month, type, facts) VALUES (?, '2026-10', 'HIGH_WANTS', '{}')",
+                userA.getId());
+
+        // A second income on Nov 20 makes wants 6%; the Nov 3 spend is outside its window.
+        record(userA, accountA, salary, "INCOME", "90000.00", "2026-11-20");
+        // Add non-payday spending so the original purchase no longer triggers the payday rule.
+        record(userA, accountA, food, "EXPENSE", "20000.00", "2026-11-06");
+        // Payday share = 6000 / 26000 = 23.08%; no weekend expenses.
+        send(userA, get(NOV), null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        assertThat(savedRows(userA)).isEqualTo(0);
+        assertThat(savedRows(userB)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM insights WHERE user_id = ? AND month = '2026-10'",
+                Integer.class, userA.getId())).isEqualTo(1);
+    }
+
+    @Test
     void onlyOwnDataIsUsed() throws Exception {
         record(userB, accountB, salary, "INCOME", "10000.00", "2026-11-02");
         record(userB, accountB, shopping, "EXPENSE", "9000.00", "2026-11-03");
