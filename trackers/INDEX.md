@@ -53,7 +53,7 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T47 | Staff support requests | Sevindu | Sahan | T46 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
 | T48 | Staff application assistance | Sahan | — | T46, T47 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | todo |
 | T49 | Staff SMS import troubleshooting | Sahan | Sevindu | T46, T45 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | todo |
-| T50 | Backend API test suite | Sevindu | Thilina | T05 (grows with every API task) | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | todo |
+| T50 | Backend API test suite | Sevindu | Thilina | T05 (grows with every API task) | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | in-progress |
 | T51 | Android functional tests | Sahan | Thilina | T38 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | todo |
 | T52 | Three-role authorization tests | Thilina | Sevindu | T06, T41, T46 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
 | T53 | Privacy and security checks | Thilina | Sevindu | T14, T27 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
