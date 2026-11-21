@@ -15,9 +15,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - P01, P03, P04, P06–P08 accepted → D07, D09–D13. P02 rate limit removed (D08). Git: direct push to `main` (D13). Test DB: local `finora_test` (D11).
-- P05 left open for Thilina (weights + formulas); blocks only T23.
+- T01.3/P05: Thilina prepared a scoring proposal; awaiting team approval, not a decided policy. Latest proposed weights: Spending Control 45, Debt Payments 20, Goal Progress 15, Savings 10, Emergency Savings 10 (score points, not income percentages).
+- P05 formulas, debt paid-marker proxy, missing-data handling and minimum emergency-reserve input remain proposed; the approximately-76-point example needs complete assumptions. T01.3 stays unchecked; T23 remains blocked.
 - Sevindu's machine: JDK 17.0.12, Maven 3.9.11, Git 2.50, MySQL Server 8.0 (service running), Android Studio + SDK. `mysql` CLI and `adb` not on PATH (optional). No Docker.
 - All three members confirmed local setup (T01.4).
+- 2026-11-21 P05 evidence: current categories/APIs and reference HTML reviewed; 13 synthetic cases evaluated with Python Decimal (not application tests or model validation). Next: clarify the Rs.100,000 example, agree formulas/missing-data policy and emergency input with the team, then record an approved decision; no approval or implementation claimed.
 
 ---
 

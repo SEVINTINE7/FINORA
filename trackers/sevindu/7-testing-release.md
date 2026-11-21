@@ -13,7 +13,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] `./mvnw verify` green in CI; coverage report saved as CI artifact
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-21, Thilina T50 support: local commit `4ea18dd` adds 9 focused tests in `api-test:analytics/MetricsServiceTest.java`, `api-test:analytics/PatternRulesTest.java`, `api-test:insight/InsightControllerTest.java`; no production changes, not pushed.
+- Targeted new tests: 9 run, 0 failures/errors/skips; analytics classes: 22 run, 0 failures/errors/skips (JUnit/Surefire output verified).
+- Full local backend suite: 141 run, 0 failures/errors/skips, BUILD SUCCESS; Java 17.0.21.1, Maven wrapper 3.10.1, isolated MySQL 8.0.46 `finora_test` only (localhost:3307).
+- Evidence: `api/target/surefire-reports/` and `api/target/t50-full-test.log` (ignored local build output); `git diff --check` passed.
+- Partial progress only: CI config uses Java 17/MySQL 8 but runs `test`, not `verify`; CI success unverified. JaCoCo, >=70% service line coverage and coverage artifact upload remain outstanding; no T50 acceptance checkbox marked complete.
+- Next: coordinate minimal JaCoCo/report-upload and CI `verify` changes with Sevindu, check controller success/validation/auth/ownership coverage, then collect real coverage and CI results. Shared configuration unchanged; T50 remains incomplete.
 
 ---
 

@@ -14,7 +14,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] Tests: zero income, no goals, no debt, perfect month, worst month; same input → same output
 
-**Handoff notes:** —
+**Handoff notes:**
+- T01.3/P05 scoring design is proposed and awaiting team approval; latest proposed weights: Spending Control 45, Debt Payments 20, Goal Progress 15, Savings 10, Emergency Savings 10.
+- T23 implementation remains blocked: T01.3/P05 unapproved, T21 is `review`, T18/T19 are `in-progress`. No score implementation or acceptance checks completed.
+- Proposal separates debt paid-marker proxies from verified repayment performance; emergency reserves require an explicit dated user declaration, never inferred from ordinary savings or opening balances. Formulas and missing-data policy still need approval.
+- Evidence/next: 13 synthetic cases evaluated with Python Decimal under proposed weights (no application tests/model validation); clarify example assumptions and obtain team approval through T01.3, then resolve outstanding dependencies and review the expanded T23 outline before coding.
 
 ---
 
