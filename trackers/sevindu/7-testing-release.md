@@ -14,10 +14,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] `./mvnw verify` green in CI; coverage report saved as CI artifact — local `verify` green: 137/137 tests, services 98.5% lines, whole API 96.4%
 
 **Handoff notes:**
-- New `api-test:security/EndpointAuthTest` finds endpoints automatically: new controllers (admin/staff/advice) are checked with no extra code. `/api/v1/admin/**` → ADMIN, `/api/v1/staff/**` → STAFF, everything else → USER.
-- Ownership 404 tests already existed in every `/{id}` controller test; keep adding a `otherUsers…Gives404` test in each new controller test.
-- Coverage gate: `jacoco:check` in `api/pom.xml` (minimum 0.70 on `**/*Service.class`). Checked that it really fails (temporarily set to 0.99 → BUILD FAILURE).
-- Local: `mvnw.cmd verify`, then open `api/target/site/jacoco/index.html`.
+
+- Thilina (PR #1, `4ea18dd`): 9 new analytics/security tests; 9/9 targeted, 22/22 analytics, 141/141 full local tests passed with Java 17, Maven 3.10.1 and isolated MySQL 8. Evidence: local Surefire reports and `t50-full-test.log`.
+- Sevindu (`a41041f`): `EndpointAuthTest` checks `/api/v1` endpoints for missing/invalid tokens (401), incorrect roles (403) and public authentication routes.
+- Authorization: ADMIN for `/api/v1/admin/**`, STAFF for `/api/v1/staff/**`, USER elsewhere; retain cross-user ownership 404 tests for new controllers.
+- JaCoCo 0.8.14: service-line coverage gate ≥70% in `api/pom.xml`; Sevindu reported 98.5% service coverage and 96.4% overall coverage. A temporary 99% gate correctly failed.
+- Local verification: Sevindu reported 137/137 tests passing with `mvnw.cmd verify`; Thilina separately verified 141/141 before integration. Combined changes require retesting.
+- CI now runs `verify` with MySQL 8 and configured report artifacts. First green CI run and artifact verification remain pending; T50 stays in-progress.
+
 
 ---
 

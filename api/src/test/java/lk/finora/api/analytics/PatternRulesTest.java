@@ -147,6 +147,60 @@ class PatternRulesTest {
     }
 
     @Test
+    void roundedIncomeRatiosDoNotHideOneCentThresholdBreaches() {
+        // Both displayed ratios round back to the thresholds, but exact amounts are above them.
+        List<SpendingPattern> patterns = PatternRules.detect(
+                metrics("10000.00", "4000.01", "4000.01", "5000.01", "0.00", "0.00", "4000.01"));
+
+        assertThat(patterns).extracting(SpendingPattern::type)
+                .containsExactly(PatternRules.HIGH_WANTS, PatternRules.HIGH_FIXED_BILLS);
+        assertThat(patterns.get(0).facts().get("wantsRatio")).isEqualTo(new BigDecimal("0.4000"));
+        assertThat(patterns.get(1).facts())
+                .containsEntry("fixedBills", new BigDecimal("5000.01"))
+                .containsEntry("billCount", 1)
+                .containsEntry("income", new BigDecimal("10000.00"))
+                .containsEntry("fixedBillsRatio", new BigDecimal("0.5000"))
+                .containsEntry("threshold", new BigDecimal("0.50"));
+    }
+
+    @Test
+    void roundedPaydayShareDoesNotHideOneCentThresholdBreach() {
+        SpendingPattern pattern = PatternRules.detect(
+                metrics("20000.00", "10000.00", "0.00", "0.00", "3000.01", "0.00", "10000.00")).get(0);
+
+        assertThat(pattern.type()).isEqualTo(PatternRules.PAYDAY_SPENDING);
+        assertThat(pattern.facts())
+                .containsEntry("paydaySpend", new BigDecimal("3000.01"))
+                .containsEntry("paydayCount", 1)
+                .containsEntry("expense", new BigDecimal("10000.00"))
+                .containsEntry("paydayShare", new BigDecimal("0.3000"))
+                .containsEntry("threshold", new BigDecimal("0.30"));
+    }
+
+    @Test
+    void leapFebruaryWeekendThresholdUsesThatMonthsCalendar() {
+        // February 2028: 8 weekend days, 21 weekdays; 1200 / 8 = 1.5 * (2100 / 21).
+        LocalDate first = LocalDate.of(2028, 2, 1);
+        LocalDate last = LocalDate.of(2028, 2, 29);
+        Metric zero = new Metric(new BigDecimal("0.00"), first, last, 0);
+        for (String weekend : List.of("1200.00", "1200.01")) {
+            Metric expense = new Metric(new BigDecimal(weekend).add(new BigDecimal("2100.00")), first, last, 2);
+            MonthMetrics month = new MonthMetrics("2028-02", zero, expense, zero, zero, zero, zero,
+                    zero, zero, zero, new Metric(new BigDecimal(weekend), first, last, 1),
+                    new Metric(new BigDecimal("2100.00"), first, last, 1), null, null, null);
+
+            if (weekend.equals("1200.00")) {
+                assertThat(PatternRules.detect(month)).isEmpty();
+            } else {
+                assertThat(types(month)).containsExactly(PatternRules.WEEKEND_SPENDING);
+                assertThat(PatternRules.detect(month).get(0).facts())
+                        .containsEntry("weekendDays", 8)
+                        .containsEntry("weekdayDays", 21);
+            }
+        }
+    }
+
+    @Test
     void dayCounting() {
         assertThat(PatternRules.countDays(FROM, TO)).isEqualTo(30);
         assertThat(PatternRules.countWeekendDays(FROM, TO)).isEqualTo(9);

@@ -200,6 +200,64 @@ class MetricsServiceTest {
     }
 
     @Test
+    void savingsAllocationIsAlreadyAnExpenseNotAnExtraDeduction() {
+        income("1000.00", 2, SALARY);
+        expense("200.00", 3, SAVINGS);
+        expense("900.00", 6, FOOD);
+
+        MonthMetrics m = service.forMonth(USER, NOV);
+
+        check(m.expense(), "1100.00", 2);
+        check(m.savedToCategory(), "200.00", 1);
+        check(m.unclassified(), "200.00", 1);
+        check(m.leftOver(), "-100.00", 3); // 1000 - 200 - 900, not -300
+        assertThat(m.savingsRate()).isEqualTo(new BigDecimal("-0.1000"));
+    }
+
+    @Test
+    void missingCategoryIsUnclassifiedWithoutLosingTheExpense() {
+        Category missing = category(99L, "Deleted category", CategoryKind.EXPENSE, NeedOrWant.WANT);
+        expense("12.34", 7, missing); // repository does not return category 99
+        expense("0.66", 9, null);
+
+        MonthMetrics m = service.forMonth(USER, NOV);
+
+        check(m.expense(), "13.00", 2);
+        check(m.unclassified(), "13.00", 2);
+        check(m.wants(), "0.00", 0);
+        check(m.needs(), "0.00", 0);
+        check(m.savedToCategory(), "0.00", 0);
+    }
+
+    @Test
+    void leapFebruaryUsesInclusiveMonthBoundsAndLastDayPayday() {
+        YearMonth feb = YearMonth.of(2028, 2);
+        LocalDate first = feb.atDay(1);
+        LocalDate last = feb.atEndOfMonth();
+        Transaction salary = new Transaction();
+        salary.setUserId(USER);
+        salary.setType(TransactionType.INCOME);
+        salary.setAmount(new BigDecimal("100.00"));
+        salary.setTxnDate(last);
+        salary.setCategoryId(SALARY.getId());
+        Transaction purchase = new Transaction();
+        purchase.setUserId(USER);
+        purchase.setType(TransactionType.EXPENSE);
+        purchase.setAmount(new BigDecimal("1.25"));
+        purchase.setTxnDate(last);
+        purchase.setCategoryId(FOOD.getId());
+        when(transactionRepository.findByUserIdAndTxnDateBetween(USER, first, last))
+                .thenReturn(List.of(salary, purchase));
+
+        MonthMetrics m = service.forMonth(USER, feb);
+
+        assertThat(m.month()).isEqualTo("2028-02");
+        assertThat(m.expense()).isEqualTo(new Metric(new BigDecimal("1.25"), first, last, 1));
+        assertThat(m.paydaySpend()).isEqualTo(new Metric(new BigDecimal("1.25"), first, last, 1));
+        assertThat(m.leftOver()).isEqualTo(new Metric(new BigDecimal("98.75"), first, last, 2));
+    }
+
+    @Test
     void ratioAndWeekendHelpers() {
         assertThat(MetricsService.ratio(new BigDecimal("1.00"), new BigDecimal("3.00")))
                 .isEqualTo(new BigDecimal("0.3333"));
