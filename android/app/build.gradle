@@ -29,7 +29,7 @@ if (!releaseKeystore.isEmpty()) {
 }
 
 android {
-    namespace 'lk.finora.app'
+    namespace = 'lk.finora.app'
     compileSdk 37
 
     defaultConfig {
@@ -42,7 +42,7 @@ android {
     }
 
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
 
     flavorDimensions += 'advice'

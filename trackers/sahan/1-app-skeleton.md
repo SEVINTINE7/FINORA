@@ -21,8 +21,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - V1 only (lk.finora.app); retained professional sign-in, adaptive icon and T56 environment-driven signing. Formal D03 reconciliation pending.
-- V1 APK and restart-test APK built; 19 unit tests passed, zero lint issues. [CI run 44911618961](https://github.com/SEVINTINE7/FINORA/actions/runs/44911618961) passed Android and API on `fb79650`.
-- D22 loopback uses ADB reverse on phone and emulator; emulator mapped device 8080 to dev API 18080 and verified real login.
+- V1 debug and restart APKs rebuilt; 19 tests passed and lint found no issues. [CI run 44911881560](https://github.com/SEVINTINE7/FINORA/actions/runs/44911881560) passed Android and API on `049b840`.
+- Studio opened the project. Gradle/ADB 37.0.1 launched on the emulator; D22 reverse 8080→18080 and real login passed. The 37.0.3 SDK download was unavailable.
 - After emulator force-stop, instrumentation reopened both encrypted tokens and the recovered access token passed /me.
 - D23 defers the release origin to T56; HTTPS validation and release cleartext denial are retained.
 - Pending: physical Android 8+ install/login/persistence, acceptance baseline confirmation and independent review.
