@@ -12,19 +12,19 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] T37.5 Structure: `and:data/{api,repo,local}`, `and:ui/<feature>/`, `and:util/`; ViewModel + LiveData; `TokenStore` on EncryptedSharedPreferences
 - [x] T37.6 Reusable loading / empty / error view; `res/values/strings.xml` + `res/values-si/strings.xml` from day one
 - [ ] T37.7 Login screen (email, password) calling `POST /api/v1/auth/login`
-- [ ] T37.8 Add Android job to CI: `./gradlew assembleV1Debug assembleBetaDebug testV1DebugUnitTest`
+- [x] T37.8 Add Android job to CI: `./gradlew assembleV1Debug assembleBetaDebug testV1DebugUnitTest`
 
 **Done when**
-- [ ] CI Android job green
+- [x] CI Android job green
 - [ ] App installs on a real Android 8+ phone, both flavors side by side, login works against the local API
 
 **Handoff notes:**
-- Java Android 17 scaffold (minSdk 26), Gradle 9.5.0/AGP 9.3.0, Beta and V1 APKs with distinct IDs.
-- Both debug builds and lint passed: 19 unit tests per flavor, 0 failures; 2 existing lint warnings per flavor.
-- Login contract checked at 1f379e1. Teardown cancels Retrofit without waiting for disk; encrypted tokens publish only after commit. Cancellation and failed-write regressions passed.
-- Release URL requires an approved HTTPS origin with path /; 7 validation cases passed. Debug cleartext remains limited to 10.0.2.2.
-- Pending: approved release URL, phone networking approval, side-by-side install, real API login and encrypted storage checks, green Android CI.
-- Android foundation and Gradle wrapper committed on main in 7ae926e (35 files from 1f379e1); no remote CI evidence.
+- Java Android 17 scaffold (minSdk 26); Beta and V1 have distinct IDs and the Gradle wrapper is executable.
+- Post-rebase debug builds and lint passed: 19 tests per flavor, 0 failures; 1 lint warning per flavor (missing app icon).
+- Teardown cancels Retrofit without waiting for disk. Started writes may finish; tokens publish after commit, with best-effort restoration on failure.
+- Release URL requires an approved HTTPS origin with path /; 7 validation cases passed. Debug cleartext is limited to 10.0.2.2.
+- GitHub Actions run 44900175390 passed Android SDK setup, both debug builds, V1 unit tests, and upstream API verify.
+- Pending: approved release URL, phone networking approval, side-by-side install, real API login, device-backed storage and independent review.
 
 ---
 
