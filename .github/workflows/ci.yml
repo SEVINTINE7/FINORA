@@ -37,6 +37,20 @@ jobs:
           java-version: '17'
           cache: maven
       - run: chmod +x mvnw
-      - run: ./mvnw -B test
+      # T50.2/T50.3: tests on MySQL 8 + JaCoCo report; fails below 70% line coverage on services
+      - run: ./mvnw -B verify
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: api/target/site/jacoco/
+          if-no-files-found: warn
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: api/target/surefire-reports/
 
   # Android job is added in T37.8

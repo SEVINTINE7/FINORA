@@ -1,25 +1,27 @@
 # Sevindu 7 — API tests, deployment, acceptance (T50, T56, T57)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
-**Detail: outline** — expand before starting.
+**Detail: outline** — expand before starting (T50 expanded).
 
 ---
 
 ### T50 · Backend API test suite · `ALL`
-**Lead:** Sevindu · **Support:** Thilina · **Depends on:** T05 (grows with every API task) · **Touches:** `api-test:`
-- [ ] T50.1 Every controller has integration tests for success, validation, auth and ownership
-- [ ] T50.2 Full suite runs against real MySQL 8 (D11) in CI
-- [ ] T50.3 Add JaCoCo coverage report; target ≥70% line coverage on services
+**Lead:** Sevindu · **Support:** Thilina · **Depends on:** T05 (grows with every API task) · **Touches:** `api-test:`, `api/pom.xml`, `.github/workflows/ci.yml`
+- [x] T50.1 Every controller has integration tests for success, validation, auth and ownership — per-controller tests cover success/400/ownership-404; `api-test:security/EndpointAuthTest` reads every `/api/v1` endpoint from Spring's mappings and checks no/bad token → 401 `UNAUTHORIZED`, wrong role → 403 `FORBIDDEN` (rule 4), auth endpoints public
+- [ ] T50.2 Full suite runs against real MySQL 8 (D11) in CI — CI runs `./mvnw -B verify` on the `mysql:8.0` service; uploads `jacoco-report` (always) and `surefire-reports` (on failure). Tick after the first green CI run
+- [x] T50.3 Add JaCoCo coverage report; target ≥70% line coverage on services — `jacoco-maven-plugin` 0.8.14, report at `target/site/jacoco/`; `check-services` fails `verify` below 70% (all `*Service` classes together)
 
 **Done when**
-- [ ] `./mvnw verify` green in CI; coverage report saved as CI artifact
+- [ ] `./mvnw verify` green in CI; coverage report saved as CI artifact — local `verify` green: 137/137 tests, services 98.5% lines, whole API 96.4%
 
 **Handoff notes:**
-- 2026-11-21, Thilina T50 support: local commit `4ea18dd` adds 9 focused tests in `api-test:analytics/MetricsServiceTest.java`, `api-test:analytics/PatternRulesTest.java`, `api-test:insight/InsightControllerTest.java`; no production changes, not pushed.
-- Targeted new tests: 9 run, 0 failures/errors/skips; analytics classes: 22 run, 0 failures/errors/skips (JUnit/Surefire output verified).
-- Full local backend suite: 141 run, 0 failures/errors/skips, BUILD SUCCESS; Java 17.0.21.1, Maven wrapper 3.10.1, isolated MySQL 8.0.46 `finora_test` only (localhost:3307).
-- Evidence: `api/target/surefire-reports/` and `api/target/t50-full-test.log` (ignored local build output); `git diff --check` passed.
-- Partial progress only: CI config uses Java 17/MySQL 8 but runs `test`, not `verify`; CI success unverified. JaCoCo, >=70% service line coverage and coverage artifact upload remain outstanding; no T50 acceptance checkbox marked complete.
-- Next (coverage plan, not implemented): agree service-only line-coverage measurement with Sevindu (covered / (covered + missed), >=70%, zero executable lines reported N/A); use JaCoCo prepare-agent + report with the full Java 17/MySQL `finora_test` suite, inspect uncovered service paths, add focused tests, then run CI `verify` and upload HTML/XML coverage plus test reports. Controller success/validation/auth/ownership checks also remain; shared configuration unchanged, T50 incomplete.
+
+- Thilina (PR #1, `4ea18dd`): 9 new analytics/security tests; 9/9 targeted, 22/22 analytics, 141/141 full local tests passed with Java 17, Maven 3.10.1 and isolated MySQL 8. Evidence: local Surefire reports and `t50-full-test.log`.
+- Sevindu (`a41041f`): `EndpointAuthTest` checks `/api/v1` endpoints for missing/invalid tokens (401), incorrect roles (403) and public authentication routes.
+- Authorization: ADMIN for `/api/v1/admin/**`, STAFF for `/api/v1/staff/**`, USER elsewhere; retain cross-user ownership 404 tests for new controllers.
+- JaCoCo 0.8.14: service-line coverage gate ≥70% in `api/pom.xml`; Sevindu reported 98.5% service coverage and 96.4% overall coverage. A temporary 99% gate correctly failed.
+- Local verification: Sevindu reported 137/137 tests passing with `mvnw.cmd verify`; Thilina separately verified 141/141 before integration. Combined changes require retesting.
+- CI now runs `verify` with MySQL 8 and configured report artifacts. First green CI run and artifact verification remain pending; T50 stays in-progress.
+
 
 ---
 
