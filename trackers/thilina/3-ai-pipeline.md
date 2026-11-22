@@ -1,20 +1,24 @@
 # Thilina 3 — AI advice pipeline (T26–T29)
 Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). Status lives in `trackers/INDEX.md`.
-**Detail: outline** — expand before coding.
+**Detail: T26 expanded below; T27-T29 remain outline** — expand each remaining task before coding.
 
 ---
 
 ### T26 · AI-safe fact and response schema · `FR09`
-**Lead:** Thilina · **Depends on:** T21, T25 · **Touches:** `api:advice/ai/`, `docs/ai-schema.md`
-- [ ] T26.1 `FactSheet` DTO: whitelisted aggregates + category labels only (no names, merchants, emails, account refs)
-- [ ] T26.2 Response JSON schema: list of `{actionId (from T25 catalogue), text, numbers[]}`
-- [ ] T26.3 Prompt template in `docs/ai-schema.md` and code
-- [ ] T26.4 Adversarial fixtures: merchant names in notes, emails in category names, injected instructions
+**Lead:** Thilina · **Depends on:** T21, T25 · **Touches:** `api:advice/ai/`, `api-test:advice/`, `docs/ai-schema.md`, `docs/ai-response.schema.json`
+- [x] T26.1 `FactSheet {month,facts,categoryLabels}` DTO: FactKey enum whitelist + fixed NEED/WANT/SAVINGS labels only; factory reads numeric aggregates, never user-entered labels/entities
+- [x] T26.2 Strict response JSON schema: list of `{actionId,text,numbers[{factKey,value,unit,period}]}`, no extra fields, at most six eligible catalogue actions
+- [x] T26.3 Fixed system prompt + serialized whitelist/eligible actions in `AiPrompt`; documented safety and missing-data contract
+- [x] T26.4 Adversarial fixtures include actual database merchants/notes, email/instruction category names and cross-user source isolation
 
 **Done when**
-- [ ] Test: FactSheet serialisation never contains fields outside the whitelist
+- [x] Test: FactSheet serialisation never contains fields outside the whitelist
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-22 backend T25/T26 and catalogue explicitly approved by Thilina; code/doc schema share AdviceItem and FactKey. Missing facts omitted; labels are canonical, not potentially identifying category names.
+- Privacy fixture proves actual transaction merchant/note/account/category injection and user details never enter serialized facts or prompts; other-user facts isolated.
+- 12 advice/privacy tests passed on Java 17 + isolated `finora_test`; evidence `api/target/t25-t26-tests.log`. Schema/prompt are constraints, not a substitute for T29 verification.
+- Next: review the feature PR; implement mocked providers and verification before any generated text can be delivered. No provider calls, keys, prompts or replies logged; T50 was not repeated.
 
 ---
 

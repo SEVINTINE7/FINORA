@@ -1,6 +1,6 @@
 # Thilina 2 — Health score and rule-based advice (T23, T25)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
-**Detail: T23 expanded below; T25 remains outline** — weights and formulas: `docs/decisions.md` D20 (approved, formerly P05).
+**Detail: T23/T25 expanded below** — weights and formulas: `docs/decisions.md` D20 (approved, formerly P05).
 
 ---
 
@@ -26,12 +26,17 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ---
 
 ### T25 · Rule-based advice engine · `FR08`
-**Lead:** Thilina · **Depends on:** T21, T22, T23 · **Touches:** `api:advice/rules/`
-- [ ] T25.1 Rule catalogue: condition on facts → action (e.g. cut food delivery to X, move Y to savings)
-- [ ] T25.2 Every number in the advice is computed from facts and listed as provenance
-- [ ] T25.3 Output in the same structured format the AI must use (T26.2)
+**Lead:** Thilina · **Depends on:** T21, T22, T23 · **Touches:** `api:advice/rules/`, shared `api:advice/ai/` DTOs, `api-test:advice/`, `docs/ai-schema.md`
+- [x] T25.1 Approved catalogue: REVIEW_SPENDING_DEFICIT, REVIEW_HIGH_WANTS, REVIEW_UNMARKED_LOAN_BILLS, BUILD_EMERGENCY_BUFFER, REVIEW_GOAL_PROGRESS, SAVE_WITHIN_AVAILABLE_HEADROOM; conditions use D10/D20 only (see docs/ai-schema.md)
+- [x] T25.2 Every text number has an exact factKey/value/LKR/period reference; extra allocations bounded by leftover after existing savings and suppressed for unknown/unmarked debt
+- [x] T25.3 Shared `AdviceItem {actionId,text,numbers[]}` schema for rules and later verified AI; server-only RuleAdviceService, no T30 delivery endpoint yet
 
 **Done when**
 - [ ] Tests across budget, savings and debt scenarios; every number traceable to a fact
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-22 Thilina explicitly approved backend T25/T26 continuation before T23 acceptance and the six-action catalogue; formulas/conditions remain D10/D20, no new financial thresholds.
+- `RuleAdviceEngine` and `RuleAdviceService` generate structured advice from server aggregates; advice protects essentials and labels bill markers as proxies, never verified repayments.
+- `RuleAdviceTest` 11 + `FactSheetPrivacyTest` 1 = 12 passing tests (0 failures/errors/skips), Java 17 and isolated `finora_test`; evidence `api/target/t25-t26-tests.log`.
+- Every numeric token has tested exact provenance; saving suggestions use min(shortfall, recorded leftover) and are blocked for unknown/unmarked obligations. No inferred reserves or added goal allocations.
+- Next: team/PR review, T27-T29 provider/claim checks and T30 delivery. Budget-specific recommendations and real-provider evaluation are not claimed; T50 was not repeated.

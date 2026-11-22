@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FINORA T26 advice response",
+  "type": "array",
+  "maxItems": 6,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["actionId", "text", "numbers"],
+    "properties": {
+      "actionId": {"enum": ["REVIEW_SPENDING_DEFICIT", "REVIEW_HIGH_WANTS", "REVIEW_UNMARKED_LOAN_BILLS", "BUILD_EMERGENCY_BUFFER", "REVIEW_GOAL_PROGRESS", "SAVE_WITHIN_AVAILABLE_HEADROOM"]},
+      "text": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "numbers": {
+        "type": "array", "maxItems": 2,
+        "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["factKey", "value", "unit", "period"],
+          "properties": {
+            "factKey": {"enum": ["SPENDING_DEFICIT", "WANTS", "WANTS_REFERENCE", "UNMARKED_LOAN_BILLS", "EMERGENCY_RESERVE", "EMERGENCY_NEXT_TARGET", "GOAL_REMAINING", "AFFORDABLE_SAVINGS"]},
+            "value": {"type": "number", "minimum": 0},
+            "unit": {"const": "LKR"},
+            "period": {"type": "string", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"}
+          }
+        }
+      }
+    }
+  }
+}
