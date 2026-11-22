@@ -32,3 +32,23 @@ server-generated rule actions. User-provided labels/notes/instructions are not i
 The schema is a provider constraint, not a verifier: T29 must still check strict fields, eligible action ids,
 periods, units, text and numeric provenance before any generated text can be delivered. Until then, only rules
 are suitable for delivery. Provider failure, invalid data or failed verification must fall back to those rules.
+
+## Preparatory T27–T29 integration (pending team acceptance)
+
+HTTP transports request an object containing only `advice`, whose array uses the item schema above.
+The verifier also accepts the canonical array directly. This transport envelope does not change AdviceItem.
+The provisional policy permits only exact eligible rule text and exact numeric provenance; AI may select
+and reorder eligible actions, but paraphrases, additional claims and fabricated numbers fall back to rules.
+Accepted objects are rebuilt from trusted rules, never returned directly from provider JSON.
+
+Providers are disabled by default (`finora.llm.enabled=false`). Future explicit enablement requires
+`finora.llm.groq-api-key` / `finora.llm.gemini-api-key` and corresponding `groq-model` / `gemini-model`
+properties; no model is selected automatically. Existing environment mappings remain unchanged.
+`finora.llm.provider-order` defaults to GROQ,GEMINI. Each attempt has a 15-second timeout; 429, 5xx,
+timeout and I/O failures receive one retry. Transport failures try the backup; rejected advice goes
+directly to rules. No eligible actions or disabled providers require no provider traffic.
+
+Only generated request id, latency, bounded status and token counts are logged. V8 stores owner/month,
+provider, verified flag, bounded reason and UTC creation time, never prompts or rejected text.
+The pipeline is a backend service; T30 still owns HTTP delivery and Android integration. All verification
+in this PR is mocked HTTP, not live-provider acceptance, provider privacy capture or a real AI pass rate.

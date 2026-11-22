@@ -8,14 +8,14 @@ This is an integration handoff, not final project/security acceptance. No new wo
 | Work | Review location | Scope / acceptance |
 |---|---|---|
 | T21, T23, T25/T26 | Upstream PRs #5, #6, #7: merged, verified through GitHub | Do not reimplement. D20 is approved; tracker acceptance still depends on recorded handoffs, not merge alone. |
-| T27–T29 | [PR #8](https://github.com/SEVINTINE7/FINORA/pull/8) | Mocked-only preparatory pipeline; exact-claim policy provisional; tasks in-progress. Preserves 72ec247/ed33c41. |
-| T53 | [PR #9](https://github.com/SEVINTINE7/FINORA/pull/9) | Preserves 8d38725; local auth/log regressions verified; security acceptance incomplete. |
-| T52 | Fork branch `codex/t52-financial-response-privacy`; separate review PR | Four additional role/privacy/no-mutation tests; no duplicated foreign-owner implementation. Full role acceptance incomplete. |
+| T27–T29 | [PR #8](https://github.com/SEVINTINE7/FINORA/pull/8): merged | Mocked-only preparatory pipeline; exact-claim policy provisional; tasks in-progress. Preserves 72ec247/ed33c41. |
+| T53 | [PR #9](https://github.com/SEVINTINE7/FINORA/pull/9): merged | Preserves 8d38725; local auth/log regressions verified; security acceptance incomplete. |
+| T52 | [PR #10](https://github.com/SEVINTINE7/FINORA/pull/10): review branch | Four additional role/privacy/no-mutation tests; no duplicated foreign-owner implementation. Full role acceptance incomplete. |
 
-All review branches are based on/reconciled with origin/main `a0b5dfb`. Earlier branches and commits are retained.
-Each PR is independent of the other two against this baseline. Their tracker edits overlap: preserve all dated
-evidence/blockers during integration rather than replacing a tracker wholesale. No upstream merges or force pushes performed.
-After integrating, Sevindu should run one combined backend verify and inspect CI; separate passing branches do not prove the combined result.
+Initial review branches were based on/reconciled with origin/main `a0b5dfb`. Earlier branches and commits are retained.
+Another actor merged #9 then #8 during this handoff; both API and Android CI checks passed on their reviewed heads.
+T52 PR #10 is reconciled with the resulting origin/main `89b6e7c`; tracker conflicts retain earlier evidence and add
+the verified T52 progress. Codex performed no upstream merges or force pushes. Final combined verification is recorded below.
 
 ## Verification evidence
 
