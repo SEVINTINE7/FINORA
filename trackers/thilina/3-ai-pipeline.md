@@ -31,7 +31,8 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 **Done when**
 - [ ] Tests with mocked HTTP: success, 429, timeout, invalid JSON
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-22: Mocked HTTP client tests 19/19 PASS. Groq/Gemini clients implemented. Live provider, exact retry behavior and final security review pending.
 
 ---
 
@@ -43,7 +44,8 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 **Done when**
 - [ ] Tests for each failure path end in valid advice
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-22: Pipeline tests 13/13 PASS. Fallback implementation added. Full fallback acceptance and live integration pending.
 
 ---
 
@@ -56,4 +58,5 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 **Done when**
 - [ ] Tests: fabricated number, changed %, wrong month, rounding edge — all rejected; valid reply passes
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-22: Verifier tests 19/19 PASS. V8 migration validated. Final number-verification policy and real-world pass rate pending.
