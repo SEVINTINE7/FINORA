@@ -10,6 +10,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T09.2 [API] `/api/v1/categories`: list = defaults + own; CRUD on own only; defaults read-only
 - [x] T09.3 [API] Duplicate name per user → 409; delete category in use → 409 `IN_USE`
 - [ ] T09.4 [AND·Sahan] Accounts list + add/edit screen
+  - List owned accounts including archived rows, with name, type and exact LKR opening balance. Add and edit name (required, 60 characters), account type and exact signed opening balance (13 integer digits, 2 fractional). Use USER-only GET/POST `/api/v1/accounts` and GET/PUT/DELETE `/api/v1/accounts/{id}`. Confirm removal, then reload after 204 to distinguish archive from deletion. Verify money precision, conflicts, stale-login cancellation, rotation, offline recovery and local API CRUD.
 - [ ] T09.5 [AND·Sahan] Categories list grouped income/expense, add/edit own
 
 **Done when**
