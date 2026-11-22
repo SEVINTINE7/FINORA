@@ -54,7 +54,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T39 · Sinhala and English support · `FR01`
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `res:values*/strings.xml`, `and:util/LocaleHelper.java`
 - [x] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
-- [ ] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
+- [x] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
 - [x] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
 - [x] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
 
@@ -64,7 +64,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Handoff notes:**
 - All 32 original EN/SI resource pairs are unchanged; all 37 current pairs match. The Java and layout source review found no user-facing literals.
 - AppCompat per-app selection is implemented. USER changes require a confirmed profile update; guest, ADMIN and STAFF choices remain local.
-- Both V1 APKs built, 37 unit tests passed, and lint reported no issues.
+- Both V1 APKs built after the locale correction, 38 unit tests passed, and lint reported no issues.
 - HMD Crest 5G (Android 14) verified both languages on Login and the USER, ADMIN and STAFF homes. Sinhala samples, including all five USER tabs, showed no clipping at the tested settings.
 - Sahan confirmed the spoken TalkBack labels for Sign in, Show password and Language, and approved all 37 Sinhala resource pairs as native-speaker reviewer on 2026-11-22.
-- T39.2 device sync passed in both directions. Pending targeted check: whether a new activity for an already verified session can briefly or persistently reapply stale session language while offline.
+- Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart. Independent source review remains pending.

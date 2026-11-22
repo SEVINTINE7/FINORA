@@ -5,12 +5,34 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
+import lk.finora.app.data.local.TokenStore.Session;
+
 public class LocaleHelperTest {
+    @Test
+    public void confirmedLocaleSurvivesStaleSessionMetadataOnlyForSameLogin() throws Exception {
+        LocaleHelper.ConfirmedLanguage cache = new LocaleHelper.ConfirmedLanguage();
+        Object login = new Object();
+        Session stale = session(login, "EN");
+        cache.record(stale, "SI");
+        assertEquals("SI", cache.forSession(stale));
+        assertEquals("SI", cache.forSession(session(login, "EN")));
+        assertEquals("EN", cache.forSession(session(new Object(), "EN")));
+        assertEquals("EN", cache.forSession(stale));
+    }
+
+    private static Session session(Object identity, String language) throws Exception {
+        Constructor<Session> constructor = Session.class.getDeclaredConstructor(Object.class,
+                String.class, String.class, String.class, String.class);
+        constructor.setAccessible(true);
+        return constructor.newInstance(identity, "access", "refresh", "USER", language);
+    }
+
     @Test
     public void updateReadsProfileFirstAndPreservesTheFullName() throws IOException {
         List<LocaleHelper.LanguageUpdate> calls = new ArrayList<>();
