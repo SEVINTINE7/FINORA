@@ -55,6 +55,7 @@ journeys via budgets/insights/bills/goals; mocked advice service and bounded out
 - Later 2026-11-22 authorization: FinancialJourneyTest and literal oracle doc added; initial focused 8/8 passed, zero failures/errors/skips, exit 0, Java 17/offline/finora_test. Final insights-boundary assertions included in verification below. No production/Android edits; HTTP advice delivery remains T30, not implemented here.
 - Six scenarios cover cents/rounding, zero income, missing reserve/history, category totals and affordable headroom. Update journeys cover budget/insight boundaries, paid-marker/goal changes without extra expense, invalid inputs, exact grounded mocked advice, unsupported-claim rejection/fallback and cross-user isolation. Final verifier/live acceptance remains blocked.
 - Final run: focused 8/8 and full offline Maven verify 265/265 passed, zero failures/errors/skips, exit 0; JaCoCo service lines 693/702 (98.72%), gate passed. Java 17, only finora_test; logs api/target/t54-focused.log and t54-verify.log; git diff --check passed. Base origin/main 89b6e7c excludes still-open PR #10's four tests; no regression from its separate 261 count. Synthetic plan metadata fixed for historical reproducibility; T54 remains in-progress.
+- Review handoff: https://github.com/SEVINTINE7/FINORA/pull/11, tested code commit 5900d3b; open/mergeable, CI queued when checked. PR #10 also open/mergeable, both CI checks passed and no submitted reviews. Preserve both tracker additions on integration; no upstream merge performed. Live T54 acceptance still pending.
 
 ---
 
