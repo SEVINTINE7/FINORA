@@ -258,6 +258,73 @@ class MetricsServiceTest {
     }
 
     @Test
+    void previousMonthIncomeExtendsPaydayWindowWithoutChangingMonthlyTotals() {
+        Transaction priorIncome = new Transaction();
+        priorIncome.setUserId(USER);
+        priorIncome.setType(TransactionType.INCOME);
+        priorIncome.setAmount(new BigDecimal("50000.00"));
+        priorIncome.setTxnDate(FROM.minusDays(1));
+        when(transactionRepository.findByUserIdAndTxnDateBetween(USER, FROM.minusDays(2), FROM.minusDays(1)))
+                .thenReturn(List.of(priorIncome));
+        expense("100.00", 1, FOOD);
+        expense("200.00", 2, FOOD);
+        expense("400.00", 3, FOOD); // outside October 31 + two days
+
+        MonthMetrics m = service.forMonth(USER, NOV);
+
+        check(m.paydaySpend(), "300.00", 2);
+        check(m.expense(), "700.00", 3);
+        check(m.income(), "0.00", 0); // prior income is context, not November income
+        check(m.leftOver(), "-700.00", 3);
+        assertThat(m.savingsRate()).isNull();
+    }
+
+    @Test
+    void crossYearPaydayWindowsOverlapWithoutDoubleCounting() {
+        YearMonth january = YearMonth.of(2027, 1);
+        LocalDate first = january.atDay(1);
+        LocalDate last = january.atEndOfMonth();
+        Transaction priorIncome = new Transaction();
+        priorIncome.setType(TransactionType.INCOME);
+        priorIncome.setTxnDate(first.minusDays(1));
+        priorIncome.setAmount(new BigDecimal("1000.00"));
+        Transaction currentIncome = new Transaction();
+        currentIncome.setType(TransactionType.INCOME);
+        currentIncome.setTxnDate(first);
+        currentIncome.setAmount(new BigDecimal("200.00"));
+        Transaction purchase = new Transaction();
+        purchase.setType(TransactionType.EXPENSE);
+        purchase.setTxnDate(first.plusDays(1));
+        purchase.setAmount(new BigDecimal("25.00"));
+        when(transactionRepository.findByUserIdAndTxnDateBetween(USER, first, last))
+                .thenReturn(List.of(currentIncome, purchase));
+        when(transactionRepository.findByUserIdAndTxnDateBetween(USER, first.minusDays(2), first.minusDays(1)))
+                .thenReturn(List.of(priorIncome));
+
+        MonthMetrics m = service.forMonth(USER, january);
+
+        assertThat(m.paydaySpend()).isEqualTo(new Metric(new BigDecimal("25.00"), first, last, 1));
+        assertThat(m.income()).isEqualTo(new Metric(new BigDecimal("200.00"), first, last, 1));
+        assertThat(m.leftOver()).isEqualTo(new Metric(new BigDecimal("175.00"), first, last, 2));
+    }
+
+    @Test
+    void customSavingsNameDoesNotMasqueradeAsDefaultSavingsCategory() {
+        Category custom = category(90L, "Savings", CategoryKind.EXPENSE, NeedOrWant.WANT);
+        custom.setUserId(USER);
+        when(categoryRepository.findAllById(any())).thenReturn(List.of(SAVINGS, custom));
+        expense("100.00", 6, SAVINGS);
+        expense("900.00", 6, custom);
+
+        MonthMetrics m = service.forMonth(USER, NOV);
+
+        check(m.savedToCategory(), "100.00", 1);
+        check(m.expense(), "1000.00", 2);
+        check(m.wants(), "900.00", 1);
+        check(m.unclassified(), "100.00", 1);
+    }
+
+    @Test
     void ratioAndWeekendHelpers() {
         assertThat(MetricsService.ratio(new BigDecimal("1.00"), new BigDecimal("3.00")))
                 .isEqualTo(new BigDecimal("0.3333"));
