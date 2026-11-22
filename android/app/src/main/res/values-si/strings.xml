@@ -31,4 +31,9 @@
     <string name="session_expired">කරුණාකර නැවත පිවිසෙන්න.</string>
     <string name="restore_unavailable">ඔබේ සැසිය යළි ආරම්භ කළ නොහැක. නැවත උත්සාහ කිරීමට මෙතැන ඔබන්න.</string>
     <string name="unsupported_role">මෙම ගිණුමෙන් FINORA වෙත පිවිසිය නොහැක.</string>
+    <string name="language_selector">භාෂාව</string>
+    <string name="language_english">English</string>
+    <string name="language_sinhala">සිංහල</string>
+    <string name="language_save_failed">ගිණුමේ භාෂාව සුරැකිය නොහැකි විය. සම්බන්ධතාවය ඇති විට නැවත උත්සාහ කරන්න.</string>
+    <string name="language_syncing">භාෂාව සුරකිමින්…</string>
 </resources>

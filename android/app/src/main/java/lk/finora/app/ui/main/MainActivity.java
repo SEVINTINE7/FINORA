@@ -36,6 +36,8 @@ public final class MainActivity extends ProtectedHomeActivity {
             tab.setTextColor(colors);
             tab.setButtonDrawable(null);
             tab.setPadding(0, 0, 0, 0);
+            tab.setSingleLine(false);
+            tab.setHorizontallyScrolling(false);
             tab.setGravity(Gravity.CENTER);
             tab.setMinHeight(touchHeight);
             navigation.addView(tab, new RadioGroup.LayoutParams(0, -1, 1));

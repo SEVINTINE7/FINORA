@@ -31,4 +31,9 @@
     <string name="session_expired">Please sign in again.</string>
     <string name="restore_unavailable">Could not restore your session. Tap here to retry.</string>
     <string name="unsupported_role">This account cannot open FINORA.</string>
+    <string name="language_selector">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_sinhala">සිංහල</string>
+    <string name="language_save_failed">Could not save your account language. Try again when connected.</string>
+    <string name="language_syncing">Saving language…</string>
 </resources>

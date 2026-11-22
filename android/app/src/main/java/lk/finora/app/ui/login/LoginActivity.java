@@ -7,13 +7,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import androidx.activity.ComponentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
@@ -27,11 +28,13 @@ import lk.finora.app.data.repo.LoginRepository.Result;
 import lk.finora.app.ui.common.StateView;
 import lk.finora.app.ui.auth.SessionNavigation;
 import lk.finora.app.util.LoginInput;
+import lk.finora.app.util.LocaleHelper;
 
-public final class LoginActivity extends ComponentActivity {
+public final class LoginActivity extends AppCompatActivity {
     private EditText email;
     private EditText password;
     private Button submit;
+    private Button languageSelector;
     private ImageButton visibility;
     private FieldFeedback emailFeedback;
     private FieldFeedback passwordFeedback;
@@ -54,6 +57,10 @@ public final class LoginActivity extends ComponentActivity {
         visibility.setOnClickListener(view -> setPasswordVisible(
                 password.getTransformationMethod() instanceof PasswordTransformationMethod));
         submit = findViewById(R.id.sign_in);
+        ViewGroup sheet = (ViewGroup) submit.getParent();
+        languageSelector = LocaleHelper.selector(this, LocaleHelper::apply);
+        sheet.addView(languageSelector, ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         configureInsets();
         emailFeedback = new FieldFeedback(email, findViewById(R.id.email_field),
                 findViewById(R.id.email_error), null);
@@ -174,6 +181,7 @@ public final class LoginActivity extends ComponentActivity {
         feedbackView.setClickable(retry);
         feedbackView.setFocusable(retry);
         submit.setEnabled(!state.loading);
+        languageSelector.setEnabled(!state.loading);
         email.setEnabled(!state.loading);
         password.setEnabled(!state.loading);
         visibility.setEnabled(!state.loading);

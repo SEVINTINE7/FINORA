@@ -34,7 +34,7 @@
     <dimen name="finora_icon">20dp</dimen>
     <dimen name="finora_art_size">152dp</dimen>
 
-    <style name="Theme.Finora" parent="android:style/Theme.Material.Light.NoActionBar">
+    <style name="Theme.Finora" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:colorAccent">@color/finora_green</item>
         <item name="android:windowBackground">@color/finora_navy</item>
