@@ -34,7 +34,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Unexpected-error logger now omits raw URLs and exception details; dedicated privacy regression added. Focused 17/17 passed; final offline Java 17 Maven verify: 151/151, zero failures/errors/skips, exit 0, isolated finora_test only (`api/target/t53-verify.log`).
 - JaCoCo service gate PASS: 602/610 lines (98.69%); report api/target/site/jacoco/index.html. Limited tracked-content secret patterns found no matches; gitleaks/dependency-check not on PATH, so comprehensive scans remain unchecked.
 - Recovered pipeline commits 72ec247/ed33c41 match fork branch; static inspection confirms mock-only tests, strict provisional verifier, bounded audit metadata and rule fallback. PRs #5/#6/#7 confirmed merged; no new PR/push, no live calls or policy changes.
-- Next: approve pipeline PR targeting main, then resolve final verifier/provider acceptance, T14 device capture, deployed TLS/proxy/log review and approved vulnerability/history scans. T53 remains in-progress; no full subtask or acceptance box ticked.
+- Final PR compatibility: preserved 8d38725, merged origin/main a0b5dfb; offline verify 206/206 passed, zero failures/errors/skips, exit 0; service lines 668/677 (98.67%), gate passed (api/target/final-t53-verify.log). Pipeline PR #8 open; next: reviewer acceptance, T14 capture, deployed TLS/proxy/log review and comprehensive scans. T53 remains in-progress.
 
 ---
 
