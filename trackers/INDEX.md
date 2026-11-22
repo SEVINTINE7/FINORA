@@ -12,11 +12,11 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T06 | Role-based access control | Sevindu | — | T05 | [sevindu/2-auth.md](sevindu/2-auth.md) | done |
 | T07 | Consent and account settings | Sevindu | Sahan | T05, T37 | [sevindu/2-auth.md](sevindu/2-auth.md) | in-progress |
 | T08 | Three-role login routing | Sahan | Sevindu | T06, T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | review |
-| T09 | Accounts and categories | Sevindu | Sahan | T03, T06, T37 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
+| T09 | Accounts and categories | Sevindu | Sahan | T03, T06, T37 | [sevindu/3-records.md](sevindu/3-records.md) | review |
 | T10 | Income and expense records | Sevindu | Sahan | T09 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
 | T11 | Manual transaction entry | Sahan | — | T10, T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | todo |
 | T12 | CSV import | Sevindu | Sahan | T10 | [sevindu/3-records.md](sevindu/3-records.md) | todo |
-| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | todo |
+| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T14 | Local bank SMS parsing | Sahan | — | T13, T45.3 (can start with bundled formats) | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | todo |
 | T15 | Transaction preview and deduplication | Sahan | Sevindu | T14, T10 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | todo |
 | T16 | SMS parser regression tests | Sahan | Thilina | T14 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | todo |
@@ -24,12 +24,12 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T18 | Monthly bills | Sevindu | Sahan | T17 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
 | T19 | Savings goals | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
 | T20 | Dashboard and charts | Sahan | Sevindu | T10, T17 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
-| T21 | Deterministic spending metrics | Thilina | — | T10, T17, T18 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |
+| T21 | Deterministic spending metrics | Thilina | — | T10, T17, T18 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | review |
 | T22 | Spending-pattern detection | Thilina | — | T21 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |
-| T23 | Health-score model (0–100) | Thilina | — | T21, T18, T19, T01.3 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | todo |
+| T23 | Health-score model (0–100) | Thilina | — | T21, T18, T19, T01.3 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | in-progress |
 | T24 | Insights and health-score screens | Sahan | Thilina | T22, T23, T38 | [sahan/4-screens.md](sahan/4-screens.md) | todo |
-| T25 | Rule-based advice engine | Thilina | — | T21, T22, T23 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | todo |
-| T26 | AI-safe fact and response schema | Thilina | — | T21, T25 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | todo |
+| T25 | Rule-based advice engine | Thilina | — | T21, T22, T23 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | review |
+| T26 | AI-safe fact and response schema | Thilina | — | T21, T25 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
 | T27 | Server-only Groq integration | Thilina | Sevindu | T04, T26 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | todo |
 | T28 | Gemini backup and rule fallback | Thilina | — | T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | todo |
 | T29 | Number and claim verification | Thilina | — | T26, T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | todo |

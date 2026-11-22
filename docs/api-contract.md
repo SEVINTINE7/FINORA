@@ -46,6 +46,22 @@ Tasks may add codes; add them to this table and to `api:common/error/ErrorCodes.
 
 ## Endpoints
 
+### Health score (T23, D20)
+
+| Method | Path | Role | Request | Response | Task |
+|---|---|---|---|---|---|
+| GET | `/api/v1/score?month=YYYY-MM` | USER | required month, year 1000-9999 | `200 {month, modelVersion, status, total, scoredWeight, missingWeight, notApplicableWeight, reserveAsOf, parts[]}`; bad/missing month 400 | T23 |
+| GET | `/api/v1/score-inputs/{month}` | USER | own month only; no user id accepted | `200 {month, emergencyReserve, reserveAsOf, noApplicableDebt, noApplicableGoals, confirmedAt}`; absent declaration returns null fields | T23 |
+| PUT | `/api/v1/score-inputs/{month}` | USER | `{emergencyReserve?, reserveAsOf?, noApplicableDebt?, noApplicableGoals?}` | `200` same as GET; 400 invalid/contradictory declarations | T23 |
+
+Score input PUT replaces that month's declaration. Reserve amount (nonnegative LKR, max 13 integer/2 fractional digits) and date must be supplied together or both omitted; date belongs to the month and is not future. Zero is an explicit reserve declaration, null is unknown. Booleans are nullable: only explicit `true` establishes no applicable tracked debt/goals, and cannot contradict recorded evidence. `confirmedAt` is UTC; reserve balances remain USER-DECLARED, not verified bank balances.
+
+`parts` are ordered Spending Control / Debt Payments / Goal Progress / Savings / Emergency Savings. Each part is `{key,weight,status,points,reasonKey,facts}` with D20 weights 45/20/15/10/10. Status is `SCORED`, `NOT_APPLICABLE` or `UNAVAILABLE`; null points never count as zero. Any unavailable part makes `total=null`, otherwise normalize only applicable weights and round HALF_UP to integer. Component points are 2-decimal HALF_UP. The model is `D20-v1`; facts contain aggregate numbers, not merchants/names. Existing security gives anonymous 401 and ADMIN/STAFF 403.
+
+Source semantics: consumption = all recorded expense minus default Savings expense; loan expenses remain inside consumption once. Debt uses current active bills linked to the default Loan payment category and monthly paid markers, not actual repayment amounts/timeliness. Loan transactions without a bill schedule cannot establish repayment performance. Goals use current non-cancelled targets (including DONE), cap contributions separately per goal, and include only contribution dates through month end. Bills/goals created after the selected month are excluded (UTC created_at converted against the Colombo month boundary). Current target/bill edits and cancellations may change recomputed historical scores; no historical snapshots or score history persistence are claimed (T33). `N` is recorded NEED expense, not an independently verified essential budget. A reserve date inside the month is displayed as supplied; it is not assumed to be a month-end balance. No score/data GET writes financial records. D20 acceptance still depends on the remaining T18/T19 work; backend-only implementation was explicitly authorized by Thilina on 2026-11-22.
+
+### Other endpoints
+
 | Method | Path | Role | Request | Response | Task |
 |---|---|---|---|---|---|
 | GET | `/actuator/health` | Public | — | `200 {"status":"UP"}` | T04 |
