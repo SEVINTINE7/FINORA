@@ -66,7 +66,8 @@ public class GlobalExceptionHandler {
     /** Anything else is a bug. Log it, but never send the details to the app. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleOther(Exception ex, HttpServletRequest request) {
-        log.error("Unexpected error on {} {}", request.getMethod(), request.getRequestURI(), ex);
+        // Exception messages, stack traces and raw URLs can contain credentials or financial data.
+        log.error("Unexpected server error type={}", ex.getClass().getSimpleName());
         return build(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCodes.INTERNAL_ERROR, "Unexpected server error", request);
     }
 

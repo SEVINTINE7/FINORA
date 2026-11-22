@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcPrint;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.ResultActions;
@@ -29,6 +31,7 @@ import lk.finora.api.support.IntegrationTest;
 
 /** T05: register, login, JWT filter, refresh rotation and logout. */
 @ExtendWith(OutputCaptureExtension.class)
+@AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 class AuthControllerTest extends IntegrationTest {
 
     private static final String PASSWORD = "Secret123";
@@ -220,6 +223,29 @@ class AuthControllerTest extends IntegrationTest {
     }
 
     @Test
+    void expiredRefreshTokenCannotIssueNewTokens() throws Exception {
+        postJson("/api/v1/auth/register", registerBody("nimal@example.com", PASSWORD));
+
+        String refresh = readField(
+                login("nimal@example.com", PASSWORD), "refreshToken");
+
+        // DATETIME is UTC by convention; JDBC Timestamp binding otherwise uses the JVM zone.
+        int updated = jdbc.update(
+                "UPDATE refresh_tokens SET expires_at = UTC_TIMESTAMP(6) - INTERVAL 5 MINUTE " +
+                "WHERE user_id = (SELECT id FROM users WHERE email = ?)",
+                "nimal@example.com");
+
+        assertThat(updated).isEqualTo(1);
+        entityManager.clear(); // JDBC bypasses the managed RefreshToken cached by login.
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM refresh_tokens WHERE expires_at < UTC_TIMESTAMP(6)",
+                Integer.class)).isEqualTo(1);
+
+        postJson("/api/v1/auth/refresh", Map.of("refreshToken", refresh))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_REFRESH_TOKEN"));
+    }
+
+    @Test
     void logoutRevokesRefreshToken() throws Exception {
         postJson("/api/v1/auth/register", registerBody("nimal@example.com", PASSWORD));
         String refresh = readField(login("nimal@example.com", PASSWORD), "refreshToken");
@@ -234,12 +260,36 @@ class AuthControllerTest extends IntegrationTest {
     // ---------- secrets never leak ----------
 
     @Test
+    void disabledAccountCannotRefresh() throws Exception {
+        postJson("/api/v1/auth/register", registerBody("disabled@example.com", PASSWORD));
+        String refresh = readField(login("disabled@example.com", PASSWORD), "refreshToken");
+        jdbc.update("UPDATE users SET status = 'DISABLED' WHERE email = ?", "disabled@example.com");
+        entityManager.clear();
+        postJson("/api/v1/auth/refresh", Map.of("refreshToken", refresh))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("ACCOUNT_DISABLED"));
+    }
+
+    @Test
+    void wrongSignatureCannotAuthenticate() throws Exception {
+        String forged = Jwts.builder().subject("1").claim("role", "USER")
+                .expiration(new Date(System.currentTimeMillis() + 60_000))
+                .signWith(Keys.hmacShaKeyFor("different-test-only-key-0123456789abcdef0123456789".getBytes(StandardCharsets.UTF_8)))
+                .compact();
+        mockMvc.perform(get("/api/v1/nothing-here").header("Authorization", "Bearer " + forged))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void passwordAndHashNeverInResponsesOrLogs(CapturedOutput output) throws Exception {
         String registerResponse = postJson("/api/v1/auth/register", registerBody("nimal@example.com", PASSWORD))
                 .andReturn().getResponse().getContentAsString();
         String loginResponse = login("nimal@example.com", PASSWORD).andReturn().getResponse().getContentAsString();
         String wrongResponse = login("nimal@example.com", "Wrong1234").andReturn().getResponse().getContentAsString();
         String hash = jdbc.queryForObject("SELECT password_hash FROM users WHERE email = 'nimal@example.com'", String.class);
+        var session = jsonMapper.readTree(loginResponse);
+        assertThat(output.getAll()).doesNotContain(session.get("accessToken").asString())
+                .doesNotContain(session.get("refreshToken").asString());
 
         for (String text : new String[] { registerResponse, loginResponse, wrongResponse, output.getAll() }) {
             assertThat(text).doesNotContain(PASSWORD).doesNotContain("Wrong1234").doesNotContain(hash);
