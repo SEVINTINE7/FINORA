@@ -42,7 +42,7 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T36 | Data deletion | Sevindu | Sahan | T35 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | todo |
 | T37 | Mobile app skeleton | Sahan | — | T02 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | done |
 | T38 | Financial screens and navigation | Sahan | — | T37, T09 | [sahan/4-screens.md](sahan/4-screens.md) | todo |
-| T39 | Sinhala and English support | Sahan | — | T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | todo |
+| T39 | Sinhala and English support | Sahan | — | T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | in-progress |
 | T40 | Android privacy and resilience | Sahan | — | T37, T08 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | todo |
 | T41 | Admin login and dashboard | Sevindu | — | T06, T08 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
 | T42 | Admin manages user accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |

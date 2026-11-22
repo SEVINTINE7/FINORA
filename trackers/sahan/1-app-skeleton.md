@@ -53,7 +53,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T39 · Sinhala and English support · `FR01`
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `res:values*/strings.xml`, `and:util/LocaleHelper.java`
-- [ ] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
+- [x] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
 - [ ] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
 - [ ] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
 - [ ] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
@@ -61,4 +61,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] Every screen checked in both languages on a device; TalkBack reads main buttons
 
-**Handoff notes:** —
+**Handoff notes:**
+- All 32 original EN/SI resource pairs are unchanged; all 37 current pairs match. The Java and layout source review found no user-facing literals.
+- AppCompat per-app selection is implemented. USER changes require a confirmed profile update; guest, ADMIN and STAFF choices remain local.
+- Both V1 APKs built, 37 unit tests passed, and lint reported no issues.
+- Native-speaker review and device acceptance, including visual overflow and TalkBack, remain open.
