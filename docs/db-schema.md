@@ -1,6 +1,6 @@
 # FINORA — Database Schema
 
-MySQL 8, managed by Flyway (`api/src/main/resources/db/migration/V1…V6`). Never edit an applied migration — add a new `V7__…sql`.
+MySQL 8, managed by Flyway (`api/src/main/resources/db/migration/V1…V7`). Never edit an applied migration — add a new numbered migration.
 
 **Conventions:** `id BIGINT AUTO_INCREMENT`; `created_at DATETIME(6)` UTC; money `DECIMAL(15,2)` LKR (D06) with `CHECK (> 0)`; months `CHAR(7)` `YYYY-MM` with a format CHECK; ownership via `user_id`.
 
@@ -54,6 +54,7 @@ erDiagram
 | `goal_contributions` | V3 | Money put toward a goal | amount > 0 |
 | `insights` | V4 | Detected patterns with their facts (JSON) | index (user, month) |
 | `health_scores` | V4 | Monthly score 0–100 + parts (JSON) | unique (user, month); 0 ≤ total ≤ 100 |
+| `score_inputs` | V7 | D20 user declarations: nullable emergency reserve/date and no-applicable-debt/goals flags; UTC confirmation time | unique (user, month); user deletion cascades; nonnegative reserve/date pair in month |
 | `advice` | V4 | RULE / AI advice, mode BETA / V1 (D03), `verified` flag | index (user, month) |
 | `advice_ratings` | V4 | 1–5 rating | unique (advice, user); 1 ≤ rating ≤ 5 |
 | `device_tokens` | V5 | FCM tokens | `token` unique |

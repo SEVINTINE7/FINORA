@@ -1,24 +1,27 @@
 # Thilina 2 — Health score and rule-based advice (T23, T25)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
-**Detail: outline** — expand before coding. Weights: `docs/decisions.md` P05.
+**Detail: T23 expanded below; T25 remains outline** — weights and formulas: `docs/decisions.md` D20 (approved, formerly P05).
 
 ---
 
 ### T23 · Health-score model (0–100) · `FR07`
-**Lead:** Thilina · **Depends on:** T21, T18, T19, T01.3 · **Touches:** `api:score/`
-- [ ] T23.1 Write each part's formula in `docs/decisions.md` (savings, spending control, debt payments, emergency savings, goal progress)
-- [ ] T23.2 `ScoreService.forMonth()` → total + parts, each part clamped to its weight, total 0–100
-- [ ] T23.3 Each part has a reason key + numbers (e.g. `SAVINGS_LOW {savedPct: 4.2}`) for EN/SI text
-- [ ] T23.4 `GET /api/v1/score?month=`
+**Lead:** Thilina · **Depends on:** T21, T18, T19, T01.3 · **Touches:** `api:score/`, `api-test:score/`, `mig:V7__score_inputs.sql`, `docs/api-contract.md`, `docs/db-schema.md`
+- [x] T23.1 Use the approved five-part formulas in `docs/decisions.md` D20; no new scoring thresholds
+- [x] T23.2 Pure BigDecimal calculator + `ScoreService.forMonth()` → total/parts; points clamped to weights, total 0–100, missing total null, explicit N/A weights normalized
+- [x] T23.3 Stable reason keys + aggregate numeric facts for EN/SI; debt paid markers and user-declared reserves explicitly labeled
+- [x] T23.4 USER-only `GET /api/v1/score?month=YYYY-MM`; no user id accepted; validate month and preserve ownership/role privacy
+- [x] T23.5 Minimal owner-only GET/PUT `/api/v1/score-inputs/{month}`: nullable reserve/date and no-applicable-debt/goals declarations, UTC confirmation time; V7 schema, validation and contradiction checks
+- [ ] T23.6 Team review and remaining T18/T19 dependencies resolved before full task acceptance; no teammate status changed
 
 **Done when**
-- [ ] Tests: zero income, no goals, no debt, perfect month, worst month; same input → same output
+- [x] Tests: zero income, no goals, no debt, perfect month, worst month; same input → same output
 
 **Handoff notes:**
-- T01.3/P05: Team-approved on 2026-11-21 and recorded as D20 in docs/decisions.md; weights 45/20/15/10/10.
-- T23 implementation remains pending: T21 is under review; T18/T19 are in progress; dated emergency-reserve input is required. No T23 implementation or acceptance checks completed.
-- D20 distinguishes debt paid markers from verified repayment and requires explicitly declared emergency reserves.
-- Evidence/next: 13 synthetic Python Decimal cases are proposal evidence only. Review example assumptions, resolve remaining dependencies, then implement and test D20.
+- 2026-11-22 Thilina explicitly authorized backend-only T23 against completed T18/T19 APIs and the minimal monthly input endpoint; final acceptance still waits for dependencies/team review.
+- D20 implemented in `api:score/` with V7 declarations only, no score history writes or inferred balances. Existing goal/bill production classes and teammate statuses unchanged.
+- New tests: ScoreCalculatorTest 26 and ScoreControllerTest 12 passed; combined analytics/insight/schema verification: 84 run, 0 failures/errors/skips, Java 17 + isolated MySQL `finora_test` only; evidence `api/target/t23-d20-verification.log` and Surefire reports.
+- Dates/limitations: only contributions through month end and plans created by month end qualify; current bill/goal edits may change historical results; reserve date remains as declared, not inferred month-end. Numeric facts carry no names/merchants.
+- Final UTC DTO check: 38 scoring tests passed (`api/target/t23-final-check.log`). Next: feature-branch PR review (stacked on T21 PR #5); keep T23 in-progress until dependency/human acceptance. User separately authorized backend T25/T26 continuation; T50 was not repeated.
 
 ---
 
