@@ -27,7 +27,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] `docs/security-checklist.md` filled with real results
 
-**Handoff notes:** —
+**Handoff notes:**
+- 2026-11-22: Initial static security audit recorded in docs/security-checklist.md. BCrypt strength 12, password encoding/matching and JWT expiry/signature verification located. HTTPS deployment, log redaction, live SMS/AI privacy, comprehensive secret scanning and dependency scanning remain unverified. T53 in-progress.
 
 ---
 
