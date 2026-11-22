@@ -62,9 +62,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] Every screen checked in both languages on a device; TalkBack reads main buttons
 
 **Handoff notes:**
-- All 32 original EN/SI resource pairs are unchanged; all 37 current pairs match. The Java and layout source review found no user-facing literals.
-- AppCompat per-app selection is implemented. USER changes require a confirmed profile update; guest, ADMIN and STAFF choices remain local.
-- Both V1 APKs built after the locale correction, 38 unit tests passed, and lint reported no issues.
+- All 32 original EN/SI resource pairs are unchanged, all 37 current pairs match, and the Java/layout review found no user-facing literals. USER locale changes require profile confirmation. Guest, ADMIN and STAFF choices remain local.
+- Both V1 APKs built after the stable login identity correction, 39 unit tests passed, and lint reported no issues.
 - HMD Crest 5G (Android 14) verified both languages on Login and the USER, ADMIN and STAFF homes. Sinhala samples, including all five USER tabs, showed no clipping at the tested settings.
 - Sahan confirmed the spoken TalkBack labels for Sign in, Show password and Language, and approved all 37 Sinhala resource pairs as native-speaker reviewer on 2026-11-22.
-- Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart. Independent source review remains pending.
+- Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart.
+- Sahan reported a technical GO from independent source re-review of `92f2dd3`, including the stable login identity correction. Independent human final approval remains pending.
