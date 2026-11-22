@@ -12,6 +12,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] T09.4 [AND·Sahan] Accounts list + add/edit screen
   - List owned accounts including archived rows, with name, type and exact LKR opening balance. Add and edit name (required, 60 characters), account type and exact signed opening balance (13 integer digits, 2 fractional). Use USER-only GET/POST `/api/v1/accounts` and GET/PUT/DELETE `/api/v1/accounts/{id}`. Confirm removal, then reload after 204 to distinguish archive from deletion. Verify money precision, conflicts, stale-login cancellation, rotation, offline recovery and local API CRUD.
 - [ ] T09.5 [AND·Sahan] Categories list grouped income/expense, add/edit own
+  - Group active defaults and owned rows by income and expense. Default rows are read-only. Create with required name and kind, and optional Sinhala name and Need/Want. Edit sends name and optional fields, preserving unchanged values and the server's immutable kind. Use USER-only GET/POST `/api/v1/categories` and GET/PUT/DELETE `/api/v1/categories/{id}`. Verify grouping, Sinhala fallback, default guards, duplicate and IN_USE errors, session isolation and local API CRUD.
 
 **Done when**
 - [x] Tests: CRUD, duplicate → 409, in-use delete → 409, user B cannot see user A's (404), cannot edit a default category

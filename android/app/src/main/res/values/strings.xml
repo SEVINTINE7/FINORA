@@ -85,4 +85,17 @@
     <string name="account_summary">%1$s · Opening balance LKR %2$s</string>
     <string name="account_archived">Archived</string>
     <string name="account_remove_message">Remove this account? Accounts with transactions are archived.</string>
+    <string name="category_list_title">Categories</string>
+    <string name="category_form_title">Category details</string>
+    <string name="category_kind">Category type</string>
+    <string name="category_income">Income</string>
+    <string name="category_expense">Expense</string>
+    <string name="category_name_si">Sinhala name (optional)</string>
+    <string name="category_name_si_invalid">Use up to 60 characters for the Sinhala name.</string>
+    <string name="category_classification">Classification</string>
+    <string name="category_unspecified">Unspecified</string>
+    <string name="category_need">Need</string>
+    <string name="category_want">Want</string>
+    <string name="category_default">Default category · read-only</string>
+    <string name="category_remove_message">Remove this category?</string>
 </resources>

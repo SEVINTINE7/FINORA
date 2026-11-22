@@ -23,5 +23,7 @@
         <activity android:name=".ui.sms.SmsAccessActivity" android:exported="false" />
         <activity android:name=".ui.accounts.AccountListActivity" android:exported="false" />
         <activity android:name=".ui.accounts.AccountFormActivity" android:exported="false" />
+        <activity android:name=".ui.categories.CategoryListActivity" android:exported="false" />
+        <activity android:name=".ui.categories.CategoryFormActivity" android:exported="false" />
     </application>
 </manifest>

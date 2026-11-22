@@ -85,4 +85,17 @@
     <string name="account_summary">%1$s · ආරම්භක ශේෂය LKR %2$s</string>
     <string name="account_archived">සංරක්ෂිතයි</string>
     <string name="account_remove_message">මෙම ගිණුම ඉවත් කරන්නද? ගනුදෙනු ඇති ගිණුම් සංරක්ෂණය වේ.</string>
+    <string name="category_list_title">කාණ්ඩ</string>
+    <string name="category_form_title">කාණ්ඩ විස්තර</string>
+    <string name="category_kind">කාණ්ඩ වර්ගය</string>
+    <string name="category_income">ආදායම්</string>
+    <string name="category_expense">වියදම්</string>
+    <string name="category_name_si">සිංහල නම (අත්‍යවශ්‍ය නොවේ)</string>
+    <string name="category_name_si_invalid">සිංහල නම සඳහා අක්ෂර 60ක් දක්වා භාවිත කරන්න.</string>
+    <string name="category_classification">වර්ගීකරණය</string>
+    <string name="category_unspecified">සඳහන් කර නැත</string>
+    <string name="category_need">අවශ්‍යතාව</string>
+    <string name="category_want">අභිලාෂය</string>
+    <string name="category_default">පෙරනිමි කාණ්ඩය · කියවීමට පමණි</string>
+    <string name="category_remove_message">මෙම කාණ්ඩය ඉවත් කරන්නද?</string>
 </resources>
