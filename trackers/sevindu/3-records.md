@@ -9,19 +9,22 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T09.1 [API] CRUD `/api/v1/accounts` (owner only; archive instead of delete if it has transactions)
 - [x] T09.2 [API] `/api/v1/categories`: list = defaults + own; CRUD on own only; defaults read-only
 - [x] T09.3 [API] Duplicate name per user → 409; delete category in use → 409 `IN_USE`
-- [ ] T09.4 [AND·Sahan] Accounts list + add/edit screen
-- [ ] T09.5 [AND·Sahan] Categories list grouped income/expense, add/edit own
+- [x] T09.4 [AND·Sahan] Accounts list + add/edit screen
+  - List owned accounts including archived rows, with name, type and exact LKR opening balance. Add and edit name (required, 60 characters), account type and exact signed opening balance (13 integer digits, 2 fractional). Use USER-only GET/POST `/api/v1/accounts` and GET/PUT/DELETE `/api/v1/accounts/{id}`. Confirm removal, then reload after 204 to distinguish archive from deletion. Verify money precision, conflicts, stale-login cancellation, rotation, offline recovery and local API CRUD.
+- [x] T09.5 [AND·Sahan] Categories list grouped income/expense, add/edit own
+  - Group active defaults and owned rows by income and expense. Default rows are read-only. Create with required name and kind, and optional Sinhala name and Need/Want. Edit sends name and optional fields, preserving unchanged values and the server's immutable kind. Use USER-only GET/POST `/api/v1/categories` and GET/PUT/DELETE `/api/v1/categories/{id}`. Verify grouping, Sinhala fallback, default guards, duplicate and IN_USE errors, session isolation and local API CRUD.
 
 **Done when**
 - [x] Tests: CRUD, duplicate → 409, in-use delete → 409, user B cannot see user A's (404), cannot edit a default category
-- [ ] Screens create/edit/delete against local API
+- [x] Screens create/edit/delete against local API
 
 **Handoff notes:**
-- API part done (T09.1–T09.3); **T09.4–T09.5 (Android, Sahan) and the screens check still open — blocked by T37**.
+- API part done (T09.1–T09.3); T37 is done. T09.4–T09.5 passed local-API create/edit/delete checks on the HMD Crest at `9a8967e`, including account archival and category IN_USE feedback. Sahan accepted the device evidence, confirmed TalkBack, and approved all 46 Sinhala pairs on 2026-11-22.
 - `api:account/` (`Account`, `AccountType`, repo, service, controller, `dto/`) and `api:category/` (`Category`, `CategoryKind`, `NeedOrWant`, …). New error code `IN_USE`.
 - Account DELETE always 204: archived if transactions use it (native count query until T10 adds `Transaction`). Accounts list includes archived ones — T10/T11 should refuse/hide archived accounts for new entries.
 - Category names must be unique per user + kind **including defaults** (can't make own "Food" expense). Defaults: read OK, PUT/DELETE → 403 `FORBIDDEN`. PUT cannot change `kind`. "In use" = transactions, budgets or bills.
 - Tests: `AccountControllerTest` (5), `CategoryControllerTest` (7); suite 67/67. `docs/api-contract.md` updated.
+- Sahan reported an independent focused technical GO for `9a8967e` with all 32 changed-file blobs matching. Archived Android results show 54 passing JVM tests and clean lint. Independent human final approval remains pending.
 
 
 ---

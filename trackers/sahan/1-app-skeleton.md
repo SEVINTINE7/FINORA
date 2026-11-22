@@ -53,12 +53,18 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T39 · Sinhala and English support · `FR01`
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `res:values*/strings.xml`, `and:util/LocaleHelper.java`
-- [ ] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
-- [ ] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
-- [ ] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
-- [ ] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
+- [x] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
+- [x] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
+- [x] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
+- [x] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
 
 **Done when**
-- [ ] Every screen checked in both languages on a device; TalkBack reads main buttons
+- [x] Every screen checked in both languages on a device; TalkBack reads main buttons
 
-**Handoff notes:** —
+**Handoff notes:**
+- All 32 original EN/SI resource pairs are unchanged, all 37 current pairs match, and the Java/layout review found no user-facing literals. USER locale changes require profile confirmation. Guest, ADMIN and STAFF choices remain local.
+- Both V1 APKs built after the stable login identity correction, 39 unit tests passed, and lint reported no issues.
+- HMD Crest 5G (Android 14) verified both languages on Login and the USER, ADMIN and STAFF homes. Sinhala samples, including all five USER tabs, showed no clipping at the tested settings.
+- Sahan confirmed the spoken TalkBack labels for Sign in, Show password and Language, and approved all 37 Sinhala resource pairs as native-speaker reviewer on 2026-11-22.
+- Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart.
+- Sahan reported a technical GO from independent source re-review of `92f2dd3`, including the stable login identity correction. Independent human final approval remains pending.

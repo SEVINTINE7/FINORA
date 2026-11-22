@@ -1,0 +1,96 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/finora_outer_margin">
+
+        <TextView
+            android:id="@+id/sms_title"
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_access_title"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_access_explanation"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            android:id="@+id/sms_status"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <Button
+            android:id="@+id/sms_allow"
+            style="@style/FinoraButton.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_allow_access"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <Button
+            android:id="@+id/sms_settings"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_open_settings"
+            android:visibility="gone"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <Button
+            android:id="@+id/sms_no_thanks_action"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_no_thanks"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            style="@style/FinoraText.Heading"
+            android:id="@+id/sms_alternatives_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_alternatives"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_paste"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_csv_import"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_manual_entry"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            style="@style/FinoraText.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_fallback_unavailable"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+    </LinearLayout>
+</ScrollView>
