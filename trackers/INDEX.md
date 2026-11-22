@@ -64,6 +64,8 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 
 ## Your parts inside other members' tasks
 
+T53 verification update (2026-11-22): remains **in-progress**. Offline Java 17 + isolated finora_test Maven verify passed 151/151 tests (0 failures/errors/skips, exit 0); service coverage 602/610 lines (98.69%), JaCoCo gate passed. Deployed TLS, device/provider captures, comprehensive scans and acceptance remain open; details in the T53 handoff. No other task statuses changed.
+
 - **Sevindu:** T08, T15, T20, T27, T49, T52, T53 — look for subtasks tagged `[…·Sevindu]`
 - **Sahan:** T01, T07, T09, T10, T12, T17, T18, T19, T31, T32, T33, T34, T35, T36, T45, T46, T47, T55, T57 — look for subtasks tagged `[…·Sahan]`
 - **Thilina:** T01, T16, T24, T30, T50, T51, T57 — look for subtasks tagged `[…·Thilina]`
