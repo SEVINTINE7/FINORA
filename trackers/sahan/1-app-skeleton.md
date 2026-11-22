@@ -32,10 +32,10 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T08 · Three-role login routing · `ROLE-CR`
 **Lead:** Sahan · **Support:** Sevindu · **Depends on:** T06, T37 · **Touches:** `and:ui/auth/`, `and:ui/main/`, `and:ui/admin/`, `and:ui/staff/`, `and:data/api/`
 - [x] T08.1 After login route by `role`: USER → `MainActivity` (bottom nav), ADMIN → `AdminHomeActivity`, STAFF → `StaffHomeActivity` (placeholders until T41/T46)
-- [x] T08.2 OkHttp `Authenticator`: on 401 call `/auth/refresh` once; if it fails clear `TokenStore` → login screen
+- [x] T08.2 OkHttp `Authenticator`: on an eligible 401 refresh once and retry the protected call at most once; clear `TokenStore` and return to login on definitive rejection or invalid successful response data. Preserve the session for retry on transient or ambiguous failure per D07.
 - [x] T08.3 Remember session on app restart; logout calls `/auth/logout` and clears storage
 - [x] T08.4 Show messages for `ACCOUNT_DISABLED`, `INVALID_CREDENTIALS` (EN/SI)
-- [ ] T08.5 [API·Sevindu] Confirm login response has `role` and `language` (from T05)
+- [x] T08.5 [API·Sevindu] Confirm login response has `role` and `language` (from T05)
 
 **Done when**
 - [x] Each role lands on its own home on a device
@@ -45,8 +45,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - HMD Crest 5G (Android 14) routed actual USER, ADMIN and STAFF logins. Both external and app-internal launches of privileged screens were denied while USER was signed in.
 - Sahan accepted T08.1–T08.4 physical evidence at `3d2b773`, including real refresh after a controlled 401, expired-refresh rejection, restore, online and offline logout, Back protection, and English/Sinhala errors.
 - Independent review corrections add USER navigation placeholders, bind protected calls before dispatch, and retain the latest logout revocation credential on storage failure. Both APKs built, 34 unit tests passed, and lint reported zero issues.
-- The live login response included role and language. T08.5 remains with Sevindu.
-- Pending: refresh failure policy decision, targeted HMD retest on the corrected build, independent re-review, explicit push authorization, and exact-revision remote CI.
+- Corrected build `0de509e` passed the targeted HMD recheck for all five USER tabs, role guards, refresh, restoration, online and offline logout, and Back protection.
+- Sahan relayed Sevindu's verbal approval of the D07 refresh policy and confirmation of T08.5. Live login responses included role and language.
+- Sahan reported an independent source re-review with a conditional GO for `0de509e`. The policy condition is resolved. Exact-revision CI and independent final approval remain pending.
 
 ---
 

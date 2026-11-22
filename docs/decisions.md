@@ -11,6 +11,7 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D05 Languages** — Sinhala and English. Tamil later, not in scope.
 - **D06 Currency** — LKR only; amounts `DECIMAL(15,2)`.
 - **D07 Tokens** (was P01) — JWT access token 30 min; refresh token 14 days, rotated on every refresh, stored as SHA-256 hash; logout revokes it.
+  - **T08 Android refresh failure policy** (Sevindu's verbal approval relayed by Sahan, 2026-11-22) — clear the local session and return to login on definitive rejection (`401 INVALID_REFRESH_TOKEN`), `403 ACCOUNT_DISABLED`, or a parsed successful response with missing or unsupported session data. Preserve the current session for retry on transport failures, server errors, unrecognized error responses, or responses that cannot be parsed. A protected call retries at most once after successful rotation.
 - **D08 Login rate limit** (was P02) — **removed**: no login-attempt limiting in FINORA.
 - **D09 Passwords** (was P03) — BCrypt cost 12; minimum 8 chars with at least one letter and one digit.
 - **D10 Pattern thresholds** (was P04) — wants > 40% of monthly income; payday window = first 3 days after an income record; weekend = Sat–Sun; high fixed bills = bills > 50% of income.
