@@ -43,6 +43,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D25 T11 early start** — Sahan, exercising approval authority delegated by project lead Sevindu as confirmed by Sahan, authorized implementation and technical verification of Android T11.1–T11.4 while T10 remains `in-progress`. T37 is `done` and the existing USER account/category reads and transaction GET/POST/PUT APIs support the shared form. The API provides no create idempotency guarantee: never automatically replay a POST with an uncertain outcome, and resolve the tracker’s open reconciliation decision before accepting that flow. Normal T11 acceptance and independent review still apply. T09 and T10 retain their current statuses; this exception authorizes no other task.
 
+- **D26 T11 uncertain create** — Sahan approved this handling within the delegated Android scope. Preserve the complete draft and explain that the outcome is unknown. Refresh the transaction list so the user can inspect potentially saved records. Require explicit confirmation before resubmission. Never automatically replay an uncertain create. Duplicate prevention is not guaranteed by the current API.
+
 ## Proposed — still open
 
 - _None currently._

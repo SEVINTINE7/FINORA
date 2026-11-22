@@ -113,4 +113,23 @@
     <string name="transaction_remove">Permanently remove this transaction?</string>
     <string name="transaction_previous">Previous page</string>
     <string name="transaction_next">Next page</string>
+    <string name="transaction_open_manual">Add transaction</string>
+    <string name="transaction_account">Account</string>
+    <string name="transaction_type">Transaction type</string>
+    <string name="transaction_category">Category</string>
+    <string name="transaction_choose">Select an option</string>
+    <string name="transaction_choose_date">Select a date</string>
+    <string name="transaction_required">This field is required.</string>
+    <string name="transaction_invalid_selection">Select an available account.</string>
+    <string name="transaction_category_mismatch">Select a category for this transaction type.</string>
+    <string name="transaction_amount_invalid">Enter a positive LKR amount with up to 13 whole digits and 2 decimal places.</string>
+    <string name="transaction_merchant_too_long">Enter a merchant name of up to 100 characters.</string>
+    <string name="transaction_note_too_long">Enter a note of up to 255 characters.</string>
+    <string name="transaction_no_accounts">No eligible accounts are available.</string>
+    <string name="transaction_saving">Saving transaction…</string>
+    <string name="transaction_save_uncertain">This transaction may already be saved. Check the refreshed records before submitting again.</string>
+    <string name="transaction_check_records">Refresh and check records</string>
+    <string name="transaction_records_reviewed">I checked the records</string>
+    <string name="transaction_submit_again">Submit again</string>
+    <string name="transaction_confirm_resubmit">Submitting again may create a duplicate transaction. Submit again?</string>
 </resources>

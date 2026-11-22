@@ -10,10 +10,8 @@ import lk.finora.app.data.api.CategoryDto;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.CategoryRepository;
 import lk.finora.app.data.repo.TransactionRepository;
-import lk.finora.app.data.repo.TransactionRepository.Edit;
 import lk.finora.app.data.repo.TransactionRepository.Filters;
 import lk.finora.app.data.repo.TransactionRepository.Page;
-import lk.finora.app.data.repo.TransactionRepository.Row;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 
 public final class TransactionViewModel extends ViewModel {
@@ -22,7 +20,7 @@ public final class TransactionViewModel extends ViewModel {
     List<CategoryDto> categories = Collections.emptyList();
     Filters filters = new Filters(null, null, null, null, null);
     final Pagination pagination = new Pagination();
-    Row editing;
+    boolean hasLoadedPage;
     boolean ready;
     private final TransactionRepository repository = work.requests == null ? null
             : new TransactionRepository(work.requests);
@@ -61,20 +59,8 @@ public final class TransactionViewModel extends ViewModel {
                 load(Math.min(index - 1, Math.max(0, result.totalPages() - 1)));
             } else {
                 pagination.loaded(result);
+                hasLoadedPage = true;
             }
-        }, false);
-    }
-
-    void open(long id) {
-        work.run(() -> repository.get(id), TransactionRepository::readRow, row -> editing = row, false);
-    }
-
-    void update(Edit edit) {
-        if (editing == null) return;
-        long id = editing.id();
-        work.run(() -> repository.update(id, edit), TransactionRepository::readRow, result -> {
-            editing = null;
-            load(pagination.page().page());
         }, false);
     }
 
@@ -87,7 +73,7 @@ public final class TransactionViewModel extends ViewModel {
         accounts = Collections.emptyList();
         categories = Collections.emptyList();
         pagination.reset();
-        editing = null;
+        hasLoadedPage = false;
     }
 
     @Override protected void onCleared() { work.close(); }

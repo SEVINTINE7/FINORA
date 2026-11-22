@@ -1,6 +1,7 @@
 package lk.finora.app.ui.transactions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import java.math.BigDecimal;
@@ -10,16 +11,14 @@ import org.junit.Test;
 
 public class TransactionInputTest {
     @Test public void preservesExactLkrAmountAndDate() {
-        var edit = TransactionInput.edit(1, null, "EXPENSE", "9999999999999.09",
-                "2024-02-29", null, null);
-        assertEquals(new BigDecimal("9999999999999.09"), edit.amount());
-        assertEquals("2024-02-29", edit.txnDate());
+        assertEquals(new BigDecimal("9999999999999.09"),
+                TransactionFormValidator.parseAmount("9999999999999.09", '.'));
+        assertEquals("2024-02-29", TransactionInput.date("2024-02-29"));
     }
 
     @Test public void rejectsInvalidAmountsWithoutRounding() {
         for (String amount : new String[]{"0.00", "-1", "0.009", "10000000000000", "1e2"}) {
-            assertThrows(IllegalArgumentException.class, () -> TransactionInput.edit(
-                    1, null, "INCOME", amount, "2026-11-22", null, null));
+            assertNull(TransactionFormValidator.parseAmount(amount, '.'));
         }
     }
 

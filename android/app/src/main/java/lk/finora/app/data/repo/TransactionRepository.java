@@ -48,6 +48,19 @@ public final class TransactionRepository {
         return requests.call(item(id).get().build());
     }
 
+    public Call create(Edit draft) {
+        return requests.call(createRequest(endpoint, draft));
+    }
+
+    static Request createRequest(HttpUrl endpoint, Edit draft) {
+        return new Request.Builder().url(endpoint).post(AccountRepository.json(new ManualCreate(
+                draft.accountId(), draft.categoryId(), draft.type(), draft.amount(),
+                draft.txnDate(), draft.merchant(), draft.note(), "MANUAL"))).build();
+    }
+
+    private record ManualCreate(long accountId, Long categoryId, String type, BigDecimal amount,
+                                String txnDate, String merchant, String note, String source) {}
+
     public Call update(long id, Edit edit) {
         return requests.call(item(id).put(AccountRepository.json(edit)).build());
     }

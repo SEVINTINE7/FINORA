@@ -113,4 +113,23 @@
     <string name="transaction_remove">මෙම ගනුදෙනුව ස්ථිරව ඉවත් කරන්නද?</string>
     <string name="transaction_previous">පෙර පිටුව</string>
     <string name="transaction_next">ඊළඟ පිටුව</string>
+    <string name="transaction_open_manual">ගනුදෙනුවක් එක් කරන්න</string>
+    <string name="transaction_account">ගිණුම</string>
+    <string name="transaction_type">ගනුදෙනු වර්ගය</string>
+    <string name="transaction_category">කාණ්ඩය</string>
+    <string name="transaction_choose">විකල්පයක් තෝරන්න</string>
+    <string name="transaction_choose_date">දිනයක් තෝරන්න</string>
+    <string name="transaction_required">මෙම ක්ෂේත්‍රය පිරවිය යුතුය.</string>
+    <string name="transaction_invalid_selection">ලබාගත හැකි ගිණුමක් තෝරන්න.</string>
+    <string name="transaction_category_mismatch">මෙම ගනුදෙනු වර්ගයට ගැළපෙන කාණ්ඩයක් තෝරන්න.</string>
+    <string name="transaction_amount_invalid">පූර්ණ ඉලක්කම් 13ක් සහ දශම ස්ථාන 2ක් දක්වා වන ධන රුපියල් මුදලක් ඇතුළත් කරන්න.</string>
+    <string name="transaction_merchant_too_long">අක්ෂර 100ක් දක්වා වෙළෙන්දාගේ නම ඇතුළත් කරන්න.</string>
+    <string name="transaction_note_too_long">අක්ෂර 255ක් දක්වා සටහනක් ඇතුළත් කරන්න.</string>
+    <string name="transaction_no_accounts">තෝරාගත හැකි ගිණුම් නොමැත.</string>
+    <string name="transaction_saving">ගනුදෙනුව සුරකිමින්…</string>
+    <string name="transaction_save_uncertain">මෙම ගනුදෙනුව දැනටමත් සුරැකී තිබිය හැක. නැවත යැවීමට පෙර යාවත්කාලීන වූ වාර්තා බලන්න.</string>
+    <string name="transaction_check_records">වාර්තා යාවත්කාලීන කර බලන්න</string>
+    <string name="transaction_records_reviewed">මම වාර්තා බැලුවෙමි</string>
+    <string name="transaction_submit_again">නැවත යවන්න</string>
+    <string name="transaction_confirm_resubmit">නැවත යැවීමෙන් එකම ගනුදෙනුව දෙවරක් සටහන් විය හැක. නැවත යවන්නද?</string>
 </resources>

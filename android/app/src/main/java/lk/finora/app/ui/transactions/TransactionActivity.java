@@ -1,5 +1,6 @@
 package lk.finora.app.ui.transactions;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -22,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 
 import lk.finora.app.R;
-import lk.finora.app.data.repo.TransactionRepository.Edit;
 import lk.finora.app.data.repo.TransactionRepository.Filters;
 import lk.finora.app.data.repo.TransactionRepository.Row;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -35,8 +36,15 @@ public final class TransactionActivity extends AppCompatActivity {
     private Button retry;
     private Button previous;
     private Button next;
-    private AlertDialog editor;
-    private TextView editStatus;
+    static final String REVIEW_CREATE = "review_uncertain_create";
+    private boolean review;
+    private Button finishReview;
+    private final androidx.activity.result.ActivityResultLauncher<Intent> editForm =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (verify() && result.getResultCode() == RESULT_OK) {
+                    model.load(model.pagination.page().page());
+                }
+            });
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -45,6 +53,15 @@ public final class TransactionActivity extends AppCompatActivity {
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
         LinearLayout content = column();
         setContentView(scroll(content));
+        review = getIntent().getBooleanExtra(REVIEW_CREATE, false);
+        if (review) {
+            finishReview = button(content, R.string.transaction_records_reviewed, () -> {
+                if (verify() && !model.work.busy() && model.hasLoadedPage) {
+                    setResult(RESULT_OK);
+                    finish();
+                }
+            });
+        }
         TextView title = label(content, R.string.transaction_title);
         title.setTextSize(24);
         androidx.core.view.ViewCompat.setAccessibilityHeading(title, true);
@@ -68,14 +85,6 @@ public final class TransactionActivity extends AppCompatActivity {
         verify();
     }
 
-    @Override protected void onDestroy() {
-        if (editor != null) {
-            editor.setOnDismissListener(null);
-            editor.dismiss();
-        }
-        super.onDestroy();
-    }
-
     private boolean verify() {
         return AccountListActivity.verify(this, model.work);
     }
@@ -89,10 +98,11 @@ public final class TransactionActivity extends AppCompatActivity {
                 : page.items().isEmpty() ? R.string.records_empty : 0;
         status.setText(message == 0 ? "" : getString(message));
         status.setVisibility(message == 0 ? View.GONE : View.VISIBLE);
-        retry.setVisibility(failed && model.editing == null ? View.VISIBLE : View.GONE);
+        retry.setVisibility(failed ? View.VISIBLE : View.GONE);
         filter.setEnabled(model.ready && !busy);
         previous.setEnabled(!busy && page.page() > 0);
         next.setEnabled(!busy && page.page() + 1 < page.totalPages());
+        if (finishReview != null) finishReview.setEnabled(!busy && model.hasLoadedPage);
         rows.removeAllViews();
         for (Row row : page.items()) {
             String description = getString(R.string.transaction_row, row.txnDate(),
@@ -101,24 +111,19 @@ public final class TransactionActivity extends AppCompatActivity {
             TextView text = new TextView(this);
             text.setText(description);
             rows.addView(text);
-            Button edit = button(rows, R.string.records_edit, () -> model.open(row.id()));
+            if (review) continue;
+            Button edit = button(rows, R.string.records_edit, () -> {
+                if (verify() && !model.work.busy()) {
+                    editForm.launch(new Intent(this, TransactionFormActivity.class)
+                            .putExtra(TransactionFormActivity.ID, row.id()));
+                }
+            });
             edit.setContentDescription(getString(R.string.records_edit_named, description));
             Button remove = button(rows, R.string.records_remove, () -> AccountListActivity.confirm(
                     this, model.work, R.string.transaction_remove, () -> model.delete(row.id())));
             remove.setContentDescription(getString(R.string.records_remove_named, description));
             edit.setEnabled(!busy);
             remove.setEnabled(!busy);
-        }
-        if (model.editing != null) {
-            if (editor == null) showEditor(model.editing);
-            editor.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!busy);
-            editor.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(!busy);
-            editor.setCancelable(!busy);
-            editor.setCanceledOnTouchOutside(false);
-            editStatus.setText(message == 0 || (!busy && !failed) ? "" : getString(message));
-        } else if (editor != null) {
-            editor.dismiss();
-            editor = null;
         }
     }
 
@@ -129,10 +134,10 @@ public final class TransactionActivity extends AppCompatActivity {
         EditText from = input(fields, R.string.transaction_from, current.from(), InputType.TYPE_CLASS_DATETIME
                 | InputType.TYPE_DATETIME_VARIATION_DATE);
         EditText to = input(fields, R.string.transaction_to, current.to(), from.getInputType());
-        Spinner type = types(fields, true, current.type());
-        Spinner account = choices(fields, R.string.account_list_title, accounts(null, true),
+        Spinner type = types(fields, current.type());
+        Spinner account = choices(fields, R.string.account_list_title, accounts(),
                 current.accountId());
-        Spinner category = choices(fields, R.string.category_list_title, categories(null, true),
+        Spinner category = choices(fields, R.string.category_list_title, categories(),
                 current.categoryId());
         AlertDialog dialog = dialog(R.string.transaction_filters, fields, R.string.transaction_apply);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
@@ -152,51 +157,6 @@ public final class TransactionActivity extends AppCompatActivity {
         });
     }
 
-    private void showEditor(Row row) {
-        LinearLayout fields = column();
-        Spinner account = choices(fields, R.string.account_list_title, accounts(row.accountId(), false),
-                row.accountId());
-        Spinner type = types(fields, false, row.type());
-        Spinner category = choices(fields, R.string.category_list_title, categories(row.type(), false),
-                row.categoryId());
-        type.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                Long selectedCategory = selection(category);
-                setOptions(category, categories(selection(type), false), selectedCategory);
-            }
-            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
-        });
-        EditText amount = input(fields, R.string.transaction_amount, row.amount().toPlainString(),
-                InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        EditText txnDate = input(fields, R.string.transaction_date, row.txnDate(),
-                InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_DATE);
-        EditText merchant = input(fields, R.string.transaction_merchant, row.merchant(),
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        EditText note = input(fields, R.string.transaction_note, row.note(),
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        editStatus = label(fields, R.string.records_loading);
-        editStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
-        editor = dialog(R.string.records_edit, fields, R.string.records_save);
-        editor.setOnDismissListener(ignored -> {
-            editor = null;
-            if (!isChangingConfigurations() && !model.work.busy()) model.editing = null;
-        });
-        editor.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-            if (!verify()) return;
-            try {
-                Long accountId = selection(account);
-                if (accountId == null) {
-                    editStatus.setText(R.string.records_invalid);
-                    return;
-                }
-                model.update(TransactionInput.edit(accountId, selection(category), selection(type),
-                        value(amount), date(txnDate, false), value(merchant), value(note)));
-            } catch (IllegalArgumentException | DateTimeParseException invalid) {
-                editStatus.setText(R.string.records_invalid);
-            }
-        });
-    }
-
     private String date(EditText field, boolean optional) {
         String value = value(field);
         if (optional && value == null) return null;
@@ -208,36 +168,31 @@ public final class TransactionActivity extends AppCompatActivity {
         }
     }
 
-    private List<Choice<Long>> accounts(Long original, boolean filterMode) {
+    private List<Choice<Long>> accounts() {
         List<Choice<Long>> entries = new ArrayList<>();
-        if (filterMode) entries.add(new Choice<>(null, getString(R.string.transaction_all)));
+        entries.add(new Choice<>(null, getString(R.string.transaction_all)));
         for (var account : model.accounts) {
-            if (filterMode || !account.archived() || Objects.equals(original, account.id())) {
-                entries.add(new Choice<>(account.id(), account.archived()
-                        ? getString(R.string.transaction_archived_name, account.name()) : account.name()));
-            }
+            entries.add(new Choice<>(account.id(), account.archived()
+                    ? getString(R.string.transaction_archived_name, account.name()) : account.name()));
         }
         return entries;
     }
 
-    private List<Choice<Long>> categories(String type, boolean filterMode) {
+    private List<Choice<Long>> categories() {
         List<Choice<Long>> entries = new ArrayList<>();
-        entries.add(new Choice<>(null, getString(filterMode ? R.string.transaction_all
-                : R.string.category_unspecified)));
+        entries.add(new Choice<>(null, getString(R.string.transaction_all)));
         boolean sinhala = "si".equals(getResources().getConfiguration().getLocales().get(0).getLanguage());
         for (var category : model.categories) {
-            if (type == null || type.equals(category.kind())) {
-                String name = sinhala && category.nameSi() != null && !category.nameSi().trim().isEmpty()
-                        ? category.nameSi() : category.name();
-                entries.add(new Choice<>(category.id(), name));
-            }
+            String name = sinhala && category.nameSi() != null && !category.nameSi().trim().isEmpty()
+                    ? category.nameSi() : category.name();
+            entries.add(new Choice<>(category.id(), name));
         }
         return entries;
     }
 
-    private Spinner types(LinearLayout fields, boolean filterMode, String value) {
+    private Spinner types(LinearLayout fields, String value) {
         List<Choice<String>> entries = new ArrayList<>();
-        if (filterMode) entries.add(new Choice<>(null, getString(R.string.transaction_all)));
+        entries.add(new Choice<>(null, getString(R.string.transaction_all)));
         for (String type : new String[]{"INCOME", "EXPENSE"}) {
             entries.add(new Choice<>(type, getString(typeLabel(type))));
         }

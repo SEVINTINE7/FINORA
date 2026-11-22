@@ -16,6 +16,7 @@ import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
 import lk.finora.app.ui.categories.CategoryListActivity;
 import lk.finora.app.ui.transactions.TransactionActivity;
+import lk.finora.app.ui.transactions.TransactionFormActivity;
 
 public final class MainActivity extends ProtectedHomeActivity {
     private static final String DESTINATION = "destination";
@@ -34,7 +35,9 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
         layout.addView(moreActions, new LinearLayout.LayoutParams(-1, -2));
         LinearLayout recordActions = new LinearLayout(this);
+        recordActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
+        addMoreAction(recordActions, R.string.transaction_open_manual, TransactionFormActivity.class);
         layout.addView(recordActions, new LinearLayout.LayoutParams(-1, -2));
 
         RadioGroup navigation = new RadioGroup(this);

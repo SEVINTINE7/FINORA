@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/form_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:id="@+id/form_fields"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="noExcludeDescendants"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/form_account"
+                android:text="@string/transaction_account" />
+            <Spinner
+                android:id="@id/form_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:saveEnabled="false" />
+            <TextView
+                android:id="@+id/form_account_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/form_type"
+                android:text="@string/transaction_type" />
+            <Spinner
+                android:id="@id/form_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:saveEnabled="false" />
+            <TextView
+                android:id="@+id/form_type_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/form_category"
+                android:text="@string/transaction_category" />
+            <Spinner
+                android:id="@id/form_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:saveEnabled="false" />
+            <TextView
+                android:id="@+id/form_category_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/form_amount"
+                android:text="@string/transaction_amount" />
+            <EditText
+                android:id="@id/form_amount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:saveEnabled="false"
+                android:inputType="numberDecimal" />
+            <TextView
+                android:id="@+id/form_amount_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/form_date"
+                android:text="@string/transaction_date" />
+            <Button
+                android:id="@id/form_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:saveEnabled="false" />
+            <TextView
+                android:id="@+id/form_date_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/form_merchant"
+                android:text="@string/transaction_merchant" />
+            <EditText
+                android:id="@id/form_merchant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:saveEnabled="false"
+                android:inputType="textCapSentences" />
+            <TextView
+                android:id="@+id/form_merchant_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/form_note"
+                android:text="@string/transaction_note" />
+            <EditText
+                android:id="@id/form_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:saveEnabled="false"
+                android:inputType="textMultiLine" />
+            <TextView
+                android:id="@+id/form_note_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/form_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite" />
+        <Button
+            android:id="@+id/form_review"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_check_records"
+            android:visibility="gone" />
+        <Button
+            android:id="@+id/form_retry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/records_retry"
+            android:visibility="gone" />
+        <Button
+            android:id="@+id/form_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/records_save"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>
