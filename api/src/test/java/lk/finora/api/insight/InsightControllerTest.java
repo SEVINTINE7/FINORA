@@ -188,6 +188,36 @@ class InsightControllerTest extends IntegrationTest {
     }
 
     @Test
+    void paydayPatternIncludesPreviousMonthIncomeButOnlyCurrentMonthExpenses() throws Exception {
+        record(userA, accountA, salary, "INCOME", "50000.00", "2026-10-31");
+        record(userA, accountA, food, "EXPENSE", "10000.00", "2026-10-31");
+        record(userA, accountA, food, "EXPENSE", "200.00", "2026-11-01");
+        record(userA, accountA, food, "EXPENSE", "300.00", "2026-11-02");
+        record(userA, accountA, food, "EXPENSE", "500.00", "2026-11-03");
+
+        send(userA, get(NOV), null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].type").value("PAYDAY_SPENDING"))
+                .andExpect(jsonPath("$[0].facts.paydaySpend").value(500.00))
+                .andExpect(jsonPath("$[0].facts.expense").value(1000.00))
+                .andExpect(jsonPath("$[0].facts.paydayCount").value(2))
+                .andExpect(jsonPath("$[0].facts.paydayShare").value(0.5));
+        assertThat(savedRows(userA)).isEqualTo(1);
+    }
+
+    @Test
+    void anotherUsersPriorMonthIncomeCannotCreatePaydayPattern() throws Exception {
+        record(userB, accountB, salary, "INCOME", "50000.00", "2026-10-31");
+        record(userA, accountA, food, "EXPENSE", "300.00", "2026-11-02");
+
+        send(userA, get(NOV), null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+        assertThat(savedRows(userA)).isEqualTo(0);
+    }
+
+    @Test
     void onlyOwnDataIsUsed() throws Exception {
         record(userB, accountB, salary, "INCOME", "10000.00", "2026-11-02");
         record(userB, accountB, shopping, "EXPENSE", "9000.00", "2026-11-03");

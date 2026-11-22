@@ -94,7 +94,16 @@ public class MetricsService {
 
         // Payday: collect the window days first, so overlapping windows count each expense once
         Set<LocalDate> paydayDays = new HashSet<>();
-        for (Transaction income : incomes) {
+        // Income just before the month can open a window in this month. It is context only:
+        // keep it out of monthly income, counts, category sums and leftOver.
+        List<Transaction> paydayIncomes = new ArrayList<>(incomes);
+        for (Transaction record : transactionRepository.findByUserIdAndTxnDateBetween(
+                userId, from.minusDays(PAYDAY_EXTRA_DAYS), from.minusDays(1))) {
+            if (record.getType() == TransactionType.INCOME) {
+                paydayIncomes.add(record);
+            }
+        }
+        for (Transaction income : paydayIncomes) {
             for (int i = 0; i <= PAYDAY_EXTRA_DAYS; i++) {
                 paydayDays.add(income.getTxnDate().plusDays(i));
             }
@@ -166,7 +175,8 @@ public class MetricsService {
     }
 
     private boolean isSavingsCategory(Category category) {
-        return category.getKind() == CategoryKind.EXPENSE && SAVINGS_CATEGORY.equals(category.getName());
+        return category.isDefault() && category.getKind() == CategoryKind.EXPENSE
+                && SAVINGS_CATEGORY.equals(category.getName());
     }
 
     // Loads only the categories these records use (also archived ones, so old records still count)

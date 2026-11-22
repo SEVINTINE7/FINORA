@@ -14,11 +14,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] Unit tests with hand-calculated fixtures (write the expected numbers in the test)
 
 **Handoff notes:**
-- Done by Sevindu (with Claude) for Thilina — please review. No endpoint; service only.
-- `api:analytics/`: `MetricsService.forMonth(userId, YearMonth)` → `MonthMetrics`; each money field is a `Metric {amount, from, to, count}`. New `TransactionRepository.findByUserIdAndTxnDateBetween`.
-- D18: `leftOver` + `savedToCategory`, refunds = INCOME in 'Other', payday = income day + 2, `unclassified` bucket, ratios null when no income.
-- **For T22/T23/T27:** use `wantsRatio`, `fixedBillsRatio` (compare with D10 0.40 / 0.50), `savingsRate`, `paydaySpend`, `weekendSpend`/`weekdaySpend`.
-- Tests: `MetricsServiceTest` (6, Mockito, numbers in comments); suite 117/117.
+- 2026-11-22 Thilina reviewed the existing service and reproduced two defects: prior-month payday income was ignored; custom categories named Savings qualified despite D18's default-category rule.
+- `api:analytics/MetricsService.java` now reads only the caller's preceding two days as payday context (not monthly totals/counts) and requires a default EXPENSE Savings category. Existing formulas/thresholds are unchanged.
+- Regression evidence: 2 new tests failed before correction; after correction MetricsServiceTest (12), PatternRulesTest (13), InsightControllerTest (10): 35 run, 0 failures/errors/skips, Java 17, isolated MySQL 8 `finora_test` only.
+- Evidence: `api/target/t21-regression-before.log`, `api/target/t21-t22-review.log` and Surefire reports (ignored build output). T50 was not rerun.
+- Next: review the feature-branch fixes in the upstream PR; status returned to review for the new correction, not falsely marked accepted. Backend dependencies' existing API contracts were preserved.
 
 ---
 
@@ -32,8 +32,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] Tests: normal, exactly-at-threshold, just-below, extreme and empty months
 
 **Handoff notes:**
-- Done by Sevindu (with Claude) for Thilina — please review (T21 too).
-- `api:analytics/PatternRules` (pure rules on `MonthMetrics` → `SpendingPattern{type, facts}`); `api:insight/`: `Insight` (facts = JSON text), repo (bulk `@Modifying` delete — a derived delete ran after the new inserts), `InsightService`, `InsightController`, `dto/`.
-- D19: payday > 30% of expense, weekend day avg > 1.5× weekday avg; all strict `>`; GET recalculates and replaces the month's rows.
-- **For T23/T27:** MySQL JSON stores `6000.00` as `6000.0` — when reading facts back use `new BigDecimal(text).setScale(2)`. Facts contain numbers only (no merchants/names).
-- Tests: `PatternRulesTest` (10: normal, exactly-at, just-below, one-cent-above, extreme, empty, no income), `InsightControllerTest` (5); suite 132/132. `docs/api-contract.md` updated.
+- 2026-11-22 Thilina reviewed D10/D19 rule comparisons, numeric facts, month replacement and ownership. No additional rule/endpoint implementation defect confirmed; existing done status preserved.
+- Added integration coverage for payday windows crossing a month boundary and isolation from another user's prior-month income; only current-month expenses contribute to facts.
+- Focused verification after the T21 fix: MetricsServiceTest (12), PatternRulesTest (13), InsightControllerTest (10), all 35 passing on Java 17/MySQL `finora_test`; output in `api/target/t21-t22-review.log`.
+- Thresholds remain strict >; MySQL JSON numeric scale may differ, so downstream readers must normalize BigDecimal scale. Facts exclude names/merchants.
+- Next: upstream review of the T21 dependency correction; continue D20 backend scoring under the user's explicit backend-only authorization without changing T18/T19 statuses.
