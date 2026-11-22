@@ -2,6 +2,8 @@ package lk.finora.app.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 
 import java.io.IOException;
@@ -19,11 +21,23 @@ public class LocaleHelperTest {
         LocaleHelper.ConfirmedLanguage cache = new LocaleHelper.ConfirmedLanguage();
         Object login = new Object();
         Session stale = session(login, "EN");
-        cache.record(stale, "SI");
-        assertEquals("SI", cache.forSession(stale));
-        assertEquals("SI", cache.forSession(session(login, "EN")));
-        assertEquals("EN", cache.forSession(session(new Object(), "EN")));
-        assertEquals("EN", cache.forSession(stale));
+        cache.record(stale.loginIdentity(), "SI");
+        assertEquals("SI", cache.forLogin(stale.loginIdentity(), stale.language));
+        Session other = session(new Object(), "EN");
+        assertEquals("EN", cache.forLogin(other.loginIdentity(), other.language));
+        assertEquals("EN", cache.forLogin(stale.loginIdentity(), stale.language));
+    }
+
+    @Test
+    public void rotatedSnapshotNeedsOnlyTheOpaqueLoginKeyToRecoverConfirmedLocale() throws Exception {
+        LocaleHelper.ConfirmedLanguage cache = new LocaleHelper.ConfirmedLanguage();
+        Object login = new Object();
+        Session rotated = session(login, "EN");
+        assertSame(login, rotated.loginIdentity());
+        assertNotSame(rotated, rotated.loginIdentity());
+        // Only the key from the original login is available. No old credential snapshot is needed.
+        cache.record(login, "SI");
+        assertEquals("SI", cache.forLogin(rotated.loginIdentity(), rotated.language));
     }
 
     private static Session session(Object identity, String language) throws Exception {

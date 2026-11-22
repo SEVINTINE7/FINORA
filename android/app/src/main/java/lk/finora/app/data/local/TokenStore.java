@@ -205,6 +205,11 @@ public final class TokenStore {
             return other != null && identity == other.identity;
         }
 
+        /** Opaque in-process login key. Rotation preserves it and a new login replaces it. */
+        public Object loginIdentity() {
+            return identity;
+        }
+
         public boolean supported() {
             return isSupportedRole(role) && ("EN".equals(language) || "SI".equals(language));
         }

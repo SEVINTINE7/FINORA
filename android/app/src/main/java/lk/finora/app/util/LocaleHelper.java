@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModel;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -73,7 +72,8 @@ public final class LocaleHelper {
         public void initialize(Session session) {
             if (entry == null && "USER".equals(session.role)) {
                 entry = session;
-                state.setValue(new State(confirmed.forSession(session), false, false));
+                state.setValue(new State(confirmed.forLogin(session.loginIdentity(), session.language),
+                        false, false));
                 run(null);
             }
         }
@@ -113,7 +113,7 @@ public final class LocaleHelper {
                     Session current = store == null ? null : store.verifiedSession();
                     if (!closed && entry.sameAccount(current)) {
                         if (remember) {
-                            confirmed.record(current, next.language);
+                            confirmed.record(current.loginIdentity(), next.language);
                         }
                         state.setValue(next);
                     }
@@ -174,21 +174,20 @@ public final class LocaleHelper {
     // The persisted AppCompat locale covers a cold offline start. This cache also
     // covers a new home ViewModel for the same already-verified login.
     static final class ConfirmedLanguage {
-        private WeakReference<Session> account = new WeakReference<>(null);
+        private Object identity;
         private String language;
 
-        String forSession(Session session) {
-            if (session.sameAccount(account.get())) {
-                account = new WeakReference<>(session);
+        String forLogin(Object login, String sessionLanguage) {
+            if (login == identity) {
                 return language;
             }
-            account.clear();
+            identity = null;
             language = null;
-            return session.language;
+            return sessionLanguage;
         }
 
-        void record(Session session, String confirmed) {
-            account = new WeakReference<>(session);
+        void record(Object login, String confirmed) {
+            identity = login;
             language = confirmed;
         }
     }
