@@ -36,4 +36,20 @@
     <string name="language_sinhala">සිංහල</string>
     <string name="language_save_failed">ගිණුමේ භාෂාව සුරැකිය නොහැකි විය. සම්බන්ධතාවය ඇති විට නැවත උත්සාහ කරන්න.</string>
     <string name="language_syncing">භාෂාව සුරකිමින්…</string>
+    <string name="sms_access_title">SMS ප්‍රවේශය</string>
+    <string name="sms_access_explanation">බැංකු ගනුදෙනු පණිවිඩ හඳුනා ගැනීමට FINORA ප්‍රවේශය ඉල්ලයි. පණිවිඩ විශ්ලේෂණය කරන්නේ මෙම දුරකථනයේමයි. SMS ප්‍රවේශය ලබා දීම අනිවාර්ය නැත.</string>
+    <string name="sms_allow_access">ප්‍රවේශය ලබා දෙන්න</string>
+    <string name="sms_no_thanks">දැනට එපා</string>
+    <string name="sms_access_optional">SMS ප්‍රවේශය ලබා නොදී ඉදිරියට යා හැක.</string>
+    <string name="sms_access_granted">SMS ප්‍රවේශයට අවසර ඇත.</string>
+    <string name="sms_access_denied">SMS ප්‍රවේශය ප්‍රතික්ෂේප කර ඇත. පසුව අවසර දිය හැක.</string>
+    <string name="sms_permission_unavailable">මෙම යෙදුම් අනුවාදයේ SMS ප්‍රවේශය ලබා ගත නොහැක.</string>
+    <string name="sms_permission_settings">SMS ප්‍රවේශය සබල කළ හැකි දැයි යෙදුම් සැකසීම් තුළ බලන්න.</string>
+    <string name="sms_open_settings">යෙදුම් සැකසීම් විවෘත කරන්න</string>
+    <string name="sms_settings_unavailable">යෙදුම් සැකසීම් විවෘත කළ නොහැකි විය.</string>
+    <string name="sms_alternatives">වාර්තා එක් කිරීමට වෙනත් ක්‍රම</string>
+    <string name="sms_paste">SMS පණිවිඩ පෙළ අලවන්න</string>
+    <string name="sms_csv_import">CSV ආයාතය</string>
+    <string name="sms_manual_entry">ගනුදෙනුව අතින් ඇතුළත් කිරීම</string>
+    <string name="sms_fallback_unavailable">මෙම විකල්ප තවම ලබා ගත නොහැක.</string>
 </resources>

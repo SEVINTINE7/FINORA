@@ -32,7 +32,7 @@ After expansion approval, verify incoming changes before integration. Stage appr
 
 ### T13 · SMS access and fallback · `FR03`
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `and:ui/sms/`, `AndroidManifest.xml`
-- [ ] T13.1 Note in Handoff: Play Store restricts READ_SMS → trial APK side-loaded (proposal 7.3)
+- [x] T13.1 Note in Handoff: Play Store restricts READ_SMS → trial APK side-loaded (proposal 7.3)
   - Document the side-loaded trial APK before delivery. Declare `READ_SMS` in the approved trial manifest scope only. Recheck installer behavior for this restricted permission on Android 14 rather than assuming side-loading grants access. Verify the merged trial manifest and actual install mode. [Google Play SMS permission policy](https://support.google.com/googleplay/android-developer/answer/10208820)
 - [ ] T13.2 Explanation screen before asking `READ_SMS`; clear "No thanks" path
   - Add `ui/sms/SmsAccessActivity.java`, `SmsPermissionState.java`, and `activity_sms_access.xml`. `requestInboxAccess()` launches `ActivityResultContracts.RequestPermission` only after a user tap. `renderPermission()` checks current grant and rationale. Explain purpose, local-only parsing, and optional access. No thanks exits the request flow and leaves alternatives available. Keys `sms_access_title`, `sms_access_explanation`, `sms_allow_access`, `sms_no_thanks`, `sms_access_granted`, `sms_access_denied`. Tests `noThanksDoesNotLaunchPermissionRequest`, `permissionStatesKeepAlternativesVisible`; device-check pre-prompt explanation, grant and deny. [Android runtime permission workflow](https://developer.android.com/training/permissions/requesting)
@@ -45,7 +45,13 @@ After expansion approval, verify incoming changes before integration. Stage appr
 **Done when**
 - [ ] On device: grant, deny, deny-forever all lead to a working path
 
-**Handoff notes:** —
+**Handoff notes:**
+- Google Play restricts `READ_SMS`. Proposal 7.3 specifies a side-loaded trial APK. SMS access is optional, and side-loading alone does not guarantee a grant because Android requires the installer to allowlist this restricted permission. [Android permission reference](https://developer.android.com/reference/android/Manifest.permission#READ_SMS)
+- The project has one `v1` flavor and only a main manifest. `SmsAccessActivity` is registered non-exported. `READ_SMS` remains undeclared pending approval of release scope or a trial-only manifest.
+- The screen checks a verified USER login and offers an explicit permission request where declared, No thanks, denial guidance, and Settings recovery. No inbox access is implemented.
+- Paste, CSV and manual entry remain visibly unavailable. The USER home entry hook needs separate approval. New Sinhala strings need native-speaker review.
+- Both requested APK targets built, 45 JVM tests passed (six permission-state tests), and lint reported no issues. JVM tests do not verify Android permission dialogs.
+- HMD Crest permission and accessibility acceptance remain pending. T13.2–T13.4 and the Done when check stay open.
 
 ---
 

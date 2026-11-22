@@ -36,4 +36,20 @@
     <string name="language_sinhala">සිංහල</string>
     <string name="language_save_failed">Could not save your account language. Try again when connected.</string>
     <string name="language_syncing">Saving language…</string>
+    <string name="sms_access_title">SMS access</string>
+    <string name="sms_access_explanation">FINORA asks for access so it can identify bank transaction messages. Any future parsing happens on this phone. SMS access is optional.</string>
+    <string name="sms_allow_access">Allow access</string>
+    <string name="sms_no_thanks">No thanks</string>
+    <string name="sms_access_optional">You can continue without giving SMS access.</string>
+    <string name="sms_access_granted">SMS access is allowed.</string>
+    <string name="sms_access_denied">SMS access was declined. You can allow it later.</string>
+    <string name="sms_permission_unavailable">SMS access is unavailable in this build.</string>
+    <string name="sms_permission_settings">Check app settings to see whether SMS access can be enabled.</string>
+    <string name="sms_open_settings">Open app settings</string>
+    <string name="sms_settings_unavailable">App settings could not be opened.</string>
+    <string name="sms_alternatives">Other ways to add records</string>
+    <string name="sms_paste">Paste SMS text</string>
+    <string name="sms_csv_import">CSV import</string>
+    <string name="sms_manual_entry">Manual transaction entry</string>
+    <string name="sms_fallback_unavailable">These options are not available yet.</string>
 </resources>

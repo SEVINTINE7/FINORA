@@ -16,7 +16,7 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T10 | Income and expense records | Sevindu | Sahan | T09 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
 | T11 | Manual transaction entry | Sahan | — | T10, T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | todo |
 | T12 | CSV import | Sevindu | Sahan | T10 | [sevindu/3-records.md](sevindu/3-records.md) | todo |
-| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | todo |
+| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T14 | Local bank SMS parsing | Sahan | — | T13, T45.3 (can start with bundled formats) | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | todo |
 | T15 | Transaction preview and deduplication | Sahan | Sevindu | T14, T10 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | todo |
 | T16 | SMS parser regression tests | Sahan | Thilina | T14 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | todo |
