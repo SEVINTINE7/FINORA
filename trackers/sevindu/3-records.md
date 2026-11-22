@@ -45,7 +45,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Another user's account/category in the body → **400** `VALIDATION_ERROR` ("Account not found"/"Category not found"), not 404 — 404 is only for the transaction in the URL. Category kind must equal type. Archived account: no new records, existing ones still editable.
 - Summary sums in MySQL (DECIMAL), returned with scale 2; `from` > `to` → 400. `dedup_hash` not mapped yet (T15). `AccountRepository.countTransactions` is still a native query — fine to leave.
 - Tests: `TransactionControllerTest` (11); suite 78/78. `docs/api-contract.md` updated.
-- T10.4 at `7bff0dd`: HMD Crest (Android 14) and isolated API verified paging, all filters, exact-cent editing, confirmed deletion, empty/error recovery and account isolation. English/Sinhala controls and TalkBack focus verified. V1 debug build passed, 59 unit tests passed and lint found no issues. T10 remains in progress under D24.
+- T10.4 at `7bff0dd`: HMD Crest (Android 14) and isolated API verified paging, all filters, exact-cent editing, confirmed deletion, empty/error recovery and account isolation. English/Sinhala controls and TalkBack focus verified. Follow-up fixes Retry to request the failed page. T10 remains in progress under D24. T11 shared form handoff: the current edit dialog loses unsaved input on configuration change.
 
 
 ---

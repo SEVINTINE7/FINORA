@@ -53,13 +53,12 @@ public final class TransactionActivity extends AppCompatActivity {
         status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         retry = button(content, R.string.records_retry, () -> {
             if (!verify()) return;
-            if (model.ready) model.load(model.page.page());
-            else model.start();
+            model.retry();
         });
         rows = column();
         content.addView(rows);
-        previous = button(content, R.string.transaction_previous, () -> model.load(model.page.page() - 1));
-        next = button(content, R.string.transaction_next, () -> model.load(model.page.page() + 1));
+        previous = button(content, R.string.transaction_previous, () -> model.load(model.pagination.page().page() - 1));
+        next = button(content, R.string.transaction_next, () -> model.load(model.pagination.page().page() + 1));
         model.work.changes.observe(this, ignored -> render());
         model.start();
     }
@@ -85,16 +84,17 @@ public final class TransactionActivity extends AppCompatActivity {
         if (!verify()) return;
         boolean busy = model.work.busy();
         boolean failed = model.work.error != 0;
+        var page = model.pagination.page();
         int message = busy ? R.string.records_loading : failed ? model.work.error
-                : model.page.items().isEmpty() ? R.string.records_empty : 0;
+                : page.items().isEmpty() ? R.string.records_empty : 0;
         status.setText(message == 0 ? "" : getString(message));
         status.setVisibility(message == 0 ? View.GONE : View.VISIBLE);
         retry.setVisibility(failed && model.editing == null ? View.VISIBLE : View.GONE);
         filter.setEnabled(model.ready && !busy);
-        previous.setEnabled(!busy && model.page.page() > 0);
-        next.setEnabled(!busy && model.page.page() + 1 < model.page.totalPages());
+        previous.setEnabled(!busy && page.page() > 0);
+        next.setEnabled(!busy && page.page() + 1 < page.totalPages());
         rows.removeAllViews();
-        for (Row row : model.page.items()) {
+        for (Row row : page.items()) {
             String description = getString(R.string.transaction_row, row.txnDate(),
                     getString(typeLabel(row.type())), row.amount().toPlainString());
             if (row.merchant() != null) description += "\n" + row.merchant();

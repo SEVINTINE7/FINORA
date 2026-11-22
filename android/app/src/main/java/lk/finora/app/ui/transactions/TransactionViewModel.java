@@ -21,7 +21,7 @@ public final class TransactionViewModel extends ViewModel {
     List<AccountDto> accounts = Collections.emptyList();
     List<CategoryDto> categories = Collections.emptyList();
     Filters filters = new Filters(null, null, null, null, null);
-    Page page = new Page(Collections.emptyList(), 0, 0);
+    final Pagination pagination = new Pagination();
     Row editing;
     boolean ready;
     private final TransactionRepository repository = work.requests == null ? null
@@ -42,16 +42,25 @@ public final class TransactionViewModel extends ViewModel {
 
     void filter(Filters selection) {
         filters = selection;
-        page = new Page(Collections.emptyList(), 0, 0);
+        pagination.reset();
         load(0);
     }
 
+    void retry() {
+        if (ready) load(pagination.retryIndex());
+        else start();
+    }
+
     void load(int index) {
-        work.run(() -> repository.list(filters, index), TransactionRepository::readPage, result -> {
+        work.run(() -> {
+            var call = repository.list(filters, index);
+            pagination.requested(index);
+            return call;
+        }, TransactionRepository::readPage, result -> {
             if (result.items().isEmpty() && index > 0) {
                 load(Math.min(index - 1, Math.max(0, result.totalPages() - 1)));
             } else {
-                page = result;
+                pagination.loaded(result);
             }
         }, false);
     }
@@ -65,20 +74,39 @@ public final class TransactionViewModel extends ViewModel {
         long id = editing.id();
         work.run(() -> repository.update(id, edit), TransactionRepository::readRow, result -> {
             editing = null;
-            load(page.page());
+            load(pagination.page().page());
         }, false);
     }
 
     void delete(long id) {
-        work.run(() -> repository.delete(id), Work::empty, ignored -> load(page.page()), false);
+        work.run(() -> repository.delete(id), Work::empty,
+                ignored -> load(pagination.page().page()), false);
     }
 
     private void clear() {
         accounts = Collections.emptyList();
         categories = Collections.emptyList();
-        page = new Page(Collections.emptyList(), 0, 0);
+        pagination.reset();
         editing = null;
     }
 
     @Override protected void onCleared() { work.close(); }
+
+    static final class Pagination {
+        private Page page = new Page(Collections.emptyList(), 0, 0);
+        private Integer requestedIndex;
+
+        Page page() { return page; }
+
+        void requested(int index) { requestedIndex = index; }
+
+        int retryIndex() { return requestedIndex == null ? page.page() : requestedIndex; }
+
+        void loaded(Page result) {
+            page = result;
+            requestedIndex = null;
+        }
+
+        void reset() { loaded(new Page(Collections.emptyList(), 0, 0)); }
+    }
 }
