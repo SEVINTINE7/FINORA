@@ -1,16 +1,20 @@
 package lk.finora.app.ui.main;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
+import lk.finora.app.ui.categories.CategoryListActivity;
 
 public final class MainActivity extends ProtectedHomeActivity {
     private static final String DESTINATION = "destination";
@@ -23,6 +27,12 @@ public final class MainActivity extends ProtectedHomeActivity {
 
     @Override
     protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {
+        LinearLayout moreActions = new LinearLayout(this);
+        moreActions.setOrientation(LinearLayout.VERTICAL);
+        addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
+        addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
+        layout.addView(moreActions, new LinearLayout.LayoutParams(-1, -2));
+
         RadioGroup navigation = new RadioGroup(this);
         navigation.setOrientation(LinearLayout.HORIZONTAL);
         int[][] states = {{android.R.attr.state_checked}, {}};
@@ -45,10 +55,18 @@ public final class MainActivity extends ProtectedHomeActivity {
         navigation.setOnCheckedChangeListener((group, checkedId) -> {
             destination = group.indexOfChild(group.findViewById(checkedId));
             title.setText(destination == 0 ? titleResource() : LABELS[destination]);
+            moreActions.setVisibility(LABELS[destination] == R.string.more_tab ? View.VISIBLE : View.GONE);
         });
         int restored = state == null ? 0 : state.getInt(DESTINATION);
         navigation.check(navigation.getChildAt(restored).getId());
         layout.addView(navigation, new LinearLayout.LayoutParams(-1, -2));
+    }
+
+    private void addMoreAction(LinearLayout actions, int label, Class<?> screen) {
+        Button button = new Button(this);
+        button.setText(label);
+        button.setOnClickListener(view -> startActivity(new Intent(this, screen)));
+        actions.addView(button, new LinearLayout.LayoutParams(-1, -2));
     }
 
     @Override
