@@ -26,12 +26,16 @@ No real financial records, live LLM requests, paid calls, dependency downloads o
 |---|---|---|
 | T27–T29 | Focused 51/51; full verify 253/253; zero failures/errors/skips, exit 0 | 692/702 (98.58%); gate passed |
 | T53 | Earlier focused 17/17; final upstream-compatible verify 206/206; zero failures/errors/skips, exit 0 | 668/677 (98.67%); gate passed |
-| T52 | Focused 4/4; full verify 206/206; zero failures/errors/skips, exit 0 | 668/677 (98.67%); gate passed |
+| T52 before upstream merges | Focused 4/4; full verify 206/206; zero failures/errors/skips, exit 0 | 668/677 (98.67%); gate passed |
+| Final T52 + merged pipeline/security | Full verify 261/261; zero failures/errors/skips, exit 0 | 692/702 (98.58%); gate passed |
 
 Local logs: `api/target/final-pipeline-focused.log`, `final-pipeline-verify.log`, `final-t53-verify.log`,
-`final-t52-focused.log`, `final-t52-verify.log`; coverage HTML: `api/target/site/jacoco/index.html`.
+`final-t52-focused.log`, `final-t52-verify.log`, `final-combined-verify.log`; coverage HTML: `api/target/site/jacoco/index.html`.
 Logs/reports are ignored generated artifacts and can be overwritten by later runs; committed trackers and PRs retain branch-specific evidence.
 T50 implementation was not repeated. No new complete-task claim follows from these runs.
+Final git diff --check passed. Preserved commits 72ec247, ed33c41 and 8d38725 are ancestors of the final branch.
+New work/evidence commits: be78a7b (pipeline), 1ed683f (security), b6be682 (T52/handoff);
+non-rewriting upstream reconciliation commits: 48734e6, 6d6c973, 2324670. Final documentation-only commit follows.
 
 ## Integration contracts and decisions Sevindu must review
 
