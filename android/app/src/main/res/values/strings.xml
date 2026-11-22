@@ -98,4 +98,19 @@
     <string name="category_want">Want</string>
     <string name="category_default">Default category · read-only</string>
     <string name="category_remove_message">Remove this category?</string>
+    <string name="transaction_title">Transactions</string>
+    <string name="transaction_filters">Filters</string>
+    <string name="transaction_apply">Apply filters</string>
+    <string name="transaction_all">All</string>
+    <string name="transaction_from">From date (YYYY-MM-DD)</string>
+    <string name="transaction_to">To date (YYYY-MM-DD)</string>
+    <string name="transaction_date">Transaction date (YYYY-MM-DD)</string>
+    <string name="transaction_amount">Amount (LKR)</string>
+    <string name="transaction_merchant">Merchant (optional)</string>
+    <string name="transaction_note">Note (optional)</string>
+    <string name="transaction_row">%1$s · %2$s · LKR %3$s</string>
+    <string name="transaction_archived_name">%1$s (archived)</string>
+    <string name="transaction_remove">Permanently remove this transaction?</string>
+    <string name="transaction_previous">Previous page</string>
+    <string name="transaction_next">Next page</string>
 </resources>

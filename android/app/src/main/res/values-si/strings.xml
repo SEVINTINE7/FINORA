@@ -98,4 +98,19 @@
     <string name="category_want">අභිලාෂය</string>
     <string name="category_default">පෙරනිමි කාණ්ඩය · කියවීමට පමණි</string>
     <string name="category_remove_message">මෙම කාණ්ඩය ඉවත් කරන්නද?</string>
+    <string name="transaction_title">ගනුදෙනු</string>
+    <string name="transaction_filters">පෙරහන්</string>
+    <string name="transaction_apply">පෙරහන් යොදන්න</string>
+    <string name="transaction_all">සියල්ල</string>
+    <string name="transaction_from">ආරම්භක දිනය (YYYY-MM-DD)</string>
+    <string name="transaction_to">අවසන් දිනය (YYYY-MM-DD)</string>
+    <string name="transaction_date">ගනුදෙනු දිනය (YYYY-MM-DD)</string>
+    <string name="transaction_amount">මුදල (රු.)</string>
+    <string name="transaction_merchant">වෙළෙන්දා (විකල්ප)</string>
+    <string name="transaction_note">සටහන (විකල්ප)</string>
+    <string name="transaction_row">%1$s · %2$s · රු. %3$s</string>
+    <string name="transaction_archived_name">%1$s (සංරක්ෂිත)</string>
+    <string name="transaction_remove">මෙම ගනුදෙනුව ස්ථිරව ඉවත් කරන්නද?</string>
+    <string name="transaction_previous">පෙර පිටුව</string>
+    <string name="transaction_next">ඊළඟ පිටුව</string>
 </resources>

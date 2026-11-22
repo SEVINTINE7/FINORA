@@ -15,6 +15,7 @@ import lk.finora.app.R;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
 import lk.finora.app.ui.categories.CategoryListActivity;
+import lk.finora.app.ui.transactions.TransactionActivity;
 
 public final class MainActivity extends ProtectedHomeActivity {
     private static final String DESTINATION = "destination";
@@ -32,6 +33,9 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
         layout.addView(moreActions, new LinearLayout.LayoutParams(-1, -2));
+        LinearLayout recordActions = new LinearLayout(this);
+        addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
+        layout.addView(recordActions, new LinearLayout.LayoutParams(-1, -2));
 
         RadioGroup navigation = new RadioGroup(this);
         navigation.setOrientation(LinearLayout.HORIZONTAL);
@@ -56,6 +60,7 @@ public final class MainActivity extends ProtectedHomeActivity {
             destination = group.indexOfChild(group.findViewById(checkedId));
             title.setText(destination == 0 ? titleResource() : LABELS[destination]);
             moreActions.setVisibility(LABELS[destination] == R.string.more_tab ? View.VISIBLE : View.GONE);
+            recordActions.setVisibility(LABELS[destination] == R.string.records_tab ? View.VISIBLE : View.GONE);
         });
         int restored = state == null ? 0 : state.getInt(DESTINATION);
         navigation.check(navigation.getChildAt(restored).getId());

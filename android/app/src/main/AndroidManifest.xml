@@ -25,5 +25,6 @@
         <activity android:name=".ui.accounts.AccountFormActivity" android:exported="false" />
         <activity android:name=".ui.categories.CategoryListActivity" android:exported="false" />
         <activity android:name=".ui.categories.CategoryFormActivity" android:exported="false" />
+        <activity android:name=".ui.transactions.TransactionActivity" android:exported="false" />
     </application>
 </manifest>

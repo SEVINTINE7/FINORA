@@ -39,6 +39,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D22 Debug networking (T37.3)** — debug builds call `http://127.0.0.1:8080/`. Before testing, run `adb reverse tcp:8080 tcp:8080` (USB or ADB-over-Wi-Fi; repeat after reconnecting) so the phone's port 8080 reaches the laptop's API. Works on real phones and the emulator. Debug cleartext is allowed only for `127.0.0.1` (replaces `10.0.2.2`); release builds allow no cleartext.
 - **D23 Release API URL** — release builds get the server URL from `FINORA_RELEASE_API_URL` at build time (HTTPS origin, path `/`, checked in `build.gradle`). The real URL is fixed when T56 has a server and domain; T37 and other Android tasks do not wait for it.
 
+- **D24 T10.4 early start** — Sahan, exercising approval authority delegated by project lead Sevindu as confirmed by Sahan, authorized Android T10.4 implementation and technical verification against the existing transaction API while T09 remains in `review`. Existing T09 acceptance evidence and review status are preserved. Normal T10 completion gates apply. This exception does not authorize T11, T12 or any other task and records no independent review.
+
 ## Proposed — still open
 
 - _None currently._
