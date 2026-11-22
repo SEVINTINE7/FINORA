@@ -57,12 +57,14 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T51 | Android functional tests | Sahan | Thilina | T38 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | todo |
 | T52 | Three-role authorization tests | Thilina | Sevindu | T06, T41, T46 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
 | T53 | Privacy and security checks | Thilina | Sevindu | T14, T27 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
-| T54 | AI and financial correctness tests | Thilina | — | T29 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
-| T55 | SMS, usability and performance checks | Thilina | Sahan | T16, T38 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
+| T54 | AI and financial correctness tests | Thilina | — | T29 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
+| T55 | SMS, usability and performance checks | Thilina | Sahan | T16, T38 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
 | T56 | Deployment and backups | Sevindu | — | T04 | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | in-progress |
 | T57 | End-to-end acceptance and handoff | Sevindu | Sahan, Thilina | all tasks | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | todo |
 
 ## Your parts inside other members' tasks
+
+2026-11-22 T54 continuation: PR #10 verified open/mergeable with API and Android CI success. Independent T54 branch from origin/main 89b6e7c adds eight financial journeys: focused 8/8 and full 265/265 passed (zero failures/errors/skips, exit 0), service coverage 693/702 (98.72%), gate passed; only finora_test used. T54 and T55 now in-progress for verified fixtures and evaluation preparation; live/device/policy acceptance remains blocked. T31/T32 remain todo; teammate statuses preserved.
 
 T53 verification update (2026-11-22): remains **in-progress**. Final upstream-compatible offline Java 17 + isolated finora_test Maven verify passed 206/206 tests (0 failures/errors/skips, exit 0); service coverage 668/677 lines (98.67%), JaCoCo gate passed. Earlier branch-only result was 151/151. Deployed TLS, device/provider captures, comprehensive scans and acceptance remain open; details in the T53 handoff. No other task statuses changed.
 

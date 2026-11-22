@@ -15,6 +15,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - 2026-11-22 audit: T17/T18/T19 remain in-progress; financial balance, next-income and planned-savings missing-data policy needs Sevindu's approval. No new formula or endpoint implemented; T31 remains todo.
+- Later T54 readiness check: Account exposes openingBalance, not verified current cash; metrics supply recorded net and bills supply planned amounts/markers. No next-income setting or approved earmarking/day-count contract found. Plan: approve typed inputs/assumptions, then pure calculation and owner adapter. Cases income today, month end, no history, unknown balance and negative headroom need approved expected outcomes.
 
 ---
 
@@ -28,3 +29,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - 2026-11-22 audit: existing codex/t32-goal-simulator-api branch has no commits beyond its ecee49d base and no simulator implementation. T19 remains in-progress; baseline monthly savings, category-cut semantics and finish-date rounding require team approval before expanding/coding POST /api/v1/simulate. T32 remains todo.
+- Later T54 readiness check: targets/dates and dated contributions exist; no approved recurring baseline, categoryCuts units/overlap or finish-date rule. Plan: approve request/response and pure write-free calculation before controller/UI. Cases zero change, already funded, cancelled/no-date, nonpositive capacity, fractional-month finish and duplicate/unaffordable cuts need approved outcomes; no policy implemented.

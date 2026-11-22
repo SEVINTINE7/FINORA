@@ -40,7 +40,10 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T54 · AI and financial correctness tests · `FR06–FR09`
 **Lead:** Thilina · **Depends on:** T29 · **Touches:** `api-test:advice/`
-- [ ] T54.1 Fixture set of user-months with hand-checked metrics and scores
+Preparatory independent tests explicitly authorized 2026-11-22 while T29 acceptance remains pending.
+Expanded scope: six literal D20 user-month oracles via register/login/manual-entry/dashboard/score; two update
+journeys via budgets/insights/bills/goals; mocked advice service and bounded outcomes. No new formula or endpoint.
+- [x] T54.1 Fixture set of user-months with hand-checked metrics and scores (six cross-layer cases; docs/t54-financial-fixtures.md)
 - [ ] T54.2 Run real LLM calls on fixtures; record pass rate of number check
 - [ ] T54.3 Confirm every failure fell back to rule advice
 
@@ -49,6 +52,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - 2026-11-22 audit: recovered T27-T29 branch contains mocked client/verifier/fallback tests; historical 253-test result is branch-specific and was not rerun here. Real LLM pass-rate testing remains unauthorized; T29 acceptance blocks T54 completion. Do not report mocked results as real pass rates.
+- Later 2026-11-22 authorization: FinancialJourneyTest and literal oracle doc added; initial focused 8/8 passed, zero failures/errors/skips, exit 0, Java 17/offline/finora_test. Final insights-boundary assertions included in verification below. No production/Android edits; HTTP advice delivery remains T30, not implemented here.
+- Six scenarios cover cents/rounding, zero income, missing reserve/history, category totals and affordable headroom. Update journeys cover budget/insight boundaries, paid-marker/goal changes without extra expense, invalid inputs, exact grounded mocked advice, unsupported-claim rejection/fallback and cross-user isolation. Final verifier/live acceptance remains blocked.
+- Final run: focused 8/8 and full offline Maven verify 265/265 passed, zero failures/errors/skips, exit 0; JaCoCo service lines 693/702 (98.72%), gate passed. Java 17, only finora_test; logs api/target/t54-focused.log and t54-verify.log; git diff --check passed. Base origin/main 89b6e7c excludes still-open PR #10's four tests; no regression from its separate 261 count. Synthetic plan metadata fixed for historical reproducibility; T54 remains in-progress.
 
 ---
 
@@ -64,3 +70,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - 2026-11-22 audit: T16/T38 remain todo; no device timing, SMS accuracy, SUS participants or ratings measurements available. T55 remains todo. Beta comparison wording also needs reconciliation with D03 V1-only scope before evaluation; no measurements invented.
+- Later 2026-11-22: prepared docs/evaluation.md with local fixture/evidence fields, denominator proposal, integration checklist, screen timing and usability protocols. Preparation only: no SMS corpus or device/user/live-advice measurements collected. Method choices and D03/Beta reconciliation need approval; T16/T38 still block execution.
