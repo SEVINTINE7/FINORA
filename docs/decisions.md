@@ -41,6 +41,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D24 T10.4 early start** — Sahan, exercising approval authority delegated by project lead Sevindu as confirmed by Sahan, authorized Android T10.4 implementation and technical verification against the existing transaction API while T09 remains in `review`. Existing T09 acceptance evidence and review status are preserved. Normal T10 completion gates apply. This exception does not authorize T11, T12 or any other task and records no independent review.
 
+- **D25 T11 early start** — Sahan, exercising approval authority delegated by project lead Sevindu as confirmed by Sahan, authorized implementation and technical verification of Android T11.1–T11.4 while T10 remains `in-progress`. T37 is `done` and the existing USER account/category reads and transaction GET/POST/PUT APIs support the shared form. The API provides no create idempotency guarantee: never automatically replay a POST with an uncertain outcome, and resolve the tracker’s open reconciliation decision before accepting that flow. Normal T11 acceptance and independent review still apply. T09 and T10 retain their current statuses; this exception authorizes no other task.
+
 ## Proposed — still open
 
 - _None currently._
