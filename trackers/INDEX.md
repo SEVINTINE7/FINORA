@@ -30,9 +30,9 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T24 | Insights and health-score screens | Sahan | Thilina | T22, T23, T38 | [sahan/4-screens.md](sahan/4-screens.md) | todo |
 | T25 | Rule-based advice engine | Thilina | — | T21, T22, T23 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | review |
 | T26 | AI-safe fact and response schema | Thilina | — | T21, T25 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
-| T27 | Server-only Groq integration | Thilina | Sevindu | T04, T26 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | todo |
-| T28 | Gemini backup and rule fallback | Thilina | — | T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | todo |
-| T29 | Number and claim verification | Thilina | — | T26, T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | todo |
+| T27 | Server-only Groq integration | Thilina | Sevindu | T04, T26 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | in-progress |
+| T28 | Gemini backup and rule fallback | Thilina | — | T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | in-progress |
+| T29 | Number and claim verification | Thilina | — | T26, T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | in-progress |
 | T30 | Advice delivery and ratings | Sahan | Thilina | T25, T29, T38 | [sahan/4-screens.md](sahan/4-screens.md) | todo |
 | T31 | Daily spending guide | Thilina | Sahan | T17, T18, T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | todo |
 | T32 | Savings goal simulator | Thilina | Sahan | T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | todo |
@@ -56,13 +56,15 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T50 | Backend API test suite | Sevindu | Thilina | T05 (grows with every API task) | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | review |
 | T51 | Android functional tests | Sahan | Thilina | T38 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | todo |
 | T52 | Three-role authorization tests | Thilina | Sevindu | T06, T41, T46 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
-| T53 | Privacy and security checks | Thilina | Sevindu | T14, T27 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
+| T53 | Privacy and security checks | Thilina | Sevindu | T14, T27 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
 | T54 | AI and financial correctness tests | Thilina | — | T29 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
 | T55 | SMS, usability and performance checks | Thilina | Sahan | T16, T38 | [thilina/5-qa.md](thilina/5-qa.md) | todo |
 | T56 | Deployment and backups | Sevindu | — | T04 | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | in-progress |
 | T57 | End-to-end acceptance and handoff | Sevindu | Sahan, Thilina | all tasks | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | todo |
 
 ## Your parts inside other members' tasks
+
+2026-11-22 Thilina reconciliation: T27–T29 are implemented in open PR #8 with mocked-only 253-test verification; T53 is in open PR #9 with upstream-compatible 206-test verification. Both coverage gates passed; acceptance remains pending. Current branch adds independent T52 privacy/no-mutation tests. Consolidated decisions, integration notes and remaining blockers: [Sevindu/Claude handoff](../docs/thilina-team-handoff.md). No tasks newly marked done; teammate statuses preserved.
 
 - **Sevindu:** T08, T15, T20, T27, T49, T52, T53 — look for subtasks tagged `[…·Sevindu]`
 - **Sahan:** T01, T07, T09, T10, T12, T17, T18, T19, T31, T32, T33, T34, T35, T36, T45, T46, T47, T55, T57 — look for subtasks tagged `[…·Sahan]`
