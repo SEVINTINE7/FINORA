@@ -1,6 +1,6 @@
 # Thilina 3 — AI advice pipeline (T26–T29)
 Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). Status lives in `trackers/INDEX.md`.
-**Detail: T26 expanded below; T27-T29 remain outline** — expand each remaining task before coding.
+**Detail: expanded backend scope** — T27–T29 are preparatory, mocked-only and pending team acceptance.
 
 ---
 
@@ -24,39 +24,43 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 
 ### T27 · Server-only Groq integration · `FR09`
 **Lead:** Thilina · **Support:** Sevindu · **Depends on:** T04, T26 · **Touches:** `api:advice/ai/`
-- [ ] T27.1 `LlmClient` interface; `GroqClient` (key from `GROQ_API_KEY`, timeout 15 s, JSON mode)
-- [ ] T27.2 Handle 429/5xx/timeouts with one retry then failure result
-- [ ] T27.3 Log only request id, latency, status, token counts — never the prompt or reply
+- [x] T27.1 `LlmClient` and HTTPS Groq JSON-mode adapter; existing key property, explicit model, disabled by default; timeout 15 s
+- [x] T27.2 Handle 429/5xx/timeouts/I/O with one retry then bounded failure result
+- [x] T27.3 Log only request id, latency, status, token counts — never the prompt, reply, key or exception details
 
 **Done when**
-- [ ] Tests with mocked HTTP: success, 429, timeout, invalid JSON
+- [x] Tests with mocked HTTP: success, 429, timeout, invalid JSON
 
 **Handoff notes:**
 - 2026-11-22: Mocked HTTP client tests 19/19 PASS. Groq/Gemini clients implemented. Live provider, exact retry behavior and final security review pending.
+- Final PR verification 2026-11-22: reconciled origin/main a0b5dfb without rewriting 72ec247/ed33c41. Mocked clients/verifier/pipeline 51/51 passed; full offline Java 17 verify 253/253, zero failures/errors/skips, exit 0; JaCoCo service lines 692/702 (98.58%), gate passed. Logs: api/target/final-pipeline-focused.log and final-pipeline-verify.log.
+- Documentation now describes disabled configuration, explicit models, object envelope, retry and privacy contract. No live calls, credentials or provider acceptance; task remains in-progress pending review.
 
 ---
 
 ### T28 · Gemini backup and rule fallback · `FR09`
 **Lead:** Thilina · **Depends on:** T27 · **Touches:** `api:advice/ai/`, `api:advice/`
-- [ ] T28.1 `GeminiClient` behind same interface; provider order configurable
-- [ ] T28.2 Groq fails → Gemini; both fail or check fails → rule-based advice (T25)
+- [x] T28.1 HTTPS Gemini JSON-mode adapter; header key, explicit model, configurable unique provider order
+- [x] T28.2 Transport failure → backup; both fail or verification rejects → canonical rule advice
 
 **Done when**
-- [ ] Tests for each failure path end in valid advice
+- [x] Mocked failure paths end in valid advice; live acceptance remains pending
 
 **Handoff notes:**
 - 2026-11-22: Pipeline tests 13/13 PASS. Fallback implementation added. Full fallback acceptance and live integration pending.
+- Final PR run: 51 focused / 253 full tests passed after upstream reconciliation; backup, rule fallback and ownership exercised with mocked providers only. T30 delivery/Android integration and live acceptance remain separate; T28 stays in-progress.
 
 ---
 
 ### T29 · Number and claim verification · `FR09 / NFR-AIN`
 **Lead:** Thilina · **Depends on:** T26, T27 · **Touches:** `api:advice/verify/`
-- [ ] T29.1 Extract every number in AI text; each must match a fact (rounding rule documented, e.g. ±0.5 for %, exact LKR to 0 dp)
-- [ ] T29.2 Reject unknown `actionId`s, wrong units/periods, numbers not in facts
-- [ ] T29.3 Save `verified` flag + reject reason (no text) for pass-rate reporting
+- [x] T29.1 Provisional exact eligible text/number matching: LKR lossless to 2 decimals, no tolerance; return trusted canonical advice only
+- [x] T29.2 Reject malformed/duplicate/extra fields, ineligible or duplicate actions, unsupported claims, wrong units/periods and fabricated values
+- [x] T29.3 V8 owner-scoped verification events save verified flag and bounded reason; no raw text
 
 **Done when**
-- [ ] Tests: fabricated number, changed %, wrong month, rounding edge — all rejected; valid reply passes
+- [x] Mocked verifier tests reject unsupported claims, fabricated values, wrong month/unit and extra precision; valid eligible replies pass
 
 **Handoff notes:**
 - 2026-11-22: Verifier tests 19/19 PASS. V8 migration validated. Final number-verification policy and real-world pass rate pending.
+- Final PR run: 51 focused / 253 full tests passed; provisional exact-claim policy documented in docs/ai-schema.md. No tolerance, semantic verification or real pass rate approved; T29 stays in-progress pending team policy acceptance.
