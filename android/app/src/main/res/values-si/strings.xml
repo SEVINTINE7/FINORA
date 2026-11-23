@@ -51,7 +51,9 @@
     <string name="sms_paste">SMS පණිවිඩ පෙළ අලවන්න</string>
     <string name="sms_csv_import">CSV ආයාතය</string>
     <string name="sms_manual_entry">ගනුදෙනුව අතින් ඇතුළත් කිරීම</string>
-    <string name="sms_fallback_unavailable">SMS පෙළ ඇලවීම තවම ලබා ගත නොහැක.</string>
+    <string name="sms_paste_hint">එක් බැංකු පණිවිඩයක් පිටපත් කර ඇලවීම සහ පරීක්ෂා කිරීම තෝරන්න. පණිවිඩය මෙම දුරකථනය තුළ පරීක්ෂා කෙරේ.</string>
+    <string name="sms_paste_parse">අලවා පරීක්ෂා කරන්න</string>
+    <string name="sms_paste_plain_text">පරීක්ෂා කිරීමට එක් සරල පෙළ පණිවිඩයක් පිටපත් කරන්න.</string>
     <string name="records_add">එක් කරන්න</string>
     <string name="records_retry">නැවත උත්සාහ කරන්න</string>
     <string name="records_remove">ඉවත් කරන්න</string>

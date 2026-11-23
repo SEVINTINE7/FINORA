@@ -51,7 +51,9 @@
     <string name="sms_paste">Paste SMS text</string>
     <string name="sms_csv_import">CSV import</string>
     <string name="sms_manual_entry">Manual transaction entry</string>
-    <string name="sms_fallback_unavailable">Pasting SMS is not available yet.</string>
+    <string name="sms_paste_hint">Copy one bank message, then choose Paste and check. The message is checked on this phone.</string>
+    <string name="sms_paste_parse">Paste and check</string>
+    <string name="sms_paste_plain_text">Copy one plain-text message to check.</string>
     <string name="records_add">Add</string>
     <string name="records_retry">Retry</string>
     <string name="records_remove">Remove</string>

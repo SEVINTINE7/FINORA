@@ -82,18 +82,12 @@
             android:text="@string/sms_alternatives"
             android:layout_marginBottom="@dimen/finora_space_s" />
 
-        <TextView
-            style="@style/FinoraText.Body"
+        <Button
+            android:id="@+id/sms_paste_entry_action"
+            style="@style/FinoraButton.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sms_paste"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <TextView
-            style="@style/FinoraText.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_fallback_unavailable"
             android:layout_marginBottom="@dimen/finora_space_s" />
 
         <Button

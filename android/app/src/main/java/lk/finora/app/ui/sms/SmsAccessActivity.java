@@ -75,6 +75,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
         allow.setOnClickListener(view -> requestInboxAccess());
         settings.setOnClickListener(view -> openAppSettings());
         findViewById(R.id.sms_no_thanks_action).setOnClickListener(view -> finish());
+        findViewById(R.id.sms_paste_entry_action).setOnClickListener(view -> openFallback(PasteSmsActivity.class));
         findViewById(R.id.sms_csv_import_action).setOnClickListener(view -> openFallback(CsvImportActivity.class));
         findViewById(R.id.sms_manual_entry_action).setOnClickListener(view -> openFallback(TransactionFormActivity.class));
         renderPermission();
