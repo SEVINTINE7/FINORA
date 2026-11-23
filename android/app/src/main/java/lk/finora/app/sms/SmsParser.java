@@ -19,6 +19,12 @@ public final class SmsParser {
 
     SmsParser(List<SmsTemplate> templates) { this.templates = templates; }
 
+    public java.util.Set<String> approvedSenderIds() {
+        var senders = new java.util.LinkedHashSet<String>();
+        for (SmsTemplate template : templates) senders.addAll(template.senderIds());
+        return java.util.Collections.unmodifiableSet(senders);
+    }
+
     public SmsParseResult parse(String sender, Instant receivedAt, CharSequence body) {
         return parse(sender, receivedAt, body, () -> false);
     }

@@ -239,4 +239,13 @@
     <string name="csv_line">පේළිය %1$d</string>
     <string name="csv_line_duplicate">%1$s · දැනටමත් ආයාත කර ඇත</string>
     <string name="csv_line_invalid">%1$s · වලංගු නොවන පේළියකි. CSV ආකෘතිය සහ ගිණුම් හා කාණ්ඩ නම් පරීක්ෂා කරන්න.</string>
+    <string name="sms_scan_range">පසුගිය දින 31 පරීක්ෂා කරන්න</string>
+    <string name="sms_scan_failed">දුරකථනය තුළ පරීක්ෂාව අවසන් කළ නොහැකි විය.</string>
+    <string name="sms_no_formats">අනුමත බැංකු SMS ආකෘති තවම ලබා ගත නොහැක.</string>
+    <string name="sms_no_matching_messages">මෙම දින පරාසයට ගැළපෙන පණිවිඩ නැත.</string>
+    <string name="sms_extracted_record">රු. %1$s · %2$s · %3$s</string>
+    <string name="sms_extracted_merchant">වෙළෙන්දා: %1$s</string>
+    <string name="sms_direction_debit">හර</string>
+    <string name="sms_direction_credit">බැර</string>
+    <string name="sms_needs_review">අතින් පරීක්ෂා කිරීම අවශ්‍යයි.</string>
 </resources>

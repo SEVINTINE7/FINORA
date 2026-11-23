@@ -239,4 +239,13 @@
     <string name="csv_line">Line %1$d</string>
     <string name="csv_line_duplicate">%1$s · Already imported</string>
     <string name="csv_line_invalid">%1$s · Invalid row. Check the CSV template and your account and category names.</string>
+    <string name="sms_scan_range">Scan the last 31 days</string>
+    <string name="sms_scan_failed">Could not finish the local scan.</string>
+    <string name="sms_no_formats">No approved bank SMS formats are available yet.</string>
+    <string name="sms_no_matching_messages">No matching messages in this date range.</string>
+    <string name="sms_extracted_record">LKR %1$s · %2$s · %3$s</string>
+    <string name="sms_extracted_merchant">Merchant: %1$s</string>
+    <string name="sms_direction_debit">Debit</string>
+    <string name="sms_direction_credit">Credit</string>
+    <string name="sms_needs_review">Needs manual review.</string>
 </resources>

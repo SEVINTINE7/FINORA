@@ -50,6 +50,23 @@
             android:layout_marginBottom="@dimen/finora_space_s" />
 
         <Button
+            android:id="@+id/sms_scan"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_scan_range"
+            android:visibility="gone"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            android:id="@+id/sms_scan_result"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:saveEnabled="false" />
+
+        <Button
             android:id="@+id/sms_no_thanks_action"
             style="@style/FinoraButton.Secondary"
             android:layout_width="match_parent"
