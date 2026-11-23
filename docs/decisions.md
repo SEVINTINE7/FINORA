@@ -51,6 +51,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D31 T12.5 Android CSV early start** — Sahan approved Android file selection, preview, and explicit confirmation against the implemented D25 API under delegated Android-task authority while T10 remains in progress. T10 and T12 retain their normal acceptance and review requirements. This authorization does not close T13 or change API behavior or ownership.
 
+- **D32 T14 parser-core early start** — Sahan, exercising delegated Android-task approval authority, approved T14.2–T14.3 local parser development while T13 remains in progress. Use a versioned, bounded Android-local format and fictional fixtures in JVM test resources only. The production bundle stays empty pending approved bank definitions and fixtures. This decision does not authorize inbox or Paste SMS integration, submissions, remote formats, or changes to Sevindu-owned T45.3. Existing acceptance and privacy gates still apply.
+
 ## Proposed — still open
 
 - _None currently._

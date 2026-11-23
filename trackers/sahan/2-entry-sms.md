@@ -77,4 +77,9 @@ After expansion approval, verify incoming changes before integration. Stage appr
 - [ ] JVM unit tests for each supported bank format and an unknown format
 - [ ] Network inspector shows no SMS body sent
 
-**Handoff notes:** —
+**Handoff notes:**
+- D32 covers the local T14.2–T14.3 parser core only. Production `bank_formats.json` is empty; fictional definitions and messages live only under JVM test resources.
+- Android-local schema v1 matches exact sender IDs when supplied and a full literal-delimited body. A senderless input must match exactly one template. Date rules are ISO, day-first numeric, or explicit receipt date with a declared zone. This is not the T45.3 API schema.
+- Limits are 64 KiB per bundle, 32 templates, 16 senders per template, 64 UTF-16 code units per literal and 2 KiB UTF-8 per message. Parsing caps matching at 250,000 steps and honors thread interruption and caller cancellation/deadlines.
+- Eight focused JVM tests passed, V1 debug built, and lint reported zero errors and one existing budget-format warning. Static checks found no network or logging dependencies in the parser; APK inspection confirmed the empty bundle and no fictional fixtures.
+- Approve real sender IDs, format rules, debit/credit fixtures and negative cases before bundling any bank. Paste, inbox, remote formats, and downstream submission need separate approval; device and privacy acceptance remain open.
