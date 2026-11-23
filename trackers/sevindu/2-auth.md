@@ -55,13 +55,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes all refresh tokens; next login asks to re-consent or delete data (deletion = T36)
 - [ ] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
 - [ ] T07.5 [AND·Sahan] Settings screen: language picker (applies at once, saved via `PUT /me`), withdraw consent, "Delete my data" entry (opens T36 flow)
+  - T07.4–T07.5 implemented 2026-11-23 (unit tests 7 new, suite 76/76, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check below.
 
 **Done when**
 - [x] API tests for `/me` GET/PUT and withdraw (tokens revoked afterwards)
 - [ ] On a device: cannot register without both ticks; language change switches UI to Sinhala
 
 **Handoff notes:**
-- API part done (T07.1–T07.3); **T07.4–T07.5 (Android, Sahan) still open — blocked by T37** (no `android/` yet). Device check also open.
+- API done (T07.1–T07.3). T07.4–T07.5 code by Sevindu: `and:ui/register/` (login → "Create an account"), `and:ui/settings/` (More → Settings), `data/repo/RegisterRepository`, `MeRepository`; home + settings share `ui/auth/ProfileLanguageButton`. Consent text EN/SI is a **draft** (needs team + native-Sinhala review; bump D12 if changed). "Delete my data" shows "not available yet" until T36. D15 re-consent prompt after login not built (no endpoint).
 - `api:user/`: `MeController`, `MeService`, `dto/MeResponse`, `dto/UpdateMeRequest`. Consent row on register was already done in T05; now tested.
 - D15: withdrawn consent → `GET /me` gives `consentVersion: null`; no re-consent endpoint yet. Withdraw is idempotent (204), revokes all refresh tokens via `RefreshTokenRepository.findByUserIdAndRevokedAtIsNull`.
 - `/me` is USER-only (T06 rule). Access token stays valid until it expires (≤30 min) after withdrawal.

@@ -188,6 +188,14 @@
                 android:text="@string/sign_in" />
 
             <include android:id="@+id/login_feedback" layout="@layout/view_state" />
+
+            <Button
+                android:id="@+id/create_account"
+                style="@style/FinoraButton.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_s"
+                android:text="@string/register_open" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

@@ -38,6 +38,7 @@ Every error, including 401/403 from security and 404 for unknown paths:
 | 401 | `INVALID_REFRESH_TOKEN` | Refresh token unknown, expired, already used or logged out |
 | 409 | `CONFLICT` | Duplicate name (account per user; category per user + kind, including defaults) (T09) |
 | 409 | `IN_USE` | Deleting a category used by transactions, budgets or bills (T09) |
+| 413 | `FILE_TOO_LARGE` | Uploaded CSV over 1 MB (T12) |
 | 403 | `ACCOUNT_DISABLED` | Login/refresh for a disabled account, or any request with a still-valid token of a disabled account (T06) |
 | 409 | `EMAIL_TAKEN` | Register with an email that already exists (case-insensitive) |
 | 500 | `INTERNAL_ERROR` | Unexpected server error (details only in server logs) |
@@ -89,6 +90,8 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/transactions` | USER | `{accountId, categoryId?, type, amount: "1250.00" (≥ 0.01, 2 dp), txnDate, merchant?, note?, source?: MANUAL\|SMS\|PASTE\|CSV (default MANUAL)}` | `201` transaction · 400 (validation; account not own/archived; category not visible or kind ≠ type) | T10 |
 | PUT | `/api/v1/transactions/{id}` | USER | same as POST | `200` transaction · 400 · 404 | T10 |
 | DELETE | `/api/v1/transactions/{id}` | USER | — | `204` · 404 | T10 |
+| POST | `/api/v1/imports/csv/preview` | USER | `multipart/form-data`, part `file` = CSV per `docs/csv-template.md` (≤ 1 MB, ≤ 2000 rows) | `200 {totalRows, validRows, errorRows, duplicateRows, rows: [{line, txnDate, type, amount, accountId, accountName, categoryId, categoryName, merchant, note, occurrence, duplicate, errors: [string]}]}`; nothing saved · 400 (empty, not UTF-8, bad header, broken quoting, > 2000 rows) · 413 `FILE_TOO_LARGE` | T12 |
+| POST | `/api/v1/imports/csv/confirm` | USER | `{rows: [{line, txnDate, type, amount, accountId, categoryId?, merchant?, note?, occurrence}]}` (1–2000; the valid preview rows the user picked) | `200 {saved, skippedDuplicateLines: [line]}`; saved with `source=CSV` and `dedup_hash` (D25); rows already imported are skipped · 400 (any row invalid → nothing saved, message starts `Line N:`) · 409 `CONFLICT` (same rows confirmed twice at once) | T12 |
 | GET | `/api/v1/budgets?month=YYYY-MM` | USER | `month` required | `200 [budget]`, budget = `{id, categoryId, month, limitAmount, used, remaining, state: "OK"\|"NEAR"\|"OVER"}` · 400 bad/missing month | T17 |
 | GET | `/api/v1/budgets/{id}` | USER | — | `200` budget · 404 | T17 |
 | POST | `/api/v1/budgets` | USER | `{categoryId (EXPENSE, default or own), month: "2026-11", limitAmount: "20000.00"}` | `201` budget · 400 · 409 `CONFLICT` (already a budget for that category + month) | T17 |

@@ -79,6 +79,27 @@ public class TransactionService {
         return toResponse(transaction);
     }
 
+    /** Runs the create checks (own, non-archived account; visible category of the same kind) without saving. */
+    @Transactional(readOnly = true)
+    public void checkNew(Long userId, TransactionRequest request) {
+        copyRequest(userId, request, new Transaction());
+    }
+
+    /**
+     * Saves one imported record (T12) with the same account/category checks as {@link #create}.
+     * Source is always CSV; the caller computes the dedup hash.
+     */
+    @Transactional
+    public TransactionResponse createImported(Long userId, TransactionRequest request, String dedupHash) {
+        Transaction transaction = new Transaction();
+        transaction.setUserId(userId);
+        copyRequest(userId, request, transaction);
+        transaction.setSource(TransactionSource.CSV);
+        transaction.setDedupHash(dedupHash);
+        transactionRepository.save(transaction);
+        return toResponse(transaction);
+    }
+
     @Transactional
     public TransactionResponse update(Long userId, Long id, TransactionRequest request) {
         Transaction transaction = findOwn(userId, id);

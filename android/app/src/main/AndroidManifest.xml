@@ -18,6 +18,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.main.MainActivity" android:exported="false" />
+        <activity android:name=".ui.register.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminHomeActivity" android:exported="false" />
         <activity android:name=".ui.staff.StaffHomeActivity" android:exported="false" />
         <activity android:name=".ui.sms.SmsAccessActivity" android:exported="false" />
@@ -28,5 +30,12 @@
         <activity android:name=".ui.transactions.TransactionActivity" android:exported="false" />
         <activity android:name=".ui.transactions.TransactionFormActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.budgets.BudgetListActivity" android:exported="false" />
+        <activity android:name=".ui.budgets.BudgetFormActivity" android:exported="false" />
+        <activity android:name=".ui.bills.BillListActivity" android:exported="false" />
+        <activity android:name=".ui.bills.BillFormActivity" android:exported="false" />
+        <activity android:name=".ui.goals.GoalListActivity" android:exported="false" />
+        <activity android:name=".ui.goals.GoalDetailActivity" android:exported="false" />
+        <activity android:name=".ui.goals.GoalFormActivity" android:exported="false" />
     </application>
 </manifest>

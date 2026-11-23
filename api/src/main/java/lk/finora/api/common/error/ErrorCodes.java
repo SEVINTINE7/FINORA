@@ -21,6 +21,9 @@ public final class ErrorCodes {
     // Records (T09)
     public static final String IN_USE = "IN_USE";
 
+    // CSV import (T12)
+    public static final String FILE_TOO_LARGE = "FILE_TOO_LARGE";
+
     private ErrorCodes() {
     }
 }

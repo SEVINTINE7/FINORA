@@ -14,7 +14,11 @@ import android.widget.TextView;
 import lk.finora.app.R;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
+import lk.finora.app.ui.bills.BillListActivity;
+import lk.finora.app.ui.budgets.BudgetListActivity;
 import lk.finora.app.ui.categories.CategoryListActivity;
+import lk.finora.app.ui.goals.GoalListActivity;
+import lk.finora.app.ui.settings.SettingsActivity;
 import lk.finora.app.ui.transactions.TransactionActivity;
 import lk.finora.app.ui.transactions.TransactionFormActivity;
 
@@ -33,12 +37,18 @@ public final class MainActivity extends ProtectedHomeActivity {
         moreActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
+        addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
         layout.addView(moreActions, new LinearLayout.LayoutParams(-1, -2));
         LinearLayout recordActions = new LinearLayout(this);
         recordActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
         addMoreAction(recordActions, R.string.transaction_open_manual, TransactionFormActivity.class);
         layout.addView(recordActions, new LinearLayout.LayoutParams(-1, -2));
+        LinearLayout planActions = new LinearLayout(this);
+        addMoreAction(planActions, R.string.budget_list_title, BudgetListActivity.class);
+        addMoreAction(planActions, R.string.bill_list_title, BillListActivity.class);
+        addMoreAction(planActions, R.string.goal_list_title, GoalListActivity.class);
+        layout.addView(planActions, new LinearLayout.LayoutParams(-1, -2));
 
         RadioGroup navigation = new RadioGroup(this);
         navigation.setOrientation(LinearLayout.HORIZONTAL);
@@ -64,6 +74,7 @@ public final class MainActivity extends ProtectedHomeActivity {
             title.setText(destination == 0 ? titleResource() : LABELS[destination]);
             moreActions.setVisibility(LABELS[destination] == R.string.more_tab ? View.VISIBLE : View.GONE);
             recordActions.setVisibility(LABELS[destination] == R.string.records_tab ? View.VISIBLE : View.GONE);
+            planActions.setVisibility(LABELS[destination] == R.string.plan_tab ? View.VISIBLE : View.GONE);
         });
         int restored = state == null ? 0 : state.getInt(DESTINATION);
         navigation.check(navigation.getChildAt(restored).getId());

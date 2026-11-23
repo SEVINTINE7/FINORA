@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/finora_space_s"
+    android:layout_marginBottom="@dimen/finora_space_s">
+
+        <TextView
+            android:id="@+id/record_name"
+            style="@style/FinoraText.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <ProgressBar
+            android:id="@+id/budget_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:max="100" />
+
+        <TextView
+            android:id="@+id/record_details"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            android:id="@+id/budget_state"
+            style="@style/FinoraText.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <Button
+            android:id="@+id/record_edit"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/records_edit" />
+
+        <Button
+            android:id="@+id/record_remove"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/records_remove" />
+</LinearLayout>

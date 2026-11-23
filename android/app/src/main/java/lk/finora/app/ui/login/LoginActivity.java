@@ -1,5 +1,6 @@
 package lk.finora.app.ui.login;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -27,6 +30,7 @@ import lk.finora.app.R;
 import lk.finora.app.data.repo.LoginRepository.Result;
 import lk.finora.app.ui.common.StateView;
 import lk.finora.app.ui.auth.SessionNavigation;
+import lk.finora.app.ui.register.RegisterActivity;
 import lk.finora.app.util.LoginInput;
 import lk.finora.app.util.LocaleHelper;
 
@@ -40,6 +44,18 @@ public final class LoginActivity extends AppCompatActivity {
     private FieldFeedback passwordFeedback;
     private StateView feedback;
     private LoginViewModel model;
+    private Button createAccount;
+    // Set when the user comes back from a successful sign-up; shown instead of an empty state
+    private boolean registered;
+    private final ActivityResultLauncher<Intent> register = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                Intent data = result.getData();
+                if (result.getResultCode() != RESULT_OK || data == null) return;
+                email.setText(data.getStringExtra(RegisterActivity.EXTRA_EMAIL));
+                password.requestFocus();
+                registered = true;
+                feedback.success(R.string.register_done);
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +89,8 @@ public final class LoginActivity extends AppCompatActivity {
         model.state().observe(this, this::render);
         model.restore(getIntent().getBooleanExtra(SessionNavigation.STORAGE_ERROR, false));
         submit.setOnClickListener(view -> signIn(model));
+        createAccount = findViewById(R.id.create_account);
+        createAccount.setOnClickListener(view -> register.launch(new Intent(this, RegisterActivity.class)));
         email.setOnEditorActionListener((view, action, event) -> {
             if (action == EditorInfo.IME_ACTION_NEXT) {
                 password.requestFocus();
@@ -185,10 +203,16 @@ public final class LoginActivity extends AppCompatActivity {
         email.setEnabled(!state.loading);
         password.setEnabled(!state.loading);
         visibility.setEnabled(!state.loading);
+        createAccount.setEnabled(!state.loading);
         if (state.loading) {
+            registered = false;
             feedback.loading(R.string.signing_in);
         } else if (state.result == null) {
-            feedback.clear();
+            if (registered) {
+                feedback.success(R.string.register_done);
+            } else {
+                feedback.clear();
+            }
         } else if (state.result == Result.SUCCESS) {
             password.getText().clear();
             if (!SessionNavigation.openHome(this)) {

@@ -9,12 +9,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T17.1 [API] CRUD `/api/v1/budgets` per category per month (`YYYY-MM`)
 - [x] T17.2 [API] `GET /api/v1/budgets?month=` returns limit, used, remaining, state `OK|NEAR(≥80%)|OVER`
 - [ ] T17.3 [AND·Sahan] Budget list with progress bars + add/edit
+  - Implemented 2026-11-23 (unit tests 9/9, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
 
 **Done when**
 - [x] Tests: used amount counts only that month's expenses in that category; first/last day of month; over-spend state
 
 **Handoff notes:**
-- API part done (T17.1–T17.2); **T17.3 (Android, Sahan) still open — blocked by T37**.
+- API done (T17.1–T17.2). T17.3 code done by Sevindu: `and:ui/budgets/` (list + form + ViewModels), `data/api/BudgetDto`, `data/repo/BudgetRepository`, Plan tab → Budgets in `MainActivity`; device check (EN/SI, TalkBack, 409, rotation) still open.
 - `api:budget/`: `Budget`, repo, `BudgetService`, `BudgetController`, `dto/`. Spent amount from new `TransactionRepository.sumExpenseForCategory`.
 - Budgets only on EXPENSE categories (default or own); another user's category → 400. One budget per category + month → 409 `CONFLICT`.
 - `remaining` goes negative when over. used == limit is `NEAR` (OVER only when used > limit). 80% check uses multiplication, no division/rounding.
@@ -29,12 +30,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T18.2 [API] Mark paid/unpaid per month; due_day 31 in short months = last day
 - [x] T18.3 [API] Monthly bill total exposed for budgets/planning (T31)
 - [ ] T18.4 [AND·Sahan] Bills list with paid toggle and next due date
+  - Implemented 2026-11-23 (unit tests 8 new, suite 84/84, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
 
 **Done when**
 - [x] Tests: February due dates, month rollover resets unpaid, paid twice → 409
 
 **Handoff notes:**
-- API part done (T18.1–T18.3); **T18.4 (Android, Sahan) still open — blocked by T37**. App shows "next due date" from `GET /bills?month=` (`dueDate`, `paid`).
+- API done (T18.1–T18.3). T18.4 code by Sevindu: `and:ui/bills/` (list + form + ViewModels), `data/api/BillDto`, `data/repo/BillRepository`, Plan tab → Bills. Month switcher, summary line, paid checkbox (409 = already paid → reload), status Paid / Not paid / Overdue (due date before today, Asia/Colombo). Device check (EN/SI, TalkBack, rotation) still open.
 - `api:bill/`: `Bill`, `BillPayment` (row = paid for that month; none = unpaid), repos, `BillService`, `BillController`, `dto/`.
 - Paid: `POST /bills/{id}/paid?month=` (twice → 409), unpaid: `DELETE` same URL (idempotent 204). Category optional, must be EXPENSE.
 - **For T21/T31:** `BillService.monthlyTotal(userId)` (BigDecimal, scale 2) and static `BillService.dueDate(bill, yearMonth)`. Endpoint `GET /bills/summary?month=` gives total/paid/unpaid.
@@ -48,12 +50,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T19.1 [API] CRUD `/api/v1/goals` (target > 0, target date in future)
 - [x] T19.2 [API] Contributions add/delete; progress = sum(contributions) / target, capped display at 100%
 - [ ] T19.3 [AND·Sahan] Goals list + detail with contributions
+  - Implemented 2026-11-23 (unit tests 8 new, suite 92/92, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
 
 **Done when**
 - [x] Tests: progress after edit/delete of contributions, invalid targets, no double counting
 
 **Handoff notes:**
-- API part done (T19.1–T19.2); **T19.3 (Android, Sahan) still open — blocked by T37**.
+- API done (T19.1–T19.2). T19.3 code by Sevindu: `and:ui/goals/` (list → detail with add/remove contributions, edit/cancel/resume/delete; form), `GoalDto`, `GoalRepository`, Plan tab → Savings goals. Edit sends `cancelled: true` to keep a cancelled goal cancelled. **API gap:** D16's future-date check blocks any PUT (even cancel) once the target date passes; app asks the user to change/clear the date first. Dates typed as YYYY-MM-DD (no picker yet).
 - `api:goal/`: `Goal`, `GoalStatus`, `GoalContribution`, repos, `GoalService`, `GoalController`, `dto/`. No migration (V3 tables).
 - D16: target date future on create and edit; status automatic (DONE when saved ≥ target), user can only cancel via `cancelled: true`; contributions add/delete only. Add/delete contribution returns the updated goal.
 - **For T23/T31/T32:** `GoalService.saved(goal)` (scale 2) and static `GoalService.progressPercent(saved, target)` (rounded down, max 100).
