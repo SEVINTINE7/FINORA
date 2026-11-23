@@ -51,7 +51,7 @@
     <string name="sms_paste">SMS පණිවිඩ පෙළ අලවන්න</string>
     <string name="sms_csv_import">CSV ආයාතය</string>
     <string name="sms_manual_entry">ගනුදෙනුව අතින් ඇතුළත් කිරීම</string>
-    <string name="sms_fallback_unavailable">SMS පෙළ ඇලවීම සහ CSV ආයාත කිරීම තවම ලබා ගත නොහැක.</string>
+    <string name="sms_fallback_unavailable">SMS පෙළ ඇලවීම තවම ලබා ගත නොහැක.</string>
     <string name="records_add">එක් කරන්න</string>
     <string name="records_retry">නැවත උත්සාහ කරන්න</string>
     <string name="records_remove">ඉවත් කරන්න</string>

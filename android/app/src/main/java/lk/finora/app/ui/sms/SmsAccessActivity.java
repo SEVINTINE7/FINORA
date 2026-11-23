@@ -22,6 +22,7 @@ import java.util.Arrays;
 import lk.finora.app.R;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
+import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.transactions.TransactionFormActivity;
 
 public final class SmsAccessActivity extends AppCompatActivity {
@@ -61,12 +62,15 @@ public final class SmsAccessActivity extends AppCompatActivity {
         allow.setOnClickListener(view -> requestInboxAccess());
         settings.setOnClickListener(view -> openAppSettings());
         findViewById(R.id.sms_no_thanks_action).setOnClickListener(view -> finish());
-        findViewById(R.id.sms_manual_entry_action).setOnClickListener(view -> {
-            if (verifySession()) {
-                startActivity(new Intent(this, TransactionFormActivity.class));
-            }
-        });
+        findViewById(R.id.sms_csv_import_action).setOnClickListener(view -> openFallback(CsvImportActivity.class));
+        findViewById(R.id.sms_manual_entry_action).setOnClickListener(view -> openFallback(TransactionFormActivity.class));
         renderPermission();
+    }
+
+    private void openFallback(Class<? extends AppCompatActivity> destination) {
+        if (verifySession()) {
+            startActivity(new Intent(this, destination));
+        }
     }
 
     @Override

@@ -51,7 +51,7 @@
     <string name="sms_paste">Paste SMS text</string>
     <string name="sms_csv_import">CSV import</string>
     <string name="sms_manual_entry">Manual transaction entry</string>
-    <string name="sms_fallback_unavailable">Pasting SMS and importing CSV are not available yet.</string>
+    <string name="sms_fallback_unavailable">Pasting SMS is not available yet.</string>
     <string name="records_add">Add</string>
     <string name="records_retry">Retry</string>
     <string name="records_remove">Remove</string>

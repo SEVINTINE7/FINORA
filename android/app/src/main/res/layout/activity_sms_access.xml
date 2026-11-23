@@ -73,17 +73,18 @@
             android:layout_marginBottom="@dimen/finora_space_s" />
 
         <TextView
-            style="@style/FinoraText.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_csv_import"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <TextView
             style="@style/FinoraText.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sms_fallback_unavailable"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <Button
+            android:id="@+id/sms_csv_import_action"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_csv_import"
             android:layout_marginBottom="@dimen/finora_space_s" />
 
         <Button
