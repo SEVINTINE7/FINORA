@@ -55,6 +55,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D33 T14.1 inbox and T13.3 paste early start** — Sahan, exercising delegated Android-task authority, approved a local inbox scan and Paste SMS adapter using the D32 parser. Inbox access is explicit and limited to the D30 debug trial, approved sender IDs, 200 rows and 31 days. Paste works without SMS permission. Raw messages stay transient and local, and sensitive state is cleared on exit or login replacement. The production bundle stays empty until formats and fixtures are approved. No submission, T15 work, or changes to Sevindu-owned T45.3 are authorized.
 
+- **D34 T13.4 permission acceptance environment** — Sahan, exercising delegated Android-task approval authority, approved combining HMD Crest (Android 14) evidence for permanent denial and the FINORA App info link with isolated Android 17 emulator evidence for Settings-based revocation and regrant. On the HMD test profile, tapping Permissions left App info visible. The alternative applies only to T13.4. D30 remains in force, and T13.3, overall acceptance and independent review retain their existing requirements.
+
 ## Proposed — still open
 
 - _None currently._

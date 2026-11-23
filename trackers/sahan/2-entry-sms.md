@@ -44,8 +44,8 @@ After expansion approval, verify incoming changes before integration. Stage appr
 - [ ] T13.3 Fallbacks always visible: paste SMS text, CSV import (T12), manual entry (T11)
   - The USER SMS screen opens the existing T11 manual form and T12.5 CSV importer independently of permission state. HMD Crest verified CSV, manual entry and D33 Paste SMS navigation with grant, ordinary denial and permanent denial at `b5b065d`. The system picker was previously verified with permanent denial. The production bundle has no approved formats, so bank extraction remains unverified.
   - Under D30, acceptance requires working fallbacks. T14 depends on T13, so working paste acceptance still needs approved bank formats and fixtures. D33 authorizes only the local adapter and inbox reader.
-- [ ] T13.4 Handle "Don't ask again" → link to app settings
-  - `SmsPermissionState.resolve(granted, requestedBefore, showRationale)` distinguishes first request from a denied state with no rationale; persist only the request-attempt flag. `openAppSettings()` sends `ACTION_APPLICATION_DETAILS_SETTINGS` with the app package; recheck on resume and before any query. Handle a settings launch failure locally. Keys `sms_permission_settings`, `sms_open_settings`, `sms_settings_unavailable`. Tests `distinguishesFirstRequestAndSettingsPath`, `rechecksAfterSettingsReturn`; verify the observed permanent-denial behavior and grant/revocation on the HMD Crest, without clearing personal data.
+- [x] T13.4 Handle "Don't ask again" → link to app settings
+  - `SmsPermissionState.resolve(granted, requestedBefore, showRationale)` distinguishes first request from a denied state with no rationale; persist only the request-attempt flag. `openAppSettings()` sends `ACTION_APPLICATION_DETAILS_SETTINGS` with the app package; recheck on resume and before any query. Handle a settings launch failure locally. Keys `sms_permission_settings`, `sms_open_settings`, `sms_settings_unavailable`. Tests `distinguishesFirstRequestAndSettingsPath`, `rechecksAfterSettingsReturn`; Under D34, verify permanent denial and the App info link on the HMD Crest, and Settings revocation and regrant on the isolated emulator.
 
 **Done when**
 - [ ] On device: grant, deny, deny-forever all lead to a working path
@@ -56,7 +56,7 @@ After expansion approval, verify incoming changes before integration. Stage appr
 - HMD Crest (Android 14): normal debug install allowlisted the test user only. USER Records, explanation, No thanks, deny, grant, permanent denial and Settings return verified. Sahan confirmed Sinhala TalkBack labels for Settings, No thanks and manual entry.
 - At `9774733`, HMD Crest verified CSV → T12.5 → system picker, and manual entry under permanent denial. English/Sinhala labels checked; Sahan confirmed both Sinhala TalkBack action labels.
 - CSV integration: V1 debug/test APKs built, 103 JVM tests passed, EN/SI resources matched, and lint reported zero errors and one existing budget-format warning.
-- At `b5b065d`, App info opened and FINORA still showed the grant after return. Tapping Permissions in the test profile left App info visible. A test-profile ADB revoke hid Scan and restored Settings guidance, but normal Settings revocation remains unverified. Isolated emulator launch failed for insufficient host disk space. T13.3–T13.4 and Done when stay unchecked.
+- D34: HMD Crest verified permanent-denial guidance and the App info link. Permissions did not open in its test profile, so physical Settings revocation remains unverified. On the isolated Android 17 emulator at `6d6266a`, Settings revocation hid Scan and preserved all three fallback actions; Settings regrant restored Scan. T13.3 and Done when remain unchecked.
 
 ---
 
