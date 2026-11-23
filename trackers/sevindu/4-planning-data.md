@@ -9,12 +9,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T17.1 [API] CRUD `/api/v1/budgets` per category per month (`YYYY-MM`)
 - [x] T17.2 [API] `GET /api/v1/budgets?month=` returns limit, used, remaining, state `OK|NEAR(≥80%)|OVER`
 - [ ] T17.3 [AND·Sahan] Budget list with progress bars + add/edit
+  - Implemented 2026-11-23 (unit tests 9/9, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
 
 **Done when**
 - [x] Tests: used amount counts only that month's expenses in that category; first/last day of month; over-spend state
 
 **Handoff notes:**
-- API part done (T17.1–T17.2); **T17.3 (Android, Sahan) still open — blocked by T37**.
+- API done (T17.1–T17.2). T17.3 code done by Sevindu: `and:ui/budgets/` (list + form + ViewModels), `data/api/BudgetDto`, `data/repo/BudgetRepository`, Plan tab → Budgets in `MainActivity`; device check (EN/SI, TalkBack, 409, rotation) still open.
 - `api:budget/`: `Budget`, repo, `BudgetService`, `BudgetController`, `dto/`. Spent amount from new `TransactionRepository.sumExpenseForCategory`.
 - Budgets only on EXPENSE categories (default or own); another user's category → 400. One budget per category + month → 409 `CONFLICT`.
 - `remaining` goes negative when over. used == limit is `NEAR` (OVER only when used > limit). 80% check uses multiplication, no division/rounding.

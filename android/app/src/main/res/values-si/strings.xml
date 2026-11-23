@@ -113,4 +113,22 @@
     <string name="transaction_remove">මෙම ගනුදෙනුව ස්ථිරව ඉවත් කරන්නද?</string>
     <string name="transaction_previous">පෙර පිටුව</string>
     <string name="transaction_next">ඊළඟ පිටුව</string>
+    <string name="budget_list_title">අයවැය</string>
+    <string name="budget_form_title">අයවැය</string>
+    <string name="budget_previous_month">පෙර මාසය</string>
+    <string name="budget_next_month">ඊළඟ මාසය</string>
+    <string name="budget_previous_symbol">‹</string>
+    <string name="budget_next_symbol">›</string>
+    <string name="budget_category">වියදම් කාණ්ඩය</string>
+    <string name="budget_limit">මාසික සීමාව (රු.)</string>
+    <string name="budget_limit_invalid">0ට වැඩි, දශම ස්ථාන 2ක් දක්වා මුදලක් ඇතුළත් කරන්න.</string>
+    <string name="budget_left">රු. %2$s න් රු. %1$s භාවිත කළා · රු. %3$s ඉතිරියි</string>
+    <string name="budget_over_by">රු. %2$s න් රු. %1$s භාවිත කළා · රු. %3$s කින් ඉක්මවා ඇත</string>
+    <string name="budget_state_ok">සීමාව තුළ</string>
+    <string name="budget_state_near">සීමාවට ආසන්නයි (80% හෝ වැඩි)</string>
+    <string name="budget_state_over">සීමාව ඉක්මවා ඇත</string>
+    <string name="budget_remove_message">මෙම අයවැය ඉවත් කරන්නද? ඔබේ ගනුදෙනු වෙනස් නොවේ.</string>
+    <string name="budget_duplicate">මෙම කාණ්ඩයට මෙම මාසය සඳහා දැනටමත් අයවැයක් ඇත.</string>
+    <string name="budget_no_categories">සියලු වියදම් කාණ්ඩවලට මෙම මාසය සඳහා දැනටමත් අයවැය ඇත.</string>
+    <string name="budget_unknown_category">නොදන්නා කාණ්ඩය</string>
 </resources>

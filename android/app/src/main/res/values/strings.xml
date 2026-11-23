@@ -113,4 +113,22 @@
     <string name="transaction_remove">Permanently remove this transaction?</string>
     <string name="transaction_previous">Previous page</string>
     <string name="transaction_next">Next page</string>
+    <string name="budget_list_title">Budgets</string>
+    <string name="budget_form_title">Budget</string>
+    <string name="budget_previous_month">Previous month</string>
+    <string name="budget_next_month">Next month</string>
+    <string name="budget_previous_symbol">‹</string>
+    <string name="budget_next_symbol">›</string>
+    <string name="budget_category">Expense category</string>
+    <string name="budget_limit">Monthly limit (LKR)</string>
+    <string name="budget_limit_invalid">Enter an amount more than 0 with up to 2 decimals.</string>
+    <string name="budget_left">Used LKR %1$s of LKR %2$s · LKR %3$s left</string>
+    <string name="budget_over_by">Used LKR %1$s of LKR %2$s · over by LKR %3$s</string>
+    <string name="budget_state_ok">On track</string>
+    <string name="budget_state_near">Near the limit (80% or more)</string>
+    <string name="budget_state_over">Over the limit</string>
+    <string name="budget_remove_message">Remove this budget? Your transactions are not changed.</string>
+    <string name="budget_duplicate">This category already has a budget for this month.</string>
+    <string name="budget_no_categories">Every expense category already has a budget this month.</string>
+    <string name="budget_unknown_category">Unknown category</string>
 </resources>
