@@ -22,6 +22,7 @@ import java.util.Arrays;
 import lk.finora.app.R;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
+import lk.finora.app.ui.transactions.TransactionFormActivity;
 
 public final class SmsAccessActivity extends AppCompatActivity {
     private static final String PERMISSION = Manifest.permission.READ_SMS;
@@ -60,6 +61,11 @@ public final class SmsAccessActivity extends AppCompatActivity {
         allow.setOnClickListener(view -> requestInboxAccess());
         settings.setOnClickListener(view -> openAppSettings());
         findViewById(R.id.sms_no_thanks_action).setOnClickListener(view -> finish());
+        findViewById(R.id.sms_manual_entry_action).setOnClickListener(view -> {
+            if (verifySession()) {
+                startActivity(new Intent(this, TransactionFormActivity.class));
+            }
+        });
         renderPermission();
     }
 
@@ -121,8 +127,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
             return;
         }
         SmsPermissionState state = permissionState();
-        allow.setEnabled(state == SmsPermissionState.FIRST_REQUEST
-                || state == SmsPermissionState.DENIED_WITH_RATIONALE);
+        allow.setEnabled(state.canRequest());
         settings.setVisibility(state == SmsPermissionState.SETTINGS_AVAILABLE ? View.VISIBLE : View.GONE);
         status.setText(switch (state) {
             case UNAVAILABLE -> R.string.sms_permission_unavailable;
@@ -138,7 +143,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
             return;
         }
         SmsPermissionState state = permissionState();
-        if (state != SmsPermissionState.FIRST_REQUEST && state != SmsPermissionState.DENIED_WITH_RATIONALE) {
+        if (!state.canRequest()) {
             renderPermission();
             return;
         }

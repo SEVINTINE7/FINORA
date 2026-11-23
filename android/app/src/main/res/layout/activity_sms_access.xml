@@ -80,17 +80,18 @@
             android:layout_marginBottom="@dimen/finora_space_s" />
 
         <TextView
-            style="@style/FinoraText.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_manual_entry"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <TextView
             style="@style/FinoraText.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sms_fallback_unavailable"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <Button
+            android:id="@+id/sms_manual_entry_action"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_manual_entry"
             android:layout_marginBottom="@dimen/finora_space_s" />
     </LinearLayout>
 </ScrollView>
