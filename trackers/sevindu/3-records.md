@@ -56,11 +56,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T12.2 [API] `POST /api/v1/imports/csv/preview` → parsed rows + per-row errors + duplicate flags; nothing saved
 - [x] T12.3 [API] `POST /api/v1/imports/csv/confirm` saves selected rows (source=CSV, dedup_hash)
 - [x] T12.4 [API] Limits: ≤1 MB, ≤2000 rows; reject cells starting with `= + - @` (formula injection)
-- [ ] T12.5 [AND·Sahan] Pick file → preview list → confirm
+- [x] T12.5 [AND·Sahan] Pick file → preview list → confirm
 
 **Done when**
-- [ ] Tests: valid file, bad dates/amounts, oversize, formula cells, re-import flags duplicates
-  - API side passing: `CsvImportControllerTest` (10), suite 267/267 on 2026-11-23. Ticked when T12.5 is done.
+- [x] Tests: valid file, bad dates/amounts, oversize, formula cells, re-import flags duplicates
+  - API side passing: `CsvImportControllerTest` (10), suite 267/267 on 2026-11-23. Android checks verified on the HMD Crest at `bfc64a2`.
 
 **Handoff notes:**
 - API part done (T12.1–T12.4); decisions in **D25** (name lookup, hash + occurrence, confirm = JSON rows). Template: `docs/csv-template.md`; endpoints in `docs/api-contract.md`.
@@ -68,4 +68,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Confirm checks all rows first (any bad row → 400 `Line N: …`, nothing saved); duplicates are skipped and listed in `skippedDuplicateLines`. Formula check is repeated on confirm for merchant/note.
 - New: error code `FILE_TOO_LARGE` (413), multipart limit 1 MB in `application.yml`, `GlobalExceptionHandler` maps multipart errors → 400/413 and `DataIntegrityViolationException` → 409 `CONFLICT`.
 - T12.5 (Sahan): preview returns everything confirm needs, so send back each picked row's fields as-is, including `occurrence`. Rows with `errors` or `duplicate: true` can't be selected.
-- D31 Android implementation is available from USER Records. Debug and test APKs built, 103 JVM tests passed, and lint reported zero errors and one existing budget-format warning. Device and live API acceptance remain open. T13 CSV fallback remains unwired.
+- HMD Crest (Android 14), `bfc64a2`: picker without storage permission, exact LKR/occurrences, confirm, duplicate and invalid rows, offline/lost-response recovery, delayed-preview account isolation, EN/SI and TalkBack verified. Retained 103 JVM tests and passing CI. T12 remains in progress under D31; T13 CSV fallback remains unwired.
