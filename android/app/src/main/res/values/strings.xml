@@ -222,4 +222,21 @@
     <string name="goal_target_date">Target date (YYYY-MM-DD, optional)</string>
     <string name="goal_target_date_hint">Leave empty for no deadline. A date must be after today.</string>
     <string name="goal_target_date_invalid">Enter a real date after today as YYYY-MM-DD, or leave it empty.</string>
+    <string name="csv_pick_help">Choose a FINORA CSV file to preview. Only confirmed rows are saved.</string>
+    <string name="csv_choose">Choose CSV file</string>
+    <string name="csv_refresh">Refresh preview</string>
+    <string name="csv_review">Review import</string>
+    <string name="csv_review_count">Review selected rows (%1$d)</string>
+    <string name="csv_confirm_message">Import the selected rows (%1$d) into your account?</string>
+    <string name="csv_confirm_action">Import selected rows</string>
+    <string name="csv_file_invalid">Choose a readable UTF-8 file with the FINORA CSV header.</string>
+    <string name="csv_too_large">Choose a CSV file no larger than 1 MB.</string>
+    <string name="csv_preview_invalid">Check the CSV header, quoting, and 2,000-row limit.</string>
+    <string name="csv_confirm_rejected">No rows were imported. Refresh the preview and check your selections.</string>
+    <string name="csv_uncertain">The import outcome is unknown. Refresh the preview to identify rows already imported before trying again.</string>
+    <string name="csv_result">Imported: %1$d · Duplicates skipped: %2$d</string>
+    <string name="csv_summary">Rows: %1$d · Invalid: %2$d · Duplicates: %3$d</string>
+    <string name="csv_line">Line %1$d</string>
+    <string name="csv_line_duplicate">%1$s · Already imported</string>
+    <string name="csv_line_invalid">%1$s · Invalid row. Check the CSV template and your account and category names.</string>
 </resources>

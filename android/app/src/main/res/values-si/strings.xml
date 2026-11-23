@@ -222,4 +222,21 @@
     <string name="goal_target_date">ඉලක්ක දිනය (YYYY-MM-DD, විකල්ප)</string>
     <string name="goal_target_date_hint">කාල සීමාවක් නැත්නම් හිස්ව තබන්න. දිනයක් අදට පසු විය යුතුය.</string>
     <string name="goal_target_date_invalid">අදට පසු සැබෑ දිනයක් YYYY-MM-DD ලෙස ඇතුළත් කරන්න, නැතහොත් හිස්ව තබන්න.</string>
+    <string name="csv_pick_help">පෙරදසුන සඳහා FINORA CSV ගොනුවක් තෝරන්න. තහවුරු කළ පේළි පමණක් සුරැකේ.</string>
+    <string name="csv_choose">CSV ගොනුව තෝරන්න</string>
+    <string name="csv_refresh">පෙරදසුන යාවත්කාලීන කරන්න</string>
+    <string name="csv_review">ආයාතය පරීක්ෂා කරන්න</string>
+    <string name="csv_review_count">තෝරාගත් පේළි පරීක්ෂා කරන්න (%1$d)</string>
+    <string name="csv_confirm_message">තෝරාගත් පේළි (%1$d) ඔබේ ගිණුමට ආයාත කරන්නද?</string>
+    <string name="csv_confirm_action">තෝරාගත් පේළි ආයාත කරන්න</string>
+    <string name="csv_file_invalid">FINORA CSV ශීර්ෂ පේළිය සහිත කියවිය හැකි UTF-8 ගොනුවක් තෝරන්න.</string>
+    <string name="csv_too_large">1 MB නොඉක්මවන CSV ගොනුවක් තෝරන්න.</string>
+    <string name="csv_preview_invalid">CSV ශීර්ෂ පේළිය, උද්ධෘත ලකුණු සහ පේළි 2,000 සීමාව පරීක්ෂා කරන්න.</string>
+    <string name="csv_confirm_rejected">කිසිදු පේළියක් ආයාත කළේ නැත. පෙරදසුන යාවත්කාලීන කර තේරීම් පරීක්ෂා කරන්න.</string>
+    <string name="csv_uncertain">ආයාතයේ ප්‍රතිඵලය තහවුරු කළ නොහැක. නැවත උත්සාහ කිරීමට පෙර ආයාත වී ඇති පේළි හඳුනා ගැනීමට පෙරදසුන යාවත්කාලීන කරන්න.</string>
+    <string name="csv_result">ආයාත කළ පේළි: %1$d · මඟහැරුණු අනුපිටපත්: %2$d</string>
+    <string name="csv_summary">පේළි: %1$d · වලංගු නොවන: %2$d · අනුපිටපත්: %3$d</string>
+    <string name="csv_line">පේළිය %1$d</string>
+    <string name="csv_line_duplicate">%1$s · දැනටමත් ආයාත කර ඇත</string>
+    <string name="csv_line_invalid">%1$s · වලංගු නොවන පේළියකි. CSV ආකෘතිය සහ ගිණුම් හා කාණ්ඩ නම් පරීක්ෂා කරන්න.</string>
 </resources>

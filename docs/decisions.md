@@ -49,6 +49,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D30 T13 trial SMS access** — Sahan approved `READ_SMS` only for the sideloaded V1 debug trial. Release APKs must omit it. The verified USER Records area may open SMS access and the existing manual transaction form without requiring SMS permission. Paste parsing, CSV import and final T13 acceptance remain pending. T14 requires approved bank formats and fixtures.
 
+- **D31 T12.5 Android CSV early start** — Sahan approved Android file selection, preview, and explicit confirmation against the implemented D25 API under delegated Android-task authority while T10 remains in progress. T10 and T12 retain their normal acceptance and review requirements. This authorization does not close T13 or change API behavior or ownership.
+
 ## Proposed — still open
 
 - _None currently._

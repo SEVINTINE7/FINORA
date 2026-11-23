@@ -68,3 +68,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Confirm checks all rows first (any bad row → 400 `Line N: …`, nothing saved); duplicates are skipped and listed in `skippedDuplicateLines`. Formula check is repeated on confirm for merchant/note.
 - New: error code `FILE_TOO_LARGE` (413), multipart limit 1 MB in `application.yml`, `GlobalExceptionHandler` maps multipart errors → 400/413 and `DataIntegrityViolationException` → 409 `CONFLICT`.
 - T12.5 (Sahan): preview returns everything confirm needs, so send back each picked row's fields as-is, including `occurrence`. Rows with `errors` or `duplicate: true` can't be selected.
+- D31 Android implementation is available from USER Records. Debug and test APKs built, 103 JVM tests passed, and lint reported zero errors and one existing budget-format warning. Device and live API acceptance remain open. T13 CSV fallback remains unwired.

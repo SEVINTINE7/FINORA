@@ -18,6 +18,7 @@ import lk.finora.app.ui.bills.BillListActivity;
 import lk.finora.app.ui.budgets.BudgetListActivity;
 import lk.finora.app.ui.categories.CategoryListActivity;
 import lk.finora.app.ui.goals.GoalListActivity;
+import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.settings.SettingsActivity;
 import lk.finora.app.ui.sms.SmsAccessActivity;
 import lk.finora.app.ui.transactions.TransactionActivity;
@@ -44,6 +45,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         recordActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
         addMoreAction(recordActions, R.string.transaction_open_manual, TransactionFormActivity.class);
+        addMoreAction(recordActions, R.string.sms_csv_import, CsvImportActivity.class);
         addMoreAction(recordActions, R.string.sms_access_title, SmsAccessActivity.class);
         layout.addView(recordActions, new LinearLayout.LayoutParams(-1, -2));
         LinearLayout planActions = new LinearLayout(this);
