@@ -39,7 +39,7 @@ After expansion approval, verify incoming changes before integration. Stage appr
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `and:ui/sms/`, `AndroidManifest.xml`
 - [x] T13.1 Note in Handoff: Play Store restricts READ_SMS → trial APK side-loaded (proposal 7.3)
   - Document the side-loaded trial APK before delivery. Declare `READ_SMS` in the approved trial manifest scope only. Recheck installer behavior for this restricted permission on Android 14 rather than assuming side-loading grants access. Verify the merged trial manifest and actual install mode. [Google Play SMS permission policy](https://support.google.com/googleplay/android-developer/answer/10208820)
-- [ ] T13.2 Explanation screen before asking `READ_SMS`; clear "No thanks" path
+- [x] T13.2 Explanation screen before asking `READ_SMS`; clear "No thanks" path
   - Add `ui/sms/SmsAccessActivity.java`, `SmsPermissionState.java`, and `activity_sms_access.xml`. `requestInboxAccess()` launches `ActivityResultContracts.RequestPermission` only after a user tap. `renderPermission()` checks current grant and rationale. Explain purpose, local-only parsing, and optional access. No thanks exits the request flow and leaves alternatives available. Keys `sms_access_title`, `sms_access_explanation`, `sms_allow_access`, `sms_no_thanks`, `sms_access_granted`, `sms_access_denied`. Tests `noThanksDoesNotLaunchPermissionRequest`, `permissionStatesKeepAlternativesVisible`; device-check pre-prompt explanation, grant and deny. [Android runtime permission workflow](https://developer.android.com/training/permissions/requesting)
 - [ ] T13.3 Fallbacks always visible: paste SMS text, CSV import (T12), manual entry (T11)
   - The USER SMS screen opens the existing T11 manual transaction form in every permission state. It labels Paste SMS and CSV import as unavailable pending T14 and T12. Keep pasted content in memory and on the phone when the T14 route becomes available. Device-check each real destination with grant, deny and permanent denial.
@@ -53,10 +53,10 @@ After expansion approval, verify incoming changes before integration. Stage appr
 **Handoff notes:**
 - Google Play restricts `READ_SMS`. Proposal 7.3 specifies a side-loaded trial APK. SMS access is optional, and side-loading alone does not guarantee a grant because Android requires the installer to allowlist this restricted permission. [Android permission reference](https://developer.android.com/reference/android/Manifest.permission#READ_SMS)
 - D30 limits `READ_SMS` to the V1 debug manifest. Release omits it. `SmsAccessActivity` remains non-exported.
-- USER Records opens the guarded SMS screen. Explanation, No thanks, denial, Settings and revocation checks are preserved. The screen does not read the inbox.
-- Manual entry is wired independently of permission. Paste and CSV are labeled unavailable. Sinhala wording awaits native-speaker review.
+- HMD Crest (Android 14): normal debug install allowlisted the test user only. USER Records, explanation before request, No thanks, deny, grant, permanent denial and opening and returning from Settings verified.
+- Manual entry without SMS permission and unavailable paste/CSV verified. English/Sinhala screens checked; Sahan confirmed the Sinhala TalkBack labels for Open app settings, No thanks and manual entry.
 - APK inspection confirmed `READ_SMS` only in V1 debug. Debug, release and test APKs built, all 97 JVM tests passed, and lint reported no errors and one existing budget-format warning.
-- HMD Crest installer allowlisting, grant, deny, permanent denial, revocation, fallbacks and accessibility remain to be verified. T13.2–T13.4 and Done when stay open.
+- Test-profile App info did not open the Permissions detail. Standard ADB revocation restored the ungranted state and FINORA recovered on relaunch. Settings-based revocation and working paste/CSV routes remain open; T13.3–T13.4 and Done when stay unchecked.
 
 ---
 
