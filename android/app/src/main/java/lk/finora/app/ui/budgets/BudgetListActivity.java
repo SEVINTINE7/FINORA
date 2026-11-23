@@ -104,7 +104,8 @@ public final class BudgetListActivity extends AppCompatActivity {
                 ? category.nameSi() : category.name();
     }
 
-    static String monthLabel(java.time.YearMonth month) {
+    /** Full month name and year in the app language, e.g. "November 2026" (also used by bills). */
+    public static String monthLabel(java.time.YearMonth month) {
         return month.format(DateTimeFormatter.ofPattern("LLLL yyyy", Locale.getDefault()));
     }
 

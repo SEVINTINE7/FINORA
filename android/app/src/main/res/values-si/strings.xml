@@ -159,4 +159,20 @@
     <string name="settings_delete_info">ඔබේ සියලු දත්ත මකා දැමීමට FINORA වෙත ඉල්ලීමක් කළ හැක.</string>
     <string name="settings_delete">මගේ දත්ත මකන්න</string>
     <string name="settings_delete_unavailable">දත්ත මකා දැමීම මෙම සංස්කරණයේ තවම ලබා ගත නොහැක.</string>
+    <string name="bill_list_title">බිල්පත්</string>
+    <string name="bill_form_title">බිල්පත</string>
+    <string name="bill_summary">මෙම මාසය: බිල්පත් රු. %1$s · රු. %2$s ගෙවා ඇත · තව රු. %3$s ගෙවිය යුතුය</string>
+    <string name="bill_details">රු. %1$s · ගෙවිය යුතු දිනය %2$s</string>
+    <string name="bill_paid">ගෙවා ඇත</string>
+    <string name="bill_unpaid">තවම ගෙවා නැත</string>
+    <string name="bill_overdue">කල් ඉකුත් වී ඇත</string>
+    <string name="bill_paid_toggle">මෙම මාසයේ ගෙවා ඇත</string>
+    <string name="bill_paid_named">%1$s මෙම මාසයේ ගෙවා ඇත</string>
+    <string name="bill_remove_message">මෙම බිල්පත ඉවත් කරන්නද? පෙර ගෙවීම් සලකුණු ද ඉවත් වේ. ඔබේ ගනුදෙනු වෙනස් නොවේ.</string>
+    <string name="bill_amount">මුදල (රු.)</string>
+    <string name="bill_due_day">මාසයේ ගෙවිය යුතු දිනය (1–31)</string>
+    <string name="bill_due_day_hint">මාසය කෙටි නම්, බිල්පත ගෙවිය යුත්තේ එහි අවසන් දිනයේය.</string>
+    <string name="bill_due_day_invalid">1 සිට 31 දක්වා දිනයක් ඇතුළත් කරන්න.</string>
+    <string name="bill_category">වියදම් කාණ්ඩය (විකල්ප)</string>
+    <string name="bill_no_category">කාණ්ඩයක් නැත</string>
 </resources>

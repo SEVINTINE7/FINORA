@@ -30,5 +30,7 @@
         <activity android:name=".ui.transactions.TransactionActivity" android:exported="false" />
         <activity android:name=".ui.budgets.BudgetListActivity" android:exported="false" />
         <activity android:name=".ui.budgets.BudgetFormActivity" android:exported="false" />
+        <activity android:name=".ui.bills.BillListActivity" android:exported="false" />
+        <activity android:name=".ui.bills.BillFormActivity" android:exported="false" />
     </application>
 </manifest>

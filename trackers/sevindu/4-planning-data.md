@@ -30,12 +30,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T18.2 [API] Mark paid/unpaid per month; due_day 31 in short months = last day
 - [x] T18.3 [API] Monthly bill total exposed for budgets/planning (T31)
 - [ ] T18.4 [AND·Sahan] Bills list with paid toggle and next due date
+  - Implemented 2026-11-23 (unit tests 8 new, suite 84/84, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
 
 **Done when**
 - [x] Tests: February due dates, month rollover resets unpaid, paid twice → 409
 
 **Handoff notes:**
-- API part done (T18.1–T18.3); **T18.4 (Android, Sahan) still open — blocked by T37**. App shows "next due date" from `GET /bills?month=` (`dueDate`, `paid`).
+- API done (T18.1–T18.3). T18.4 code by Sevindu: `and:ui/bills/` (list + form + ViewModels), `data/api/BillDto`, `data/repo/BillRepository`, Plan tab → Bills. Month switcher, summary line, paid checkbox (409 = already paid → reload), status Paid / Not paid / Overdue (due date before today, Asia/Colombo). Device check (EN/SI, TalkBack, rotation) still open.
 - `api:bill/`: `Bill`, `BillPayment` (row = paid for that month; none = unpaid), repos, `BillService`, `BillController`, `dto/`.
 - Paid: `POST /bills/{id}/paid?month=` (twice → 409), unpaid: `DELETE` same URL (idempotent 204). Category optional, must be EXPENSE.
 - **For T21/T31:** `BillService.monthlyTotal(userId)` (BigDecimal, scale 2) and static `BillService.dueDate(bill, yearMonth)`. Endpoint `GET /bills/summary?month=` gives total/paid/unpaid.

@@ -159,4 +159,20 @@
     <string name="settings_delete_info">You can ask FINORA to delete all of your data.</string>
     <string name="settings_delete">Delete my data</string>
     <string name="settings_delete_unavailable">Data deletion is not available in this version yet.</string>
+    <string name="bill_list_title">Bills</string>
+    <string name="bill_form_title">Bill</string>
+    <string name="bill_summary">This month: LKR %1$s in bills · LKR %2$s paid · LKR %3$s still to pay</string>
+    <string name="bill_details">LKR %1$s · due %2$s</string>
+    <string name="bill_paid">Paid</string>
+    <string name="bill_unpaid">Not paid yet</string>
+    <string name="bill_overdue">Overdue</string>
+    <string name="bill_paid_toggle">Paid this month</string>
+    <string name="bill_paid_named">%1$s paid this month</string>
+    <string name="bill_remove_message">Remove this bill? Past paid marks are removed too. Your transactions are not changed.</string>
+    <string name="bill_amount">Amount (LKR)</string>
+    <string name="bill_due_day">Due day of the month (1–31)</string>
+    <string name="bill_due_day_hint">If the month is shorter, the bill is due on its last day.</string>
+    <string name="bill_due_day_invalid">Enter a day from 1 to 31.</string>
+    <string name="bill_category">Expense category (optional)</string>
+    <string name="bill_no_category">No category</string>
 </resources>
