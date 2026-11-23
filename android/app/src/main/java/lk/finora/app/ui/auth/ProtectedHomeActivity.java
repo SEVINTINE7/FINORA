@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider;
 import lk.finora.app.R;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
-import lk.finora.app.util.LocaleHelper;
 
 public abstract class ProtectedHomeActivity extends AppCompatActivity {
     private Session entry;
@@ -76,26 +74,7 @@ public abstract class ProtectedHomeActivity extends AppCompatActivity {
     }
 
     private void addLanguageSelector(LinearLayout layout) {
-        if (!"USER".equals(entry.role)) {
-            layout.addView(LocaleHelper.selector(this, LocaleHelper::apply));
-            return;
-        }
-        LocaleHelper.ProfileLanguage profile =
-                new ViewModelProvider(this).get(LocaleHelper.ProfileLanguage.class);
-        Button selector = LocaleHelper.selector(this, profile::select);
-        layout.addView(selector);
-        profile.initialize(entry);
-        profile.state().observe(this, selection -> {
-            if (model.signingOut() || !profile.isCurrent()) {
-                return;
-            }
-            selector.setEnabled(!selection.busy);
-            selector.setText(selection.busy ? R.string.language_syncing : R.string.language_selector);
-            LocaleHelper.apply(selection.language);
-            if (selection.failed) {
-                Toast.makeText(this, R.string.language_save_failed, Toast.LENGTH_LONG).show();
-            }
-        });
+        layout.addView(ProfileLanguageButton.create(this, entry, model::signingOut));
     }
 
     @Override

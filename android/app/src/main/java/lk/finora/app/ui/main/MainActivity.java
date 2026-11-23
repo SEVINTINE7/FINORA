@@ -16,6 +16,7 @@ import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
 import lk.finora.app.ui.budgets.BudgetListActivity;
 import lk.finora.app.ui.categories.CategoryListActivity;
+import lk.finora.app.ui.settings.SettingsActivity;
 import lk.finora.app.ui.transactions.TransactionActivity;
 
 public final class MainActivity extends ProtectedHomeActivity {
@@ -33,6 +34,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         moreActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
+        addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
         layout.addView(moreActions, new LinearLayout.LayoutParams(-1, -2));
         LinearLayout recordActions = new LinearLayout(this);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
