@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/finora_space_s"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/record_name"
+            style="@style/FinoraText.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/record_remove"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/records_remove" />
+</LinearLayout>

@@ -17,6 +17,7 @@ import lk.finora.app.ui.auth.ProtectedHomeActivity;
 import lk.finora.app.ui.bills.BillListActivity;
 import lk.finora.app.ui.budgets.BudgetListActivity;
 import lk.finora.app.ui.categories.CategoryListActivity;
+import lk.finora.app.ui.goals.GoalListActivity;
 import lk.finora.app.ui.settings.SettingsActivity;
 import lk.finora.app.ui.transactions.TransactionActivity;
 
@@ -43,6 +44,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         LinearLayout planActions = new LinearLayout(this);
         addMoreAction(planActions, R.string.budget_list_title, BudgetListActivity.class);
         addMoreAction(planActions, R.string.bill_list_title, BillListActivity.class);
+        addMoreAction(planActions, R.string.goal_list_title, GoalListActivity.class);
         layout.addView(planActions, new LinearLayout.LayoutParams(-1, -2));
 
         RadioGroup navigation = new RadioGroup(this);

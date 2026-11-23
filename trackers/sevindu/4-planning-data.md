@@ -50,12 +50,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T19.1 [API] CRUD `/api/v1/goals` (target > 0, target date in future)
 - [x] T19.2 [API] Contributions add/delete; progress = sum(contributions) / target, capped display at 100%
 - [ ] T19.3 [AND·Sahan] Goals list + detail with contributions
+  - Implemented 2026-11-23 (unit tests 8 new, suite 92/92, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
 
 **Done when**
 - [x] Tests: progress after edit/delete of contributions, invalid targets, no double counting
 
 **Handoff notes:**
-- API part done (T19.1–T19.2); **T19.3 (Android, Sahan) still open — blocked by T37**.
+- API done (T19.1–T19.2). T19.3 code by Sevindu: `and:ui/goals/` (list → detail with add/remove contributions, edit/cancel/resume/delete; form), `GoalDto`, `GoalRepository`, Plan tab → Savings goals. Edit sends `cancelled: true` to keep a cancelled goal cancelled. **API gap:** D16's future-date check blocks any PUT (even cancel) once the target date passes; app asks the user to change/clear the date first. Dates typed as YYYY-MM-DD (no picker yet).
 - `api:goal/`: `Goal`, `GoalStatus`, `GoalContribution`, repos, `GoalService`, `GoalController`, `dto/`. No migration (V3 tables).
 - D16: target date future on create and edit; status automatic (DONE when saved ≥ target), user can only cancel via `cancelled: true`; contributions add/delete only. Add/delete contribution returns the updated goal.
 - **For T23/T31/T32:** `GoalService.saved(goal)` (scale 2) and static `GoalService.progressPercent(saved, target)` (rounded down, max 100).

@@ -32,5 +32,8 @@
         <activity android:name=".ui.budgets.BudgetFormActivity" android:exported="false" />
         <activity android:name=".ui.bills.BillListActivity" android:exported="false" />
         <activity android:name=".ui.bills.BillFormActivity" android:exported="false" />
+        <activity android:name=".ui.goals.GoalListActivity" android:exported="false" />
+        <activity android:name=".ui.goals.GoalDetailActivity" android:exported="false" />
+        <activity android:name=".ui.goals.GoalFormActivity" android:exported="false" />
     </application>
 </manifest>
