@@ -88,15 +88,19 @@ public final class SmsParser {
     private static EnumMap<Name, String> extract(SmsTemplate template, String message, int start, Budget budget)
             throws Stopped {
         var values = new EnumMap<Name, String>(Name.class);
+        String suffix = template.markers().suffix();
+        int boundary = message.length() - suffix.length();
+        if (boundary < start || !matches(message, suffix, boundary, budget)) return null;
         for (SmsTemplate.Field field : template.fields()) {
             String delimiter = field.delimiter();
             int end = start;
-            while (end <= message.length() - delimiter.length() && !matches(message, delimiter, end, budget)) end++;
-            if (end > message.length() - delimiter.length()) return null;
+            int lastStart = boundary - delimiter.length();
+            while (end <= lastStart && !matches(message, delimiter, end, budget)) end++;
+            if (end > lastStart) return null;
             values.put(field.name(), message.substring(start, end).trim());
             start = end + delimiter.length();
         }
-        return start == message.length() ? values : null;
+        return start == boundary ? values : null;
     }
 
     private static boolean matches(String message, String literal, int start, Budget budget) throws Stopped {
@@ -119,15 +123,30 @@ public final class SmsParser {
                     && directionToken.contains(template.markers().credit());
             return new ManualReview(conflict ? Reason.CONFLICTING_INPUT : Reason.INVALID_FIELDS);
         }
+        Direction requiredDirection = template.markers().requiredDirection();
+        if (requiredDirection != null && direction != requiredDirection) {
+            return new ManualReview(Reason.CONFLICTING_INPUT);
+        }
+        if (!validContext(values, template)) return new ManualReview(Reason.INVALID_FIELDS);
         if (!"LKR".equals(values.get(Name.CURRENCY))) return new ManualReview(Reason.UNSUPPORTED_CURRENCY);
         var amount = SmsFieldParser.amount(values.get(Name.AMOUNT), template.numberStyle());
         var date = SmsFieldParser.date(values.get(Name.DATE), template, receivedAt);
         String merchant = values.get(Name.MERCHANT);
-        if (amount == null || date == null || (merchant != null && !SmsFieldParser.validMerchant(merchant))) {
+        if (amount == null || date == null || (merchant != null && (!SmsFieldParser.validMerchant(merchant)
+                || (requiredDirection != null && merchant.isEmpty())))) {
             return new ManualReview(Reason.INVALID_FIELDS);
         }
         budget.step();
         return new Parsed(amount, date, direction, merchant == null || merchant.isEmpty() ? null : merchant);
+    }
+
+    private static boolean validContext(EnumMap<Name, String> values, SmsTemplate template) {
+        String recipient = values.get(Name.RECIPIENT);
+        String account = values.get(Name.ACCOUNT);
+        String balance = values.get(Name.BALANCE);
+        return (recipient == null || (!recipient.isEmpty() && SmsFieldParser.validMerchant(recipient)))
+                && (account == null || account.matches("X{8}[0-9]{4}"))
+                && (balance == null || SmsFieldParser.amount(balance, template.numberStyle()) != null);
     }
 
     private static final class Budget {

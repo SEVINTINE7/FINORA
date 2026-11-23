@@ -1,1 +1,150 @@
-{"schemaVersion":1,"templates":[]}
+{
+  "schemaVersion": 1,
+  "templates": [
+    {
+      "id": "nsb-pos-debit",
+      "version": 1,
+      "senderIds": [
+        "NSB"
+      ],
+      "numberStyle": "COMMA_GROUPED",
+      "dateSource": "MESSAGE",
+      "datePattern": "DAY_MONTH_YEAR_WITH_TIME",
+      "markers": {
+        "prefix": "Dear ",
+        "debit": "Debited from",
+        "credit": "Credited to",
+        "suffix": "Thank you for banking with us.Call Centre 1972.",
+        "requiredDirection": "DEBIT"
+      },
+      "fields": [
+        {
+          "name": "RECIPIENT",
+          "delimiter": ","
+        },
+        {
+          "name": "CURRENCY",
+          "delimiter": " "
+        },
+        {
+          "name": "AMOUNT",
+          "delimiter": " "
+        },
+        {
+          "name": "DIRECTION",
+          "delimiter": " your A/c "
+        },
+        {
+          "name": "ACCOUNT",
+          "delimiter": " on "
+        },
+        {
+          "name": "DATE",
+          "delimiter": ".AvlBal LKR "
+        },
+        {
+          "name": "BALANCE",
+          "delimiter": ". @ "
+        },
+        {
+          "name": "MERCHANT",
+          "delimiter": ". ATM POS Transaction."
+        }
+      ]
+    },
+    {
+      "id": "nsb-outward-ceft-debit",
+      "version": 1,
+      "senderIds": [
+        "NSB"
+      ],
+      "numberStyle": "COMMA_GROUPED",
+      "dateSource": "MESSAGE",
+      "datePattern": "DAY_MONTH_YEAR_WITH_TIME",
+      "markers": {
+        "prefix": "Dear ",
+        "debit": "Debited from",
+        "credit": "Credited to",
+        "suffix": "Thank you for banking with us.Call Centre 1972.",
+        "requiredDirection": "DEBIT"
+      },
+      "fields": [
+        {
+          "name": "RECIPIENT",
+          "delimiter": ","
+        },
+        {
+          "name": "CURRENCY",
+          "delimiter": " "
+        },
+        {
+          "name": "AMOUNT",
+          "delimiter": " "
+        },
+        {
+          "name": "DIRECTION",
+          "delimiter": " your A/c "
+        },
+        {
+          "name": "ACCOUNT",
+          "delimiter": " on "
+        },
+        {
+          "name": "DATE",
+          "delimiter": ".AvlBal LKR "
+        },
+        {
+          "name": "BALANCE",
+          "delimiter": ".OTC Outward CEFT."
+        }
+      ]
+    },
+    {
+      "id": "nsb-inward-ceft-credit",
+      "version": 1,
+      "senderIds": [
+        "NSB"
+      ],
+      "numberStyle": "COMMA_GROUPED",
+      "dateSource": "MESSAGE",
+      "datePattern": "DAY_MONTH_YEAR_WITH_TIME",
+      "markers": {
+        "prefix": "Dear ",
+        "debit": "Debited from",
+        "credit": "Credited to",
+        "suffix": "Thank you for banking with us.Call Centre 1972.",
+        "requiredDirection": "CREDIT"
+      },
+      "fields": [
+        {
+          "name": "RECIPIENT",
+          "delimiter": ","
+        },
+        {
+          "name": "CURRENCY",
+          "delimiter": " "
+        },
+        {
+          "name": "AMOUNT",
+          "delimiter": " "
+        },
+        {
+          "name": "DIRECTION",
+          "delimiter": " your A/c "
+        },
+        {
+          "name": "ACCOUNT",
+          "delimiter": " on "
+        },
+        {
+          "name": "DATE",
+          "delimiter": ".AvlBal LKR "
+        },
+        {
+          "name": "BALANCE",
+          "delimiter": ".Transaction CEFT Inward Transfer Deposit."
+        }
+      ]
+    }
+  ]
+}

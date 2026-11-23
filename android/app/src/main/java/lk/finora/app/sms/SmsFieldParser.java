@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
@@ -15,6 +16,9 @@ import lk.finora.app.sms.SmsTemplate.NumberStyle;
 final class SmsFieldParser {
     private static final DateTimeFormatter DAY_FIRST =
             DateTimeFormatter.ofPattern("dd/MM/uuuu", Locale.ROOT).withResolverStyle(ResolverStyle.STRICT);
+
+    private static final DateTimeFormatter DAY_FIRST_WITH_TIME = DateTimeFormatter
+            .ofPattern("dd/MM/uuuu 'at' HH:mm", Locale.ROOT).withResolverStyle(ResolverStyle.STRICT);
 
     private SmsFieldParser() {}
 
@@ -59,6 +63,9 @@ final class SmsFieldParser {
                 date = LocalDate.parse(token, DateTimeFormatter.ISO_LOCAL_DATE);
             } else if (template.datePattern() == DatePattern.DAY_MONTH_YEAR && token.matches("[0-9]{2}/[0-9]{2}/[0-9]{4}")) {
                 date = LocalDate.parse(token, DAY_FIRST);
+            } else if (template.datePattern() == DatePattern.DAY_MONTH_YEAR_WITH_TIME
+                    && token.matches("[0-9]{2}/[0-9]{2}/[0-9]{4} at [0-9]{2}:[0-9]{2}")) {
+                date = LocalDateTime.parse(token, DAY_FIRST_WITH_TIME).toLocalDate();
             } else {
                 return null;
             }

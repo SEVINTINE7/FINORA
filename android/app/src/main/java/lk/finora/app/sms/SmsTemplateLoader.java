@@ -56,7 +56,7 @@ public final class SmsTemplateLoader {
                     List<String> delimiters = new ArrayList<>();
                     for (Field field : template.fields()) delimiters.add(field.delimiter());
                     for (String sender : template.senderIds()) {
-                        require(mappings.add(Arrays.asList(sender, template.markers().prefix(), delimiters)));
+                        require(mappings.add(Arrays.asList(sender, template.markers().prefix(), template.markers().suffix(), delimiters)));
                     }
                     templates.add(template);
                 }
@@ -86,8 +86,17 @@ public final class SmsTemplateLoader {
         DatePattern pattern = source == DateSource.MESSAGE ? DatePattern.valueOf(literal(values, "datePattern")) : null;
         ZoneId zone = source == DateSource.RECEIPT ? ZoneId.of(literal(values, "receiptZone")) : null;
         var markers = object(values.get("markers"));
-        checkKeys(markers, "prefix", "debit", "credit");
-        Markers rule = new Markers(literal(markers, "prefix"), literal(markers, "debit"), literal(markers, "credit"));
+        String suffix = "";
+        SmsParseResult.Direction requiredDirection = null;
+        if (markers.containsKey("suffix")) {
+            checkKeys(markers, "prefix", "debit", "credit", "suffix", "requiredDirection");
+            suffix = literal(markers, "suffix");
+            requiredDirection = SmsParseResult.Direction.valueOf(literal(markers, "requiredDirection"));
+        } else {
+            checkKeys(markers, "prefix", "debit", "credit");
+        }
+        Markers rule = new Markers(literal(markers, "prefix"), literal(markers, "debit"),
+                literal(markers, "credit"), suffix, requiredDirection);
         require(!rule.debit().equals(rule.credit()));
         List<String> senders = new ArrayList<>();
         Set<String> seen = new HashSet<>();

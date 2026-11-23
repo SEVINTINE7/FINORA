@@ -19,9 +19,9 @@ record SmsTemplate(String id, int version, List<String> senderIds, NumberStyle n
         }
     }
 
-    enum DatePattern { ISO, DAY_MONTH_YEAR }
+    enum DatePattern { ISO, DAY_MONTH_YEAR, DAY_MONTH_YEAR_WITH_TIME }
     enum DateSource { MESSAGE, RECEIPT }
-    enum Name { AMOUNT, DATE, DIRECTION, MERCHANT, CURRENCY }
-    record Markers(String prefix, String debit, String credit) {}
+    enum Name { AMOUNT, DATE, DIRECTION, MERCHANT, CURRENCY, RECIPIENT, ACCOUNT, BALANCE }
+    record Markers(String prefix, String debit, String credit, String suffix, SmsParseResult.Direction requiredDirection) {}
     record Field(Name name, String delimiter) {}
 }

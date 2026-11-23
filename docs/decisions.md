@@ -57,6 +57,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D34 T13.4 permission acceptance environment** — Sahan, exercising delegated Android-task approval authority, approved combining HMD Crest (Android 14) evidence for permanent denial and the FINORA App info link with isolated Android 17 emulator evidence for Settings-based revocation and regrant. On the HMD test profile, tapping Permissions left App info visible. The alternative applies only to T13.4. D30 remains in force, and T13.3, overall acceptance and independent review retain their existing requirements.
 
+- **D35 Bundled NSB alert formats (T13/T14)** — Sahan, exercising delegated Android-task approval authority, approved three bundled NSB alert variants: POS debit, outward CEFT debit and inward CEFT credit. Use exact SMS-provider address `NSB` for inbox filtering. This is a format constraint, with no sender authentication claim. Parse only the transaction amount and the message-local Asia/Colombo date, direction and POS merchant. Synthetic fixtures replace customer and financial details. Verify the local Paste SMS and inbox paths together while T13 and T14 are in progress. D30 and raw-SMS privacy remain in force. Formal dependency and independent review requirements, T45.3 ownership and remote contract, and T15 remain outside this approval.
+
 ## Proposed — still open
 
 - _None currently._
