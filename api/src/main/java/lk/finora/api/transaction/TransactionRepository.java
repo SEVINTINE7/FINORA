@@ -2,6 +2,7 @@ package lk.finora.api.transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,4 +46,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             + " AND t.txnDate >= :from AND t.txnDate <= :to"
             + " GROUP BY t.categoryId ORDER BY SUM(t.amount) DESC")
     List<Object[]> sumExpenseByCategory(Long userId, LocalDate from, LocalDate to);
+
+    // Which of these dedup hashes the user already has (CSV import duplicate check, T12)
+    @Query("SELECT t.dedupHash FROM Transaction t WHERE t.userId = :userId AND t.dedupHash IN :hashes")
+    List<String> findExistingDedupHashes(Long userId, Collection<String> hashes);
 }

@@ -52,13 +52,19 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T12 · CSV import · `FR03`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T10 · **Touches:** `api:importer/`, `and:ui/importer/`, `docs/csv-template.md`
-- [ ] T12.1 [API] Define template `date,type,amount,category,account,merchant,note` (date `YYYY-MM-DD`) in `docs/csv-template.md`
-- [ ] T12.2 [API] `POST /api/v1/imports/csv/preview` → parsed rows + per-row errors + duplicate flags; nothing saved
-- [ ] T12.3 [API] `POST /api/v1/imports/csv/confirm` saves selected rows (source=CSV, dedup_hash)
-- [ ] T12.4 [API] Limits: ≤1 MB, ≤2000 rows; reject cells starting with `= + - @` (formula injection)
+- [x] T12.1 [API] Define template `date,type,amount,category,account,merchant,note` (date `YYYY-MM-DD`) in `docs/csv-template.md`
+- [x] T12.2 [API] `POST /api/v1/imports/csv/preview` → parsed rows + per-row errors + duplicate flags; nothing saved
+- [x] T12.3 [API] `POST /api/v1/imports/csv/confirm` saves selected rows (source=CSV, dedup_hash)
+- [x] T12.4 [API] Limits: ≤1 MB, ≤2000 rows; reject cells starting with `= + - @` (formula injection)
 - [ ] T12.5 [AND·Sahan] Pick file → preview list → confirm
 
 **Done when**
 - [ ] Tests: valid file, bad dates/amounts, oversize, formula cells, re-import flags duplicates
+  - API side passing: `CsvImportControllerTest` (10), suite 267/267 on 2026-11-23. Ticked when T12.5 is done.
 
-**Handoff notes:** —
+**Handoff notes:**
+- API part done (T12.1–T12.4); decisions in **D25** (name lookup, hash + occurrence, confirm = JSON rows). Template: `docs/csv-template.md`; endpoints in `docs/api-contract.md`.
+- `api:importer/`: `CsvParser` (RFC 4180, in memory), `CsvImportService`, `CsvImportController`, `dto/`. `Transaction.dedupHash` is now mapped; `TransactionService.checkNew`/`createImported` reuse the T10 checks.
+- Confirm checks all rows first (any bad row → 400 `Line N: …`, nothing saved); duplicates are skipped and listed in `skippedDuplicateLines`. Formula check is repeated on confirm for merchant/note.
+- New: error code `FILE_TOO_LARGE` (413), multipart limit 1 MB in `application.yml`, `GlobalExceptionHandler` maps multipart errors → 400/413 and `DataIntegrityViolationException` → 409 `CONFLICT`.
+- T12.5 (Sahan): preview returns everything confirm needs, so send back each picked row's fields as-is, including `occurrence`. Rows with `errors` or `duplicate: true` can't be selected.
