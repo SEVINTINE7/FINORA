@@ -48,6 +48,7 @@ public final class InsightsActivity extends AppCompatActivity {
         if (!AccountListActivity.verify(this, model.patternsWork)) return;
         restoreEditor = model.rotatedDraft != null;
         var scroll = new ScrollView(this);
+        scroll.setBackgroundColor(getColor(R.color.finora_surface));
         var body = new LinearLayout(this);
         int padding = Math.round(16 * getResources().getDisplayMetrics().density);
         body.setPadding(padding, padding, padding, padding);
@@ -212,6 +213,7 @@ public final class InsightsActivity extends AppCompatActivity {
         var fields = new LinearLayout(this);
         fields.setOrientation(LinearLayout.VERTICAL);
         var scroll = new ScrollView(this);
+        scroll.setBackgroundColor(getColor(R.color.finora_surface));
         scroll.addView(fields);
         var current = model.declaration;
         DeclarationDraft draft = model.rotatedDraft;
@@ -313,6 +315,7 @@ public final class InsightsActivity extends AppCompatActivity {
     private TextView line(LinearLayout target, String text, boolean heading) {
         var view = new TextView(this);
         view.setText(text);
+        view.setTextColor(getColor(R.color.finora_ink));
         view.setTextSize(heading ? 20 : 16);
         int padding = Math.round(6 * getResources().getDisplayMetrics().density);
         view.setPadding(0, padding, 0, padding);
