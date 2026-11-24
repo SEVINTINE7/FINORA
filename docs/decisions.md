@@ -96,6 +96,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
   - V18 revisions identify deployments of approved content. Drafting copies the D35 bundle, publication checks its pinned digest, and activation atomically switches the active revision under a bank lock. Parser template versions and D36 payloads are unchanged. New parsing content requires separate approved definitions and fixtures.
   - Stored ticket text remains an allowlist of canonical subject/body pairs. An optional topic-specific error code supplements the ticket without introducing unstructured input. Only the owner and assignee can read it.
 
+- **D53 Remaining dependency implementation** — Sahan reports Sevindu authorized the relevant remaining implementation and integration covering T42, T44, T45, T35, T36 and their T41/T07.5 links, supplementing D49. This authorizes implementation while the associated formal prerequisite gates remain open. Ownership, independent review, approved SMS definitions, native-speaker approval, D51/T56 and infrastructure permissions remain unchanged.
+
 ## Proposed — still open
 
 - _None currently._
