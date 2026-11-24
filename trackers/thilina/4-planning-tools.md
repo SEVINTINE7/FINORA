@@ -14,7 +14,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] Tests: last day of month, income today, no income history, negative balance
 
 **Handoff notes:**
-- 2026-11-22 audit: T17/T18/T19 remain in-progress; financial balance, next-income and planned-savings missing-data policy needs Sevindu's approval. No new formula or endpoint implemented; T31 remains todo.
+- 2026-11-24: T31 backend candidate implemented against b70c36a. Java 17/MySQL 8 full Maven verify: 345/345 PASS, including 23 T31 tests and 27 concurrency tests; zero failures/errors/skips. JaCoCo gate passed. V8-to-V13 database upgrade passed. Contract approval, persistent income-date policy, Android integration, formal dependencies and independent review remain open.
 
 ---
 
