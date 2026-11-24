@@ -1,6 +1,8 @@
 package lk.finora.app.ui.transactions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
@@ -9,6 +11,23 @@ import org.junit.Test;
 import lk.finora.app.data.repo.TransactionRepository.Page;
 
 public class TransactionPaginationTest {
+    @Test public void reconciliationRequiresSuccessfulCurrentPageAfterFilterOrRetry() {
+        var pagination = new TransactionViewModel.Pagination();
+        assertFalse(pagination.hasCurrentResult());
+        pagination.loaded(new Page(Collections.emptyList(), 0, 2));
+        assertTrue(pagination.hasCurrentResult());
+        pagination.requested(1);
+        assertFalse(pagination.hasCurrentResult());
+        pagination.loaded(new Page(Collections.emptyList(), 1, 2));
+        assertTrue(pagination.hasCurrentResult());
+        pagination.reset();
+        assertFalse(pagination.hasCurrentResult());
+        pagination.requested(0);
+        assertFalse(pagination.hasCurrentResult());
+        pagination.loaded(new Page(Collections.emptyList(), 0, 0));
+        assertTrue(pagination.hasCurrentResult());
+    }
+
     @Test public void failedPageRequestRetriesTargetWhilePreviousPageRemainsVisible() {
         var pagination = new TransactionViewModel.Pagination();
         pagination.loaded(new Page(Collections.emptyList(), 0, 2));

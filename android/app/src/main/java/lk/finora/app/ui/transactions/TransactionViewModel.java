@@ -20,7 +20,6 @@ public final class TransactionViewModel extends ViewModel {
     List<CategoryDto> categories = Collections.emptyList();
     Filters filters = new Filters(null, null, null, null, null);
     final Pagination pagination = new Pagination();
-    boolean hasLoadedPage;
     boolean ready;
     private final TransactionRepository repository = work.requests == null ? null
             : new TransactionRepository(work.requests);
@@ -59,9 +58,12 @@ public final class TransactionViewModel extends ViewModel {
                 load(Math.min(index - 1, Math.max(0, result.totalPages() - 1)));
             } else {
                 pagination.loaded(result);
-                hasLoadedPage = true;
             }
         }, false);
+    }
+
+    boolean canFinishReview() {
+        return !work.busy() && work.error == 0 && pagination.hasCurrentResult();
     }
 
     void delete(long id) {
@@ -73,7 +75,6 @@ public final class TransactionViewModel extends ViewModel {
         accounts = Collections.emptyList();
         categories = Collections.emptyList();
         pagination.reset();
-        hasLoadedPage = false;
     }
 
     @Override protected void onCleared() { work.close(); }
@@ -81,18 +82,25 @@ public final class TransactionViewModel extends ViewModel {
     static final class Pagination {
         private Page page = new Page(Collections.emptyList(), 0, 0);
         private Integer requestedIndex;
+        private boolean loaded;
 
         Page page() { return page; }
 
         void requested(int index) { requestedIndex = index; }
+
+        boolean hasCurrentResult() { return loaded && requestedIndex == null; }
 
         int retryIndex() { return requestedIndex == null ? page.page() : requestedIndex; }
 
         void loaded(Page result) {
             page = result;
             requestedIndex = null;
+            loaded = true;
         }
 
-        void reset() { loaded(new Page(Collections.emptyList(), 0, 0)); }
+        void reset() {
+            loaded(new Page(Collections.emptyList(), 0, 0));
+            loaded = false;
+        }
     }
 }

@@ -56,7 +56,7 @@ public final class TransactionActivity extends AppCompatActivity {
         review = getIntent().getBooleanExtra(REVIEW_CREATE, false);
         if (review) {
             finishReview = button(content, R.string.transaction_records_reviewed, () -> {
-                if (verify() && !model.work.busy() && model.hasLoadedPage) {
+                if (verify() && model.canFinishReview()) {
                     setResult(RESULT_OK);
                     finish();
                 }
@@ -102,7 +102,7 @@ public final class TransactionActivity extends AppCompatActivity {
         filter.setEnabled(model.ready && !busy);
         previous.setEnabled(!busy && page.page() > 0);
         next.setEnabled(!busy && page.page() + 1 < page.totalPages());
-        if (finishReview != null) finishReview.setEnabled(!busy && model.hasLoadedPage);
+        if (finishReview != null) finishReview.setEnabled(model.canFinishReview());
         rows.removeAllViews();
         for (Row row : page.items()) {
             String description = getString(R.string.transaction_row, row.txnDate(),
