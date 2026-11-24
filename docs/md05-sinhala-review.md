@@ -1,6 +1,6 @@
 # MD05 English–Sinhala review inventory
 
-70 app resource pairs and four proposed saved replies from the source at the commit containing the latest changes to this inventory. The app pairs come from the English and Sinhala `strings.xml` files, and the saved replies come from the server-side `SupportCopy.java` catalog. Staff publication requires second-STAFF approval. Native-speaker approval is pending. The earlier 183 approved pairs retain their original scope.
+This inventory contains 70 MD05 app pairs and four bilingual saved replies pinned to `a9c54667a0f71b8b646fa8405405cfcd06819e00`, plus 29 dependency-screen pairs pinned separately below. Native-speaker approval is pending for these groups. The earlier 183 approved pairs retain their original scope. Staff reply publication requires second-STAFF approval.
 
 Automated linguistic review covered grammar and spelling, natural wording, financial and support terminology, EN/SI meaning and accessibility readability. Three Sinhala values were corrected: the FAQ now specifies supported message formats, publishing explicitly requires validated revisions, and the STAFF count says requests are assigned to no one. Final review incorporates six owner-specified resource corrections covering disabled users, ticket status, saved-reply loading, temporary STAFF passwords, and diagnostic report privacy. Saved reply text and formatting placeholders were preserved. Native-speaker review remains required.
 
@@ -78,6 +78,42 @@ Automated linguistic review covered grammar and spelling, natural wording, finan
 | `support_sms` | SMS permission | SMS අවසරය |
 | `support_ticket_summary` | Request %1$d · %2$s · %3$s | ඉල්ලීම %1$d · %2$s · %3$s |
 | `support_tickets` | Support requests | සහාය ඉල්ලීම් |
+
+## Dependency-screen resources
+
+The following 29 pairs are pinned to Android resources at `221758e44806baf9b1667c127b5e34c74e611f97`. They are a separate pending review group.
+
+| Resource | English | Sinhala |
+| --- | --- | --- |
+| `admin_category_kind` | Category kind | කාණ්ඩ වර්ගය |
+| `admin_category_name_en` | English category name | කාණ්ඩයේ ඉංග්‍රීසි නම |
+| `admin_category_name_si` | Sinhala category name | කාණ්ඩයේ සිංහල නම |
+| `admin_default_categories` | Default categories | පෙරනිමි කාණ්ඩ |
+| `admin_disable_user` | Disable user | පරිශීලකයා අක්‍රිය කරන්න |
+| `admin_enable_user` | Enable user | පරිශීලකයා සක්‍රිය කරන්න |
+| `admin_expense_kind` | Expense | වියදම |
+| `admin_inactive` | Disabled | අක්‍රිය කර ඇත |
+| `admin_income_kind` | Income | ආදායම |
+| `admin_manage_users` | Manage users | පරිශීලකයන් කළමනාකරණය කරන්න |
+| `admin_reason_policy` | Policy | ප්‍රතිපත්තිය |
+| `admin_reason_restored` | Access restored | ප්‍රවේශය යළි ලබා දී ඇත |
+| `admin_reason_security` | Security | ආරක්ෂාව |
+| `admin_reason_support` | Support request | සහාය ඉල්ලීම |
+| `admin_search` | Search | සොයන්න |
+| `admin_status_reason` | Reason for account status change | ගිණුමේ තත්ත්වය වෙනස් කිරීමට හේතුව |
+| `admin_user_search` | Email or name | විද්‍යුත් තැපැල් ලිපිනය හෝ නම |
+| `settings_delete_action` | Delete account | ගිණුම මකන්න |
+| `settings_delete_confirm` | Permanently delete your FINORA account and its data? This cannot be undone. | ඔබේ FINORA ගිණුම සහ එහි දත්ත ස්ථිරව මකන්නද? මෙය ආපසු හැරවිය නොහැක. |
+| `settings_export_data` | Download my data | මගේ දත්ත බාගන්න |
+| `settings_export_saved` | Data export saved. | දත්ත ගොනුව සුරකින ලදී. |
+| `sms_format_approved_match` | Definition matches the approved bundle. | මෙම ආකෘතිය අනුමත ආකෘති එකතුවට ගැළපේ. |
+| `sms_format_candidate` | Candidate format JSON | පරීක්ෂා කිරීමට ඇති ආකෘතියේ JSON |
+| `sms_format_candidate_unapproved` | Candidate is not approved for publication. | මෙම ආකෘතිය ප්‍රකාශයට පත් කිරීමට අනුමත වී නැත. |
+| `sms_format_sample_check` | Test a format locally | ආකෘතිය දුරකථනයේදීම පරීක්ෂා කරන්න |
+| `sms_format_sample_matched` | Sample parsed successfully. | උදාහරණයේ දත්ත සාර්ථකව හඳුනා ගන්නා ලදී. |
+| `sms_format_sample_result` | %1$s\n%2$s | %1$s\n%2$s |
+| `sms_format_sample_unmatched` | Sample was not parsed. | උදාහරණයේ දත්ත හඳුනාගත නොහැකි විය. |
+| `sms_format_synthetic_sample` | Synthetic SMS sample only | කෘත්‍රිම SMS උදාහරණයක් පමණි |
 
 ## Proposed saved replies
 

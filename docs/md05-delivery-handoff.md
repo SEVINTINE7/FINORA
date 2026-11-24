@@ -37,7 +37,7 @@ At each row, an independent human should review the linked evidence and exact im
 | MD05 | Sahan: T40, T48, T49, T51. Sevindu: T41, T43, T45, T46, T47, T56. Thilina: T52, T53. T43 follows T41; T46 follows T08/T43; T47 follows T46; T48 follows T46/T47; T49 follows T46/T45; T51 follows T38. | T40 awaits audible confirmation and authenticated release HTTPS. T47 has verified bounded redaction under D52 and awaits formal dependency closure and independent review. Thilina retains T52's full role/ownership/privacy matrix and CI and T53's deployment/provider and security evidence. [MD05 evidence](md05-implementation-checkpoint.md) · [Admin and STAFF](../trackers/sevindu/6-admin-staff.md) · [QA](../trackers/thilina/5-qa.md) |
 | Other relevant delegated prerequisites | Sevindu: T07, T35 and T36. Sahan: T07.4 and T07.5. | Registration evidence covers both consent gates. Settings now opens the T36 flow. The combined physical consent check, D15 re-consent and consent wording review remain open. [Consent tracker](../trackers/sevindu/2-auth.md) |
 
-Native-speaker approval is requested for the exact [70 app pairs and four saved replies at `a9c54667a0f71b8b646fa8405405cfcd06819e00`](md05-sinhala-review.md). Earlier approvals cover only their original 183 pairs. GitHub delivery itself still requires separate authorization.
+The [consolidated native-speaker inventory](md05-sinhala-review.md) includes the 70 app pairs and four saved replies at `a9c54667a0f71b8b646fa8405405cfcd06819e00` and 29 separately pinned dependency-screen pairs. All three groups await approval. Earlier approvals cover only their original 183 pairs.
 
 ### Operator sequence for the single listening pass
 
@@ -51,3 +51,19 @@ Native-speaker approval is requested for the exact [70 app pairs and four saved 
 - **T41.3 / T42 / T44, Sevindu.** ADMIN USER search and status changes, bilingual default categories and both dashboard links now have targeted MySQL and Android evidence. Review the status audit and credential revocation, V19 default-name isolation and handling of in-use defaults. The INDEX prerequisites and independent approval remain open.
 - **T45.1, T45.2 and T45.5, Sevindu with Sahan.** D35 covers the three pinned NSB definitions and synthetic examples. Android can edit a candidate and test a synthetic sample locally. Discard, immutable publication, activation, rollback and seeded-content parsing retain their evidence. Confirm the approval process for changed definitions and how to bind validation evidence to publication before allowing any modified remote definition. Keep raw SMS off the network.
 - **T35 / T36 / T07.5, Sevindu with Sahan.** Review the export data allowlist and file-picker flow, password-confirmed deletion under the D39 lock, anonymous audit and old-token rejection. T35 still needs exhaustive ownership fixtures across exported data families. T36's formal dependency on T35 and independent review remain open. T07 still needs its combined physical acceptance and D15's later re-consent path.
+
+### T07.5 physical acceptance preparation
+
+Use the authorized HMD Crest test profile, D50 package, isolated synthetic API and two disposable USER accounts. Stage this after the bilingual listening pass so consent withdrawal or account deletion cannot interrupt those checks.
+
+1. In both languages, open registration and confirm submission stays disabled with either the age or consent checkbox alone. With both checked, register the first disposable account and verify that the current consent version is returned by GET /api/v1/me.
+2. In Settings, switch to Sinhala and verify that the screen changes immediately and that GET /api/v1/me returns the new language without changing the name. Reopen the app and verify the saved locale.
+3. Withdraw consent from Settings. Verify that the refresh credential is revoked and that GET /api/v1/me returns a null consent version after a fresh synthetic login. Record the actual post-login behavior separately. The D15 re-consent prompt is still open.
+4. On the second disposable account, open Delete my data through Settings. Verify cancel leaves the account intact, an incorrect password leaves the account intact, and explicit confirmation with the correct password returns to sign-in. Verify old credentials are rejected using the isolated API.
+5. Retain only sanitized results, restore the test profile settings, and remove only temporary connectivity mappings.
+
+### Draft integration review
+
+A read-only merge simulation found a content conflict with Thilina's PR #13 in the API contract. PR #14 also edits that contract, and PRs #10–#12 edit the QA tracker. Those PRs and #15 simulated cleanly when checked individually. None changes a migration file. Reconcile the PR #13 contract additions with the MD05 sections at integration and retain the owners' QA scope.
+
+T45 publication still accepts only the hash-pinned D35 definitions. Before enabling server persistence and activation of changed mappings, the owner needs to approve a versioned authoring contract and a validation gate bound to the exact candidate digest and approved synthetic fixtures. The approved local editor and probe can be used without sending SMS text.
