@@ -49,6 +49,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - 2026-11-22 audit: recovered T27-T29 branch contains mocked client/verifier/fallback tests; historical 253-test result is branch-specific and was not rerun here. Real LLM pass-rate testing remains unauthorized; T29 acceptance blocks T54 completion. Do not report mocked results as real pass rates.
+- D44 now authorizes a bounded synthetic live check for T30 once approved models, isolated credentials and a numeric call budget are available. The T54 pass-rate evaluation and its T29 prerequisite remain open.
 
 ---
 
@@ -65,6 +66,7 @@ four deterministic validation tests and contribution evidence. No production see
 - [ ] `docs/evaluation.md` contains real measured numbers
 
 **Handoff notes:**
+- 2026-11-24 reconciliation: PR #12 retains the 826-transaction fixture, guarded rollback-only seeding and historical 4/4 focused and 261/261 full verification. Dataset and contribution evidence remain in docs. Real measurements remain open.
 - 2026-11-22 audit: T16/T38 remain todo; no device timing, SMS accuracy, SUS participants or ratings measurements available. T55 remains todo. Beta comparison wording also needs reconciliation with D03 V1-only scope before evaluation; no measurements invented.
 - Later 2026-11-22: built two-user synthetic Dec 2025–Nov 2026 dataset: 826 transactions, 24 budgets, 2 bills/18 paid markers, 2 goals/18 contributions and 21 declarations; existing V6 categories only. Loopback finora_test transaction guard, identity-collision refusal, no existing-row updates/deletes; actual rollback checked.
 - Focused 4/4 passed after correcting two hand-oracle arithmetic errors (initial 3 assertion failures). Database projection/totals, budget/goal consistency, ownership/control rows and refusal-before-write verified. Fresh full-suite/coverage evidence follows; no real bank/SMS/performance results collected.

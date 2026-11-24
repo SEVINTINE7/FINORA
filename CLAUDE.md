@@ -46,3 +46,7 @@ Android app + REST API that helps young adults in Sri Lanka (18–30) track spen
 8. Tasks marked **Detail: outline** must first be expanded (exact fields, endpoints, tests) and shown to the human before coding.
 
 `done` = human reviewed + tests passing.
+
+## Android testing and acceptance audits
+
+Before planning or running Android acceptance, follow the [Android acceptance testing guide](docs/android-acceptance-testing.md). It applies to MD05, the final MD01–MD05 audit, and subsequent testing. Complete autonomous preparation first, then group checks that require a person into as few sessions as practical.

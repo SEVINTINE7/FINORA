@@ -1,0 +1,82 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/finora_outer_margin">
+
+        <TextView
+            android:id="@+id/goal_form_heading"
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/goal_form_title" />
+
+        <EditText
+            android:id="@+id/form_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:hint="@string/records_name"
+            android:importantForAutofill="no"
+            android:inputType="textCapSentences"
+            android:minHeight="@dimen/finora_touch"
+            android:saveEnabled="false" />
+
+        <EditText
+            android:id="@+id/goal_target"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:hint="@string/goal_target"
+            android:importantForAutofill="no"
+            android:inputType="numberDecimal"
+            android:minHeight="@dimen/finora_touch"
+            android:saveEnabled="false" />
+
+        <EditText
+            android:id="@+id/goal_target_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/goal_target_date"
+            android:importantForAutofill="no"
+            android:inputType="date"
+            android:minHeight="@dimen/finora_touch"
+            android:saveEnabled="false" />
+
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/goal_target_date_hint" />
+
+        <TextView
+            android:id="@+id/records_status"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:accessibilityLiveRegion="polite" />
+
+        <Button
+            android:id="@+id/records_save"
+            style="@style/FinoraButton.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/records_save" />
+
+        <Button
+            android:id="@+id/records_retry"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/records_retry" />
+    </LinearLayout>
+</ScrollView>
