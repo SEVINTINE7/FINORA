@@ -76,6 +76,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
         historyAction = addFocusableRoute(moreActions, R.string.history_title, HistoryActivity.class);
         addMoreAction(moreActions, R.string.finance_help, FaqActivity.class);
+        addMoreAction(moreActions, R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class);
         LinearLayout recordActions = new LinearLayout(this);
         recordActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);

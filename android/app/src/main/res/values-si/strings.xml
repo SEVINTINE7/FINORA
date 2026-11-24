@@ -388,4 +388,27 @@
     <string name="sms_format_nsb">අනුමත NSB ආකෘතිය, අනුවාදය 1</string>
     <string name="sms_format_activate">අනුමත NSB ආකෘතිය සක්‍රිය කරන්න</string>
     <string name="sms_format_disable">අනුමත NSB ආකෘතිය අක්‍රිය කරන්න</string>
+    <string name="support_sign_in">පිවිසීම</string>
+    <string name="support_navigation">යෙදුම තුළ ගමන් කිරීම</string>
+    <string name="support_sms">SMS අවසරය</string>
+    <string name="support_language">භාෂාව</string>
+    <string name="support_catalog">සුරැකි පිළිතුරු</string>
+    <string name="support_tickets">සහාය ඉල්ලීම්</string>
+    <string name="support_draft">සුරැකි පිළිතුරක් කෙටුම්පත් කරන්න</string>
+    <string name="support_approve">පිළිතුර අනුමත කරන්න</string>
+    <string name="support_retire">පිළිතුර භාවිතයෙන් ඉවත් කරන්න</string>
+    <string name="support_privacy">සහාය මාතෘකාවක් තෝරන්න. FINORA යවන්නේ එම මාතෘකාවට අදාළ සම්මත ඉල්ලීම පමණි. මුරපද, කේත හෝ SMS පණිවිඩ බෙදා නොගන්න.</string>
+    <string name="support_create">නව සහාය ඉල්ලීම</string>
+    <string name="support_ticket_summary">ඉල්ලීම %1$d · %2$s · %3$s</string>
+    <string name="support_replies">පිළිතුරු බලන්න</string>
+    <string name="support_claim">ඉල්ලීම භාර ගන්න</string>
+    <string name="support_close">ඉල්ලීම වසන්න</string>
+    <string name="support_reply">සුරැකි පිළිතුරක් යවන්න</string>
+    <string name="support_load_replies">සුරැකි පිළිතුරු පූරණය කරන්න</string>
+    <string name="support_no_reply">අනුමත පිළිතුරු පූරණය වී නැත. සුරැකි පිළිතුරු පූරණය කර නැවත උත්සාහ කරන්න.</string>
+    <string name="support_in_progress">ක්‍රියාත්මකයි</string>
+    <string name="support_closed">වසා ඇත</string>
+    <string name="support_draft_state">කෙටුම්පත</string>
+    <string name="support_active">සක්‍රියයි</string>
+    <string name="support_retired">භාවිතයෙන් ඉවත් කර ඇත</string>
 </resources>
