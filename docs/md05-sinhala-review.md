@@ -1,6 +1,8 @@
 # MD05 English–Sinhala review inventory
 
-70 app resource pairs and four proposed saved replies pinned to `08a9f2b0b6f6e0ab5a73fc0be6507b4255907147`. The app pairs come from the English and Sinhala `strings.xml` files, and the saved replies come from the server-side `SupportCopy.java` catalog. Staff publication requires second-STAFF approval. Native-speaker approval is pending. The earlier 183 approved pairs retain their original scope.
+70 app resource pairs and four proposed saved replies from the source at the commit containing the latest changes to this inventory. The app pairs come from the English and Sinhala `strings.xml` files, and the saved replies come from the server-side `SupportCopy.java` catalog. Staff publication requires second-STAFF approval. Native-speaker approval is pending. The earlier 183 approved pairs retain their original scope.
+
+Automated linguistic review covered grammar and spelling, natural wording, financial and support terminology, EN/SI meaning and accessibility readability. Three Sinhala values were corrected: the FAQ now specifies supported message formats, publishing explicitly requires validated revisions, and the STAFF count says requests are assigned to no one. Saved reply text and formatting placeholders were preserved. Native-speaker review remains required.
 
 ## App resources
 
@@ -13,7 +15,7 @@
 | `faq_login_body` | Sign in using the email address and password for your FINORA account. If sign-in fails, check your connection and account details. Never share your password or a one-time code. | ඔබේ FINORA ගිණුමේ විද්‍යුත් තැපැල් ලිපිනය සහ මුරපදය භාවිත කර පිවිසෙන්න. පිවිසීමට නොහැකි නම් අන්තර්ජාල සම්බන්ධතාව සහ ගිණුම් විස්තර පරීක්ෂා කරන්න. මුරපදය හෝ එක් වරක් භාවිත කරන කේත කිසිවෙකු සමඟ බෙදා නොගන්න. |
 | `faq_navigation` | Where do I manage records and plans? | වාර්තා සහ සැලසුම් කළමනාකරණය කරන්නේ කොතැනින්ද? |
 | `faq_privacy` | What should I keep private? | පෞද්ගලිකව තබා ගත යුත්තේ මොනවාද? |
-| `faq_privacy_body` | Keep passwords, one-time codes, bank account details and full SMS messages private. FINORA checks supported bank messages on your phone. Review any extracted transaction before saving it. | මුරපද, එක් වරක් භාවිත කරන කේත, බැංකු ගිණුම් විස්තර සහ සම්පූර්ණ SMS පණිවිඩ පෞද්ගලිකව තබා ගන්න. FINORA සහාය දක්වන බැංකු පණිවිඩ ඔබේ දුරකථනයේදීම පරීක්ෂා කරයි. පණිවිඩයෙන් හඳුනාගත් ගනුදෙනුවක් සුරැකීමට පෙර එය පරීක්ෂා කරන්න. |
+| `faq_privacy_body` | Keep passwords, one-time codes, bank account details and full SMS messages private. FINORA checks supported bank messages on your phone. Review any extracted transaction before saving it. | මුරපද, එක් වරක් භාවිත කරන කේත, බැංකු ගිණුම් විස්තර සහ සම්පූර්ණ SMS පණිවිඩ පෞද්ගලිකව තබා ගන්න. FINORA සහාය දක්වන ආකෘතිවල බැංකු පණිවිඩ ඔබේ දුරකථනයේදීම පරීක්ෂා කරයි. පණිවිඩයෙන් හඳුනාගත් ගනුදෙනුවක් සුරැකීමට පෙර එය පරීක්ෂා කරන්න. |
 | `faq_title` | Frequently asked questions | නිතර අසන ප්‍රශ්න |
 | `sms_diagnostic_ack` | Acknowledge flag | ලැබුණු බව තහවුරු කරන්න |
 | `sms_diagnostic_acknowledged` | Acknowledged | ලැබුණු බව තහවුරු කර ඇත |
@@ -30,7 +32,7 @@
 | `sms_format_disable` | Disable approved NSB format | අනුමත NSB ආකෘතිය අක්‍රිය කරන්න |
 | `sms_format_draft` | Draft approved NSB bundle revision | අනුමත NSB එකතුවේ අනුවාදයක් කෙටුම්පත් කරන්න |
 | `sms_format_nsb` | Approved NSB format, version 1 | අනුමත NSB ආකෘතිය, අනුවාදය 1 |
-| `sms_format_publish` | Publish validated revision | වලංගු අනුවාදය ප්‍රකාශයට පත් කරන්න |
+| `sms_format_publish` | Publish validated revision | වලංගු බව තහවුරු කළ අනුවාදය ප්‍රකාශයට පත් කරන්න |
 | `sms_format_published` | Published | ප්‍රකාශිතයි |
 | `sms_format_revision` | NSB deployment revision %1$d · %2$s | NSB යෙදවීමේ අනුවාදය %1$d · %2$s |
 | `sms_format_revision_number` | Deployment revision number | යෙදවීමේ අනුවාද අංකය |
@@ -49,7 +51,7 @@
 | `staff_full_name` | Full name | සම්පූර්ණ නම |
 | `staff_manage` | Manage staff access | කාර්ය මණ්ඩල ප්‍රවේශය කළමනාකරණය කරන්න |
 | `staff_new_password` | New password | නව මුරපදය |
-| `staff_queue_counts` | My open tickets: %1$d\nUnassigned tickets: %2$d | මට පැවරූ විවෘත සහාය ඉල්ලීම්: %1$d\nපවරා නොමැති සහාය ඉල්ලීම්: %2$d |
+| `staff_queue_counts` | My open tickets: %1$d\nUnassigned tickets: %2$d | මට පැවරූ විවෘත සහාය ඉල්ලීම්: %1$d\nකිසිවෙකුට පවරා නැති සහාය ඉල්ලීම්: %2$d |
 | `staff_reissue` | Replace temporary password | තාවකාලික මුරපදය ප්‍රතිස්ථාපනය කරන්න |
 | `staff_secret_once` | %1$s\n\nShown once. Share it only through the approved secure channel. It expires in 24 hours. | %1$s\n\nඑක් වරක් පමණක් පෙන්වයි. අනුමත ආරක්ෂිත මාර්ගයෙන් පමණක් බෙදා ගන්න. පැය 24කින් කල් ඉකුත් වේ. |
 | `staff_temporary` | Temporary staff password | කාර්ය මණ්ඩල තාවකාලික මුරපදය |
