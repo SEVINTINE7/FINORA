@@ -77,4 +77,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Handoff notes:**
 - D41 permits early implementation with T23 open. V10 preserves exact monthly amounts and nullable scores. Dirty months show pending until recalculation succeeds after commit, and phase-one D39 owner-lock ordering is retained.
 - MySQL verified idempotence, the Colombo year boundary, rollback, a cross-month edit, exact JSON facts and API isolation. A scored past-month edit changed the saved 92 to the recalculated D20 score. A separate MySQL connection observed the worker block on the finance owner lock until commit.
-- The isolated scheduler and emulator showed October net 866.85 then 766.85 after edit, a null score, and a separate 92/100 trend. Physical History verification, formal dependencies and independent review remain open.
+- The isolated scheduler and emulator showed October net 866.85 then 766.85 after edit, a null score, and a separate 92/100 trend. Formal dependencies and independent review remain open.
+- HMD verified Sinhala History totals, score, Back and the three spoken labels. Multi-month outage recovery awaits an approved cutoff and historical reconstruction policy. The scheduler still follows D27.

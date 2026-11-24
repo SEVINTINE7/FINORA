@@ -39,6 +39,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - HMD Android 14 opened the implemented Records, Plan, Insights and More destinations and exercised Back. Home refreshed after transaction create, edit and delete and isolated two disposable logins. Prior emulator evidence covers selected-tab recreation.
 - Isolated Android 17 verified every existing list after real API create, edit and delete with list re-entry: accounts, categories, transactions, budgets, bills and goals. Transaction mutations also refreshed Home and Insights. Plan selection survived landscape recreation.
 - The emulator opened History and Advice against real USER endpoints. Form-driven create, edit and delete refreshed account, category, budget, bill and goal lists. HMD Android 14 verified History totals, score and Back. The remaining form-driven matrix and physical rotation stay open.
+- The [final acceptance matrix](../../docs/md04-final-acceptance.md) records the additional form checks and the HMD test-profile rotation restriction. Full dependent-screen refresh acceptance remains open.
 
 ---
 
@@ -77,3 +78,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - D41 permits early implementation with T25, T29 and T38 open. Published V1 contracts preserve the existing verifier and canonical fallback, a stable monthly delivery ID and one owner rating.
 - MySQL verified stable rule delivery, exact facts, owner/role checks and concurrent rating results 201/409. Existing verifier and provider fallback suites passed with mocks.
 - Isolated Android and HMD Android 14 matched LKR 50.23 in English and Sinhala. A dropped 201 reconciled rating 5 with GET and a single POST on both devices. Live-provider evidence remains open.
+- MySQL V12 coordinates first delivery across instances without holding a database lock during provider calls. HMD retained the saved rating after the upgrade and Sahan confirmed its Sinhala TalkBack label.
