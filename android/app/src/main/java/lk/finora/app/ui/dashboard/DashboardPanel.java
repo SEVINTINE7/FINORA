@@ -1,5 +1,6 @@
 package lk.finora.app.ui.dashboard;
 
+import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -103,9 +104,9 @@ public final class DashboardPanel {
     }
 
     private void showSnapshot(DashboardRepository.Snapshot value) {
-        line(results, getContext().getString(R.string.dashboard_income, amount(value.income())), false);
-        line(results, getContext().getString(R.string.dashboard_expense, amount(value.expense())), false);
-        line(results, getContext().getString(R.string.dashboard_net, amount(value.net())), false);
+        totalCard(R.string.dashboard_income, value.income());
+        totalCard(R.string.dashboard_expense, value.expense());
+        totalCard(R.string.dashboard_net, value.net());
         if (value.income().signum() == 0 && value.expense().signum() == 0) {
             line(results, getContext().getText(R.string.dashboard_empty), false);
         }
@@ -132,6 +133,19 @@ public final class DashboardPanel {
             line(results, getContext().getString(R.string.dashboard_expense, amount(row.expense())), false);
             line(results, getContext().getString(R.string.dashboard_net, amount(row.net())), false);
         }
+    }
+
+    private void totalCard(int label, BigDecimal total) {
+        TextView card = line(results, getContext().getString(label, amount(total)), false);
+        var background = new GradientDrawable();
+        background.setColor(getContext().getColor(R.color.finora_navy));
+        background.setStroke(dp(1), getContext().getColor(R.color.finora_navy_line));
+        background.setCornerRadius(dp(12));
+        card.setBackground(background);
+        card.setPadding(dp(12), dp(9), dp(12), dp(9));
+        var params = (LinearLayout.LayoutParams) card.getLayoutParams();
+        params.bottomMargin = dp(4);
+        card.setLayoutParams(params);
     }
 
     private String monthLabel(YearMonth value) {
