@@ -250,4 +250,13 @@
     <string name="sms_direction_debit">Debit</string>
     <string name="sms_direction_credit">Credit</string>
     <string name="sms_needs_review">Needs manual review.</string>
+    <string name="sms_transaction_preview">Review SMS transactions</string>
+    <string name="sms_preview_unavailable">Review and edit here. Saving SMS transactions is unavailable.</string>
+    <string name="sms_preview_choices_unavailable">Could not load accounts or categories. Reopen the preview to try again.</string>
+    <string name="sms_preview_date">Date: %1$s</string>
+    <string name="sms_preview_no_selection">None selected</string>
+    <string name="sms_preview_include">Include this transaction</string>
+    <string name="sms_preview_apply">Apply to preview</string>
+    <string name="sms_preview_selected">Selected: %1$s</string>
+    <string name="sms_preview_deselected">Not selected: %1$s</string>
 </resources>

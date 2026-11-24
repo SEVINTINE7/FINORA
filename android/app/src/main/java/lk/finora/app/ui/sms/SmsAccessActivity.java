@@ -47,6 +47,8 @@ public final class SmsAccessActivity extends AppCompatActivity {
     private TextView status;
     private Button scan;
     private TextView scanResult;
+    private Button previewButton;
+    private SmsTransactionPreview preview;
     private final SmsLocalTask scanTask = new SmsLocalTask();
 
     @Override
@@ -71,6 +73,9 @@ public final class SmsAccessActivity extends AppCompatActivity {
         status = findViewById(R.id.sms_status);
         scan = findViewById(R.id.sms_scan);
         scanResult = findViewById(R.id.sms_scan_result);
+        preview = new SmsTransactionPreview(this, store, entryIdentity);
+        previewButton = findViewById(R.id.sms_scan_preview);
+        previewButton.setOnClickListener(view -> { if (verifySession() && canScan()) preview.open(); });
         scan.setOnClickListener(view -> scanInbox());
         allow.setOnClickListener(view -> requestInboxAccess());
         settings.setOnClickListener(view -> openAppSettings());
@@ -113,6 +118,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
 
     @Override protected void onDestroy() {
         scanTask.close();
+        if (preview != null) preview.close();
         super.onDestroy();
     }
 
@@ -173,6 +179,8 @@ public final class SmsAccessActivity extends AppCompatActivity {
 
     private void scanInbox() {
         if (!verifySession() || !canScan()) return;
+        preview.clear();
+        previewButton.setVisibility(View.GONE);
         scan.setEnabled(false);
         scanResult.setText(R.string.records_loading);
         scanTask.start((signal, cancelled) -> {
@@ -200,6 +208,12 @@ public final class SmsAccessActivity extends AppCompatActivity {
                             text.append(SmsLocalResults.text(this, parsed));
                         }
                         scanResult.setText(text);
+                        var parsedRows = new java.util.ArrayList<lk.finora.app.sms.SmsParseResult.Parsed>();
+                        for (var row : result.results()) {
+                            if (row instanceof lk.finora.app.sms.SmsParseResult.Parsed parsed) parsedRows.add(parsed);
+                        }
+                        preview.replace(parsedRows);
+                        if (!parsedRows.isEmpty()) previewButton.setVisibility(View.VISIBLE);
                     }
                 }
                 default -> scanResult.setText(R.string.sms_scan_failed);
@@ -213,6 +227,8 @@ public final class SmsAccessActivity extends AppCompatActivity {
     }
 
     private void clearScan() {
+        if (preview != null) preview.clear();
+        if (previewButton != null) previewButton.setVisibility(View.GONE);
         scanTask.cancel();
         if (scan != null) scan.setEnabled(true);
         if (scanResult != null) scanResult.setText("");

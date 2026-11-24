@@ -250,4 +250,13 @@
     <string name="sms_direction_debit">හර</string>
     <string name="sms_direction_credit">බැර</string>
     <string name="sms_needs_review">අතින් පරීක්ෂා කිරීම අවශ්‍යයි.</string>
+    <string name="sms_transaction_preview">SMS ගනුදෙනු පරීක්ෂා කරන්න</string>
+    <string name="sms_preview_unavailable">මෙහි පරීක්ෂා කර සංස්කරණය කරන්න. SMS ගනුදෙනු සුරැකීම ලබා ගත නොහැක.</string>
+    <string name="sms_preview_choices_unavailable">ගිණුම් හෝ කාණ්ඩ ලබා ගත නොහැකි විය. නැවත උත්සාහ කිරීමට පෙරදසුන විවෘත කරන්න.</string>
+    <string name="sms_preview_date">දිනය: %1$s</string>
+    <string name="sms_preview_no_selection">තෝරා නැත</string>
+    <string name="sms_preview_include">මෙම ගනුදෙනුව ඇතුළත් කරන්න</string>
+    <string name="sms_preview_apply">පෙරදසුනට යොදන්න</string>
+    <string name="sms_preview_selected">තෝරා ඇත: %1$s</string>
+    <string name="sms_preview_deselected">තෝරා නැත: %1$s</string>
 </resources>

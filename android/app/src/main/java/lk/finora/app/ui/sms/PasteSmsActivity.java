@@ -22,6 +22,8 @@ public final class PasteSmsActivity extends AppCompatActivity {
     private Object loginIdentity;
     private TextView result;
     private Button paste;
+    private Button previewButton;
+    private SmsTransactionPreview preview;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -38,6 +40,9 @@ public final class PasteSmsActivity extends AppCompatActivity {
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_paste_title), true);
         result = findViewById(R.id.sms_paste_result);
         paste = findViewById(R.id.sms_paste_action);
+        preview = new SmsTransactionPreview(this, store, loginIdentity);
+        previewButton = findViewById(R.id.sms_paste_preview);
+        previewButton.setOnClickListener(view -> { if (verifySession()) preview.open(); });
         paste.setOnClickListener(view -> paste());
     }
 
@@ -59,6 +64,7 @@ public final class PasteSmsActivity extends AppCompatActivity {
 
     @Override protected void onDestroy() {
         task.close();
+        if (preview != null) preview.close();
         super.onDestroy();
     }
 
@@ -73,6 +79,8 @@ public final class PasteSmsActivity extends AppCompatActivity {
 
     private void paste() {
         if (!verifySession()) return;
+        preview.clear();
+        previewButton.setVisibility(android.view.View.GONE);
         var clipboard = getSystemService(ClipboardManager.class);
         CharSequence message;
         try {
@@ -102,15 +110,22 @@ public final class PasteSmsActivity extends AppCompatActivity {
             try {
                 var parser = SmsLocalResults.load(this, store, loginIdentity, signal, cancelled);
                 if (parser.approvedSenderIds().isEmpty()) {
-                    return getString(R.string.sms_no_formats) + "\n" + getString(R.string.sms_needs_review);
+                    return new PasteResult(getString(R.string.sms_no_formats) + "\n"
+                            + getString(R.string.sms_needs_review), null);
                 }
-                return SmsLocalResults.text(this, SmsPasteInput.parse(parser, raw, cancelled));
+                var parsed = SmsPasteInput.parse(parser, raw, cancelled);
+                return new PasteResult(SmsLocalResults.text(this, parsed),
+                        parsed instanceof lk.finora.app.sms.SmsParseResult.Parsed value ? value : null);
             } catch (IOException invalidBundle) {
-                return getString(R.string.sms_scan_failed);
+                return new PasteResult(getString(R.string.sms_scan_failed), null);
             }
         }, text -> {
             if (!verifySession()) return;
-            result.setText(text);
+            result.setText(text.label());
+            if (text.parsed() != null) {
+                preview.replace(java.util.List.of(text.parsed()));
+                previewButton.setVisibility(android.view.View.VISIBLE);
+            }
             paste.setEnabled(true);
         }, () -> {
             if (!verifySession()) return;
@@ -119,7 +134,11 @@ public final class PasteSmsActivity extends AppCompatActivity {
         });
     }
 
+    private record PasteResult(String label, lk.finora.app.sms.SmsParseResult.Parsed parsed) {}
+
     private void clear() {
+        if (preview != null) preview.clear();
+        if (previewButton != null) previewButton.setVisibility(android.view.View.GONE);
         task.cancel();
         if (result != null) result.setText("");
         if (paste != null) paste.setEnabled(true);

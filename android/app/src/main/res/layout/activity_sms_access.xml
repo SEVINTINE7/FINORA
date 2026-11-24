@@ -67,6 +67,14 @@
             android:saveEnabled="false" />
 
         <Button
+            android:id="@+id/sms_scan_preview"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_transaction_preview"
+            android:visibility="gone" />
+
+        <Button
             android:id="@+id/sms_no_thanks_action"
             style="@style/FinoraButton.Secondary"
             android:layout_width="match_parent"
