@@ -1,8 +1,8 @@
 # MD05 English–Sinhala review inventory
 
-This inventory contains 70 MD05 app pairs and four bilingual saved replies pinned to `a9c54667a0f71b8b646fa8405405cfcd06819e00`, plus 29 dependency-screen pairs pinned separately below. Native-speaker approval is pending for these groups. The earlier 183 approved pairs retain their original scope. Staff reply publication requires second-STAFF approval.
+On 2026-11-25, Sahan explicitly approved the 106 application pairs and four bilingual saved replies below, subject to the three exact Sinhala corrections now shown. The approved application values are pinned to resource commit `80d5c200bb1464f6de80742e5363f6d6b72f4f95`. The four replies retain their exact values from `a9c54667a0f71b8b646fa8405405cfcd06819e00`. The earlier 183 approvals retain their original scope. Operational publication of STAFF replies still requires second-STAFF approval.
 
-Automated linguistic review covered grammar and spelling, natural wording, financial and support terminology, EN/SI meaning and accessibility readability. Three Sinhala values were corrected: the FAQ now specifies supported message formats, publishing explicitly requires validated revisions, and the STAFF count says requests are assigned to no one. Final review incorporates six owner-specified resource corrections covering disabled users, ticket status, saved-reply loading, temporary STAFF passwords, and diagnostic report privacy. Saved reply text and formatting placeholders were preserved. Native-speaker review remains required.
+Automated linguistic review covered grammar and spelling, natural wording, financial and support terminology, EN/SI meaning and accessibility readability. Three Sinhala values were corrected: the FAQ now specifies supported message formats, publishing explicitly requires validated revisions, and the STAFF count says requests are assigned to no one. Final review incorporates six owner-specified resource corrections covering disabled users, ticket status, saved-reply loading, temporary STAFF passwords, and diagnostic report privacy. Saved reply text and formatting placeholders were preserved. The three final corrections cover the re-consent title, restored-consent feedback and permanent-deletion confirmation.
 
 ## App resources
 
@@ -81,7 +81,7 @@ Automated linguistic review covered grammar and spelling, natural wording, finan
 
 ## Dependency-screen resources
 
-The following 29 pairs are pinned to Android resources at `221758e44806baf9b1667c127b5e34c74e611f97`. They are a separate pending review group.
+These 29 pairs originated at `221758e44806baf9b1667c127b5e34c74e611f97`. The corrected deletion confirmation is pinned by the approval revision above.
 
 | Resource | English | Sinhala |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ The following 29 pairs are pinned to Android resources at `221758e44806baf9b1667
 | `admin_status_reason` | Reason for account status change | ගිණුමේ තත්ත්වය වෙනස් කිරීමට හේතුව |
 | `admin_user_search` | Email or name | විද්‍යුත් තැපැල් ලිපිනය හෝ නම |
 | `settings_delete_action` | Delete account | ගිණුම මකන්න |
-| `settings_delete_confirm` | Permanently delete your FINORA account and its data? This cannot be undone. | ඔබේ FINORA ගිණුම සහ එහි දත්ත ස්ථිරව මකන්නද? මෙය ආපසු හැරවිය නොහැක. |
+| `settings_delete_confirm` | Permanently delete your FINORA account and its data? This cannot be undone. | ඔබේ FINORA ගිණුම සහ එහි දත්ත ස්ථිරව මකා දමන්නද? මෙම ක්‍රියාව ආපසු හැරවිය නොහැක. |
 | `settings_export_data` | Download my data | මගේ දත්ත බාගන්න |
 | `settings_export_saved` | Data export saved. | දත්ත ගොනුව සුරකින ලදී. |
 | `sms_format_approved_match` | Definition matches the approved bundle. | මෙම ආකෘතිය අනුමත ආකෘති එකතුවට ගැළපේ. |
@@ -126,7 +126,7 @@ The following 29 pairs are pinned to Android resources at `221758e44806baf9b1667
 
 ## D54 ADMIN validation labels
 
-These two pairs are pinned to Android resources at `9da27f3` and await native-speaker approval. Earlier entries remain unchanged.
+These two pairs were introduced at `9da27f3` and are included in the approval above.
 
 | Resource | English | Sinhala |
 | --- | --- | --- |
@@ -135,12 +135,12 @@ These two pairs are pinned to Android resources at `9da27f3` and await native-sp
 
 ## D54 restricted consent labels
 
-These five pairs are pinned to Android resources at `6804384` and await native-speaker approval alongside the two ADMIN validation pairs above.
+These five pairs were introduced at `6804384`. The two corrected Sinhala labels are included at the approval revision above.
 
 | Resource | English | Sinhala |
 | --- | --- | --- |
-| `consent_recover_title` | Review your consent | ඔබේ කැමැත්ත යළි පරීක්ෂා කරන්න |
+| `consent_recover_title` | Review your consent | ඔබේ එකඟතාව නැවත පරීක්ෂා කරන්න |
 | `consent_continue` | Agree and return to sign-in | එකඟ වී පිවිසීමේ තිරයට ආපසු යන්න |
-| `consent_restored` | Consent restored. Sign in again. | කැමැත්ත යළි ලබා දී ඇත. නැවත පිවිසෙන්න. |
+| `consent_restored` | Consent restored. Sign in again. | ඔබේ එකඟතාව නැවත සටහන් කර ඇත. නැවත පිවිසෙන්න. |
 | `consent_deleted` | Your account was deleted. | ඔබේ ගිණුම මකා දමා ඇත. |
 | `consent_retry` | Could not confirm the result. Sign in again before trying again. | ප්‍රතිඵලය තහවුරු කළ නොහැක. නැවත උත්සාහ කිරීමට පෙර යළි පිවිසෙන්න. |

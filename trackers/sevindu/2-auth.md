@@ -64,5 +64,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Handoff notes:**
 - D54/V21 adds password-authenticated, five-minute, single-use consent grants. The restricted flow issues no normal tokens. It preserves authorized T35 export and password-confirmed T36 deletion.
 - Acceptance requires the current consent version and a fresh password sign-in afterwards. MySQL verified revoked sessions, expiry, replacement, replay, invalid version, explicit acceptance and competing requests.
-- Android 17 and the Android 14 HMD Crest verified withdrawal, restricted sign-in, explicit acceptance and fresh sign-in. The isolated HMD API retained the revoked prior refresh credential and issued a new session after recovery. EN/SI consent-copy review remains open.
+- Android 17 and the Android 14 HMD Crest verified withdrawal, restricted sign-in, explicit acceptance and fresh sign-in. The isolated HMD API retained the revoked prior refresh credential and issued a new session after recovery. Sahan approved the corrected MD05 consent and deletion labels at `80d5c20`. Registration consent copy outside that inventory remains separate.
 - Original task ownership, prerequisites and independent review remain in force.

@@ -11,9 +11,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T40.3 Handle network loss, process death, rotation and expired session gracefully
 
 **Done when**
-- [ ] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
+- [x] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** D45/D50/D51. The fixed HMD debug build restored USER Help and Support (EN/SI) and STAFF Support focus and protected Recents. Expiry, replacement-account isolation and offline evidence remain valid. The 2026-11-25 HMD session bound TalkBack and staged USER FAQ and STAFF reply preview; there was no confirmed audible wording. Scoped acceptance-app Logcat showed zero credential or SMS pattern matches in 326 lines. The manual checklist and D51/T56 authenticated release HTTPS remain open.
+**Handoff notes:** D45/D50/D51. The fixed HMD debug build restored USER Help and Support (EN/SI) and STAFF Support focus and protected Recents. Expiry, replacement-account isolation and offline evidence remain valid. On 2026-11-25 Sahan confirmed all staged USER FAQ/Support, STAFF reply, Back, retry and expired-session labels were audible and correct in EN/SI. Isolated acceptance-app Logcat had zero credential or SMS pattern matches across the retained consent and listening checks. This closes the physical checklist. T40.1 remains open for D51/T56 authenticated release HTTPS.
 
 ---
 

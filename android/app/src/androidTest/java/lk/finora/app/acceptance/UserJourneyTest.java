@@ -433,16 +433,41 @@ public class UserJourneyTest {
             enter(R.id.password, "Test-" + identity + "-9");
             clickId(R.id.sign_in);
             awaitText(sinhala.getString(R.string.consent_recover_title));
+            onView(withText(R.string.consent_recover_title)).inRoot(isDialog()).check(unclippedConsentLabel());
             onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal())
                     .check(matches(not(isEnabled())));
             onView(withText(R.string.register_consent)).inRoot(isDialog()).perform(reveal(), activateControl());
             onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal(), activateControl());
             awaitText(sinhala.getString(R.string.consent_restored));
+            onView(withText(R.string.consent_restored)).perform(reveal()).check(unclippedConsentLabel());
             awaitActivity(LoginActivity.class);
             enter(R.id.password, "Test-" + identity + "-9");
             clickId(R.id.sign_in);
             awaitActivity(lk.finora.app.ui.main.MainActivity.class);
+            tab(R.string.more_tab);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            clickText(R.string.settings_delete);
+            onView(withId(android.R.id.message)).inRoot(isDialog())
+                    .check(matches(withText(R.string.settings_delete_confirm))).check(unclippedConsentLabel());
+            onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(activateControl());
         }
+    }
+
+    private static androidx.test.espresso.ViewAssertion unclippedConsentLabel() {
+        return (view, failure) -> {
+            if (failure != null) throw failure;
+            assertTrue(isDisplayed().matches(view));
+            var label = (android.widget.TextView) view;
+            var layout = label.getLayout();
+            assertNotNull(layout);
+            assertTrue(layout.getHeight() <= label.getHeight() - label.getCompoundPaddingTop()
+                    - label.getCompoundPaddingBottom());
+            for (int line = 0; line < layout.getLineCount(); line++) {
+                assertEquals(0, layout.getEllipsisCount(line));
+                assertTrue(layout.getLineMax(line) <= layout.getWidth() + 1f);
+            }
+        };
     }
 
     @Test public void adminEditsValidatesPublishesActivatesAndRollsBackNsbDraft() {

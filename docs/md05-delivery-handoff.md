@@ -1,17 +1,17 @@
 # FINORA delivery handoff through MD05
 
-Tracked technical acceptance is **82/84**. MD01–MD04 retain 68/68 and MD05 retains 14/16. T40.1 and T40's device checklist are the two open MD05 boxes. Other tasks retain their original ownership, formal approvals and prerequisite order.
+Tracked technical acceptance is **83/84**. MD01–MD04 retain 68/68 and MD05 is 15/16. T40.1 is the sole open MD05 technical box. Other tasks retain their original ownership, formal approvals and prerequisite order.
 
-## One physical listening pass
+## Completed physical listening pass
 
-Use the HMD Crest's existing isolated test profile and the D50 package. The operator stages each screen and moves focus. The listener only confirms the words heard, plus any missing or unintelligible labels. Leave TalkBack on across both languages, then restore the profile, font and accessibility settings.
+On 2026-11-25, Sahan confirmed every listed label in both languages during one isolated D50 HMD Crest session. The table preserves the exact scope of his confirmation.
 
 | Stage | Confirm audible in English and Sinhala |
 | --- | --- |
-| USER FAQ | Help entry, FAQ title and heading, then Help after Back |
-| USER Support | Support entry, ticket status and reply action, then Support after Back |
-| STAFF Support | Assigned ticket status, saved-reply choice, preview and confirmation, then Support after Back |
-| Privacy feedback | User-facing retry and expired-session wording when staged with synthetic data |
+| USER FAQ | Help / උදව්, Frequently asked questions / නිතර අසන ප්‍රශ්න, first sign-in question, then Help / උදව් after Back |
+| USER Support | Support requests / සහාය ඉල්ලීම්, In progress / කටයුතු සිදු වෙමින් පවතී, View replies / පිළිතුරු බලන්න, then the Support entry after Back |
+| STAFF Support | Assigned ticket status, Send a saved reply / සුරැකි පිළිතුරක් යවන්න, both language choices, selected preview and confirmation, then the Support entry after Back |
+| Privacy feedback | Retry / නැවත උත්සාහ කරන්න and Please sign in again / කරුණාකර නැවත පිවිසෙන්න |
 
 Use retained focus, layout, Recents and session evidence. Android reports accessibility audio activity without its words. Its public playback capture API does not capture accessibility audio usage. Avoid using audio activity, text-to-speech logs or UI node text as proof of audibility. [Android playback capture](https://developer.android.com/reference/android/media/AudioPlaybackCaptureConfiguration)
 
@@ -34,12 +34,12 @@ At each row, an independent human should review the linked evidence and exact im
 | Foundation and MD01 | Sevindu: T01 and T09. Sahan: T08, T39. T40/T41/T46 wait on T08. T10/T38/T44 wait on T09. | T01 records decisions and local setup. T08 has physical role-routing and lifecycle evidence. T39 has locale, TalkBack and source review evidence. T09 has physical account/category acceptance. Record exact-revision independent approval, including T08, T09 and T39 already in review. [Android foundation](../trackers/sahan/1-app-skeleton.md) · [Records](../trackers/sevindu/3-records.md) |
 | MD02 and MD03 | Sevindu: T10, T12 and T45.3. Sahan: T11, T13, T14, T15, T16. T11/T12/T15 need T10. T14 needs T13 and T45.3. T15/T16 need T14. | Exact-cent CRUD, CSV, SMS permissions, parser and batch evidence are retained. D28–D36 early-start records preserve the formal gates. Independently approve T13 in review, then inspect T14/T15/T16 using their synthetic and physical evidence. [Entry and SMS](../trackers/sahan/2-entry-sms.md) · [SMS quality](../trackers/sahan/3-sms-quality.md) |
 | MD04 and analytics | Sevindu: T17–T19, T33. Thilina: T21, T23, T25–T29. Sahan: T20, T24, T30, T38. T09 → T38; T10/T17 → T20; T23/T38 → T24; T23 → T33; T25/T29/T38 → T30. | MD04 is 20/20 and delegated T33 is 5/5. Owner decisions, upstream planning acceptance and independent review remain. T25/T26 precede live T27/T28 validation, and T29 feeds T30. Live provider checks need approved models, credentials and a call budget. [MD04 evidence](md04-authorized-closure.md) · [AI tracker](../trackers/thilina/3-ai-pipeline.md) |
-| MD05 | Sahan: T40, T48, T49, T51. Sevindu: T41, T43, T45, T46, T47, T56. Thilina: T52, T53. T43 follows T41; T46 follows T08/T43; T47 follows T46; T48 follows T46/T47; T49 follows T46/T45; T51 follows T38. | T40 awaits audible confirmation and authenticated release HTTPS. T47 has verified bounded redaction under D52 and awaits formal dependency closure and independent review. Thilina retains T52's full role/ownership/privacy matrix and CI and T53's deployment/provider and security evidence. [MD05 evidence](md05-implementation-checkpoint.md) · [Admin and STAFF](../trackers/sevindu/6-admin-staff.md) · [QA](../trackers/thilina/5-qa.md) |
-| Other relevant delegated prerequisites | Sevindu: T07, T35 and T36. Sahan: T07.4 and T07.5. | Registration evidence covers both consent gates. Settings now opens the T36 flow. HMD instrumentation verified both consent gates, withdrawal, D15 re-consent and fresh sign-in. Settings switched to Sinhala and saved it. T07 is in review; consent wording review remains open. [Consent tracker](../trackers/sevindu/2-auth.md) |
+| MD05 | Sahan: T40, T48, T49, T51. Sevindu: T41, T43, T45, T46, T47, T56. Thilina: T52, T53. T43 follows T41; T46 follows T08/T43; T47 follows T46; T48 follows T46/T47; T49 follows T46/T45; T51 follows T38. | T40 physical acceptance is complete. Authenticated release HTTPS remains open under D51/T56. T47 has verified bounded redaction under D52 and awaits formal dependency closure and independent review. Thilina retains T52's full role/ownership/privacy matrix and CI and T53's deployment/provider and security evidence. [MD05 evidence](md05-implementation-checkpoint.md) · [Admin and STAFF](../trackers/sevindu/6-admin-staff.md) · [QA](../trackers/thilina/5-qa.md) |
+| Other relevant delegated prerequisites | Sevindu: T07, T35 and T36. Sahan: T07.4 and T07.5. | Registration evidence covers both consent gates. Settings now opens the T36 flow. HMD instrumentation verified both consent gates, withdrawal, D15 re-consent and fresh sign-in. Settings switched to Sinhala and saved it. T07 is in review. The D54 labels in the MD05 inventory are approved. Registration consent copy outside that inventory remains separate. [Consent tracker](../trackers/sevindu/2-auth.md) |
 
-The [consolidated native-speaker inventory](md05-sinhala-review.md) includes 106 app pairs and four saved replies. It preserves the 70 app pairs and four replies at `a9c54667a0f71b8b646fa8405405cfcd06819e00` and the 29 separately pinned dependency-screen pairs, and adds seven D54 pairs. All await approval. Earlier approvals cover only their original 183 pairs.
+The [consolidated native-speaker inventory](md05-sinhala-review.md) includes 106 app pairs and four saved replies. It preserves the 70 app pairs and four replies at `a9c54667a0f71b8b646fa8405405cfcd06819e00` and the 29 separately pinned dependency-screen pairs, and adds seven D54 pairs. Sahan approved these exact 106 pairs and four replies on 2026-11-25 after the three corrections at `80d5c200bb1464f6de80742e5363f6d6b72f4f95`. The earlier 183 approvals retain their scope. Publishing STAFF replies still requires second-STAFF approval.
 
-### Operator sequence for the single listening pass
+### Operator sequence used for the listening pass
 
 1. Check the HMD serial, D50 package and existing test profile before installing. Record the starting profile, font scale and enabled accessibility services. Reuse the loopback-only disposable API and the opt-in in-process USER and STAFF fixture, then activate TalkBack once in the test profile.
 2. Use package-filtered UIAutomator nodes to find Help, Support and the active controls. Move accessibility focus before each listener observation. Navigate the FAQ first, return via Back, then open a synthetic ticket and its reply list. Run the English and Sinhala pass without toggling TalkBack.
@@ -54,7 +54,7 @@ The [consolidated native-speaker inventory](md05-sinhala-review.md) includes 106
 
 ### Consolidated handset session
 
-The 2026-11-25 session verified the physical consent flow. The remaining handset pass needs an audible listener only. Reuse the authorized isolated profile, D50 package, synthetic API and USER/STAFF fixtures. The D54 acceptance APK and instrumentation APK build as `lk.finora.app.acceptance` and `lk.finora.app.acceptance.test` with matching signing certificates. Record starting settings, stage the first FAQ, and enable TalkBack once. Complete the bilingual listening table above. Reuse the consent, focus, large-text, Recents and session evidence. Ask the listener only for the actual spoken labels and feedback. The physical consent checks below are retained for reference.
+The 2026-11-25 sessions verified physical consent and audible TalkBack. The authorized isolated profile, D50 package, synthetic API and USER/STAFF fixtures were used. The D54 acceptance APK and instrumentation APK build as `lk.finora.app.acceptance` and `lk.finora.app.acceptance.test` with matching signing certificates. The listening pass used one TalkBack activation and reused prior consent, focus, large-text, Recents and session evidence. The physical consent checks below are retained for reference.
 
 1. In both languages, open registration and confirm submission stays disabled with either the age or consent checkbox alone. With both checked, register the first disposable account and verify that the current consent version is returned by GET /api/v1/me.
 2. In Settings, switch to Sinhala and verify that the screen changes immediately and that GET /api/v1/me returns the new language without changing the name. Reopen the app and verify the saved locale.
