@@ -63,6 +63,11 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D37 MD03 Android early start (T15/T16)** — Sahan, exercising delegated Android-task approval authority, approved local transaction preview and synthetic parser regression work while T10 and T14 await formal closure. Only extracted transaction fields enter the in-memory preview. D26 still governs batch saving; T15.3 remains Sevindu-owned and D29 prohibits automatic replay of uncertain writes. Hash generation stays blocked on approved sender/reference semantics and canonical encoding. The D35 masked account suffix is not a transaction reference. Formal dependencies and independent review remain in force.
 
+- **D38 MD03 SMS batch and synthetic fixture approval** — Sahan records Sevindu's delegated approval, as relayed by Sahan, for T15.3 under D26, including early verification before T14 formally closes, and synthetic-only T16.1 using the D35 fixtures. Parent dependencies and independent review stay in force.
+  - For the approved reference-less NSB variants, hash UTF-8 bytes of `FINORA-SMS-v1\n<ISO-local-date>\n<DEBIT-or-CREDIT>\n<LKR-scale-2>\n<NFC-trimmed-merchant-or-empty>` with SHA-256, lowercase hex. Each `\n` is one LF. Hash original extracted fields once, before edits. Exclude sender, source channel, user-selected account/category, names, account digits, balance, raw SMS and supposed references. Inbox and paste share the same scheme.
+  - This conservative fingerprint cannot separate all legitimate equal-field transactions. The server saves at most one per user and fingerprint; same-batch and stored matches are reported as ambiguous duplicates for explicit review. Review records before using manual entry for a confirmed distinct transaction; no hash bypass or inferred reference. Unknown formats remain manual review. Existing manual matches under D26 are reported by ID and left intact.
+  - Submit only a confirmed frozen structured batch. After a lost or invalid response keep it in memory while the originating screen/login remains active. Retry the same structured batch only after explicit confirmation. Leaving the screen clears it; review existing records before starting over. No persistence or automatic replay.
+
 ## Proposed — still open
 
 - _None currently._

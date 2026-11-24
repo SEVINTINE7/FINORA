@@ -101,6 +101,15 @@ public class TransactionService {
     }
 
     @Transactional
+    public void createSmsImported(Long userId, TransactionRequest request, String dedupHash) {
+        Transaction transaction = new Transaction();
+        transaction.setUserId(userId);
+        copyRequest(userId, request, transaction);
+        transaction.setDedupHash(dedupHash);
+        transactionRepository.save(transaction);
+    }
+
+    @Transactional
     public TransactionResponse update(Long userId, Long id, TransactionRequest request) {
         Transaction transaction = findOwn(userId, id);
         copyRequest(userId, request, transaction);

@@ -141,3 +141,16 @@ No query parameters or request body. The complete schema-v1 snapshot has exactly
 A successful `{"schemaVersion":1,"templates":[]}` disables this bundle, including offline use after a client has observed the empty response. Only a validated, populated response re-enables it. An unavailable endpoint, network failure or invalid response does not change the last known disablement. Before any observed disablement, the Android client can use the approved bundled NSB snapshot offline. Disablement is installation-wide for the configured API origin because the response is shared reference data, with updates accepted only from the current USER login.
 
 Missing or invalid credentials use the standard `401` response, and ADMIN/STAFF receive `403`. An active D35 row that fails the pinned approval check yields `503 SMS_FORMATS_UNAVAILABLE` with the standard error body and no format payload.
+
+
+## SMS transaction batch (T15.3, D26/D38)
+
+| Method | Path | Role | Success |
+|---|---|---|---|
+| POST | `/api/v1/transactions/batch` | USER | `200 {"items":[{"index":1,"status":"SAVED","possibleManualMatch":[]}]}` |
+
+Request `{"items":[{"dedupHash":"<64 lowercase SHA-256 hex>","transaction":{"accountId":1,"categoryId":null,"type":"EXPENSE","amount":1250.75,"txnDate":"2026-11-21","merchant":"TEST SHOP","source":"SMS"}}]}`. Between 1 and 200 rows. Source is SMS or PASTE. Merchant and same-kind category are optional; note is not accepted. No SMS text or sender metadata.
+
+Validates the complete batch, including duplicates, before saving. A semantically invalid item returns standard 400 BAD_REQUEST with a one-based `Item N: ...` message and saves nothing. Invalid JSON or envelope has the standard 400 response; 401/403 follow the normal role rules. Accounts must belong to the caller and be active; categories must be visible to that user. Dates use MySQL's supported range (1000–9999). Amounts are exact LKR decimals.
+
+Each result corresponds to its one-based request index. `DUPLICATE` is an existing or repeated fingerprint for the same user; the item is unsaved and requires review under D38. `SAVED` can include IDs in `possibleManualMatch` for the caller's preserved MANUAL rows matching account, date, type and amount. Retry only after user confirmation with the same frozen request. The unique key applies while the matching transaction exists.
