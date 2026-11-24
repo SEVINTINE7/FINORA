@@ -147,9 +147,8 @@ public class UserJourneyTest {
 
     @Test public void bilingualUserRoutesFitText() {
         var arguments = InstrumentationRegistry.getArguments();
-        org.junit.Assume.assumeTrue("Explicit isolated emulator walkthrough only",
-                "true".equals(arguments.getString("finoraIsolatedEmulator"))
-                        && "true".equals(arguments.getString("finoraCheckUserTextFit")));
+        org.junit.Assume.assumeTrue("Explicit isolated layout walkthrough only",
+                isTextFitTarget(arguments) && "true".equals(arguments.getString("finoraCheckUserTextFit")));
         float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
         var problems = new java.util.ArrayList<String>();
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
@@ -171,9 +170,8 @@ public class UserJourneyTest {
 
     @Test public void bilingualRoleRoutesFitText() {
         var arguments = InstrumentationRegistry.getArguments();
-        org.junit.Assume.assumeTrue("Explicit isolated emulator role fixtures only",
-                "true".equals(arguments.getString("finoraIsolatedEmulator"))
-                        && "true".equals(arguments.getString("finoraCheckRoleTextFit")));
+        org.junit.Assume.assumeTrue("Explicit isolated layout role fixtures only",
+                isTextFitTarget(arguments) && "true".equals(arguments.getString("finoraCheckRoleTextFit")));
         float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
         var problems = new java.util.ArrayList<String>();
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
@@ -191,6 +189,12 @@ public class UserJourneyTest {
             checkRoleRoutes(false, "en", scale, problems);
         }
         assertTrue(String.join("\n", problems), problems.isEmpty());
+    }
+
+    private static boolean isTextFitTarget(android.os.Bundle arguments) {
+        return "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                || ("true".equals(arguments.getString("finoraIsolatedHandset"))
+                        && "true".equals(arguments.getString("finoraT39Handset")));
     }
 
     @Test public void bilingualRegistrationTextFits() {
@@ -216,9 +220,8 @@ public class UserJourneyTest {
     @Test public void stageAdminTalkBackFocus() {
         var instrumentation = InstrumentationRegistry.getInstrumentation();
         var arguments = InstrumentationRegistry.getArguments();
-        org.junit.Assume.assumeTrue("Explicit isolated emulator listener session only",
-                "true".equals(arguments.getString("finoraIsolatedEmulator"))
-                        && "true".equals(arguments.getString("finoraAdminListener")));
+        org.junit.Assume.assumeTrue("Explicit isolated listener session only",
+                isTextFitTarget(arguments) && "true".equals(arguments.getString("finoraAdminListener")));
         var automation = instrumentation.getUiAutomation(
                 android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
         var manager = app.getSystemService(android.view.accessibility.AccessibilityManager.class);
