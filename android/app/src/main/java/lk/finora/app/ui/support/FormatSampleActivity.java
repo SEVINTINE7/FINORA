@@ -1,6 +1,8 @@
 package lk.finora.app.ui.support;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -45,6 +47,15 @@ public final class FormatSampleActivity extends SecureActivity {
         result = new TextView(this);
         result.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
         page.addView(result);
+        TextWatcher invalidateResult = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) {
+                result.setText("");
+            }
+            @Override public void afterTextChanged(Editable text) {}
+        };
+        definition.addTextChangedListener(invalidateResult);
+        sample.addTextChangedListener(invalidateResult);
         setContentView(scroll);
     }
 

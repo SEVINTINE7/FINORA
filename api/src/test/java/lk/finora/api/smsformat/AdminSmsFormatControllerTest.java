@@ -54,6 +54,22 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
         command(admin, "/3/publish").andExpect(status().isConflict());
     }
 
+    @Test void changedPublishedDefinitionCannotActivateOrReplaceTheCurrentBundle() throws Exception {
+        var admin = tokenFor(createUser(Role.ADMIN));
+        var user = tokenFor(createUser(Role.USER));
+        var request = get("/api/v1/sms-formats").header("Authorization", "Bearer " + user);
+        String initial = mockMvc.perform(request).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        command(admin, "/2").andExpect(status().isCreated());
+        command(admin, "/2/publish").andExpect(status().isNoContent());
+        jdbc.update("UPDATE sms_formats SET pattern = CONCAT(pattern, ' ') WHERE bank_code = 'NSB' AND version = 2");
+
+        command(admin, "/2/activate").andExpect(status().isConflict());
+        org.junit.jupiter.api.Assertions.assertEquals(1, activeRevision());
+        mockMvc.perform(request).andExpect(status().isOk()).andExpect(content().string(initial));
+    }
+
     private Integer activeRevision() {
         return jdbc.queryForObject("SELECT version FROM sms_formats WHERE bank_code = 'NSB' AND active", Integer.class);
     }
