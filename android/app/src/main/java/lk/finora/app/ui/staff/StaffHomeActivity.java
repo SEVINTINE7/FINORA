@@ -26,6 +26,11 @@ public final class StaffHomeActivity extends ProtectedHomeActivity {
         retry.setText(R.string.records_retry);
         retry.setOnClickListener(view -> stats.load());
         layout.addView(retry, 2, new LinearLayout.LayoutParams(-1, -2));
+        var diagnostics = new Button(this);
+        diagnostics.setText(R.string.sms_diagnostic_queue);
+        diagnostics.setOnClickListener(view -> startActivity(new android.content.Intent(this,
+                lk.finora.app.ui.support.DiagnosticQueueActivity.class)));
+        layout.addView(diagnostics);
         stats.work.changes.observe(this, ignored -> {
             var result = stats.stats;
             int error = stats.work.error;

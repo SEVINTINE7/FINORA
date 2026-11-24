@@ -369,4 +369,23 @@
     <string name="advice_action_reserve">හදිසි අවස්ථා සඳහා වෙන් කළ බව ඔබ සඳහන් කළ මුදල රු. %1$sකි. ඊළඟ ඉලක්කය රු. %2$sකි. අත්‍යවශ්‍ය වියදම් සහ නියමිත ගෙවීම්වලින් පසු ටිකෙන් ටික මුදල් වෙන් කරන්න.</string>
     <string name="advice_action_goal">ඉලක්ක සඳහා වාර්තා කළ වෙන් කිරීම් වත්මන් ඉලක්කවලට වඩා රු. %1$sකින් අඩුය. වැඩි මුදලක් වෙන් කිරීමට පෙර එය දැරිය හැකිදැයි පරීක්ෂා කරන්න.</string>
     <string name="advice_action_savings">වාර්තා අනුව මුල් ඉතිරිකිරීමේ ඉලක්කය සඳහා රු. %1$sක් දක්වා වෙන් කළ හැක. පළමුව සියලු අත්‍යවශ්‍ය වියදම් සහ ගෙවීම් තහවුරු කරන්න.</string>
+    <string name="sms_report_problem">ගැටලුව වාර්තා කරන්න</string>
+    <string name="sms_report_preview">බැංකුව: නොදනී\nආකෘති අනුවාදය: නොදනී\nදෝෂ කේතය: %1$s\n\nමෙම තොරතුරු පමණක් යවනු ලැබේ. ඔබේ පණිවිඩය සහ මූල්‍ය තොරතුරු මෙම දුරකථනයේම පවතී.</string>
+    <string name="sms_report_send">වාර්තාව යවන්න</string>
+    <string name="sms_report_sent">වාර්තාව යවන ලදී.</string>
+    <string name="sms_report_failed">වාර්තාව ලැබුණු බව තහවුරු කළ නොහැක. එම වාර්තාව නැවත යැවීමට උත්සාහ කළ හැක.</string>
+    <string name="sms_diagnostic_queue">SMS දෝෂ වාර්තා</string>
+    <string name="sms_diagnostic_unknown">නොදනී</string>
+    <string name="sms_diagnostic_admin">SMS දෝෂ වාර්තා සහ ආකෘති</string>
+    <string name="sms_diagnostic_count">%1$s · %2$s · අනුවාදය %3$s · වාර්තා %4$d</string>
+    <string name="sms_diagnostic_escalation">%1$s · %2$s · %3$s</string>
+    <string name="sms_diagnostic_flag">පරිපාලක වෙත යොමු කරන්න</string>
+    <string name="sms_diagnostic_open">විවෘතයි</string>
+    <string name="sms_diagnostic_acknowledged">ලැබුණු බව තහවුරු කර ඇත</string>
+    <string name="sms_diagnostic_ack">ලැබුණු බව තහවුරු කරන්න</string>
+    <string name="sms_diagnostic_close">වාර්තාව වසන්න</string>
+    <string name="sms_diagnostic_updated">වෙනස සුරකින ලදී.</string>
+    <string name="sms_format_nsb">අනුමත NSB ආකෘතිය, අනුවාදය 1</string>
+    <string name="sms_format_activate">අනුමත NSB ආකෘතිය සක්‍රිය කරන්න</string>
+    <string name="sms_format_disable">අනුමත NSB ආකෘතිය අක්‍රිය කරන්න</string>
 </resources>

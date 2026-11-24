@@ -369,4 +369,23 @@
     <string name="advice_action_reserve">Declared emergency reserves are LKR %1$s. The next reserve milestone is LKR %2$s. Build gradually after essentials and due payments.</string>
     <string name="advice_action_goal">Recorded goal allocations remain LKR %1$s below current targets. Review affordability before allocating more.</string>
     <string name="advice_action_savings">Recorded headroom supports up to LKR %1$s toward the initial savings target. Confirm all essential costs and obligations first.</string>
+    <string name="sms_report_problem">Report problem</string>
+    <string name="sms_report_preview">Bank: unknown\nFormat version: unknown\nError code: %1$s\n\nOnly these details will be sent. Your message and financial details stay on this phone.</string>
+    <string name="sms_report_send">Send report</string>
+    <string name="sms_report_sent">Report sent.</string>
+    <string name="sms_report_failed">Could not confirm delivery. You can try sending the same report again.</string>
+    <string name="sms_diagnostic_queue">SMS diagnostics</string>
+    <string name="sms_diagnostic_unknown">Unknown</string>
+    <string name="sms_diagnostic_admin">SMS diagnostics and formats</string>
+    <string name="sms_diagnostic_count">%1$s · %2$s · Version %3$s · Reports %4$d</string>
+    <string name="sms_diagnostic_escalation">%1$s · %2$s · %3$s</string>
+    <string name="sms_diagnostic_flag">Flag for administrator</string>
+    <string name="sms_diagnostic_open">Open</string>
+    <string name="sms_diagnostic_acknowledged">Acknowledged</string>
+    <string name="sms_diagnostic_ack">Acknowledge flag</string>
+    <string name="sms_diagnostic_close">Close flag</string>
+    <string name="sms_diagnostic_updated">Change saved.</string>
+    <string name="sms_format_nsb">Approved NSB format, version 1</string>
+    <string name="sms_format_activate">Activate approved NSB format</string>
+    <string name="sms_format_disable">Disable approved NSB format</string>
 </resources>

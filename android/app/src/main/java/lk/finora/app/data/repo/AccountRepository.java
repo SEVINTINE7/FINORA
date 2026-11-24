@@ -53,6 +53,7 @@ public final class AccountRepository {
 
         public static ProtectedRequests currentUser() { return currentRole("USER"); }
         public static ProtectedRequests currentStaff() { return currentRole("STAFF"); }
+        public static ProtectedRequests currentAdmin() { return currentRole("ADMIN"); }
 
         private static ProtectedRequests currentRole(String role) {
             TokenStore store = TokenStore.current();
@@ -82,9 +83,18 @@ public final class AccountRepository {
     }
 
     private static final Gson GSON = new Gson();
+    private static final Gson EXPLICIT_NULLS = new com.google.gson.GsonBuilder().serializeNulls().create();
 
     static RequestBody json(Object dto) {
-        RequestBody body = RequestBody.create(GSON.toJson(dto), MediaType.get("application/json"));
+        return jsonBody(GSON.toJson(dto));
+    }
+
+    static RequestBody jsonIncludingNulls(Object dto) {
+        return jsonBody(EXPLICIT_NULLS.toJson(dto));
+    }
+
+    private static RequestBody jsonBody(String payload) {
+        RequestBody body = RequestBody.create(payload, MediaType.get("application/json"));
         return new RequestBody() {
             @Override public boolean isOneShot() { return true; }
             @Override public MediaType contentType() { return body.contentType(); }

@@ -13,6 +13,13 @@ import java.io.IOException;
 import lk.finora.app.R;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
+import lk.finora.app.data.repo.AccountRepository.ProtectedRequests;
+import lk.finora.app.data.repo.SmsDiagnosticRepository;
+import lk.finora.app.data.repo.SmsDiagnosticRepository.Code;
+import lk.finora.app.sms.SmsParseResult;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public final class PasteSmsActivity extends SecureActivity {
     private final SmsLocalTask task = new SmsLocalTask();
@@ -23,6 +30,10 @@ public final class PasteSmsActivity extends SecureActivity {
     private Button paste;
     private Button previewButton;
     private SmsTransactionPreview preview;
+    private Button reportButton;
+    private Code reportCode;
+    private Call reportCall;
+    private androidx.appcompat.app.AlertDialog reportDialog;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -43,6 +54,8 @@ public final class PasteSmsActivity extends SecureActivity {
         previewButton.setOnClickListener(view -> { if (verifySession()) preview.open(); });
         if (preview.hasPending()) previewButton.setVisibility(android.view.View.VISIBLE);
         paste.setOnClickListener(view -> paste());
+        reportButton = findViewById(R.id.sms_diagnostic_report);
+        reportButton.setOnClickListener(view -> confirmReport());
     }
 
     @Override protected void onStart() {
@@ -83,6 +96,7 @@ public final class PasteSmsActivity extends SecureActivity {
             return;
         }
         preview.clear();
+        resetReport();
         previewButton.setVisibility(android.view.View.GONE);
         var clipboard = getSystemService(ClipboardManager.class);
         CharSequence message;
@@ -114,17 +128,20 @@ public final class PasteSmsActivity extends SecureActivity {
                 var parser = SmsLocalResults.load(this, store, loginIdentity, signal, cancelled);
                 if (parser.approvedSenderIds().isEmpty()) {
                     return new PasteResult(getString(R.string.sms_no_formats) + "\n"
-                            + getString(R.string.sms_needs_review), null);
+                            + getString(R.string.sms_needs_review), null, Code.FORMAT_UNAVAILABLE);
                 }
                 var parsed = SmsPasteInput.parse(parser, raw, cancelled);
                 return new PasteResult(SmsLocalResults.text(this, parsed),
-                        parsed instanceof lk.finora.app.sms.SmsParseResult.Parsed value ? value : null);
+                        parsed instanceof SmsParseResult.Parsed value ? value : null,
+                        parsed instanceof SmsParseResult.ManualReview review ? Code.from(review) : null);
             } catch (IOException invalidBundle) {
-                return new PasteResult(getString(R.string.sms_scan_failed), null);
+                return new PasteResult(getString(R.string.sms_scan_failed), null, null);
             }
         }, text -> {
             if (!verifySession()) return;
             result.setText(text.label());
+            reportCode = text.code();
+            reportButton.setVisibility(reportCode == null ? android.view.View.GONE : android.view.View.VISIBLE);
             if (text.parsed() != null) {
                 preview.replace(java.util.List.of(text.parsed()));
                 previewButton.setVisibility(android.view.View.VISIBLE);
@@ -137,11 +154,64 @@ public final class PasteSmsActivity extends SecureActivity {
         });
     }
 
-    private record PasteResult(String label, lk.finora.app.sms.SmsParseResult.Parsed parsed) {}
+    private record PasteResult(String label, SmsParseResult.Parsed parsed, Code code) {}
+
+    private void confirmReport() {
+        if (!verifySession() || reportCode == null || reportCall != null) return;
+        Code confirmed = reportCode;
+        reportDialog = showSecure(new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.sms_report_problem)
+                .setMessage(getString(R.string.sms_report_preview, confirmed.name()))
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.sms_report_send, (dialog, which) -> sendReport(confirmed)).create());
+    }
+
+    private void sendReport(Code confirmed) {
+        if (!verifySession() || reportCode != confirmed) return;
+        var requests = ProtectedRequests.currentUser();
+        if (requests == null || !verifySession()) return;
+        Call call;
+        try {
+            call = SmsDiagnosticRepository.prepare(requests, confirmed);
+        } catch (IllegalStateException ended) {
+            verifySession();
+            return;
+        }
+        reportCall = call;
+        reportButton.setEnabled(false);
+        call.enqueue(new Callback() {
+            @Override public void onFailure(Call request, IOException failure) { complete(false); }
+            @Override public void onResponse(Call request, Response response) {
+                try (response) { complete(response.code() == 204); }
+            }
+            private void complete(boolean success) {
+                runOnUiThread(() -> {
+                    if (reportCall != call || !verifySession()) return;
+                    reportCall = null;
+                    reportButton.setEnabled(true);
+                    if (success) resetReport();
+                    result.setText(success ? R.string.sms_report_sent : R.string.sms_report_failed);
+                });
+            }
+        });
+    }
+
+    private void resetReport() {
+        if (reportDialog != null) reportDialog.dismiss();
+        reportDialog = null;
+        if (reportCall != null) reportCall.cancel();
+        reportCall = null;
+        reportCode = null;
+        if (reportButton != null) {
+            reportButton.setEnabled(true);
+            reportButton.setVisibility(android.view.View.GONE);
+        }
+    }
 
     private void clear() { clear(false); }
 
     private void clear(boolean changingConfiguration) {
+        resetReport();
         if (preview != null) preview.stop(changingConfiguration);
         if (previewButton != null) previewButton.setVisibility(android.view.View.GONE);
         task.cancel();
