@@ -64,3 +64,5 @@ erDiagram
 | `audit_events` | V5 | Admin/security actions — never financial or personal data | actor FK set null |
 
 V6 seeds 17 default categories (4 income, 13 expense) with Sinhala names (review in T39.4).
+
+D41 adds `monthly_history` in V10 with owner/month uniqueness, exact decimal totals, nullable score, and a durable retry flag. The existing health-score total becomes nullable. Snapshot facts use decimal strings inside storage JSON to avoid binary rounding; API DTOs decode them into exact decimals. The scheduler works on prior Colombo months and retries dirty rows after transaction commit. V11 adds a nullable V1 delivery marker and unique owner/month/marker key to the existing advice table. Legacy advice and rating rows retain their identifiers. Advice figures also use exact decimal strings inside storage JSON; the existing unique advice/user rating constraint remains authoritative.
