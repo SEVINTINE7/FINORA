@@ -57,10 +57,20 @@ public final class DiagnosticQueueActivity extends SecureActivity {
         if (model.notice != 0) label(getString(model.notice));
         addButton(R.string.records_retry, model::load);
         if (model.admin) {
-            addButton(R.string.sms_format_activate, () -> confirm(R.string.sms_format_activate,
-                    () -> model.setFormatActive(true)));
-            addButton(R.string.sms_format_disable, () -> confirm(R.string.sms_format_disable,
-                    () -> model.setFormatActive(false)));
+            label(getString(R.string.sms_format_nsb));
+            addButton(R.string.sms_format_draft, this::draft);
+            for (var revision : model.revisions) {
+                String summary = getString(R.string.sms_format_revision, revision.version(),
+                        getString(revision.active() ? R.string.support_active
+                                : revision.published() ? R.string.sms_format_published : R.string.support_draft_state));
+                label(summary);
+                if (!revision.published()) confirmRow(R.string.sms_format_publish, summary,
+                        () -> model.publish(revision.version()));
+                else if (!revision.active()) confirmRow(R.string.sms_format_activate, summary,
+                        () -> model.activate(revision.version()));
+                else confirmRow(R.string.sms_format_disable, summary,
+                        () -> model.deactivate(revision.version()));
+            }
         }
         if (model.groups.isEmpty() && model.escalations.isEmpty()) label(getString(R.string.records_empty));
         for (var group : model.groups) {
@@ -105,8 +115,24 @@ public final class DiagnosticQueueActivity extends SecureActivity {
         child.setContentDescription(getString(text) + ". " + summary);
     }
 
-    private void confirm(int text, Runnable action) {
-        confirm(text, getString(R.string.sms_format_nsb), action);
+    private void draft() {
+        if (!model.work.isCurrent()) return;
+        var revision = new android.widget.EditText(this);
+        revision.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        revision.setHint(R.string.sms_format_revision_number);
+        var dialog = showSecure(new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.sms_format_draft).setView(revision)
+                .setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, null).create());
+        dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
+            try {
+                int value = Integer.parseInt(revision.getText().toString());
+                if (value < 2) throw new NumberFormatException();
+                if (model.work.isCurrent()) model.draft(value);
+                dialog.dismiss();
+            } catch (NumberFormatException invalid) {
+                revision.setError(getString(R.string.records_invalid));
+            }
+        });
     }
 
     private void confirm(int text, String summary, Runnable action) {

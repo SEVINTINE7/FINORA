@@ -49,16 +49,22 @@ final class SmsReportAction {
         if (!permitted.getAsBoolean() || code == null || active != null) return;
         Code selected = code;
         BankCode selectedBank = bank;
-        dialog = SecureActivity.showSecure(new AlertDialog.Builder(owner).setTitle(R.string.sms_report_problem)
+        var preview = SecureActivity.showSecure(new AlertDialog.Builder(owner).setTitle(R.string.sms_report_problem)
                 .setMessage(owner.getString(R.string.sms_report_preview,
                         selectedBank == null ? owner.getString(R.string.sms_diagnostic_unknown) : selectedBank.name(),
                         selected.name()))
                 .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(R.string.sms_report_send, (prompt, which) -> send(selected, selectedBank)).create());
+                .setPositiveButton(R.string.sms_report_send, null).create());
+        dialog = preview;
+        preview.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
+            if (dialog != preview) return;
+            send(selected, selectedBank);
+            preview.dismiss();
+        });
     }
 
     private void send(Code selected, BankCode selectedBank) {
-        if (!permitted.getAsBoolean() || code != selected || bank != selectedBank) return;
+        if (!permitted.getAsBoolean() || code != selected || bank != selectedBank || active != null) return;
         var requests = ProtectedRequests.currentUser();
         if (requests == null || !permitted.getAsBoolean()) return;
         Call call;

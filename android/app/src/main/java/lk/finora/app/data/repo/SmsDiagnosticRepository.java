@@ -36,6 +36,7 @@ public final class SmsDiagnosticRepository {
 
     public record Group(String bankCode, Integer formatVersion, Code errorCode, long reports) {}
     public record Escalation(long id, String bankCode, Code errorCode, String status) {}
+    public record FormatRevision(int version, boolean published, boolean active) {}
     private record Flag(String bankCode, Code errorCode) {}
 
     public static Call groups(ProtectedRequests requests) {
@@ -61,9 +62,15 @@ public final class SmsDiagnosticRepository {
                 .patch(AccountRepository.json(Map.of("status", next))).build());
     }
 
-    public static Call setFormatActive(ProtectedRequests requests, boolean active) {
-        return requests.call(request(requests, "/api/v1/admin/sms-formats/NSB/1")
-                .patch(AccountRepository.json(Map.of("active", active))).build());
+    public static Call revisions(ProtectedRequests requests) {
+        return requests.call(request(requests, "/api/v1/admin/sms-formats/NSB/revisions").build());
+    }
+
+    public static Call changeRevision(ProtectedRequests requests, int revision, String action) {
+        var url = requests.origin().newBuilder().encodedPath("/api/v1/admin/sms-formats/NSB/revisions")
+                .addPathSegment(Integer.toString(revision));
+        if (!action.isEmpty()) url.addPathSegment(action);
+        return requests.call(new Request.Builder().url(url.build()).post(AccountRepository.json(Map.of())).build());
     }
 
     private static Request.Builder request(ProtectedRequests requests, String path) {

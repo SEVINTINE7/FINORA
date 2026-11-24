@@ -424,4 +424,10 @@
     <string name="staff_disable">Disable staff account</string>
     <string name="staff_full_name">Full name</string>
     <string name="staff_secret_once">%1$s\n\nShown once. Share it only through the approved secure channel. It expires in 24 hours.</string>
+    <string name="admin_stats_counts">Active users: %1$d\nDisabled users: %2$d\nStaff: %3$d\nOpen requests: %4$d\nActive SMS formats: %5$d</string>
+    <string name="sms_format_draft">Draft approved NSB bundle revision</string>
+    <string name="sms_format_revision">NSB deployment revision %1$d · %2$s</string>
+    <string name="sms_format_revision_number">Deployment revision number</string>
+    <string name="sms_format_published">Published</string>
+    <string name="sms_format_publish">Publish validated revision</string>
 </resources>

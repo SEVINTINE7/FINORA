@@ -424,4 +424,10 @@
     <string name="staff_disable">කාර්ය මණ්ඩල ගිණුම අක්‍රිය කරන්න</string>
     <string name="staff_full_name">සම්පූර්ණ නම</string>
     <string name="staff_secret_once">%1$s\n\nඑක් වරක් පමණක් පෙන්වයි. අනුමත ආරක්ෂිත මාර්ගයෙන් පමණක් බෙදා ගන්න. පැය 24කින් කල් ඉකුත් වේ.</string>
+    <string name="admin_stats_counts">සක්‍රිය පරිශීලකයන්: %1$d\nඅක්‍රිය පරිශීලකයන්: %2$d\nකාර්ය මණ්ඩලය: %3$d\nවිවෘත ඉල්ලීම්: %4$d\nසක්‍රිය SMS ආකෘති: %5$d</string>
+    <string name="sms_format_draft">අනුමත NSB එකතුවේ අනුවාදයක් කෙටුම්පත් කරන්න</string>
+    <string name="sms_format_revision">NSB යෙදවීමේ අනුවාදය %1$d · %2$s</string>
+    <string name="sms_format_revision_number">යෙදවීමේ අනුවාද අංකය</string>
+    <string name="sms_format_published">ප්‍රකාශිතයි</string>
+    <string name="sms_format_publish">වලංගු අනුවාදය ප්‍රකාශයට පත් කරන්න</string>
 </resources>

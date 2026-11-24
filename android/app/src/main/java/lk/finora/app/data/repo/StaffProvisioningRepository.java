@@ -11,6 +11,7 @@ import okhttp3.RequestBody;
 
 public final class StaffProvisioningRepository {
     public record Staff(long id, String email, String fullName, String status, boolean pending) {}
+    public record AdminCounts(Long activeUsers, Long disabledUsers, Long staff, Long openTickets, Long activeFormats) {}
     public record Provisioned(long id, String temporaryPassword) {
         @Override public String toString() { return "Provisioned staff"; }
     }
@@ -19,6 +20,10 @@ public final class StaffProvisioningRepository {
     public StaffProvisioningRepository(ProtectedRequests requests) { this.requests = requests; }
 
     public Call list() { return requests.call(admin("").build()); }
+    public Call counts() {
+        var url = requests.origin().newBuilder().encodedPath("/api/v1/admin/stats").build();
+        return requests.call(new Request.Builder().url(url).build());
+    }
     public Call provision(String email, String fullName) {
         return requests.call(admin("").post(AccountRepository.json(Map.of("email", email, "fullName", fullName))).build());
     }

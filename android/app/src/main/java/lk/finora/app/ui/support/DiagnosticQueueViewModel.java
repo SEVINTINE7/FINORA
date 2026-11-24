@@ -10,6 +10,7 @@ import lk.finora.app.data.repo.AccountRepository.ProtectedRequests;
 import lk.finora.app.data.repo.SmsDiagnosticRepository;
 import lk.finora.app.data.repo.SmsDiagnosticRepository.Escalation;
 import lk.finora.app.data.repo.SmsDiagnosticRepository.Group;
+import lk.finora.app.data.repo.SmsDiagnosticRepository.FormatRevision;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 import okhttp3.Call;
 
@@ -18,10 +19,12 @@ public final class DiagnosticQueueViewModel extends ViewModel {
     final boolean admin = administrator != null;
     List<Group> groups = List.of();
     List<Escalation> escalations = List.of();
+    List<FormatRevision> revisions = List.of();
     int notice;
     final Work work = new Work(admin ? administrator : ProtectedRequests.currentStaff(), () -> {
         groups = List.of();
         escalations = List.of();
+        revisions = List.of();
         notice = 0;
     });
 
@@ -37,7 +40,18 @@ public final class DiagnosticQueueViewModel extends ViewModel {
                     }
                 }
                 return List.of(items);
-            }, items -> escalations = items, false);
+            }, items -> {
+                escalations = items;
+                work.run(() -> SmsDiagnosticRepository.revisions(work.requests), response -> {
+                    var rows = AccountRepository.read(response, FormatRevision[].class);
+                    for (var row : rows) {
+                        if (row == null || row.version() < 1 || (row.active() && !row.published())) {
+                            throw new IOException("Invalid format revision");
+                        }
+                    }
+                    return List.of(rows);
+                }, values -> revisions = values, false);
+            }, false);
         } else {
             work.run(() -> SmsDiagnosticRepository.groups(work.requests), response -> {
                 var items = AccountRepository.read(response, Group[].class);
@@ -55,8 +69,15 @@ public final class DiagnosticQueueViewModel extends ViewModel {
 
     void flag(Group group) { write(() -> SmsDiagnosticRepository.flag(work.requests, group)); }
     void advance(Escalation item) { write(() -> SmsDiagnosticRepository.advance(work.requests, item)); }
-    void setFormatActive(boolean active) {
-        write(() -> SmsDiagnosticRepository.setFormatActive(work.requests, active));
+    void deactivate(int revision) {
+        write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "deactivate"));
+    }
+    void draft(int revision) { write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "")); }
+    void publish(int revision) {
+        write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "publish"));
+    }
+    void activate(int revision) {
+        write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "activate"));
     }
 
     private void write(Supplier<Call> request) {
