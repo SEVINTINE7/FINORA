@@ -165,3 +165,9 @@ Each result corresponds to its one-based request index. `DUPLICATE` is an existi
 ## Staff queue statistics (T46.1)
 
 `GET /api/v1/staff/stats` is STAFF-only and returns `200 {myOpenTickets,unassignedTickets}`. Both fields are nonnegative counts of tickets in OPEN or IN_PROGRESS state. The first count is limited to the authenticated assignee, and the second includes only tickets with no assignee. The response contains no ticket contents, user identifiers or financial fields.
+
+## SMS diagnostics (T49)
+
+`POST /api/v1/support/sms-diagnostics` is USER-only and takes exactly `{bankCode,formatVersion,errorCode}`. Unknown bank or version is explicitly JSON null. Only D35's NSB v1 is recognized. A version requires a bank. The four error codes are defined by D47. Success returns 204, including repeat submissions by the same user for the same tuple during a UTC day. Raw messages, amounts, account information and additional keys are rejected by the shape and value allowlist. `GET /api/v1/staff/sms-diagnostics` returns aggregate rows `{bankCode,errorCode,formatVersion,reports}` for STAFF only, without user identifiers.
+
+STAFF can flag a known group with `POST /api/v1/staff/sms-diagnostics/escalations` and `{bankCode,errorCode}`. It returns 204 and deduplicates existing open or acknowledged escalations. ADMIN can read active flags with `GET /api/v1/admin/sms-diagnostics/escalations`, returning up to 100 rows with `{id,bankCode,errorCode,status,createdAt}`. ADMIN can transition a flag with `PATCH /api/v1/admin/sms-diagnostics/escalations/{id}` and `{status}`. The sequence is OPEN → ACKNOWLEDGED → CLOSED. Stale transitions return 409. Neither endpoint carries free text or customer data.

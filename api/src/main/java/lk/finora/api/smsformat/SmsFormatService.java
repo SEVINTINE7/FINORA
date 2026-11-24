@@ -9,6 +9,7 @@ import java.util.stream.StreamSupport;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.common.error.ApiException;
 import lk.finora.api.smsformat.dto.SmsFormatsResponse;
@@ -38,6 +39,16 @@ class SmsFormatService {
         }
         JsonNode templates = mapper.readTree(pattern).get("templates");
         return new SmsFormatsResponse(1, StreamSupport.stream(templates.spliterator(), false).toList());
+    }
+
+    @Transactional
+    public void setApprovedActive(boolean active) {
+        var rows = repository.lockNsbV1();
+        if (rows.isEmpty()) throw ApiException.notFound("Approved SMS format unavailable");
+        if (active && !APPROVED_NSB_V1_SHA256.equals(sha256(rows.get(0)))) {
+            throw new ApiException("CONFLICT", HttpStatus.CONFLICT, "SMS format is not approved");
+        }
+        repository.setNsbV1Active(active);
     }
 
     private static String sha256(String value) {

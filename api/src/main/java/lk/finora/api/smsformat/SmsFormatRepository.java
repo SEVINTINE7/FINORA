@@ -18,4 +18,14 @@ class SmsFormatRepository {
                 "SELECT pattern FROM sms_formats WHERE bank_code = ? AND version = ? AND active = TRUE",
                 String.class, "NSB", 1);
     }
+
+    List<String> lockNsbV1() {
+        return jdbc.queryForList("""
+                SELECT pattern FROM sms_formats WHERE bank_code = 'NSB' AND version = 1 FOR UPDATE
+                """, String.class);
+    }
+
+    void setNsbV1Active(boolean active) {
+        jdbc.update("UPDATE sms_formats SET active = ? WHERE bank_code = 'NSB' AND version = 1", active);
+    }
 }
