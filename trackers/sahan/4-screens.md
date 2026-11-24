@@ -32,15 +32,15 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T38.3 Lists refresh after create/update/delete everywhere
 
 **Done when**
-- [ ] Every screen reachable; no stale data after edits (manual checklist in Handoff notes)
+- [x] Every screen reachable; no stale data after edits (manual checklist in Handoff notes)
 
 **Handoff notes:**
 - Home has the dashboard. Records links transactions, manual entry, CSV and SMS. Plan links the existing budget, bill and goal screens. Insights links the D20 screen. More links accounts, categories, settings and help.
 - HMD Android 14 opened the implemented Records, Plan, Insights and More destinations and exercised Back. Home refreshed after transaction create, edit and delete and isolated two disposable logins. Prior emulator evidence covers selected-tab recreation.
 - Isolated Android 17 verified every existing list after real API create, edit and delete with list re-entry: accounts, categories, transactions, budgets, bills and goals. Transaction mutations also refreshed Home and Insights. Plan selection survived landscape recreation.
-- The emulator opened History and Advice against real USER endpoints. Form-driven create, edit and delete refreshed account, category, budget, bill and goal lists. HMD Android 14 verified History totals, score and Back. The remaining form-driven matrix and physical rotation stay open.
-- The [final acceptance matrix](../../docs/md04-final-acceptance.md) records the additional form checks and the HMD test-profile rotation restriction. Full dependent-screen refresh acceptance remains open.
-- The [targeted closure checklist](../../docs/md04-targeted-closure.md) records Plan-to-Insights, category and declaration refresh checks and emulator recreation. The HMD rotation alternative awaits explicit approval.
+- The emulator opened History and Advice against real USER endpoints. Form-driven create, edit and delete refreshed account, category, budget, bill and goal lists.
+- The [targeted closure checklist](../../docs/md04-targeted-closure.md) records 14/14 dependent-screen and recreation checks. D42 accepts the emulator recreation evidence alongside HMD evidence. Physical rotation remains unverified.
+- The [authorized closure evidence](../../docs/md04-authorized-closure.md) records bilingual HMD TalkBack, larger text, rating feedback and restored focus on Back. Formal T09 dependency and independent review remain open.
 
 ---
 
@@ -80,3 +80,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - MySQL verified stable rule delivery, exact facts, owner/role checks and concurrent rating results 201/409. Existing verifier and provider fallback suites passed with mocks.
 - Isolated Android and HMD Android 14 matched LKR 50.23 in English and Sinhala. A dropped 201 reconciled rating 5 with GET and a single POST on both devices. Live-provider evidence remains open.
 - MySQL V12 coordinates first delivery across instances without holding a database lock during provider calls. HMD retained the saved rating after the upgrade and Sahan confirmed its Sinhala TalkBack label.
+- D44 authorizes live-provider verification with approved configuration. Both credentials, approved model IDs and a numeric call budget are absent. English and Sinhala HMD rating announcements and return focus passed.

@@ -2,6 +2,8 @@
 
 Baseline: `69977a1`. T38's open Done-when item is **“Every screen reachable; no stale data after edits (manual checklist in Handoff notes)”**. T09 remains in review. D40 permits the scoped Android work and preserves that formal prerequisite.
 
+The [authorized closure evidence](md04-authorized-closure.md) records the subsequent decisions and verification against this baseline.
+
 ## Dependent-screen checks
 
 The earlier [acceptance matrix](md04-final-acceptance.md) retains its per-form, import and historical transaction results. A supported financial dependency must reflect the new state when its screen reloads. Budgets are not inputs to Home, score or snapshot calculations. Account labels are used by pickers, not as aggregation inputs to Home or Insights. A saved V1 advice delivery freezes its content by contract, so changing financial inputs is not expected to replace that already delivered card. The current open month has no D27 snapshot.
