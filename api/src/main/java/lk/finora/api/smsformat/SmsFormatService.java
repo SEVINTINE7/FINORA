@@ -66,6 +66,13 @@ class SmsFormatService {
     }
 
     @Transactional
+    public void discardDraft(int revision) {
+        if (revision < 2) throw ApiException.notFound("SMS format draft unavailable");
+        repository.lockNsbV1();
+        if (!repository.deleteDraft(revision)) throw ApiException.notFound("SMS format draft unavailable");
+    }
+
+    @Transactional
     public void publish(int revision) {
         approved(repository.lockNsbV1());
         approved(repository.revision(revision, false));

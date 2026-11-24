@@ -3,6 +3,7 @@ package lk.finora.api.smsformat;
 import lk.finora.api.support.IntegrationTest;
 import lk.finora.api.user.Role;
 import org.junit.jupiter.api.Test;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,6 +43,8 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
         command(admin, "/2/publish").andExpect(status().isNotFound());
         command(admin, "/2/activate").andExpect(status().isNoContent());
         org.junit.jupiter.api.Assertions.assertEquals(2, activeRevision());
+        mockMvc.perform(get("/api/v1/sms-formats").header("Authorization", "Bearer " + user))
+                .andExpect(status().isOk()).andExpect(content().string(initial));
         command(admin, "/1/activate").andExpect(status().isNoContent());
         org.junit.jupiter.api.Assertions.assertEquals(1, activeRevision());
         mockMvc.perform(get("/api/v1/sms-formats").header("Authorization", "Bearer " + user))
@@ -53,6 +56,28 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
 
     private Integer activeRevision() {
         return jdbc.queryForObject("SELECT version FROM sms_formats WHERE bank_code = 'NSB' AND active", Integer.class);
+    }
+
+    @Test void onlyAdminCanDiscardUnpublishedDraftsWithoutChangingActiveFormat() throws Exception {
+        var admin = tokenFor(createUser(Role.ADMIN));
+        var staff = tokenFor(createUser(Role.STAFF));
+        var user = tokenFor(createUser(Role.USER));
+        command(admin, "/2").andExpect(status().isCreated());
+        discard(staff, 2).andExpect(status().isForbidden());
+        discard(user, 2).andExpect(status().isForbidden());
+        discard(admin, 1).andExpect(status().isNotFound());
+        discard(admin, 2).andExpect(status().isNoContent());
+        discard(admin, 2).andExpect(status().isNotFound());
+        command(admin, "/2").andExpect(status().isCreated());
+        command(admin, "/2/publish").andExpect(status().isNoContent());
+        discard(admin, 2).andExpect(status().isNotFound());
+        command(admin, "/2/activate").andExpect(status().isNoContent());
+        discard(admin, 2).andExpect(status().isNotFound());
+        org.junit.jupiter.api.Assertions.assertEquals(2, activeRevision());
+    }
+
+    private org.springframework.test.web.servlet.ResultActions discard(String token, int revision) throws Exception {
+        return mockMvc.perform(delete(REVISIONS + "/" + revision).header("Authorization", "Bearer " + token));
     }
 
     private org.springframework.test.web.servlet.ResultActions command(String token, String path) throws Exception {

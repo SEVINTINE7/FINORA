@@ -2,7 +2,9 @@ package lk.finora.api.smsformat;
 
 import lk.finora.api.common.error.ApiException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,10 @@ final class AdminSmsFormatController {
     @org.springframework.web.bind.annotation.PostMapping("/api/v1/admin/sms-formats/NSB/revisions/{revision}")
     @ResponseStatus(HttpStatus.CREATED)
     void draft(@org.springframework.web.bind.annotation.PathVariable int revision) { formats.draft(revision); }
+
+    @DeleteMapping("/api/v1/admin/sms-formats/NSB/revisions/{revision}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void discardDraft(@PathVariable int revision) { formats.discardDraft(revision); }
 
     @org.springframework.web.bind.annotation.PostMapping("/api/v1/admin/sms-formats/NSB/revisions/{revision}/publish")
     @ResponseStatus(HttpStatus.NO_CONTENT)

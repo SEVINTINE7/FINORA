@@ -33,6 +33,13 @@ class SmsFormatRepository {
         jdbc.update("INSERT INTO sms_formats (bank_code, version, pattern) VALUES ('NSB', ?, ?)", revision, definition);
     }
 
+    boolean deleteDraft(int revision) {
+        return jdbc.update("""
+                DELETE FROM sms_formats WHERE bank_code = 'NSB' AND version = ?
+                  AND published = FALSE AND active = FALSE
+                """, revision) == 1;
+    }
+
     List<String> revision(int revision, boolean published) {
         return jdbc.queryForList("""
                 SELECT pattern FROM sms_formats WHERE bank_code = 'NSB' AND version = ? AND published = ?
