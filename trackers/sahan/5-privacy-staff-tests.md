@@ -13,7 +13,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** D45/D50/D51. Local MySQL/API verified expiry, token rotation, replacement-user data isolation and diagnostic field rejection. HMD debug builds blocked dashboard and support capture and recovered after offline cold launch. Authenticated release HTTPS verification awaits T56. Spoken labels, visual clipping, exact Back focus and physical Recents evidence remain open.
+**Handoff notes:** D45/D50/D51. HMD debug verified expiry, replacement-account isolation, blocked dashboard/support capture, and offline recovery. The handset FAQ layout probe passed at 130% text in EN/SI. Audible TalkBack, exact Back focus and physical Recents remain open. Authenticated release HTTPS verification awaits T56.
 
 ---
 
