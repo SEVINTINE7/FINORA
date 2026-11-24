@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.main.MainActivity" android:exported="false" />
+        <activity android:name=".ui.insights.InsightsActivity" android:exported="false" />
         <activity android:name=".ui.register.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminHomeActivity" android:exported="false" />

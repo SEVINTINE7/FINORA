@@ -72,7 +72,14 @@ public final class BudgetListActivity extends AppCompatActivity {
                         plain(item.remaining()));
         ((TextView) row.findViewById(R.id.record_details)).setText(details);
         TextView state = row.findViewById(R.id.budget_state);
-        state.setText(BudgetListViewModel.stateLabel(item.state()));
+        int stateLabel = BudgetListViewModel.stateLabel(item.state());
+        if (stateLabel == R.string.budget_state_near) {
+            var locale = getResources().getConfiguration().getLocales().get(0);
+            String threshold = java.text.NumberFormat.getPercentInstance(locale).format(new java.math.BigDecimal("0.80"));
+            state.setText(getString(stateLabel, threshold));
+        } else {
+            state.setText(stateLabel);
+        }
         state.setTextColor(color);
         // TalkBack reads the bar as part of one sentence instead of a bare percentage
         progress.setContentDescription(name + ". " + details);

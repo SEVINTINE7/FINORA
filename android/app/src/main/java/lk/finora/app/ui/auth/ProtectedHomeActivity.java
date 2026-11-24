@@ -24,6 +24,8 @@ public abstract class ProtectedHomeActivity extends AppCompatActivity {
     protected abstract String requiredRole();
     protected abstract int titleResource();
 
+    protected boolean showPlaceholder() { return true; }
+
     protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {}
 
     @Override
@@ -51,7 +53,9 @@ public abstract class ProtectedHomeActivity extends AppCompatActivity {
         message.setText(R.string.home_placeholder);
         message.setTextColor(getColor(R.color.finora_on_navy));
         message.setGravity(Gravity.CENTER);
-        layout.addView(message, new LinearLayout.LayoutParams(-1, 0, 1));
+        if (showPlaceholder()) {
+            layout.addView(message, new LinearLayout.LayoutParams(-1, 0, 1));
+        }
         addLanguageSelector(layout);
         Button logout = new Button(this);
         logout.setText(R.string.sign_out);
