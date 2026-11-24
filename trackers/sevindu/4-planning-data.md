@@ -9,12 +9,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T17.1 [API] CRUD `/api/v1/budgets` per category per month (`YYYY-MM`)
 - [x] T17.2 [API] `GET /api/v1/budgets?month=` returns limit, used, remaining, state `OK|NEAR(≥80%)|OVER`
 - [ ] T17.3 [AND·Sahan] Budget list with progress bars + add/edit
+  - MD04 emulator forms verified list refresh after create/edit/delete and exact usage after transaction edits. The T17-specific physical-device checklist remains open.
 
 **Done when**
 - [x] Tests: used amount counts only that month's expenses in that category; first/last day of month; over-spend state
 
 **Handoff notes:**
-- API part done (T17.1–T17.2); **T17.3 (Android, Sahan) still open — blocked by T37**.
+- API done (T17.1–T17.2). T17.3 code done by Sevindu: `and:ui/budgets/` (list + form + ViewModels), `data/api/BudgetDto`, `data/repo/BudgetRepository`, Plan tab → Budgets in `MainActivity`; device check (EN/SI, TalkBack, 409, rotation) still open.
 - `api:budget/`: `Budget`, repo, `BudgetService`, `BudgetController`, `dto/`. Spent amount from new `TransactionRepository.sumExpenseForCategory`.
 - Budgets only on EXPENSE categories (default or own); another user's category → 400. One budget per category + month → 409 `CONFLICT`.
 - `remaining` goes negative when over. used == limit is `NEAR` (OVER only when used > limit). 80% check uses multiplication, no division/rounding.
@@ -29,12 +30,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T18.2 [API] Mark paid/unpaid per month; due_day 31 in short months = last day
 - [x] T18.3 [API] Monthly bill total exposed for budgets/planning (T31)
 - [ ] T18.4 [AND·Sahan] Bills list with paid toggle and next due date
+  - MD04 emulator forms verified list refresh, the paid toggle and dependent Insights and History refresh. The T18-specific physical-device checklist remains open.
 
 **Done when**
 - [x] Tests: February due dates, month rollover resets unpaid, paid twice → 409
 
 **Handoff notes:**
-- API part done (T18.1–T18.3); **T18.4 (Android, Sahan) still open — blocked by T37**. App shows "next due date" from `GET /bills?month=` (`dueDate`, `paid`).
+- API done (T18.1–T18.3). T18.4 code by Sevindu: `and:ui/bills/` (list + form + ViewModels), `data/api/BillDto`, `data/repo/BillRepository`, Plan tab → Bills. Month switcher, summary line, paid checkbox (409 = already paid → reload), status Paid / Not paid / Overdue (due date before today, Asia/Colombo). Device check (EN/SI, TalkBack, rotation) still open.
 - `api:bill/`: `Bill`, `BillPayment` (row = paid for that month; none = unpaid), repos, `BillService`, `BillController`, `dto/`.
 - Paid: `POST /bills/{id}/paid?month=` (twice → 409), unpaid: `DELETE` same URL (idempotent 204). Category optional, must be EXPENSE.
 - **For T21/T31:** `BillService.monthlyTotal(userId)` (BigDecimal, scale 2) and static `BillService.dueDate(bill, yearMonth)`. Endpoint `GET /bills/summary?month=` gives total/paid/unpaid.
@@ -48,12 +50,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T19.1 [API] CRUD `/api/v1/goals` (target > 0, target date in future)
 - [x] T19.2 [API] Contributions add/delete; progress = sum(contributions) / target, capped display at 100%
 - [ ] T19.3 [AND·Sahan] Goals list + detail with contributions
+  - MD04 emulator forms verified list/detail refresh, goal lifecycle and contribution changes. T19-specific device acceptance remains open.
 
 **Done when**
 - [x] Tests: progress after edit/delete of contributions, invalid targets, no double counting
 
 **Handoff notes:**
-- API part done (T19.1–T19.2); **T19.3 (Android, Sahan) still open — blocked by T37**.
+- API done (T19.1–T19.2). T19.3 code by Sevindu: `and:ui/goals/` (list → detail with add/remove contributions, edit/cancel/resume/delete; form), `GoalDto`, `GoalRepository`, Plan tab → Savings goals. Edit sends `cancelled: true` to keep a cancelled goal cancelled. **API gap:** D16's future-date check blocks any PUT (even cancel) once the target date passes; app asks the user to change/clear the date first. Dates typed as YYYY-MM-DD (no picker yet).
 - `api:goal/`: `Goal`, `GoalStatus`, `GoalContribution`, repos, `GoalService`, `GoalController`, `dto/`. No migration (V3 tables).
 - D16: target date future on create and edit; status automatic (DONE when saved ≥ target), user can only cancel via `cancelled: true`; contributions add/delete only. Add/delete contribution returns the updated goal.
 - **For T23/T31/T32:** `GoalService.saved(goal)` (scale 2) and static `GoalService.progressPercent(saved, target)` (rounded down, max 100).
@@ -63,12 +66,18 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T33 · Monthly insights and score history · `FR15`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T22, T23 · **Touches:** `api:history/`, `and:ui/history/`
-- [ ] T33.1 [API] Snapshot job: store month's insights + health score once (idempotent upsert on user+month)
-- [ ] T33.2 [API] Recalculate a month when its transactions change
-- [ ] T33.3 [API] `GET /api/v1/history?from&to` → score + key insights per month
-- [ ] T33.4 [AND·Sahan] History screen: score trend chart + month list
+- [x] T33.1 [API] Snapshot job: store month's insights + health score once (idempotent upsert on user+month)
+- [x] T33.2 [API] Recalculate a month when its transactions change
+- [x] T33.3 [API] `GET /api/v1/history?from&to` → score + key insights per month
+- [x] T33.4 [AND·Sahan] History screen: score trend chart + month list
 
 **Done when**
-- [ ] Tests: running snapshot twice = same rows; editing an old transaction updates that month's score
+- [x] Tests: running snapshot twice = same rows; editing an old transaction updates that month's score
 
-**Handoff notes:** —
+**Handoff notes:**
+- D41 permits early implementation with T23 open. V10 preserves exact monthly amounts and nullable scores. Dirty months show pending until recalculation succeeds after commit, and phase-one D39 owner-lock ordering is retained.
+- MySQL verified idempotence, the Colombo year boundary, rollback, a cross-month edit, exact JSON facts and API isolation. A scored past-month edit changed the saved 92 to the recalculated D20 score. A separate MySQL connection observed the worker block on the finance owner lock until commit.
+- The isolated scheduler and emulator showed October net 866.85 then 766.85 after edit, a null score, and a separate 92/100 trend. Formal dependencies and independent review remain open.
+- V13 implements D43 missed-month recovery with a persisted cutoff, bounded batches, durable retries and reconstruction provenance. The 322-test Maven run passed, including five new recovery tests and 27 D39 cases.
+- An isolated scheduler recovered a synthetic September row with exact net LKR −9.77 and a null score. HMD displayed its Sinhala reconstruction notice and verified bilingual History return focus.
+- Sevindu's independent review covers V10–V13 and the D39 owner lock. Production recovery requires the approved `FINORA_HISTORY_ACTIVATION_INSTANT` as described in [deployment](../../docs/deploy.md#history-recovery-activation-d43).

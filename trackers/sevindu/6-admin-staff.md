@@ -60,14 +60,15 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T41, T14 · **Touches:** `api:smsformat/`, `and:ui/admin/`
 - [ ] T45.1 [API] CRUD versioned formats per bank (pattern + field mapping); only one active version per bank
 - [ ] T45.2 [API] Validate a format against redacted sample text before activating
-- [ ] T45.3 [API] `GET /api/v1/sms-formats` (USER) → active formats for the app's local parser (T14)
+- [x] T45.3 [API] `GET /api/v1/sms-formats` (USER) → active formats for the app's local parser (T14)
 - [ ] T45.4 [API] Roll back = activate an older version
 - [ ] T45.5 [AND] Format list, edit, test-sample, activate/rollback
 
 **Done when**
 - [ ] Tests: invalid pattern rejected; rollback restores previous; T16 regression set still passes after a change
 
-**Handoff notes:** —
+**Handoff notes:**
+- D36 authorizes T45.3 ahead of T14 closure. V9 seeds only the D35 NSB bundle. USER-only GET returns a schema-v1 snapshot with no-store, an authoritative empty bundle when inactive, and a standard 503 for a corrupt approved row. MySQL-backed controller tests verified approval, authentication, roles, empty and invalid states. T45's other subtasks and parent gates remain open.
 
 ---
 

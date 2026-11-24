@@ -18,7 +18,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     // For updates: does ANOTHER account of this user already have the name?
     boolean existsByUserIdAndNameAndIdNot(Long userId, String name, Long id);
 
-    // Plain SQL because the Transaction entity only comes in T10
+    // Called after the owner's finance write lock has been acquired.
     @Query(value = "SELECT COUNT(*) FROM transactions WHERE account_id = :accountId", nativeQuery = true)
     long countTransactions(Long accountId);
 }

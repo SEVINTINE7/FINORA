@@ -67,4 +67,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - HMD Crest 5G (Android 14) verified both languages on Login and the USER, ADMIN and STAFF homes. Sinhala samples, including all five USER tabs, showed no clipping at the tested settings.
 - Sahan confirmed the spoken TalkBack labels for Sign in, Show password and Language, and approved all 37 Sinhala resource pairs as native-speaker reviewer on 2026-11-22.
 - Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart.
-- Sahan reported a technical GO from independent source re-review of `92f2dd3`, including the stable login identity correction. Independent human final approval remains pending.
+- Sahan reported a technical GO from independent source re-review of `92f2dd3`, including the stable login identity correction. Independent human final approval remains pending. The separate MD04 [64-pair](../../docs/md04-sinhala-native-speaker-approval.md) and [23-pair](../../docs/md04-history-advice-native-speaker-approval.md) approvals are recorded at their reviewed revisions.

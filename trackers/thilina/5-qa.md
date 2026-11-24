@@ -1,9 +1,6 @@
 # Thilina 5 — QA: roles, security, AI correctness, SMS/usability/performance (T52–T55)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Detail: outline** — expand before starting.
-T52 backend extension (authorized 2026-11-22): discover existing financial mappings, seed synthetic owner data;
-for STAFF/ADMIN assert exact standard 403 fields and unchanged financial rows after every denied read/write.
-No new endpoints, financial policy, production changes or repeated foreign-owner checks.
 
 ---
 
@@ -17,11 +14,9 @@ No new endpoints, financial policy, production changes or repeated foreign-owner
 - [ ] Matrix test green in CI
 
 **Handoff notes:**
+- 2026-11-24 reconciliation: PR #10 retains FinancialResponsePrivacyTest, four historical focused passes, 19 read and 23 write mappings per privileged role, and unchanged financial rows. Prior combined verify 261/261. T41/T46 remain acceptance dependencies.
 - 2026-11-21 Thilina: Added disabled-account JWT checks for USER, STAFF and ADMIN across discovered protected endpoints. EndpointAuthTest: 6/6 PASS, 0 failures/errors/skips, Java 17 and MySQL 8. Full role matrix, ownership tests, privacy checks and CI confirmation remain pending.
 - 2026-11-22 audit: current T53 verify includes EndpointAuthTest and RoleAccessTest; existing discovery covers implemented endpoints, but does not assert exact error-field privacy. Highest-priority independent follow-up: T52.3 response-field privacy assertions on existing finance endpoints, on a separate T52 branch. T41/T46 and CI acceptance remain blocked; no new T52 tests or completion claimed here.
-- Later 2026-11-22: FinancialResponsePrivacyTest focused 4/4 passed (zero failures/errors/skips, exit 0): STAFF/ADMIN each denied across 19 real financial GET and 23 write mappings; exact private error shape and ten unchanged financial tables asserted after each request. Owner positive controls pass; existing foreign-owner tests untouched.
-- Initial T52-only offline verify 206/206 passed; service lines 668/677 (98.67%), gate passed (api/target/final-t52-verify.log). PR #10 reconciled with teammate-merged #8/#9; combined verification follows. Full T41/T46 functionality and final acceptance remain blocked; T52 stays in-progress. Handoff: docs/thilina-team-handoff.md.
-- Final combined verify after reconciliation with origin/main 89b6e7c: 261/261 passed, zero failures/errors/skips, exit 0; service lines 692/702 (98.58%), JaCoCo gate passed (api/target/final-combined-verify.log). Java 17, offline, only finora_test; diff check passed. PR #10 remains the review/CI acceptance location; no full-task completion claimed.
 
 ---
 
@@ -55,7 +50,7 @@ No new endpoints, financial policy, production changes or repeated foreign-owner
 
 **Handoff notes:**
 - 2026-11-22 audit: recovered T27-T29 branch contains mocked client/verifier/fallback tests; historical 253-test result is branch-specific and was not rerun here. Real LLM pass-rate testing remains unauthorized; T29 acceptance blocks T54 completion. Do not report mocked results as real pass rates.
-- Final handoff: PR #8 merged with actual 51 focused / 253 full passing tests; verifier remains provisional and no real LLM evaluation authorized. T54 remains todo; see docs/thilina-team-handoff.md for approvals.
+- D44 now authorizes a bounded synthetic live check for T30 once approved models, isolated credentials and a numeric call budget are available. The T54 pass-rate evaluation and its T29 prerequisite remain open.
 
 ---
 

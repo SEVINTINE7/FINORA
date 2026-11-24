@@ -3,6 +3,10 @@ package lk.finora.app.ui.sms;
 enum SmsPermissionState {
     UNAVAILABLE, GRANTED, FIRST_REQUEST, DENIED_WITH_RATIONALE, SETTINGS_AVAILABLE;
 
+    boolean canRequest() {
+        return this == FIRST_REQUEST || this == DENIED_WITH_RATIONALE;
+    }
+
     static SmsPermissionState resolve(boolean declared, boolean granted, boolean requestedBefore,
             boolean showRationale) {
         if (!declared) {

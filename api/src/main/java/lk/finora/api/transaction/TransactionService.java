@@ -10,13 +10,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.account.Account;
 import lk.finora.api.account.AccountRepository;
+import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.category.Category;
 import lk.finora.api.category.CategoryRepository;
 import lk.finora.api.common.error.ApiException;
+import lk.finora.api.history.HistoryInvalidation;
 import lk.finora.api.transaction.dto.SummaryResponse;
 import lk.finora.api.transaction.dto.TransactionPage;
 import lk.finora.api.transaction.dto.TransactionRequest;
@@ -31,12 +34,16 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
+    private final FinanceWriteLock writeLock;
+    private final HistoryInvalidation history;
 
     public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository, FinanceWriteLock writeLock, HistoryInvalidation history) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
+        this.writeLock = writeLock;
+        this.history = history;
     }
 
     @Transactional(readOnly = true)
@@ -70,26 +77,77 @@ public class TransactionService {
         return toResponse(findOwn(userId, id));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransactionResponse create(Long userId, TransactionRequest request) {
+        writeLock.acquire(userId);
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         copyRequest(userId, request, transaction);
         transactionRepository.save(transaction);
+        invalidate(transaction);
         return toResponse(transaction);
     }
 
-    @Transactional
+    /** Runs the create checks (own, non-archived account; visible category of the same kind) without saving. */
+    @Transactional(readOnly = true)
+    public void checkNew(Long userId, TransactionRequest request) {
+        copyRequest(userId, request, new Transaction());
+    }
+
+    /**
+     * Saves one imported record (T12) with the same account/category checks as {@link #create}.
+     * Source is always CSV; the caller computes the dedup hash.
+     */
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public TransactionResponse createImported(Long userId, TransactionRequest request, String dedupHash) {
+        writeLock.acquire(userId);
+        Transaction transaction = new Transaction();
+        transaction.setUserId(userId);
+        copyRequest(userId, request, transaction);
+        transaction.setSource(TransactionSource.CSV);
+        transaction.setDedupHash(dedupHash);
+        transactionRepository.save(transaction);
+        invalidate(transaction);
+        return toResponse(transaction);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void createSmsImported(Long userId, TransactionRequest request, String dedupHash) {
+        writeLock.acquire(userId);
+        Transaction transaction = new Transaction();
+        transaction.setUserId(userId);
+        copyRequest(userId, request, transaction);
+        transaction.setDedupHash(dedupHash);
+        transactionRepository.save(transaction);
+        invalidate(transaction);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransactionResponse update(Long userId, Long id, TransactionRequest request) {
+        writeLock.acquire(userId);
         Transaction transaction = findOwn(userId, id);
+        LocalDate oldDate = transaction.getTxnDate();
+        TransactionType oldType = transaction.getType();
         copyRequest(userId, request, transaction);
         transactionRepository.save(transaction);
+        if (!oldDate.equals(transaction.getTxnDate()) || oldType != transaction.getType()) {
+            history.transactionChanged(userId, oldDate, oldType == TransactionType.INCOME);
+        }
+        invalidate(transaction);
         return toResponse(transaction);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void delete(Long userId, Long id) {
-        transactionRepository.delete(findOwn(userId, id));
+        writeLock.acquire(userId);
+        Transaction transaction = findOwn(userId, id);
+        transactionRepository.delete(transaction);
+        invalidate(transaction);
+    }
+
+    private void invalidate(Transaction transaction) {
+        history.transactionChanged(transaction.getUserId(), transaction.getTxnDate(),
+                transaction.getType() == TransactionType.INCOME);
     }
 
     @Transactional(readOnly = true)

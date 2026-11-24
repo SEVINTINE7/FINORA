@@ -16,15 +16,15 @@ public final class HomeViewModel extends ViewModel {
     private final MutableLiveData<Boolean> signedOut = new MutableLiveData<>();
     private boolean signingOut;
 
-    LiveData<Boolean> signedOut() {
+    public LiveData<Boolean> signedOut() {
         return signedOut;
     }
 
-    boolean signingOut() {
+    public boolean signingOut() {
         return signingOut;
     }
 
-    void logout(Session expected) {
+    public void logout(Session expected) {
         if (signingOut) {
             return;
         }

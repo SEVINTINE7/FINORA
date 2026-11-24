@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.analytics.MetricsService;
+import lk.finora.api.account.FinanceWriteLock;
+import lk.finora.api.history.HistoryInvalidation;
 import lk.finora.api.analytics.MonthMetrics;
 import lk.finora.api.common.error.ApiException;
 import lk.finora.api.score.dto.ScoreInputRequest;
@@ -25,9 +27,14 @@ public class ScoreService {
     private final MetricsService metrics;
     private final ScoreInputRepository inputs;
     private final JdbcTemplate jdbc;
+    private final FinanceWriteLock writeLock;
+    private final HistoryInvalidation history;
 
-    public ScoreService(MetricsService metrics, ScoreInputRepository inputs, JdbcTemplate jdbc) {
+    public ScoreService(MetricsService metrics, ScoreInputRepository inputs, JdbcTemplate jdbc,
+                        FinanceWriteLock writeLock, HistoryInvalidation history) {
         this.metrics = metrics; this.inputs = inputs; this.jdbc = jdbc;
+        this.writeLock = writeLock;
+        this.history = history;
     }
 
     @Transactional(readOnly = true)
@@ -55,6 +62,7 @@ public class ScoreService {
 
     @Transactional
     public ScoreInputResponse putInputs(Long userId, String month, ScoreInputRequest request) {
+        writeLock.acquire(userId);
         YearMonth period = parseMonth(month);
         if ((request.emergencyReserve() == null) != (request.reserveAsOf() == null)) {
             throw ApiException.badRequest("Emergency reserve and date must be supplied together");
@@ -72,6 +80,7 @@ public class ScoreService {
         ScoreInput input = inputs.findByUserIdAndMonth(userId, month).orElseGet(() -> new ScoreInput(userId, month));
         input.confirm(request, LocalDateTime.now(ZoneOffset.UTC));
         inputs.save(input);
+        history.monthChanged(userId, month);
         return response(month, input);
     }
 

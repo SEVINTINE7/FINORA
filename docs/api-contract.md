@@ -38,6 +38,7 @@ Every error, including 401/403 from security and 404 for unknown paths:
 | 401 | `INVALID_REFRESH_TOKEN` | Refresh token unknown, expired, already used or logged out |
 | 409 | `CONFLICT` | Duplicate name (account per user; category per user + kind, including defaults) (T09) |
 | 409 | `IN_USE` | Deleting a category used by transactions, budgets or bills (T09) |
+| 413 | `FILE_TOO_LARGE` | Uploaded CSV over 1 MB (T12) |
 | 403 | `ACCOUNT_DISABLED` | Login/refresh for a disabled account, or any request with a still-valid token of a disabled account (T06) |
 | 409 | `EMAIL_TAKEN` | Register with an email that already exists (case-insensitive) |
 | 500 | `INTERNAL_ERROR` | Unexpected server error (details only in server logs) |
@@ -89,6 +90,8 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/transactions` | USER | `{accountId, categoryId?, type, amount: "1250.00" (≥ 0.01, 2 dp), txnDate, merchant?, note?, source?: MANUAL\|SMS\|PASTE\|CSV (default MANUAL)}` | `201` transaction · 400 (validation; account not own/archived; category not visible or kind ≠ type) | T10 |
 | PUT | `/api/v1/transactions/{id}` | USER | same as POST | `200` transaction · 400 · 404 | T10 |
 | DELETE | `/api/v1/transactions/{id}` | USER | — | `204` · 404 | T10 |
+| POST | `/api/v1/imports/csv/preview` | USER | `multipart/form-data`, part `file` = CSV per `docs/csv-template.md` (≤ 1 MB, ≤ 2000 rows) | `200 {totalRows, validRows, errorRows, duplicateRows, rows: [{line, txnDate, type, amount, accountId, accountName, categoryId, categoryName, merchant, note, occurrence, duplicate, errors: [string]}]}`; nothing saved · 400 (empty, not UTF-8, bad header, broken quoting, > 2000 rows) · 413 `FILE_TOO_LARGE` | T12 |
+| POST | `/api/v1/imports/csv/confirm` | USER | `{rows: [{line, txnDate, type, amount, accountId, categoryId?, merchant?, note?, occurrence}]}` (1–2000; the valid preview rows the user picked) | `200 {saved, skippedDuplicateLines: [line]}`; saved with `source=CSV` and `dedup_hash` (D25); rows already imported are skipped · 400 (any row invalid → nothing saved, message starts `Line N:`) · 409 `CONFLICT` (same rows confirmed twice at once) | T12 |
 | GET | `/api/v1/budgets?month=YYYY-MM` | USER | `month` required | `200 [budget]`, budget = `{id, categoryId, month, limitAmount, used, remaining, state: "OK"\|"NEAR"\|"OVER"}` · 400 bad/missing month | T17 |
 | GET | `/api/v1/budgets/{id}` | USER | — | `200` budget · 404 | T17 |
 | POST | `/api/v1/budgets` | USER | `{categoryId (EXPENSE, default or own), month: "2026-11", limitAmount: "20000.00"}` | `201` budget · 400 · 409 `CONFLICT` (already a budget for that category + month) | T17 |
@@ -125,3 +128,36 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 **Budgets (T17):** `used` = sum of the user's EXPENSE transactions in that category from the 1st to the last day of `month`. `remaining` = `limitAmount − used` (negative when over). `state`: `OVER` if used > limit, `NEAR` if used ≥ 80% of limit, else `OK`.
 
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.
+
+
+## SMS format distribution (T45.3)
+
+| Method | Path | Role | Response |
+|---|---|---|---|
+| GET | `/api/v1/sms-formats` | USER | `200` JSON, `Cache-Control: no-store` |
+
+No query parameters or request body. The complete schema-v1 snapshot has exactly two keys, `schemaVersion` (integer `1`) and `templates` (array). A populated v1 snapshot contains the three approved D35 NSB templates. Each template has `id`, `version`, `senderIds`, `numberStyle`, `dateSource`, `datePattern`, `markers` and `fields`. NSB v1 uses `COMMA_GROUPED`, `MESSAGE` and `DAY_MONTH_YEAR_WITH_TIME`. Marker keys are `prefix`, `debit`, `credit`, `suffix` and `requiredDirection`. The ordered field entries have `name` and a literal `delimiter`. The bundled Android asset contains the complete approved example. No executable patterns, message examples or user data are returned.
+
+A successful `{"schemaVersion":1,"templates":[]}` disables this bundle, including offline use after a client has observed the empty response. Only a validated, populated response re-enables it. An unavailable endpoint, network failure or invalid response does not change the last known disablement. Before any observed disablement, the Android client can use the approved bundled NSB snapshot offline. Disablement is installation-wide for the configured API origin because the response is shared reference data, with updates accepted only from the current USER login.
+
+Missing or invalid credentials use the standard `401` response, and ADMIN/STAFF receive `403`. An active D35 row that fails the pinned approval check yields `503 SMS_FORMATS_UNAVAILABLE` with the standard error body and no format payload.
+
+
+## SMS transaction batch (T15.3, D26/D38)
+
+| Method | Path | Role | Success |
+|---|---|---|---|
+| POST | `/api/v1/transactions/batch` | USER | `200 {"items":[{"index":1,"status":"SAVED","possibleManualMatch":[]}]}` |
+
+Request `{"items":[{"dedupHash":"<64 lowercase SHA-256 hex>","transaction":{"accountId":1,"categoryId":null,"type":"EXPENSE","amount":1250.75,"txnDate":"2026-11-21","merchant":"TEST SHOP","source":"SMS"}}]}`. Between 1 and 200 rows. Source is SMS or PASTE. Merchant and same-kind category are optional; note is not accepted. No SMS text or sender metadata.
+
+Validates the complete batch, including duplicates, before saving. A semantically invalid item returns standard 400 BAD_REQUEST with a one-based `Item N: ...` message and saves nothing. Invalid JSON or envelope has the standard 400 response; 401/403 follow the normal role rules. Accounts must belong to the caller and be active; categories must be visible to that user. Dates use MySQL's supported range (1000–9999). Amounts are exact LKR decimals.
+
+Each result corresponds to its one-based request index. `DUPLICATE` is an existing or repeated fingerprint for the same user; the item is unsaved and requires review under D38. `SAVED` can include IDs in `possibleManualMatch` for the caller's preserved MANUAL rows matching account, date, type and amount. Retry only after user confirmation with the same frozen request. The unique key applies while the matching transaction exists.
+
+## D41 monthly history and V1 advice
+
+- `GET /api/v1/history?from=YYYY-MM&to=YYYY-MM` is USER-only. Both bounds are inclusive and required, with at most 24 months and years 1000–9999. Returns oldest-first stored snapshots `[{month,income,expense,net,score,insights:[{type,facts}],refreshPending}]`; monetary fields are exact JSON decimals. Missing snapshots are omitted, and an available snapshot can have a null score. Invalid bounds return 400. D27 recalculation is asynchronous after commit. A dirty snapshot returns `refreshPending: true`, null totals and score, and empty insights until refresh succeeds. Bill changes, category reclassifications, related goal and contribution changes, and score-input changes invalidate existing snapshots under the same write order. Budgets are not inputs to the current D20 score or T22 patterns.
+- D43 adds nullable `reconstructedAt` to each History row. A non-null ISO-8601 UTC timestamp identifies recovery from the committed records available at first reconstruction. Values can differ from what was recorded at month-end. The timestamp and provenance survive dirty refreshes. Rows created by the ordinary D27 workflow have null provenance, including rows created before V13.
+- `GET /api/v1/advice?month=YYYY-MM&mode=V1` is USER-only. Both parameters are required. A delivered month returns `{month,id,source,verified,items,rating}` where items follow the existing AdviceItem schema. First verified AI or canonical rule delivery is frozen per user and month. If a first delivery is already being generated, return the stored result if available or `503 ADVICE_PENDING` so the client can retry. A short database transaction claims generation before provider calls. The claim expires after 120 seconds and cannot publish after expiry. If no action is eligible, return an empty list and null ID and rating. The empty state is not frozen. `rating` is null until submitted.
+- `POST /api/v1/advice/{id}/rating` is USER-only. It takes `{"rating": integer}` from 1–5 and returns 201 with `{rating}`. Invalid IDs or inputs return 400, missing or foreign delivery returns 404, and duplicate ratings return 409. Reconcile a lost response with the owner-scoped monthly GET and never automatically replay the write.

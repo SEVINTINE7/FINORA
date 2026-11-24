@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.bill.dto.BillMonthResponse;
+import lk.finora.api.account.FinanceWriteLock;
+import lk.finora.api.history.HistoryInvalidation;
 import lk.finora.api.bill.dto.BillRequest;
 import lk.finora.api.bill.dto.BillResponse;
 import lk.finora.api.bill.dto.BillSummaryResponse;
@@ -29,12 +31,16 @@ public class BillService {
     private final BillRepository billRepository;
     private final BillPaymentRepository billPaymentRepository;
     private final CategoryRepository categoryRepository;
+    private final FinanceWriteLock writeLock;
+    private final HistoryInvalidation history;
 
     public BillService(BillRepository billRepository, BillPaymentRepository billPaymentRepository,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository, FinanceWriteLock writeLock, HistoryInvalidation history) {
         this.billRepository = billRepository;
         this.billPaymentRepository = billPaymentRepository;
         this.categoryRepository = categoryRepository;
+        this.writeLock = writeLock;
+        this.history = history;
     }
 
     // ---------- CRUD (T18.1) ----------
@@ -46,27 +52,33 @@ public class BillService {
 
     @Transactional
     public BillResponse create(Long userId, BillRequest request) {
+        writeLock.acquire(userId);
         checkCategory(userId, request.categoryId());
         Bill bill = new Bill();
         bill.setUserId(userId);
         copyRequest(request, bill);
         billRepository.save(bill);
+        history.allMonthsChanged(userId);
         return toResponse(bill);
     }
 
     @Transactional
     public BillResponse update(Long userId, Long id, BillRequest request) {
+        writeLock.acquire(userId);
         Bill bill = findOwn(userId, id);
         checkCategory(userId, request.categoryId());
         copyRequest(request, bill);
         billRepository.save(bill);
+        history.allMonthsChanged(userId);
         return toResponse(bill);
     }
 
     /** Deletes the bill. Its paid markers are removed by the database (ON DELETE CASCADE). */
     @Transactional
     public void delete(Long userId, Long id) {
+        writeLock.acquire(userId);
         billRepository.delete(findOwn(userId, id));
+        history.allMonthsChanged(userId);
     }
 
     // ---------- one month (T18.2) ----------
@@ -87,6 +99,7 @@ public class BillService {
     /** Marks the bill paid for the month. Paying the same month twice gives 409. */
     @Transactional
     public void markPaid(Long userId, Long id, String month) {
+        writeLock.acquire(userId);
         parseMonth(month);
         Bill bill = findOwn(userId, id);
         if (billPaymentRepository.existsByBillIdAndMonth(bill.getId(), month)) {
@@ -96,15 +109,20 @@ public class BillService {
         payment.setBillId(bill.getId());
         payment.setMonth(month);
         billPaymentRepository.save(payment);
+        history.monthChanged(userId, month);
     }
 
     /** Marks the bill unpaid for the month. Already unpaid is fine (nothing to do). */
     @Transactional
     public void markUnpaid(Long userId, Long id, String month) {
+        writeLock.acquire(userId);
         parseMonth(month);
         Bill bill = findOwn(userId, id);
         billPaymentRepository.findByBillIdAndMonth(bill.getId(), month)
-                .ifPresent(billPaymentRepository::delete);
+                .ifPresent(payment -> {
+                    billPaymentRepository.delete(payment);
+                    history.monthChanged(userId, month);
+                });
     }
 
     /**

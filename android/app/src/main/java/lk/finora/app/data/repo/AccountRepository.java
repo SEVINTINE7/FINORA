@@ -101,7 +101,8 @@ public final class AccountRepository {
                 // Retain the HTTP status even when the error body is malformed.
             }
         }
-        throw new HttpFailure(response.code(), error == null ? null : error.code);
+        throw new HttpFailure(response.code(), error == null ? null : error.code,
+                error == null || error.fields == null ? java.util.Collections.emptyList() : error.fields);
     }
 
     public static <T> T read(Response response, Class<T> type) throws IOException {
@@ -124,10 +125,12 @@ public final class AccountRepository {
     public static final class HttpFailure extends IOException {
         public final int status;
         public final String code;
-        HttpFailure(int status, String code) {
+        public final List<ApiError.FieldError> fields;
+        HttpFailure(int status, String code, List<ApiError.FieldError> fields) {
             super("HTTP " + status);
             this.status = status;
             this.code = code;
+            this.fields = fields;
         }
     }
 }

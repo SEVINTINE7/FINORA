@@ -1,0 +1,3 @@
+Dear MR TEST USER,LKR 1,250.75 Debited from your A/c XXXXXXXX0000 on 21/11/2026 at 14:27.AvlBal LKR 25,000.00. @ TEST SUPERMARKET. ATM POS Transaction.Thank you for banking with us.Call Centre 1972.
+Dear MR TEST USER,LKR 4,500.25 Debited from your A/c XXXXXXXX0000 on 21/11/2026 at 16:13.AvlBal LKR 20,000.00.OTC Outward CEFT.Thank you for banking with us.Call Centre 1972.
+Dear MR TEST USER,LKR 750.50 Credited to your A/c XXXXXXXX0000 on 22/11/2026 at 20:54.AvlBal LKR 30,000.00.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.
