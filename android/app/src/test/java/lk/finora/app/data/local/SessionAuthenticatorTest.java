@@ -121,6 +121,40 @@ public class SessionAuthenticatorTest {
     }
 
     @Test
+    public void rejectedOneShotWriteRefreshesWithoutResendingAndAllowsExplicitRetry() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(error(401, "UNAUTHORIZED"));
+            server.enqueue(rotated());
+            server.enqueue(new MockResponse().setResponseCode(200));
+            TokenStore store = store(true, true);
+            ApiClient client = new ApiClient(server.url("/").toString(), store);
+            var body = new okhttp3.RequestBody() {
+                @Override public okhttp3.MediaType contentType() {
+                    return okhttp3.MediaType.get("application/json");
+                }
+                @Override public boolean isOneShot() { return true; }
+                @Override public void writeTo(okio.BufferedSink sink) throws IOException {
+                    sink.writeUtf8("{}");
+                }
+            };
+            var write = new Request.Builder().url(server.url("/api/v1/transactions/batch")).post(body).build();
+
+            try (var response = client.newCall(write).execute()) {
+                assertEquals(401, response.code());
+            }
+            assertEquals(2, server.getRequestCount());
+            assertEquals("Bearer old", server.takeRequest(2, TimeUnit.SECONDS).getHeader("Authorization"));
+            assertEquals("/api/v1/auth/refresh", server.takeRequest(2, TimeUnit.SECONDS).getPath());
+
+            try (var response = client.newCall(write).execute()) {
+                assertEquals(200, response.code());
+            }
+            assertEquals(3, server.getRequestCount());
+            assertEquals("Bearer new", server.takeRequest(2, TimeUnit.SECONDS).getHeader("Authorization"));
+        }
+    }
+
+    @Test
     public void twoSimultaneous401sShareOneRotation() throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             CountDownLatch oldRequests = new CountDownLatch(2);

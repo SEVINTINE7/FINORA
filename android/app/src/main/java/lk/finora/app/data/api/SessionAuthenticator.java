@@ -41,10 +41,14 @@ public final class SessionAuthenticator implements Authenticator {
         Session failed = request.tag(Session.class);
         if (response.code() != 401 || failed == null || response.priorResponse() != null
                 || !AuthInterceptor.isProtected(origin, request.url())
-                || (request.body() != null && (request.body().isOneShot() || request.body().isDuplex()))) {
+                || (request.body() != null && request.body().isDuplex())) {
             return null;
         }
         if (refresh(failed, request.tag(Started.class)) != Outcome.RESTORED) {
+            return null;
+        }
+        // Restore credentials for a future user-confirmed write, but never follow up a one-shot body.
+        if (request.body() != null && request.body().isOneShot()) {
             return null;
         }
         Session replacement = store.verifiedSession();
