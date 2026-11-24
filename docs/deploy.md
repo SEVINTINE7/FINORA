@@ -125,3 +125,7 @@ If `FINORA_KEYSTORE_FILE` is set but another value is missing (or the API URL is
 ### History recovery activation (D43)
 
 Set `FINORA_HISTORY_ACTIVATION_INSTANT` to the approved production activation timestamp in ISO-8601 UTC on first activation. The scheduler persists the first full Asia/Colombo month at or after that instant. Subsequent starts use the stored cutoff, and a conflicting configured cutoff stops the recovery pass. With neither a configured activation nor a stored cutoff, only the ordinary D27 jobs run. Review any gaps in the reported ranges outside the automatic six-closed-month window before arranging owner-directed recovery. The worker schedules missing older snapshots separately from D27's previous-month and dirty work.
+
+### First ADMIN provisioning (D49)
+
+On a new deployment, set `FINORA_BOOTSTRAP_ADMIN_EMAIL` and `FINORA_BOOTSTRAP_ADMIN_PASSWORD` through the deployment secret store before starting the service. Use an authorized address and a unique high-entropy password of at least 16 characters and at most 72 UTF-8 bytes. When both variables are absent the bootstrap is inactive. The application creates one ADMIN only if none exists, including when multiple instances start together. It never resets an existing password. Remove the bootstrap variables once the administrator can sign in. Share subsequent STAFF activation credentials only through the approved secure channel.

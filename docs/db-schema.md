@@ -73,3 +73,4 @@ T46.1 reads aggregate counts from V5 `support_tickets` without a schema change. 
 - V14 adds SMS diagnostic metadata and escalation states. A per-user UTC-day key deduplicates submissions. A generated unique key limits each bank/error group to one active escalation. No message bodies or financial values are stored.
 - V15 adds immutable bilingual saved-reply revisions. The existing ticket and reply tables continue to store claims and rendered replies. Active revision uniqueness is enforced by a generated key.
 - V16 adds STAFF activation hashes and expiry, plus credential generations on users and refresh tokens. Generation zero preserves existing sessions until an operator changes that STAFF account's state.
+- V17 adds a singleton lock row for first-ADMIN bootstrap across concurrent backend instances.
