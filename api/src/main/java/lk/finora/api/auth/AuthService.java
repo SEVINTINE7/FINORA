@@ -12,7 +12,11 @@ import java.util.HexFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import lk.finora.api.account.FinanceWriteLock;
+import lk.finora.api.user.ConsentRecoveryService;
 
 import lk.finora.api.auth.dto.LoginRequest;
 import lk.finora.api.auth.dto.LoginResponse;
@@ -42,15 +46,22 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final ConsentRecoveryService recovery;
+    private final FinanceWriteLock owners;
+    private final JdbcTemplate jdbc;
     private final SecureRandom random = new SecureRandom();
 
     public AuthService(UserRepository userRepository, ConsentRepository consentRepository,
-            RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+            RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
+            ConsentRecoveryService recovery, FinanceWriteLock owners, JdbcTemplate jdbc) {
         this.userRepository = userRepository;
         this.consentRepository = consentRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.recovery = recovery;
+        this.owners = owners;
+        this.jdbc = jdbc;
     }
 
     @Transactional
@@ -85,7 +96,7 @@ public class AuthService {
         return user.getId();
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public LoginResponse login(LoginRequest request) {
         String email = request.email().trim().toLowerCase();
         User user = userRepository.findByEmail(email).orElse(null);
@@ -98,11 +109,20 @@ public class AuthService {
             throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
         }
 
-        return createTokens(user);
+        if (user.getRole() == Role.USER) {
+            owners.acquire(user.getId());
+            long generation = currentGeneration(user.getId());
+            if (recovery.withdrawn(user.getId())) {
+                return new LoginResponse(null, null, ConsentRecoveryService.LIFETIME_SECONDS, null,
+                        user.getLanguage().name(), recovery.issue(user.getId()), CONSENT_VERSION);
+            }
+            return createTokens(user, generation);
+        }
+        return createTokens(user, user.getStaffSessionGeneration());
     }
 
     /** Swaps a refresh token for a new pair. The old refresh token can never be used again (rotation, D07). */
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public LoginResponse refresh(String refreshToken) {
         RefreshToken stored = refreshTokenRepository.findByTokenHash(sha256(refreshToken)).orElse(null);
 
@@ -111,17 +131,20 @@ public class AuthService {
                     "Refresh token is invalid or expired. Please log in again");
         }
 
-        stored.setRevokedAt(Instant.now());
-        refreshTokenRepository.save(stored);
-
+        owners.acquire(stored.getUserId());
+        if (jdbc.update("UPDATE refresh_tokens SET revoked_at = UTC_TIMESTAMP(6) WHERE id = ? AND revoked_at IS NULL "
+                + "AND expires_at > UTC_TIMESTAMP(6)", stored.getId()) != 1) {
+            throw invalidRefresh();
+        }
         User user = userRepository.findById(stored.getUserId()).orElseThrow();
         if (user.getStatus() == UserStatus.DISABLED) {
             throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
         }
-        if (stored.getStaffSessionGeneration() != user.getStaffSessionGeneration()) {
-            throw new ApiException(ErrorCodes.INVALID_REFRESH_TOKEN, HttpStatus.UNAUTHORIZED, "Please log in again");
+        long generation = currentGeneration(user.getId());
+        if (stored.getStaffSessionGeneration() != generation || (user.getRole() == Role.USER && recovery.withdrawn(user.getId()))) {
+            throw invalidRefresh();
         }
-        return createTokens(user);
+        return createTokens(user, generation);
     }
 
     /** Revokes the refresh token. Unknown or already revoked tokens are ignored. */
@@ -134,9 +157,22 @@ public class AuthService {
         }
     }
 
-    private LoginResponse createTokens(User user) {
+    private long currentGeneration(long id) {
+        var generations = jdbc.queryForList(
+                "SELECT staff_session_generation FROM users WHERE id = ? AND status = 'ACTIVE'", Long.class, id);
+        if (generations.isEmpty()) {
+            throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
+        }
+        return generations.get(0);
+    }
+
+    private static ApiException invalidRefresh() {
+        return new ApiException(ErrorCodes.INVALID_REFRESH_TOKEN, HttpStatus.UNAUTHORIZED, "Please log in again");
+    }
+
+    private LoginResponse createTokens(User user, long generation) {
         String accessToken = jwtService.createAccessToken(user.getId(), user.getRole().name(),
-                user.getStaffSessionGeneration());
+                generation);
 
         // The refresh token is 32 random bytes. The app keeps the token; we keep only its hash.
         byte[] bytes = new byte[32];
@@ -146,7 +182,7 @@ public class AuthService {
         RefreshToken stored = new RefreshToken();
         stored.setUserId(user.getId());
         stored.setTokenHash(sha256(refreshToken));
-        stored.setStaffSessionGeneration(user.getStaffSessionGeneration());
+        stored.setStaffSessionGeneration(generation);
         stored.setExpiresAt(Instant.now().plus(REFRESH_TOKEN_LIFETIME));
         refreshTokenRepository.save(stored);
 

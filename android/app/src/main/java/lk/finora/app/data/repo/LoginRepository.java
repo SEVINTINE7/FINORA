@@ -19,7 +19,8 @@ public final class LoginRepository {
     public enum Result {
         SUCCESS, INVALID_CREDENTIALS, ACCOUNT_DISABLED, INVALID_INPUT,
         NETWORK_ERROR, SERVER_ERROR, STORAGE_ERROR, CONFIGURATION_ERROR, SESSION_EXPIRED,
-        UNSUPPORTED_ROLE, RESTORE_UNAVAILABLE, CANCELLED
+        UNSUPPORTED_ROLE, RESTORE_UNAVAILABLE, CANCELLED, CONSENT_REQUIRED,
+        CONSENT_RESTORED, CONSENT_EXPORT_SAVED, CONSENT_ACCOUNT_DELETED, CONSENT_RETRY
     }
 
     @FunctionalInterface
@@ -58,6 +59,13 @@ public final class LoginRepository {
                 return errorResult(response);
             }
             LoginResponse session = response.body();
+            if (session != null && session.restrictedToken != null) {
+                if (!session.restrictedToken.matches("[A-Za-z0-9_-]{43}") || !RegisterRepository.CONSENT_VERSION.equals(session.consentVersion)
+                        || session.expiresIn <= 0 || session.accessToken != null || session.refreshToken != null || session.role != null) {
+                    return Result.SERVER_ERROR;
+                }
+                return attempt.offerConsent(session.restrictedToken);
+            }
             if (session == null || !hasValue(session.accessToken) || !hasValue(session.refreshToken)
                     || session.expiresIn <= 0 || !hasValue(session.role) || !hasValue(session.language)) {
                 return Result.SERVER_ERROR;
@@ -105,9 +113,23 @@ public final class LoginRepository {
     public static final class Attempt {
         private boolean cancelled;
         private Call<LoginResponse> call;
+        private String consentGrant;
+
+        synchronized Result offerConsent(String grant) {
+            if (cancelled) return Result.CANCELLED;
+            consentGrant = grant;
+            return Result.CONSENT_REQUIRED;
+        }
+
+        public synchronized String takeConsentGrant() {
+            String grant = consentGrant;
+            consentGrant = null;
+            return grant;
+        }
 
         public synchronized void cancel() {
             cancelled = true;
+            consentGrant = null;
             if (call != null) {
                 call.cancel();
             }

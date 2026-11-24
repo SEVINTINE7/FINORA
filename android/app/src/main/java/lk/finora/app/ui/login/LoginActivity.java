@@ -57,6 +57,13 @@ public final class LoginActivity extends SecureActivity {
                 feedback.success(R.string.register_done);
             });
 
+    private androidx.appcompat.app.AlertDialog consentDialog;
+    private final ActivityResultLauncher<String> consentExport = registerForActivityResult(
+            new ActivityResultContracts.CreateDocument("application/json"), destination -> {
+                if (destination == null) showConsent();
+                else model.exportConsentData(destination);
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -218,6 +225,18 @@ public final class LoginActivity extends SecureActivity {
             } else {
                 feedback.clear();
             }
+        } else if (state.result == Result.CONSENT_REQUIRED) {
+            password.getText().clear();
+            feedback.clear();
+            showConsent();
+        } else if (state.result == Result.CONSENT_RESTORED) {
+            feedback.success(R.string.consent_restored);
+        } else if (state.result == Result.CONSENT_ACCOUNT_DELETED) {
+            feedback.success(R.string.consent_deleted);
+        } else if (state.result == Result.CONSENT_EXPORT_SAVED) {
+            feedback.success(R.string.settings_export_saved);
+        } else if (state.result == Result.CONSENT_RETRY) {
+            feedback.error(R.string.consent_retry);
         } else if (state.result == Result.SUCCESS) {
             password.getText().clear();
             if (!SessionNavigation.openHome(this)) {
@@ -226,6 +245,75 @@ public final class LoginActivity extends SecureActivity {
         } else {
             feedback.error(errorMessage(state.result));
         }
+    }
+
+    private void showConsent() {
+        if (isFinishing() || model.state().getValue().result != Result.CONSENT_REQUIRED
+                || (consentDialog != null && consentDialog.isShowing())) return;
+        var content = new android.widget.LinearLayout(this);
+        content.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padding = Math.round(24 * getResources().getDisplayMetrics().density);
+        content.setPadding(padding, 0, padding, 0);
+        var terms = new TextView(this);
+        terms.setText(R.string.register_consent_text);
+        content.addView(terms);
+        var agree = new android.widget.CheckBox(this);
+        agree.setText(R.string.register_consent);
+        content.addView(agree);
+        var accept = new Button(this);
+        accept.setText(R.string.consent_continue);
+        accept.setEnabled(false);
+        content.addView(accept);
+        agree.setOnCheckedChangeListener((button, checked) -> accept.setEnabled(checked));
+        accept.setOnClickListener(view -> {
+            consentDialog.dismiss();
+            model.acceptConsent();
+        });
+        var export = new Button(this);
+        export.setText(R.string.settings_export_data);
+        content.addView(export);
+        export.setOnClickListener(view -> {
+            consentDialog.dismiss();
+            consentExport.launch("finora-export-" + java.time.LocalDate.now(
+                    java.time.ZoneId.of("Asia/Colombo")) + ".json");
+        });
+        var delete = new Button(this);
+        delete.setText(R.string.settings_delete);
+        content.addView(delete);
+        delete.setOnClickListener(view -> {
+            consentDialog.dismiss();
+            confirmConsentDeletion();
+        });
+        var scroll = new android.widget.ScrollView(this);
+        scroll.addView(content);
+        consentDialog = showSecure(new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.consent_recover_title).setView(scroll)
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> model.cancelConsent())
+                .setOnCancelListener(dialog -> model.cancelConsent()).create());
+    }
+
+    private void confirmConsentDeletion() {
+        var secret = new EditText(this);
+        secret.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        secret.setSaveEnabled(false);
+        secret.setHint(R.string.password);
+        secret.setImeOptions(EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
+        var dialog = showSecure(new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.settings_delete).setMessage(R.string.settings_delete_confirm).setView(secret)
+                .setNegativeButton(android.R.string.cancel, (ignored, which) -> showConsent())
+                .setOnCancelListener(ignored -> showConsent())
+                .setPositiveButton(R.string.settings_delete_action, null).create());
+        dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
+            String value = secret.getText().toString();
+            if (value.isBlank() || value.length() > 72) {
+                secret.setError(getString(R.string.invalid_input));
+                return;
+            }
+            secret.getText().clear();
+            dialog.dismiss();
+            model.deleteConsentData(value);
+        });
     }
 
     private static int errorMessage(Result result) {

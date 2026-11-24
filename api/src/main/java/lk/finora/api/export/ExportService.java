@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-class ExportService {
+public class ExportService {
     // Each query identifies its owner, including child rows without a direct user_id.
     private static final Map<String, String> DATA = Map.ofEntries(
             Map.entry("consents", "SELECT version, over18, accepted_at, withdrawn_at FROM consents WHERE user_id = ? ORDER BY id"),
@@ -65,5 +65,5 @@ class ExportService {
         return new Snapshot(1, profiles.get(0), data);
     }
 
-    record Snapshot(int schemaVersion, Map<String, Object> profile, Map<String, List<Map<String, Object>>> data) {}
+    public record Snapshot(int schemaVersion, Map<String, Object> profile, Map<String, List<Map<String, Object>>> data) {}
 }

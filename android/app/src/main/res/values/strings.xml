@@ -460,4 +460,9 @@
     <string name="sms_format_sample_result">%1$s\n%2$s</string>
     <string name="sms_format_validate_approved">Validate approved samples</string>
     <string name="sms_format_fixture_result">Sample %1$d · %2$s</string>
+    <string name="consent_recover_title">Review your consent</string>
+    <string name="consent_continue">Agree and return to sign-in</string>
+    <string name="consent_restored">Consent restored. Sign in again.</string>
+    <string name="consent_deleted">Your account was deleted.</string>
+    <string name="consent_retry">Could not confirm the result. Sign in again before trying again.</string>
 </resources>
