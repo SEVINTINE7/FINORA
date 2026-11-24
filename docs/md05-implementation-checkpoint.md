@@ -124,3 +124,24 @@ Pending approval details, proposed bilingual saved replies and the consolidated 
 - The test APKs and recent handset procedure are described in the [D50 preflight](md05-owner-proposal.md#d50-package-and-runner-preflight). The opt-in build passed 142 JVM tests and lint reported zero issues. The separate Android 17 profile passed all four ADB-invoked scenarios in 74.172 seconds. The first attempt was blocked by the lock screen, and the next exposed form scrolling assumptions on the smaller emulator display. The successful rehearsal used an unlocked profile and focused test-only scrolling. Handset results, spoken labels and restoration remain separate evidence.
 - The deployment guide gives a production URL example. T56 still records server and domain work as pending, and no authorized isolated TLS origin was configured. The disposable API binds to loopback over HTTP for debug. T40 needs an approved private/staging origin with a hostname-valid chain trusted by the unmodified Android release configuration and an isolated synthetic database. The existing production endpoint, certificates and trust settings were left intact.
 - The [native-speaker inventory](md05-sinhala-review.md) was compared with both Android resource files and the four backend saved replies. It matches source revision `08a9f2b` exactly. The prior 183 approvals are preserved.
+
+## D50 physical verification on HMD Crest
+
+- The HMD Crest (Android 14, API 34) ran the originally prepared separate debug application and signed test APK from `ab9dd1e`. Both archive hashes and the shared signer matched. The existing FINORA test profile was user ID 10 with user serial 10. Direct ADB instrumentation reported `OK (4 tests)` in 60.513 seconds. It covered registration, sign-in, transaction and budget flows, the SMS-denied path, diagnostic confirmation and saved replies in both languages. The Android 8 emulator result remains separate.
+- An opt-in in-process fixture established synthetic USER and STAFF logins for the physical checks. Dashboard and support-reply preview captures returned zero bytes. After disconnecting the temporary debug route and cold-starting the package, FINORA showed session-restoration failure and an explicit retry action. Reinstating the route and tapping retry recovered the dashboard. An app-process Logcat sample had zero JWT-like and synthetic diagnostic marker matches. These are debug-package observations.
+- At 130% font scale the HMD accessibility tree exposed all five FAQ headings in the expected order, localized support status text and action descriptions, and both STAFF reply choices with full selected copy and a confirmation button in EN and SI. Back returned from FAQ and Support to More. Automation verified control bounds and the TalkBack window, but could not establish every node's restored accessibility focus, absence of visual clipping on a capture-blocked screen or the spoken output. Recents also returned no readable capture, so the physical preview contents remain unverified.
+- The synthetic STAFF session was signed out and the acceptance login screen was verified. Test-profile settings read back as font scale 1.0, accessibility disabled, no enabled service and rotation unchanged. The temporary reverse mapping was removed and the original Android user was restored. The acceptance APKs remain in the test profile. The personal FINORA package was left intact.
+- Retained test output is reproduced below. MD05 is 14/16 (T40 2/4, T48 4/4, T49 4/4, T51 4/4). MD01–MD04 retain 68/68. Delegated counts and INDEX statuses are unchanged. Formal dependency closure and independent review remain required.
+
+  ```text
+  Android 8.0.0 (API 26), connectedV1DebugAndroidTest
+  Finished 4 tests on FINORA_MD05_API26(AVD) - 8.0.0
+  BUILD SUCCESSFUL in 59s
+
+  HMD Crest (API 34), isolated package, direct AndroidJUnitRunner
+  lk.finora.app.acceptance.UserJourneyTest:....
+  Time: 60.513
+  OK (4 tests)
+  ```
+
+- The physical run used the isolated loopback API. Authorized infrastructure still has no approved release origin. A feasible private option is an owner-approved hostname with a system-trusted certificate issued through DNS-01, private resolution to a local TLS proxy, and a disposable backend restricted to the test network. This requires DNS owner authorization or an existing approved staging URL. The app trust configuration and device trust store were left intact.

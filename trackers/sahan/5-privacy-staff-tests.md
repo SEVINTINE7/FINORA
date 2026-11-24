@@ -13,7 +13,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** D45 early start. Release APK static checks retained. Isolated Android 17 verified process restoration, offline retry, rotation, expired refresh rejection and replacement-login isolation. Dashboard screenshot and login Recents preview were blocked. The handset checklist and release/SMS runtime Logcat evidence remain open.
+**Handoff notes:** D45/D50. HMD Crest isolated debug verification blocked dashboard capture and recovered through explicit retry after an offline cold restart. The app-process Logcat sample had no JWT-like or synthetic diagnostic-body matches. Android 17 lifecycle and packaged release evidence remain valid. Authenticated release runtime and complete handset privacy evidence remain open.
 
 ---
 
@@ -26,7 +26,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [x] Tests: only STAFF can manage templates; user sees FAQ
 
-**Handoff notes:** D49. Android 17 verified drafting, second-STAFF approval, preview and explicit send in both languages, retirement, versioning and the USER reading both preserved replies. MySQL rejects USER/ADMIN catalog management and arbitrary STAFF text. USER FAQ evidence retained. Handset TalkBack, native-speaker review and formal dependencies remain open.
+**Handoff notes:** D49/D50. HMD Crest passed the bilingual saved-reply lifecycle and exposed localized FAQ headings, support status and STAFF preview/confirmation nodes at 130% text. MySQL rejects USER/ADMIN catalog management and arbitrary STAFF text. Native-speaker review and formal dependencies remain open. See the checkpoint for accessibility evidence limits.
 
 ---
 
@@ -46,10 +46,10 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T51 · Android functional tests · `ALL`
 **Lead:** Sahan · **Support:** Thilina · **Depends on:** T38 · **Touches:** `android/app/src/androidTest/`
 - [x] T51.1 Espresso: register, login, add/edit/delete record, budget, dashboard, SMS permission denied path
-- [ ] T51.2 Run on Android 8 (emulator) and a recent real device
-- [ ] T51.3 Save real test reports/screenshots
+- [x] T51.2 Run on Android 8 (emulator) and a recent real device
+- [x] T51.3 Save real test reports/screenshots
 
 **Done when**
-- [ ] `./gradlew connectedV1DebugAndroidTest` output attached
+- [x] `./gradlew connectedV1DebugAndroidTest` output attached
 
-**Handoff notes:** D46/D49. Four connected tests passed on isolated Android 8 (API 26), including the registration and finance journey. Android 17 also passed four, with separate cold-boot registration evidence. Machine results are retained for both emulators. Handset execution and its report/capture evidence remain open.
+**Handoff notes:** D46/D49/D50. Four Gradle connected tests passed on isolated Android 8 (API 26), and four direct tests passed on HMD Crest (Android 14) in 60.513 s. Reports and the protected-screen capture result are recorded in the MD05 checkpoint. Keep in progress pending formal T38 dependency closure and independent review.
