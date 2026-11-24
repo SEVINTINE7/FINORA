@@ -39,16 +39,27 @@ class StaffProvisioningControllerTest extends IntegrationTest {
         var refresh = tokens.get("refreshToken").asString();
         mockMvc.perform(get("/api/v1/staff/stats").header("Authorization", "Bearer " + access))
                 .andExpect(status().isOk());
-        for (boolean enabled : new boolean[]{false, true}) {
-            mockMvc.perform(patch(STAFF + "/" + id).header("Authorization", "Bearer " + admin)
-                    .contentType("application/json").content(json(Map.of("enabled", enabled))))
-                    .andExpect(status().isNoContent());
-        }
-        entities.flush();
-        entities.clear();
+        send(STAFF, Map.of("email", "escalation-fixture@example.test", "fullName", "Synthetic staff",
+                "role", "ADMIN"), access).andExpect(status().isForbidden());
+        mockMvc.perform(patch(STAFF + "/" + id).header("Authorization", "Bearer " + access)
+                .contentType("application/json").content(json(Map.of("enabled", true, "role", "ADMIN"))))
+                .andExpect(status().isForbidden());
+        setEnabled(admin, id, false);
+        mockMvc.perform(get("/api/v1/staff/stats").header("Authorization", "Bearer " + access))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("ACCOUNT_DISABLED"));
+        setEnabled(admin, id, true);
         mockMvc.perform(get("/api/v1/staff/stats").header("Authorization", "Bearer " + access))
                 .andExpect(status().isUnauthorized());
         send("/api/v1/auth/refresh", Map.of("refreshToken", refresh), null).andExpect(status().isUnauthorized());
+    }
+
+    private void setEnabled(String admin, long id, boolean enabled) throws Exception {
+        mockMvc.perform(patch(STAFF + "/" + id).header("Authorization", "Bearer " + admin)
+                .contentType("application/json").content(json(Map.of("enabled", enabled))))
+                .andExpect(status().isNoContent());
+        entities.flush();
+        entities.clear();
     }
 
     private org.springframework.test.web.servlet.ResultActions send(String path, Object value, String token)
