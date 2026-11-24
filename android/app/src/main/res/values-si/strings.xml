@@ -108,8 +108,8 @@
     <string name="transaction_to">අවසන් දිනය (YYYY-MM-DD)</string>
     <string name="transaction_date">ගනුදෙනු දිනය (YYYY-MM-DD)</string>
     <string name="transaction_amount">මුදල (රු.)</string>
-    <string name="transaction_merchant">වෙළෙන්දා (විකල්ප)</string>
-    <string name="transaction_note">සටහන (විකල්ප)</string>
+    <string name="transaction_merchant">වෙළෙන්දාගේ නම (අත්‍යවශ්‍ය නොවේ)</string>
+    <string name="transaction_note">සටහන (අත්‍යවශ්‍ය නොවේ)</string>
     <string name="transaction_row">%1$s · %2$s · රු. %3$s</string>
     <string name="transaction_archived_name">%1$s (සංරක්ෂිත)</string>
     <string name="transaction_remove">මෙම ගනුදෙනුව ස්ථිරව ඉවත් කරන්නද?</string>
@@ -122,9 +122,9 @@
     <string name="transaction_choose">විකල්පයක් තෝරන්න</string>
     <string name="transaction_choose_date">දිනයක් තෝරන්න</string>
     <string name="transaction_required">මෙම ක්ෂේත්‍රය පිරවිය යුතුය.</string>
-    <string name="transaction_invalid_selection">ලබාගත හැකි ගිණුමක් තෝරන්න.</string>
+    <string name="transaction_invalid_selection">භාවිත කළ හැකි ගිණුමක් තෝරන්න.</string>
     <string name="transaction_category_mismatch">මෙම ගනුදෙනු වර්ගයට ගැළපෙන කාණ්ඩයක් තෝරන්න.</string>
-    <string name="transaction_amount_invalid">පූර්ණ ඉලක්කම් 13ක් සහ දශම ස්ථාන 2ක් දක්වා වන ධන රුපියල් මුදලක් ඇතුළත් කරන්න.</string>
+    <string name="transaction_amount_invalid">දශමයට පෙර ඉලක්කම් 13ක් සහ දශම ස්ථාන 2ක් දක්වා වන බිංදුවට වැඩි රුපියල් මුදලක් ඇතුළත් කරන්න.</string>
     <string name="transaction_merchant_too_long">අක්ෂර 100ක් දක්වා වෙළෙන්දාගේ නම ඇතුළත් කරන්න.</string>
     <string name="transaction_note_too_long">අක්ෂර 255ක් දක්වා සටහනක් ඇතුළත් කරන්න.</string>
     <string name="transaction_no_accounts">තෝරාගත හැකි ගිණුම් නොමැත.</string>
@@ -249,7 +249,7 @@
     <string name="sms_extracted_merchant">වෙළෙන්දා: %1$s</string>
     <string name="sms_direction_debit">හර</string>
     <string name="sms_direction_credit">බැර</string>
-    <string name="sms_needs_review">අතින් පරීක්ෂා කිරීම අවශ්‍යයි.</string>
+    <string name="sms_needs_review">ඔබ විසින් පරීක්ෂා කළ යුතුය.</string>
     <string name="sms_transaction_preview">SMS ගනුදෙනු පරීක්ෂා කරන්න</string>
     <string name="sms_preview_choices_unavailable">ගිණුම් හෝ කාණ්ඩ ලබා ගත නොහැකි විය. නැවත උත්සාහ කිරීමට පෙරදසුන විවෘත කරන්න.</string>
     <string name="sms_preview_date">දිනය: %1$s</string>
@@ -258,20 +258,20 @@
     <string name="sms_preview_apply">පෙරදසුනට යොදන්න</string>
     <string name="sms_preview_selected">තෝරා ඇත: %1$s</string>
     <string name="sms_preview_deselected">තෝරා නැත: %1$s</string>
-    <string name="sms_batch_review">සුරැකීමට පෙර තෝරාගත් පේළි පරීක්ෂා කරන්න. සමාන ඇඟිලි සලකුණු වෙනස් ගනුදෙනු විය හැක.</string>
+    <string name="sms_batch_review">සුරැකීමට පෙර තෝරාගත් පේළි පරීක්ෂා කරන්න. එකම විස්තර සහිත ගනුදෙනු වෙන වෙනම සිදු වූ ගනුදෙනු විය හැක.</string>
     <string name="sms_batch_invalid_selection">අවම වශයෙන් එක් පේළියක් තෝරා එක් එක් පේළියට ගිණුමක් හා වලංගු දිනයක් තෝරන්න.</string>
     <string name="sms_batch_save">SMS ගනුදෙනු සුරකින්න</string>
     <plurals name="sms_batch_confirm">
         <item quantity="one">තෝරාගත් ගනුදෙනු %1$d සුරකින්නද?</item>
         <item quantity="other">තෝරාගත් ගනුදෙනු %1$d සුරකින්නද?</item>
     </plurals>
-    <string name="sms_batch_retry">එම කාණ්ඩය නැවත උත්සාහ කරන්න</string>
+    <string name="sms_batch_retry">එම ගනුදෙනු සමූහය නැවත සුරකින්න</string>
     <plurals name="sms_batch_uncertain">
         <item quantity="one">පේළි %1$d සුරැකීමේ ප්‍රතිඵලය නොදනී. එම කාණ්ඩය පමණක් නැවත උත්සාහ කරන්න, නැත්නම් අවලංගු කර නැවත ආරම්භ කිරීමට පෙර වාර්තා පරීක්ෂා කරන්න.</item>
         <item quantity="other">පේළි %1$d සුරැකීමේ ප්‍රතිඵලය නොදනී. එම කාණ්ඩය පමණක් නැවත උත්සාහ කරන්න, නැත්නම් අවලංගු කර නැවත ආරම්භ කිරීමට පෙර වාර්තා පරීක්ෂා කරන්න.</item>
     </plurals>
-    <string name="sms_batch_rejected">කාණ්ඩය ප්‍රතික්ෂේප විය. නැවත තහවුරු කිරීමට පෙර තෝරාගත් ගනුදෙනු සහ ගිණුම් පරීක්ෂා කරන්න.</string>
+    <string name="sms_batch_rejected">ගනුදෙනු සමූහය ප්‍රතික්ෂේප විය. නැවත තහවුරු කිරීමට පෙර තෝරාගත් ගනුදෙනු විස්තර සහ ගිණුම් පරීක්ෂා කරන්න.</string>
     <string name="sms_batch_saved">සුරැකි ගනුදෙනු: %1$d</string>
-    <string name="sms_batch_duplicates">විසඳා නැති අනුපිටපත් පේළි: %1$s. පවතින වාර්තා පරීක්ෂා කර වෙනස් බව තහවුරු වූ ගනුදෙනුවක් පමණක් අතින් ඇතුළත් කරන්න.</string>
+    <string name="sms_batch_duplicates">නැවත ඇතුළත් වී ඇති බවට සැක කරන පේළි: %1$s. පවතින වාර්තා පරීක්ෂා කර වෙනම සිදු වූ බව තහවුරු කළ ගනුදෙනුවක් පමණක් අතින් ඇතුළත් කරන්න.</string>
     <string name="sms_batch_manual">පේළිය %1$d: ගැළපිය හැකි අතින් ඇතුළත් කළ වාර්තා %2$s. පවතින වාර්තා තබා ඇත.</string>
 </resources>
