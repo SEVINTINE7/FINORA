@@ -2,7 +2,7 @@
 
 Find a task here, then open **only** its file and section. Status values: `todo` · `in-progress` · `review` · `done`. Update status here (only here).
 
-Development closure under D56 records **83/84 verified** across MD01–MD05. MD01–MD04 are 68/68 and MD05 is 15/16, with T40.1 deferred under D51/T56. T40 and T56 stay in progress. The original delegated scope is 22/22 and T07 is 7/7 in review. Task statuses below still follow formal prerequisites and independent review. T55.1 reuses verified T16 evidence. The T55 evaluation and its formal T16/T38 prerequisites remain open. [Handoff](../docs/md05-delivery-handoff.md).
+The [criterion audit](../docs/sahan-final-audit.md) supports **76/84 verified** across MD01–MD05. The original delegated scope is 22/22 within its approved scope. T07 is 6/7. T13 and T39 need additional evidence or correction, and T40.1 remains deferred under D51/D56/T56. Formal prerequisites and independent reviews remain in force.
 
 | ID | Task | Lead | Support | Depends on | File | Status |
 |---|---|---|---|---|---|---|
@@ -12,13 +12,13 @@ Development closure under D56 records **83/84 verified** across MD01–MD05. MD0
 | T04 | Backend API foundation | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
 | T05 | Secure authentication | Sevindu | — | T03, T04 | [sevindu/2-auth.md](sevindu/2-auth.md) | done |
 | T06 | Role-based access control | Sevindu | — | T05 | [sevindu/2-auth.md](sevindu/2-auth.md) | done |
-| T07 | Consent and account settings | Sevindu | Sahan | T05, T37 | [sevindu/2-auth.md](sevindu/2-auth.md) | review |
+| T07 | Consent and account settings | Sevindu | Sahan | T05, T37 | [sevindu/2-auth.md](sevindu/2-auth.md) | in-progress |
 | T08 | Three-role login routing | Sahan | Sevindu | T06, T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | review |
 | T09 | Accounts and categories | Sevindu | Sahan | T03, T06, T37 | [sevindu/3-records.md](sevindu/3-records.md) | review |
 | T10 | Income and expense records | Sevindu | Sahan | T09 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
 | T11 | Manual transaction entry | Sahan | — | T10, T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T12 | CSV import | Sevindu | Sahan | T10 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
-| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | review |
+| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T14 | Local bank SMS parsing | Sahan | — | T13, T45.3 (can start with bundled formats) | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T15 | Transaction preview and deduplication | Sahan | Sevindu | T14, T10 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | in-progress |
 | T16 | SMS parser regression tests | Sahan | Thilina | T14 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | in-progress |
@@ -44,7 +44,7 @@ Development closure under D56 records **83/84 verified** across MD01–MD05. MD0
 | T36 | Data deletion | Sevindu | Sahan | T35 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | in-progress |
 | T37 | Mobile app skeleton | Sahan | — | T02 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | done |
 | T38 | Financial screens and navigation | Sahan | — | T37, T09 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
-| T39 | Sinhala and English support | Sahan | — | T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | review |
+| T39 | Sinhala and English support | Sahan | — | T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | in-progress |
 | T40 | Android privacy and resilience | Sahan | — | T37, T08 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
 | T41 | Admin login and dashboard | Sevindu | — | T06, T08 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T42 | Admin manages user accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
@@ -68,7 +68,7 @@ Development closure under D56 records **83/84 verified** across MD01–MD05. MD0
 
 See the [Sahan responsibility matrix](../docs/sahan-responsibility-matrix.md) for the 16 lead tasks, 19 explicit support tasks, overlapping delegated scopes and adjacent QA/deployment contributions. T01 is in review after its five technical checks. Ownership and independent approval remain unchanged.
 
-MD04 delivery retains 20/20 technical checks and 5/5 for delegated T33 separately. T20, T24, T30, T33 and T38 remain in progress under the dependencies above. T39 remains in review. See the [closure evidence](../docs/md04-authorized-closure.md) for independent review and live-provider gates. D40 and D41 permit scoped early implementation.
+MD04 delivery retains 20/20 technical checks and 5/5 for delegated T33 separately. T20, T24, T30, T33 and T38 remain in progress under the dependencies above. T39 remains in progress. See the [closure evidence](../docs/md04-authorized-closure.md) for independent review and live-provider gates. D40 and D41 permit scoped early implementation.
 
 T53 verification update (2026-11-22): remains **in-progress**. Final upstream-compatible offline Java 17 + isolated finora_test Maven verify passed 206/206 tests (0 failures/errors/skips, exit 0); service coverage 668/677 lines (98.67%), JaCoCo gate passed. Earlier branch-only result was 151/151. Deployed TLS, device/provider captures, comprehensive scans and acceptance remain open; details in the T53 handoff. No other task statuses changed.
 

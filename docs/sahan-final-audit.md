@@ -584,3 +584,21 @@ T41–T47 retain Sevindu ownership. The D45/D49/D52/D53 decisions delegate speci
 - Reopened T19 Done when 1 because its original edit/delete wording includes an edit operation absent from the contribution routes and retained assertions. T19 remains in progress. The audited baseline register preserves its previous checked state.
 - Updated the stale T01 P05 note to reflect team approval as D20. T01 remains in review.
 - None of the original MD checkbox counts were promoted. Profile race, D55, planned device work and release checks retain their open dispositions. The register covers all rows, and closure verification remains incomplete.
+
+## Post-audit reconciliation and targeted evidence
+
+| Scope | Evidence-supported acceptance | Open criteria |
+| --- | ---: | --- |
+| MD01 | 19/23 | T39.2, T39.3, T39.4, T39 Done when 1 |
+| MD02 | 13/16 | T13.3, T13.4, T13 Done when 1 |
+| MD03 | 9/9 | Formal prerequisites and independent review |
+| MD04 | 20/20 | Formal prerequisites and independent review, with D55 and live provider in their own scopes |
+| MD05 | 15/16 | T40.1 under D51/D56/T56 |
+| Original delegated MD05 | 22/22 | T41 4/4, T43 4/4, T45 6/6, T46 3/3 and T47 5/5 within approved scope. Formal review remains. |
+| T07 | 6/7 | T07.5 profile-write correction |
+
+- T07, T13 and T39 are in progress in INDEX. Reopened MD criteria retain their original wording. T13.1 verifies the scoped sideload note and packaging control, with the original proposal still unavailable. T13.3, T13.4 and the device criterion retain prior evidence, but require a current integrated permission and fallback run. D34 permits emulator settings revocation/regrant evidence only for its specified part.
+- All 37 original T39 pairs in the resources at revision 92f2dd3 match the current XML in both locales. This confirms the original scope alongside the four pinned approval inventories already checked. Native-speaker coverage of the remaining applicable strings and a bilingual full-screen device walk remain open.
+- Android 17, read-only FINORA_D54 emulator, existing V1 baseline debug and AndroidTest APKs. At font scale 1.30, direct instrumentation for registrationRequiresBothConsentCheckboxesInEachLanguage reported OK (1 test) in 6.458 seconds. It asserts visible registration controls and consent copy, and the submit gate in EN and SI. No backend required. The emulator was stopped. The result does not measure unclipped glyphs or spoken TalkBack.
+- Remediation closed tracker evidence discrepancies. No application implementation change was made. The known profile-write race requires Sevindu's approval of the recorded API correction. T19 contribution editing also remains with Sevindu. Thilina owns T21/T23 D55 adoption and downstream metrics, score, history and advice verification.
+- Technical acceptance remains partial. Complete current SMS fallback and settings workflows with a disposable API/emulator, then map remaining Sahan UI strings to approvals and finish the scoped device evidence. Formal acceptance requires independent review and outstanding dependencies. Integration still requires the team contracts and tracker overlaps to be reconciled. Deployment still requires T56 HTTPS and restore evidence. No handset was requested for the blocked T17.3/T18.4/T19.3 acceptance.

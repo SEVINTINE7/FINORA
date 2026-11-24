@@ -1,7 +1,7 @@
 # Sahan 1 — App skeleton, role routing, languages (T37, T08, T39)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
-**MD01 — 23/23 verified.** T37 is done. T08 and T39 remain in review. Linked T09 still requires Sevindu’s independent-review handoff. [Development handoff](../../docs/md05-delivery-handoff.md).
+**MD01 — 19/23 verified.** T37 is done. T08 remains in review. T39 is in progress pending profile-write correction and broader localization and device evidence. Linked T09 still requires Sevindu’s independent-review handoff. [Development handoff](../../docs/md05-delivery-handoff.md).
 
 ---
 
@@ -56,12 +56,12 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T39 · Sinhala and English support · `FR01`
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `res:values*/strings.xml`, `and:util/LocaleHelper.java`
 - [x] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
-- [x] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
-- [x] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
-- [x] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
+- [ ] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
+- [ ] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
+- [ ] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
 
 **Done when**
-- [x] Every screen checked in both languages on a device; TalkBack reads main buttons
+- [ ] Every screen checked in both languages on a device; TalkBack reads main buttons
 
 **Handoff notes:**
 - All 32 original EN/SI resource pairs are unchanged, all 37 current pairs match, and the Java/layout review found no user-facing literals. USER locale changes require profile confirmation. Guest, ADMIN and STAFF choices remain local.

@@ -1,7 +1,7 @@
 # Sahan 2 — Manual entry and bank SMS reading (T11, T13, T14)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
-**MD02 — 16/16 verified.** T13 remains in review. T11 and T14 retain their formal prerequisites and independent reviews. [Development handoff](../../docs/md05-delivery-handoff.md).
+**MD02 — 13/16 verified.** T13 is in progress pending current integrated permission and fallback evidence. T11 and T14 retain their formal prerequisites and independent reviews. [Development handoff](../../docs/md05-delivery-handoff.md).
 **Detail: outline** — expand before coding.
 
 **Phase 0 implementation constraints** — New keys below need English and Sinhala values. Native-speaker approval is required for the new Sinhala translations. Request approval for proposed paths outside each task's Touches before implementation. Preserve T08 session binding and T39 per-app locales.
@@ -43,14 +43,14 @@ After expansion approval, verify incoming changes before integration. Stage appr
   - Document the side-loaded trial APK before delivery. Declare `READ_SMS` in the approved trial manifest scope only. Recheck installer behavior for this restricted permission on Android 14 rather than assuming side-loading grants access. Verify the merged trial manifest and actual install mode. [Google Play SMS permission policy](https://support.google.com/googleplay/android-developer/answer/10208820)
 - [x] T13.2 Explanation screen before asking `READ_SMS`; clear "No thanks" path
   - Add `ui/sms/SmsAccessActivity.java`, `SmsPermissionState.java`, and `activity_sms_access.xml`. `requestInboxAccess()` launches `ActivityResultContracts.RequestPermission` only after a user tap. `renderPermission()` checks current grant and rationale. Explain purpose, local-only parsing, and optional access. No thanks exits the request flow and leaves alternatives available. Keys `sms_access_title`, `sms_access_explanation`, `sms_allow_access`, `sms_no_thanks`, `sms_access_granted`, `sms_access_denied`. Tests `noThanksDoesNotLaunchPermissionRequest`, `permissionStatesKeepAlternativesVisible`; device-check pre-prompt explanation, grant and deny. [Android runtime permission workflow](https://developer.android.com/training/permissions/requesting)
-- [x] T13.3 Fallbacks always visible: paste SMS text, CSV import (T12), manual entry (T11)
+- [ ] T13.3 Fallbacks always visible: paste SMS text, CSV import (T12), manual entry (T11)
   - The USER SMS screen opens the existing T11 manual form and T12.5 CSV importer independently of permission state. HMD Crest verified CSV, manual entry and D33 Paste SMS navigation with grant, ordinary denial and permanent denial at `b5b065d`. The system picker was previously verified with permanent denial. D35 added three approved NSB formats. All three extracted through Paste SMS on the isolated Android 17 emulator; a synthetic credit also extracted with READ_SMS revoked.
   - D35 permits verifying bundled extraction and the T13 fallback together. The formal T14 dependencies still apply.
-- [x] T13.4 Handle "Don't ask again" → link to app settings
+- [ ] T13.4 Handle "Don't ask again" → link to app settings
   - `SmsPermissionState.resolve(granted, requestedBefore, showRationale)` distinguishes first request from a denied state with no rationale; persist only the request-attempt flag. `openAppSettings()` sends `ACTION_APPLICATION_DETAILS_SETTINGS` with the app package; recheck on resume and before any query. Handle a settings launch failure locally. Keys `sms_permission_settings`, `sms_open_settings`, `sms_settings_unavailable`. Tests `distinguishesFirstRequestAndSettingsPath`, `rechecksAfterSettingsReturn`; Under D34, verify permanent denial and the App info link on the HMD Crest, and Settings revocation and regrant on the isolated emulator.
 
 **Done when**
-- [x] On device: grant, deny, deny-forever all lead to a working path
+- [ ] On device: grant, deny, deny-forever all lead to a working path
 
 **Handoff notes:**
 - Google Play restricts `READ_SMS`. Proposal 7.3 specifies a side-loaded trial APK. SMS access is optional, and side-loading alone does not guarantee a grant because Android requires the installer to allowlist this restricted permission. [Android permission reference](https://developer.android.com/reference/android/Manifest.permission#READ_SMS)
