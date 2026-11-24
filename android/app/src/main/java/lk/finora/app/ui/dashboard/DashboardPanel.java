@@ -1,9 +1,5 @@
 package lk.finora.app.ui.dashboard;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -13,11 +9,21 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.Chart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.YearMonth;
-import java.util.List;
+import java.util.ArrayList;
 
 import lk.finora.app.R;
 import lk.finora.app.data.repo.DashboardRepository;
@@ -107,7 +113,7 @@ public final class DashboardPanel {
         if (value.byCategory().isEmpty()) {
             line(results, getContext().getText(R.string.dashboard_no_expenses), false);
         } else {
-            results.addView(new Chart(value, true), new LinearLayout.LayoutParams(-1, dp(160)));
+            addChart(expenseChart(value));
             String language = getResources().getConfiguration().getLocales().get(0).getLanguage();
             for (int i = 0; i < value.byCategory().size(); i++) {
                 var row = value.byCategory().get(i);
@@ -119,7 +125,7 @@ public final class DashboardPanel {
             }
         }
         line(results, getContext().getText(R.string.dashboard_trend), true);
-        results.addView(new Chart(value, false), new LinearLayout.LayoutParams(-1, dp(160)));
+        addChart(trendChart(value));
         for (var row : value.trend()) {
             line(results, monthLabel(YearMonth.parse(row.month())), true);
             line(results, getContext().getString(R.string.dashboard_income, amount(row.income())), false);
@@ -141,59 +147,59 @@ public final class DashboardPanel {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
-    private final class Chart extends View {
-        private final DashboardRepository.Snapshot snapshot;
-        private final boolean pie;
-        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private void addChart(Chart<?> chart) {
+        chart.getLegend().setEnabled(false);
+        chart.getDescription().setEnabled(false);
+        chart.setTouchEnabled(false);
+        // Exact, labeled values immediately after the graphic are the accessible equivalent.
+        chart.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        results.addView(chart, new LinearLayout.LayoutParams(-1, dp(160)));
+    }
 
-        Chart(DashboardRepository.Snapshot snapshot, boolean pie) {
-            super(DashboardPanel.this.getContext());
-            this.snapshot = snapshot;
-            this.pie = pie;
-            // The exact labeled values immediately after the graphic are the accessible equivalent.
-            setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+    private PieChart expenseChart(DashboardRepository.Snapshot snapshot) {
+        var entries = new ArrayList<PieEntry>();
+        for (var category : snapshot.byCategory()) {
+            entries.add(new PieEntry(chartRatio(category.total(), snapshot.expense())));
         }
+        var slices = new PieDataSet(entries, "");
+        slices.setColors(PALETTE);
+        slices.setDrawValues(false);
+        var chart = new PieChart(getContext());
+        chart.setDrawHoleEnabled(false);
+        chart.setDrawEntryLabels(false);
+        chart.setData(new PieData(slices));
+        return chart;
+    }
 
-        @Override protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-            if (pie) drawPie(canvas); else drawTrend(canvas);
+    private BarChart trendChart(DashboardRepository.Snapshot snapshot) {
+        BigDecimal max = BigDecimal.ONE;
+        for (var item : snapshot.trend()) max = max.max(item.net().abs());
+        var entries = new ArrayList<BarEntry>();
+        var colors = new ArrayList<Integer>();
+        for (var item : snapshot.trend()) {
+            entries.add(new BarEntry(entries.size(), chartRatio(item.net(), max)));
+            colors.add(item.net().signum() < 0 ? PALETTE[2] : PALETTE[0]);
         }
+        var bars = new BarDataSet(entries, "");
+        bars.setColors(colors);
+        bars.setDrawValues(false);
+        var chart = new BarChart(getContext());
+        chart.getXAxis().setEnabled(false);
+        chart.getAxisRight().setEnabled(false);
+        var axis = chart.getAxisLeft();
+        axis.setDrawLabels(false);
+        axis.setDrawGridLines(false);
+        axis.setDrawAxisLine(false);
+        axis.setDrawZeroLine(true);
+        axis.setZeroLineColor(getContext().getColor(R.color.finora_on_navy));
+        axis.setAxisMinimum(-1.1f);
+        axis.setAxisMaximum(1.1f);
+        chart.setFitBars(true);
+        chart.setData(new BarData(bars));
+        return chart;
+    }
 
-        private void drawPie(Canvas canvas) {
-            float radius = Math.min(getWidth(), getHeight()) / 2f - dp(8);
-            if (radius <= 0) return;
-            float x = getWidth() / 2f;
-            float y = getHeight() / 2f;
-            var bounds = new RectF(x - radius, y - radius, x + radius, y + radius);
-            float angle = -90f;
-            List<DashboardRepository.Category> categories = snapshot.byCategory();
-            for (int i = 0; i < categories.size(); i++) {
-                float sweep = i == categories.size() - 1 ? 270f - angle
-                        : 360f * chartRatio(categories.get(i).total(), snapshot.expense());
-                paint.setColor(PALETTE[i % PALETTE.length]);
-                canvas.drawArc(bounds, angle, sweep, true, paint);
-                angle += sweep;
-            }
-        }
-
-        private void drawTrend(Canvas canvas) {
-            BigDecimal max = BigDecimal.ONE;
-            for (var item : snapshot.trend()) max = max.max(item.net().abs());
-            float width = getWidth() / 6f;
-            float mid = getHeight() / 2f;
-            paint.setColor(Color.LTGRAY);
-            canvas.drawLine(0, mid, getWidth(), mid, paint);
-            for (int i = 0; i < 6; i++) {
-                BigDecimal net = snapshot.trend().get(i).net();
-                float end = mid - chartRatio(net, max) * (mid - dp(8));
-                paint.setColor(net.signum() < 0 ? PALETTE[2] : PALETTE[0]);
-                canvas.drawRect(width * (i + 0.18f), Math.min(mid, end),
-                        width * (i + 0.82f), Math.max(mid, end), paint);
-            }
-        }
-
-        private float chartRatio(BigDecimal value, BigDecimal max) {
-            return value.divide(max, MathContext.DECIMAL32).floatValue();
-        }
+    private float chartRatio(BigDecimal value, BigDecimal max) {
+        return value.divide(max, MathContext.DECIMAL32).floatValue();
     }
 }
