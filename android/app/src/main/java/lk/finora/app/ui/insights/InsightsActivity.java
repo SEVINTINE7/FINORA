@@ -22,6 +22,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import lk.finora.app.R;
 import lk.finora.app.data.repo.InsightsRepository.Declaration;
@@ -29,6 +30,7 @@ import lk.finora.app.data.repo.InsightsRepository.Insight;
 import lk.finora.app.data.repo.InsightsRepository.Part;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
+import lk.finora.app.ui.insights.InsightsViewModel.DeclarationDraft;
 
 public final class InsightsActivity extends AppCompatActivity {
     private InsightsViewModel model;
@@ -37,11 +39,14 @@ public final class InsightsActivity extends AppCompatActivity {
     private Button previous;
     private Button next;
     private AlertDialog editor;
+    private Supplier<DeclarationDraft> currentDraft;
+    private boolean restoreEditor;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         model = new ViewModelProvider(this).get(InsightsViewModel.class);
         if (!AccountListActivity.verify(this, model.patternsWork)) return;
+        restoreEditor = model.rotatedDraft != null;
         var scroll = new ScrollView(this);
         var body = new LinearLayout(this);
         int padding = Math.round(16 * getResources().getDisplayMetrics().density);
@@ -104,6 +109,10 @@ public final class InsightsActivity extends AppCompatActivity {
             }
         }
         line(results, getString(R.string.score_disclaimer), false);
+        if (restoreEditor && model.declaration != null && !model.busy()) {
+            restoreEditor = false;
+            editDeclaration();
+        }
     }
 
     private void showInsight(Insight row) {
@@ -205,17 +214,28 @@ public final class InsightsActivity extends AppCompatActivity {
         var scroll = new ScrollView(this);
         scroll.addView(fields);
         var current = model.declaration;
-        var reserve = field(fields, R.string.score_reserve, current.emergencyReserve() == null
-                ? "" : number(current.emergencyReserve()));
+        DeclarationDraft draft = model.rotatedDraft;
+        model.rotatedDraft = null;
+        if (draft == null) {
+            draft = new DeclarationDraft(current.emergencyReserve() == null ? "" : number(current.emergencyReserve()),
+                    current.reserveAsOf(), current.noApplicableDebt(), current.noApplicableGoals());
+        }
+        var reserve = field(fields, R.string.score_reserve, draft.amount());
         reserve.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
                 | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        var date = field(fields, R.string.score_reserve_date, current.reserveAsOf());
+        var date = field(fields, R.string.score_reserve_date, draft.date());
         date.setInputType(android.text.InputType.TYPE_CLASS_DATETIME
                 | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
-        var debt = choice(fields, R.string.score_no_debt, current.noApplicableDebt());
-        var goals = choice(fields, R.string.score_no_goals, current.noApplicableGoals());
+        var debt = choice(fields, R.string.score_no_debt, draft.noDebt());
+        var goals = choice(fields, R.string.score_no_goals, draft.noGoals());
+        currentDraft = () -> new DeclarationDraft(reserve.getText().toString(), date.getText().toString(),
+                selected(debt), selected(goals));
         editor = new AlertDialog.Builder(this).setTitle(R.string.score_inputs).setView(scroll)
                 .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.records_save, null).create();
+        editor.setOnDismissListener(dialog -> {
+            editor = null;
+            currentDraft = null;
+        });
         editor.show();
         editor.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
             try {
@@ -228,6 +248,15 @@ public final class InsightsActivity extends AppCompatActivity {
                 reserve.setError(getString(R.string.score_input_invalid));
             }
         });
+    }
+
+    @Override protected void onDestroy() {
+        if (isChangingConfigurations() && editor != null && editor.isShowing()
+                && currentDraft != null && model.patternsWork.isCurrent()) {
+            model.rotatedDraft = currentDraft.get();
+        }
+        if (editor != null) editor.dismiss();
+        super.onDestroy();
     }
 
     static Declaration parse(String amount, String date, YearMonth month, LocalDate today,

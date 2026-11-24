@@ -19,13 +19,19 @@ import lk.finora.app.R;
 public final class InsightsViewModel extends ViewModel {
     final Work patternsWork = new Work(() -> patterns = null);
     final Work scoreWork = new Work(() -> score = null);
-    final Work declarationWork = new Work(() -> declaration = null);
+    final Work declarationWork = new Work(() -> {
+        declaration = null;
+        rotatedDraft = null;
+    });
     private final InsightsRepository repository = patternsWork.requests == null ? null
             : new InsightsRepository(patternsWork.requests);
     YearMonth month = YearMonth.now(ZoneId.of("Asia/Colombo"));
     Insight[] patterns;
     Score score;
     Declaration declaration;
+    DeclarationDraft rotatedDraft;
+
+    record DeclarationDraft(String amount, String date, Boolean noDebt, Boolean noGoals) {}
 
     boolean busy() { return patternsWork.busy() || scoreWork.busy() || declarationWork.busy(); }
 
