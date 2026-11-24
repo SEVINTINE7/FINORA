@@ -39,7 +39,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [x] Tests: report payload contains no SMS text, amounts or account numbers; staff edit format → 403
 
-**Handoff notes:** D47/D49. Android 17 verified cancel and confirm with an exact three-field capture and matching persisted metadata. STAFF grouped and flagged the report, and ADMIN resolved it. MySQL verified deduplication, private-field rejection and STAFF/USER mutation denial. Formal dependencies and handset evidence remain open.
+**Handoff notes:** D47/D49. Android 17 verified cancel and confirm with an exact three-field capture and matching persisted metadata. Final EN/SI preview wording scopes privacy to the report. Both reporting paths send null format version; only an allowlisted inbox sender can supply a bank code. MySQL verified deduplication, private-field rejection and mutation denial. Formal dependencies and handset evidence remain open.
 
 ---
 

@@ -37,7 +37,14 @@ At each row, an independent human should review the linked evidence and exact im
 | MD05 | Sahan: T40, T48, T49, T51. Sevindu: T41, T43, T45, T46, T47, T56. Thilina: T52, T53. T43 follows T41; T46 follows T08/T43; T47 follows T46; T48 follows T46/T47; T49 follows T46/T45; T51 follows T38. | T40 awaits audible confirmation and authenticated release HTTPS. T47 has verified bounded redaction under D52 and awaits formal dependency closure and independent review. Thilina retains T52's full role/ownership/privacy matrix and CI and T53's deployment/provider and security evidence. [MD05 evidence](md05-implementation-checkpoint.md) · [Admin and STAFF](../trackers/sevindu/6-admin-staff.md) · [QA](../trackers/thilina/5-qa.md) |
 | Other relevant delegated prerequisites | Sevindu: T07 and T36. Sahan: T07.4 and T07.5. | Registration evidence covers both consent gates. T07.5 still needs the T36 data-deletion flow. Consent wording has its own team and native-speaker review. [Consent tracker](../trackers/sevindu/2-auth.md) |
 
-Native-speaker approval is requested for the exact [70 app pairs and four saved replies at `7339893`](md05-sinhala-review.md). Earlier approvals cover only their original 183 pairs. GitHub delivery itself still requires separate authorization.
+Native-speaker approval is requested for the exact [70 app pairs and four saved replies at `a9c54667a0f71b8b646fa8405405cfcd06819e00`](md05-sinhala-review.md). Earlier approvals cover only their original 183 pairs. GitHub delivery itself still requires separate authorization.
+
+### Operator sequence for the single listening pass
+
+1. Check the HMD serial, D50 package and existing test profile before installing. Record the starting profile, font scale and enabled accessibility services. Reuse the loopback-only disposable API and the opt-in in-process USER and STAFF fixture, then activate TalkBack once in the test profile.
+2. Use package-filtered UIAutomator nodes to find Help, Support and the active controls. Move accessibility focus before each listener observation. Navigate the FAQ first, return via Back, then open a synthetic ticket and its reply list. Run the English and Sinhala pass without toggling TalkBack.
+3. Use the disposable assigned STAFF fixture and approved saved-reply catalog. Open Support, focus ticket status, open the saved reply chooser and focus its two language choices and confirmation preview. Cancel the preview when finished. Use Back to return to the originating Support control.
+4. Stage Retry with the temporary route removed, restore the route and then focus the recovery view. For the expiry message, expire only the synthetic refresh row before a cold launch. Use the listener to confirm the actual wording in both languages. Sign out, restore the recorded settings, remove only the temporary route and verify the starting Android profile.
 
 ### ADMIN implementation handoff
 

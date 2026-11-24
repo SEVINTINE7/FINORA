@@ -72,6 +72,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - D49 adds ADMIN activation and disablement of the pinned NSB V1 bundle. MySQL verified STAFF and USER mutation denial and preservation of the USER empty/active response. General draft validation and rollback require approved version fixtures.
 - V18 adds draft, publish, activation and rollback of approved NSB deployment revisions. MySQL verified the switch back to revision 1, rejected a modified definition and preserved D36's payload. New bank rule authoring and sample editing remain open.
 - D52 adds ADMIN-only discard for unpublished inactive drafts. MySQL verifies immutable published revisions, exact D36 payload on activation and rollback, and invalid-definition rejection. Android reran the T16 NSB regressions and validated the exact V9 definition against all three approved synthetic examples. T45.1, T45.2 and T45.5 remain open for editable approved content and per-sample validation.
+- Android ADMIN now exposes discard on unpublished drafts with a confirmation. Isolated Android 17 verified draft creation, removal and retention of active revision 1.
 
 ---
 
@@ -97,4 +98,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 **Done when**
 - [x] Tests: user sees only own tickets; staff can reply only to claimed tickets; account-number text redacted
 
-**Handoff notes:** D49/D50/D52. The HMD Crest verified Help and STAFF ticket screens, claim and bilingual replies. MySQL verified owner/assignee isolation and removal of bounded labeled account/card lines before persistence, while rejecting unsafe content. Android keeps the canonical request form. Formal dependencies and independent review remain open.
+**Handoff notes:** D49/D50/D52. The HMD Crest verified Help and STAFF ticket screens, claim and bilingual replies. MySQL verified owner/assignee isolation and removal of bounded labeled account/card lines before persistence, while rejecting unsafe content. A synthetic regression found no identifiers in captured application logs or audit details. Formal dependencies and independent review remain open.
