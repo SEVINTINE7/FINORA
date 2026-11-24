@@ -77,6 +77,44 @@ class SupportTicketControllerTest extends IntegrationTest {
         read(STAFF, staff).andExpect(jsonPath("$[0].error_code").value("SIGN_IN_FAILED"));
     }
 
+    @Test void stripsBoundedIdentifierLinesBeforeStorageAndDisclosure() throws Exception {
+        var owner = tokenFor(createUser(Role.USER));
+        var assignee = tokenFor(createUser(Role.STAFF));
+        var otherUser = tokenFor(createUser(Role.USER));
+        var otherStaff = tokenFor(createUser(Role.STAFF));
+        String canonical = "I need help signing in.";
+        for (String line : java.util.List.of("Account number: 0000-0000-0000-0000-000",
+                "Card number: 0000 0000 0000 0000")) {
+            String result = send(TICKETS, owner, json(java.util.Map.of("subject", "Sign-in",
+                    "body", canonical + "\n" + line, "error_code", "SIGN_IN_FAILED")))
+                    .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+            long id = jsonMapper.readTree(result).get("id").asLong();
+            org.junit.jupiter.api.Assertions.assertEquals(canonical, jdbc.queryForObject(
+                    "SELECT body FROM support_tickets WHERE id = ?", String.class, id));
+            read(TICKETS, owner).andExpect(jsonPath("$[0].body").value(canonical))
+                    .andExpect(jsonPath("$[0].error_code").value("SIGN_IN_FAILED"));
+            read(TICKETS, otherUser).andExpect(jsonPath("$.length()").value(0));
+            read(STAFF, assignee).andExpect(jsonPath("$[0].body").isEmpty());
+            send(STAFF + "/" + id + "/claim", assignee, "").andExpect(status().isNoContent());
+            read(STAFF, assignee).andExpect(jsonPath("$[0].body").value(canonical));
+            read(STAFF, otherStaff).andExpect(jsonPath("$.length()").value(0));
+        }
+    }
+
+    @Test void rejectsUnsafeTextRatherThanTryingToRedactIt() throws Exception {
+        var owner = tokenFor(createUser(Role.USER));
+        String canonical = "I need help signing in.";
+        for (String suffix : java.util.List.of(" 00000000", "\nPassword: 00000000", "\nOTP: 00000000",
+                "\nSMS: 00000000", "\nCard number: 00000000", "\nAccount number: 00000000 and more",
+                "\nAccount number: 00000000\nCard number: 0000000000000",
+                "\nAccount number: ００００００００", "\nAccount number: " + "0".repeat(100))) {
+            send(TICKETS, owner, json(java.util.Map.of("subject", "Sign-in", "body", canonical + suffix)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("Choose a supported help topic"));
+        }
+        read(TICKETS, owner).andExpect(jsonPath("$.length()").value(0));
+    }
+
     @Test
     @org.springframework.transaction.annotation.Transactional(
             propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)

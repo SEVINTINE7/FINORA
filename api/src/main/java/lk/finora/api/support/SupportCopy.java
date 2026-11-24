@@ -1,5 +1,6 @@
 package lk.finora.api.support;
 
+import java.util.regex.Pattern;
 import lk.finora.api.common.error.ApiException;
 
 /** Approved sentence blocks for help requests and proposed bilingual saved replies. */
@@ -16,6 +17,10 @@ enum SupportCopy {
             "Open Language and choose English or Sinhala. Connect to the internet to save the choice to your account.",
             "භාෂාව විවෘත කර ඉංග්‍රීසි හෝ සිංහල තෝරන්න. තේරීම ඔබේ ගිණුමට සුරැකීමට අන්තර්ජාලයට සම්බන්ධ වන්න.");
 
+    private static final Pattern IDENTIFIER_LINE = Pattern.compile(
+            "\\n(Account|Card) number: ([0-9](?:[ -]?[0-9]){7,18})");
+    private static final int MAX_IDENTIFIER_LINE_LENGTH = 54;
+
     final String subject;
     final String userBody;
     final String replyEn;
@@ -30,7 +35,17 @@ enum SupportCopy {
 
     static SupportCopy ticket(String subject, String body) {
         for (var option : values()) {
-            if (option.subject.equals(subject) && option.userBody.equals(body)) return option;
+            if (!option.subject.equals(subject)) continue;
+            if (option.userBody.equals(body)) return option;
+            if (body == null || body.length() > option.userBody.length() + MAX_IDENTIFIER_LINE_LENGTH
+                    || !body.startsWith(option.userBody)) break;
+            var line = IDENTIFIER_LINE.matcher(body).region(option.userBody.length(), body.length());
+            if (line.matches() && (!"Card".equals(line.group(1))
+                    || line.group(2).chars().filter(Character::isDigit).count() >= 13)) {
+                // The caller persists only this canonical copy, discarding the identifier.
+                return option;
+            }
+            break;
         }
         throw ApiException.badRequest("Choose a supported help topic");
     }
