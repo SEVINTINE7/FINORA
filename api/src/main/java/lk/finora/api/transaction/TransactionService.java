@@ -10,10 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.account.Account;
 import lk.finora.api.account.AccountRepository;
+import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.category.Category;
 import lk.finora.api.category.CategoryRepository;
 import lk.finora.api.common.error.ApiException;
@@ -31,12 +33,14 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
+    private final FinanceWriteLock writeLock;
 
     public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository, FinanceWriteLock writeLock) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
+        this.writeLock = writeLock;
     }
 
     @Transactional(readOnly = true)
@@ -70,8 +74,9 @@ public class TransactionService {
         return toResponse(findOwn(userId, id));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransactionResponse create(Long userId, TransactionRequest request) {
+        writeLock.acquire(userId);
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         copyRequest(userId, request, transaction);
@@ -89,8 +94,9 @@ public class TransactionService {
      * Saves one imported record (T12) with the same account/category checks as {@link #create}.
      * Source is always CSV; the caller computes the dedup hash.
      */
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransactionResponse createImported(Long userId, TransactionRequest request, String dedupHash) {
+        writeLock.acquire(userId);
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         copyRequest(userId, request, transaction);
@@ -100,8 +106,9 @@ public class TransactionService {
         return toResponse(transaction);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void createSmsImported(Long userId, TransactionRequest request, String dedupHash) {
+        writeLock.acquire(userId);
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         copyRequest(userId, request, transaction);
@@ -109,16 +116,18 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransactionResponse update(Long userId, Long id, TransactionRequest request) {
+        writeLock.acquire(userId);
         Transaction transaction = findOwn(userId, id);
         copyRequest(userId, request, transaction);
         transactionRepository.save(transaction);
         return toResponse(transaction);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void delete(Long userId, Long id) {
+        writeLock.acquire(userId);
         transactionRepository.delete(findOwn(userId, id));
     }
 

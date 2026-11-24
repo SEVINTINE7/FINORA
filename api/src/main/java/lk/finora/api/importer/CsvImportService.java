@@ -22,11 +22,13 @@ import java.util.regex.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lk.finora.api.account.Account;
 import lk.finora.api.account.AccountRepository;
+import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.category.Category;
 import lk.finora.api.category.CategoryRepository;
 import lk.finora.api.common.error.ApiException;
@@ -59,13 +61,15 @@ public class CsvImportService {
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
+    private final FinanceWriteLock writeLock;
 
     public CsvImportService(TransactionRepository transactionRepository, TransactionService transactionService,
-            AccountRepository accountRepository, CategoryRepository categoryRepository) {
+            AccountRepository accountRepository, CategoryRepository categoryRepository, FinanceWriteLock writeLock) {
         this.transactionRepository = transactionRepository;
         this.transactionService = transactionService;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
+        this.writeLock = writeLock;
     }
 
     // ---------- preview ----------
@@ -329,8 +333,9 @@ public class CsvImportService {
      * Saves the selected rows. Every row is checked again (same rules as POST /transactions); if any row is
      * invalid nothing is saved. Rows whose hash already exists, or that repeat in this request, are skipped.
      */
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public CsvConfirmResponse confirm(Long userId, CsvConfirmRequest request) {
+        writeLock.acquire(userId);
         List<String> hashes = new ArrayList<>();
         for (CsvConfirmRow row : request.rows()) {
             String formulaColumn = formulaColumn(row);

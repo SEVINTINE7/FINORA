@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.validation.Validator;
+import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.common.error.ApiException;
 import lk.finora.api.transaction.dto.SmsBatchRequest.Item;
 import lk.finora.api.transaction.dto.SmsBatchResponse;
@@ -19,21 +19,21 @@ import lk.finora.api.transaction.dto.SmsBatchResponse.Status;
 class SmsBatchService {
     private final TransactionService transactions;
     private final TransactionRepository repository;
-    private final JdbcTemplate jdbc;
+    private final FinanceWriteLock writeLock;
     private final Validator validator;
 
     SmsBatchService(TransactionService transactions, TransactionRepository repository,
-                    JdbcTemplate jdbc, Validator validator) {
+                    FinanceWriteLock writeLock, Validator validator) {
         this.transactions = transactions;
         this.repository = repository;
-        this.jdbc = jdbc;
+        this.writeLock = writeLock;
         this.validator = validator;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public SmsBatchResponse save(Long userId, List<Item> items) {
         // Serialize SMS batches for this user. The database unique key is the final invariant.
-        jdbc.queryForObject("SELECT id FROM users WHERE id = ? FOR UPDATE", Long.class, userId);
+        writeLock.acquire(userId);
         for (int i = 0; i < items.size(); i++) validate(userId, items.get(i), i + 1);
 
         var seen = new HashSet<>(repository.findExistingDedupHashes(userId,
