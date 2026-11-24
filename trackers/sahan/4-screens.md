@@ -1,5 +1,7 @@
 # Sahan 4 — Dashboard, main screens, insights, advice (T20, T38, T24, T30)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
+
+**MD04 — 20/20 verified.** Formal prerequisites and independent reviews remain open. D55 downstream T21/T23 integration and T31.3/T32.2 remain separate. [Development handoff](../../docs/md05-delivery-handoff.md).
 **Detail: outline** — expand before coding.
 
 ---

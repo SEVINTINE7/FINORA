@@ -1,6 +1,6 @@
 # FINORA delivery handoff through MD05
 
-Tracked technical acceptance is **83/84**. MD01–MD04 retain 68/68 and MD05 is 15/16. T40.1 is the sole open MD05 technical box. Other tasks retain their original ownership, formal approvals and prerequisite order.
+Tracked technical acceptance is **83/84**. MD01–MD04 retain 68/68 and MD05 is 15/16. T40.1 is the sole open MD05 technical box and is deferred to T56 deployment by D56. Other tasks retain their original ownership, formal approvals and prerequisite order.
 
 ## Completed physical listening pass
 
@@ -15,15 +15,26 @@ On 2026-11-25, Sahan confirmed every listed label in both languages during one i
 
 Use retained focus, layout, Recents and session evidence. Android reports accessibility audio activity without its words. Its public playback capture API does not capture accessibility audio usage. Avoid using audio activity, text-to-speech logs or UI node text as proof of audibility. [Android playback capture](https://developer.android.com/reference/android/media/AudioPlaybackCaptureConfiguration)
 
-## One private HTTPS authorization
+## D56 development closure and deployment gate
 
-Sevindu can provide an existing approved, private, Android-trusted staging origin with a synthetic database and an isolated device route. Otherwise authorize all of the following together:
+Sevindu confirmed through Sahan on 2026-11-25 that authorized isolated development and testing continue over HTTP with synthetic fixtures. Sevindu supplies the domain, stock-Android-trusted certificate and reachable approved test service during T56 hosting and deployment. D51 and D23 remain in force. Release cleartext and TLS bypasses remain prohibited.
 
-1. One hostname under a team-controlled DNS zone, a DNS-01 TXT record or delegated challenge record for that hostname, and certificate issuance from a CA trusted by stock Android.
-2. Private DNS resolution for that hostname from the isolated Android environment and a private route to the local HTTPS reverse proxy. Keep the proxy private and forward to the isolated synthetic API. Keep certificate keys outside Git and provision no public app service.
-3. Access to the approved synthetic environment and permission to use an ephemeral release signing key on an isolated emulator. Provide hostname and access instructions separately from secrets.
+The T40.1 checkbox stays open. Sahan verifies authenticated V1 Release behavior during T56, using the actual APK and synthetic credentials over the approved HTTPS origin. Record the exact source revision and APK SHA-256, standard hostname and chain validation, and the original session and privacy results. Independent review and the separate T56 phone health check and restore drill remain required.
 
-After authorization, verify hostname and certificate chain with stock Android validation, build V1 Release using `FINORA_RELEASE_API_URL`, record the APK hash and verify authenticated session and privacy behavior with synthetic data. Retain only sanitized results. A self-signed or user-installed CA does not satisfy current release trust, and D51/T56 continue to control the outstanding acceptance. DNS-01 validates domain control without publishing the API. [DNS-01 documentation](https://letsencrypt.org/docs/challenge-types/#dns-01-challenge) · [Android release trust configuration](https://developer.android.com/privacy-and-security/security-config)
+| Scope | Verified | Remaining disposition |
+| --- | ---: | --- |
+| MD01 | 23/23 | T08/T39 in review; linked T09 review remains open. |
+| MD02 | 16/16 | T13 in review; T11/T14 retain formal prerequisites. |
+| MD03 | 9/9 | T15/T16 retain formal T10/T14 prerequisites as applicable. |
+| MD04 | 20/20 | Formal prerequisites and independent reviews; D55 and planning integration remain separate. |
+| MD05 | 15/16 | T40.1 deferred to deployment; formal prerequisites and independent reviews remain. |
+| Total | 83/84 | One deployment-deferred requirement. |
+| Original delegated MD05 scope | 22/22 | T41 4/4, T43 4/4, T45 6/6, T46 3/3, T47 5/5. Formal reviews remain. |
+| T07 | 7/7 | In review. |
+
+### Resume from this checkpoint
+
+Use draft PR #16 and the tip of `sahan/md05-integration-review`. Read the decision, INDEX and retained evidence before starting a separately authorized audit. The implementation and physical-evidence baseline is `cd184e61f22fdc1cc24801e74ba5c6d34bc1692b`. This development closure records its disposition. Keep the PR draft until the required independent reviews and merge authorization are provided.
 
 ## Formal reviews and owner handoff
 
@@ -34,7 +45,7 @@ At each row, an independent human should review the linked evidence and exact im
 | Foundation and MD01 | Sevindu: T01 and T09. Sahan: T08, T39. T40/T41/T46 wait on T08. T10/T38/T44 wait on T09. | T01 records decisions and local setup. T08 has physical role-routing and lifecycle evidence. T39 has locale, TalkBack and source review evidence. T09 has physical account/category acceptance. Record exact-revision independent approval, including T08, T09 and T39 already in review. [Android foundation](../trackers/sahan/1-app-skeleton.md) · [Records](../trackers/sevindu/3-records.md) |
 | MD02 and MD03 | Sevindu: T10, T12 and T45.3. Sahan: T11, T13, T14, T15, T16. T11/T12/T15 need T10. T14 needs T13 and T45.3. T15/T16 need T14. | Exact-cent CRUD, CSV, SMS permissions, parser and batch evidence are retained. D28–D36 early-start records preserve the formal gates. Independently approve T13 in review, then inspect T14/T15/T16 using their synthetic and physical evidence. [Entry and SMS](../trackers/sahan/2-entry-sms.md) · [SMS quality](../trackers/sahan/3-sms-quality.md) |
 | MD04 and analytics | Sevindu: T17–T19, T33. Thilina: T21, T23, T25–T29. Sahan: T20, T24, T30, T38. T09 → T38; T10/T17 → T20; T23/T38 → T24; T23 → T33; T25/T29/T38 → T30. | MD04 is 20/20 and delegated T33 is 5/5. Owner decisions, upstream planning acceptance and independent review remain. T25/T26 precede live T27/T28 validation, and T29 feeds T30. Live provider checks need approved models, credentials and a call budget. [MD04 evidence](md04-authorized-closure.md) · [AI tracker](../trackers/thilina/3-ai-pipeline.md) |
-| MD05 | Sahan: T40, T48, T49, T51. Sevindu: T41, T43, T45, T46, T47, T56. Thilina: T52, T53. T43 follows T41; T46 follows T08/T43; T47 follows T46; T48 follows T46/T47; T49 follows T46/T45; T51 follows T38. | T40 physical acceptance is complete. Authenticated release HTTPS remains open under D51/T56. T47 has verified bounded redaction under D52 and awaits formal dependency closure and independent review. Thilina retains T52's full role/ownership/privacy matrix and CI and T53's deployment/provider and security evidence. [MD05 evidence](md05-implementation-checkpoint.md) · [Admin and STAFF](../trackers/sevindu/6-admin-staff.md) · [QA](../trackers/thilina/5-qa.md) |
+| MD05 | Sahan: T40, T48, T49, T51. Sevindu: T41, T43, T45, T46, T47, T56. Thilina: T52, T53. T43 follows T41; T46 follows T08/T43; T47 follows T46; T48 follows T46/T47; T49 follows T46/T45; T51 follows T38. | T40 physical acceptance is complete. Authenticated release HTTPS remains open under D51/D56/T56. T47 has verified bounded redaction under D52 and awaits formal dependency closure and independent review. Thilina retains T52's full role/ownership/privacy matrix and CI and T53's deployment/provider and security evidence. [MD05 evidence](md05-implementation-checkpoint.md) · [Admin and STAFF](../trackers/sevindu/6-admin-staff.md) · [QA](../trackers/thilina/5-qa.md) |
 | Other relevant delegated prerequisites | Sevindu: T07, T35 and T36. Sahan: T07.4 and T07.5. | Registration evidence covers both consent gates. Settings now opens the T36 flow. HMD instrumentation verified both consent gates, withdrawal, D15 re-consent and fresh sign-in. Settings switched to Sinhala and saved it. T07 is in review. The D54 labels in the MD05 inventory are approved. Registration consent copy outside that inventory remains separate. [Consent tracker](../trackers/sevindu/2-auth.md) |
 
 The [consolidated native-speaker inventory](md05-sinhala-review.md) includes 106 app pairs and four saved replies. It preserves the 70 app pairs and four replies at `a9c54667a0f71b8b646fa8405405cfcd06819e00` and the 29 separately pinned dependency-screen pairs, and adds seven D54 pairs. Sahan approved these exact 106 pairs and four replies on 2026-11-25 after the three corrections at `80d5c200bb1464f6de80742e5363f6d6b72f4f95`. The earlier 183 approvals retain their scope. Publishing STAFF replies still requires second-STAFF approval.

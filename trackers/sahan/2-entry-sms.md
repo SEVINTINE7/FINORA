@@ -1,5 +1,7 @@
 # Sahan 2 — Manual entry and bank SMS reading (T11, T13, T14)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
+
+**MD02 — 16/16 verified.** T13 remains in review. T11 and T14 retain their formal prerequisites and independent reviews. [Development handoff](../../docs/md05-delivery-handoff.md).
 **Detail: outline** — expand before coding.
 
 **Phase 0 implementation constraints** — New keys below need English and Sinhala values. Native-speaker approval is required for the new Sinhala translations. Request approval for proposed paths outside each task's Touches before implementation. Preserve T08 session binding and T39 per-app locales.

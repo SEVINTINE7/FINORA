@@ -1,5 +1,7 @@
 # Sahan 5 — Android privacy, staff help, Android tests (T40, T48, T49, T51)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
+
+**MD05 — 15/16 verified.** Isolated development and physical acceptance are complete. D56 defers T40.1 authenticated release HTTPS to T56 deployment; the checkbox stays open. Formal prerequisites and independent reviews remain. [Development handoff](../../docs/md05-delivery-handoff.md).
 **Detail: outline** — expand before coding.
 
 ---
@@ -13,7 +15,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [x] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** D45/D50/D51. The fixed HMD debug build restored USER Help and Support (EN/SI) and STAFF Support focus and protected Recents. Expiry, replacement-account isolation and offline evidence remain valid. On 2026-11-25 Sahan confirmed all staged USER FAQ/Support, STAFF reply, Back, retry and expired-session labels were audible and correct in EN/SI. Isolated acceptance-app Logcat had zero credential or SMS pattern matches across the retained consent and listening checks. This closes the physical checklist. T40.1 remains open for D51/T56 authenticated release HTTPS.
+**Handoff notes:** D45/D50/D51. The fixed HMD debug build restored USER Help and Support (EN/SI) and STAFF Support focus and protected Recents. Expiry, replacement-account isolation and offline evidence remain valid. On 2026-11-25 Sahan confirmed all staged USER FAQ/Support, STAFF reply, Back, retry and expired-session labels were audible and correct in EN/SI. Isolated acceptance-app Logcat had zero credential or SMS pattern matches across the retained consent and listening checks. This closes the physical checklist. T40.1 remains unchecked. D56 defers the original authenticated release HTTPS verification under D51/T56.
 
 ---
 

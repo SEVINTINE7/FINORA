@@ -1,5 +1,7 @@
 # Sahan 3 — SMS preview, duplicates, accuracy tests (T15, T16)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
+
+**MD03 — 9/9 verified.** T15 and T16 remain in progress pending formal T10/T14 prerequisites as applicable and independent review. [Development handoff](../../docs/md05-delivery-handoff.md).
 **Detail: outline** — expand before coding.
 
 ---

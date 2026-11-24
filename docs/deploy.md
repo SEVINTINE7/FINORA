@@ -66,6 +66,10 @@ Logs: `journalctl -u finora-api -f`
 
 ## 3. HTTPS health check from a phone (Done when)
 
+D56 confirms that HTTP is limited to authorized isolated development and testing. During T56 deployment, Sevindu supplies the approved HTTPS origin, a hostname-matching certificate chain trusted by stock Android, and a reachable synthetic test service. The original T56 health and restore checks and T40.1 authenticated release verification remain required.
+
+After the phone health check, Sahan verifies the actual V1 Release APK against the configured HTTPS origin with standard Android TLS validation and synthetic credentials. Retain the release revision, APK SHA-256, successful authentication and original session/privacy evidence in the handoff. Keep production cleartext disabled and certificate and hostname validation enabled.
+
 On a phone using mobile data (not the server's network), open `https://<domain>/actuator/health`.
 Expected: padlock shown, body `{"status":"UP"}` (it may also list `groups`). Also check `http://<domain>/` does **not** load (port 80 is closed).
 

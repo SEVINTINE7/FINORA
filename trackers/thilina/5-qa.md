@@ -26,6 +26,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T53 · Privacy and security checks · `NFR-SEC`
 **Lead:** Thilina · **Support:** Sevindu · **Depends on:** T14, T27 · **Touches:** `docs/security-checklist.md`
 - [ ] T53.1 Verify HTTPS, BCrypt hashes, token expiry, redacted logs
+  - D56 schedules the trusted release HTTPS evidence during T56 deployment. T53 retains its own acceptance and independent review.
 - [ ] T53.2 Capture app traffic (proxy) during SMS import: no SMS body; capture LLM request: no forbidden fields
 - [ ] T53.3 Run OWASP dependency-check + secret scan (e.g. gitleaks); fix high findings
 

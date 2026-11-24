@@ -1,6 +1,8 @@
 # Sahan 1 — App skeleton, role routing, languages (T37, T08, T39)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
+**MD01 — 23/23 verified.** T37 is done. T08 and T39 remain in review. Linked T09 still requires Sevindu’s independent-review handoff. [Development handoff](../../docs/md05-delivery-handoff.md).
+
 ---
 
 ### T37 · Mobile app skeleton · `ALL`
