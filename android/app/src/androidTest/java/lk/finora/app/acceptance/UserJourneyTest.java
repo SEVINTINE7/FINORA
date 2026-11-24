@@ -243,6 +243,99 @@ public class UserJourneyTest {
         fail("Expected restored focus " + expected + ", observed " + actual);
     }
 
+    @Test public void adminListsCreatesAndDisablesStaff() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(arguments.getString("finoraAdminFixture")));
+        String adminEmail = "delivery-admin@example.test";
+        String adminPassword = "Synthetic9-delivery-admin";
+        String staffEmail = "staff-" + UUID.randomUUID() + "@example.test";
+        String fullName = "Synthetic provisioning staff";
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInAdmin(adminEmail, adminPassword);
+            clickText(R.string.staff_manage);
+            awaitButton(R.string.staff_create);
+            clickText(R.string.staff_create);
+            typeFixture(onView(withHint(R.string.email)).inRoot(isDialog()), staffEmail);
+            typeFixture(onView(withHint(R.string.staff_full_name)).inRoot(isDialog()), fullName);
+            confirm();
+            awaitText(app.getString(R.string.staff_temporary));
+            var temporary = new java.util.concurrent.atomic.AtomicReference<String>();
+            onView(withId(android.R.id.message)).inRoot(isDialog()).check((view, failure) -> {
+                if (failure != null) throw failure;
+                String message = ((android.widget.TextView) view).getText().toString();
+                int newline = message.indexOf('\n');
+                assertTrue("Missing temporary fixture credential", newline == 32);
+                temporary.set(message.substring(0, newline));
+            });
+            confirm();
+            awaitText(app.getString(R.string.staff_account_summary, fullName, staffEmail));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            signOut();
+
+            clickText(R.string.staff_activate);
+            awaitActivity(lk.finora.app.ui.staff.StaffAccessActivity.class);
+            typeFixture(onView(withHint(R.string.email)), staffEmail);
+            typeFixture(onView(withHint(R.string.staff_temporary)), temporary.getAndSet(null));
+            typeFixture(onView(withHint(R.string.staff_new_password)), "Synthetic9-replacement");
+            clickText(R.string.staff_activate);
+            awaitText(app.getString(R.string.staff_activation_done));
+            pressBack();
+            awaitActivity(LoginActivity.class);
+
+            signInAdmin(adminEmail, adminPassword);
+            clickText(R.string.staff_manage);
+            awaitButton(R.string.staff_disable);
+            clickText(R.string.staff_disable);
+            onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(staffEmail)));
+            confirm();
+            awaitButton(R.string.staff_enable);
+        }
+    }
+
+    private static void typeFixture(androidx.test.espresso.ViewInteraction field, String value) {
+        field.perform(reveal(), new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isAssignableFrom(EditText.class); }
+            @Override public String getDescription() { return "enter disposable fixture input"; }
+            @Override public void perform(UiController controller, View view) { ((EditText) view).setText(value); }
+        });
+    }
+
+    private static void signInAdmin(String email, String password) {
+        enter(R.id.email, email);
+        enter(R.id.password, password);
+        clickId(R.id.sign_in);
+        awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+    }
+
+    @Test public void registrationRequiresBothConsentCheckboxesInEachLanguage() {
+        try (var screen = ActivityScenario.launch(RegisterActivity.class)) {
+            checkConsentGate();
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("SI"));
+            var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+            sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.register_consent_heading));
+            checkConsentGate();
+        }
+    }
+
+    private static void checkConsentGate() {
+        for (int field : new int[]{R.id.register_email, R.id.register_name, R.id.register_password,
+                R.id.register_language, R.id.register_consent_heading, R.id.register_over18, R.id.register_consent}) {
+            onView(withId(field)).perform(reveal()).check(matches(isDisplayed()));
+        }
+        onView(withText(R.string.register_consent_text)).perform(reveal()).check(matches(isDisplayed()));
+        onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));
+        clickId(R.id.register_over18);
+        onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));
+        clickId(R.id.register_consent);
+        onView(withId(R.id.register_submit)).check(matches(isEnabled()));
+        clickId(R.id.register_over18);
+        onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));
+        clickId(R.id.register_consent);
+    }
+
     @Test public void loginAndLanguageDialogUseSecureWindows() {
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             screen.onActivity(activity -> assertTrue((activity.getWindow().getAttributes().flags
@@ -585,11 +678,7 @@ public class UserJourneyTest {
     }
 
     private static void enter(int id, String value) {
-        onView(withId(id)).perform(reveal(), new ViewAction() {
-            @Override public Matcher<View> getConstraints() { return isAssignableFrom(EditText.class); }
-            @Override public String getDescription() { return "enter disposable fixture input"; }
-            @Override public void perform(UiController controller, View view) { ((EditText) view).setText(value); }
-        });
+        typeFixture(onView(withId(id)), value);
     }
 
     private static ViewAction reveal() {
