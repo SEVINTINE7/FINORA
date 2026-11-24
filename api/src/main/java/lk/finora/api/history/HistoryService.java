@@ -2,6 +2,9 @@ package lk.finora.api.history;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +30,7 @@ public class HistoryService {
     private final JsonMapper json;
 
     public record Month(String month, BigDecimal income, BigDecimal expense, BigDecimal net,
-                        Integer score, List<Pattern> insights, boolean refreshPending) {}
+                        Integer score, List<Pattern> insights, boolean refreshPending, Instant reconstructedAt) {}
     public record Pattern(String type, Map<String, BigDecimal> facts) {}
     private record StoredPattern(String type, Map<String, String> facts) {}
     record Key(long userId, String month) {}
@@ -46,17 +49,19 @@ public class HistoryService {
         long span = ChronoUnit.MONTHS.between(parse(from), parse(to));
         if (span < 0 || span >= 24) throw ApiException.badRequest("Select an ordered range of up to 24 months");
         return jdbc.query("""
-                SELECT month, income, expense, score, insights, dirty
+                SELECT month, income, expense, score, insights, dirty, reconstructed_at
                 FROM monthly_history WHERE user_id = ? AND month BETWEEN ? AND ? ORDER BY month
                 """, (rs, n) -> {
+            var timestamp = rs.getObject("reconstructed_at", LocalDateTime.class);
+            Instant reconstructedAt = timestamp == null ? null : timestamp.toInstant(ZoneOffset.UTC);
             if (rs.getBoolean("dirty")) {
-                return new Month(rs.getString("month"), null, null, null, null, List.of(), true);
+                return new Month(rs.getString("month"), null, null, null, null, List.of(), true, reconstructedAt);
             }
             BigDecimal income = rs.getBigDecimal("income");
             BigDecimal expense = rs.getBigDecimal("expense");
             return new Month(rs.getString("month"), income, expense, income.subtract(expense),
                     rs.getObject("score", Integer.class),
-                    List.of(json.readValue(rs.getString("insights"), Pattern[].class)), false);
+                    List.of(json.readValue(rs.getString("insights"), Pattern[].class)), false, reconstructedAt);
         }, userId, from, to);
     }
 
@@ -82,6 +87,24 @@ public class HistoryService {
                 "SELECT dirty FROM monthly_history WHERE user_id = ? AND month = ?",
                 Boolean.class, key.userId(), key.month());
         if ((dirty.isEmpty() && existingOnly) || (!dirty.isEmpty() && !dirty.get(0))) return;
+        writeSnapshot(key, false);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void recover(Key key, LocalDateTime endExclusiveUtc) {
+        lock.acquire(key.userId());
+        boolean eligible = !jdbc.queryForList("""
+                SELECT id FROM users WHERE id = ? AND role = 'USER' AND created_at < ?
+                """, Long.class, key.userId(), endExclusiveUtc).isEmpty();
+        if (eligible && jdbc.queryForList("""
+                SELECT user_id FROM monthly_history WHERE user_id = ? AND month = ?
+                """, Long.class, key.userId(), key.month()).isEmpty()) {
+            writeSnapshot(key, true);
+        }
+        jdbc.update("DELETE FROM history_recovery_retry WHERE user_id = ? AND month = ?", key.userId(), key.month());
+    }
+
+    private void writeSnapshot(Key key, boolean reconstructed) {
         YearMonth month = parse(key.month());
         var data = metrics.forMonth(key.userId(), month);
         var score = scores.forMonth(key.userId(), key.month());
@@ -89,12 +112,12 @@ public class HistoryService {
                 pattern.facts().entrySet().stream().collect(java.util.stream.Collectors.toMap(
                         Map.Entry::getKey, entry -> entry.getValue().toString())))).toList();
         jdbc.update("""
-                INSERT INTO monthly_history (user_id, month, income, expense, score, insights, dirty)
-                VALUES (?, ?, ?, ?, ?, ?, FALSE) AS incoming
+                INSERT INTO monthly_history (user_id, month, income, expense, score, insights, dirty, reconstructed_at)
+                VALUES (?, ?, ?, ?, ?, ?, FALSE, IF(?, UTC_TIMESTAMP(6), NULL)) AS incoming
                 ON DUPLICATE KEY UPDATE income = incoming.income, expense = incoming.expense,
                     score = incoming.score, insights = incoming.insights, dirty = FALSE
                 """, key.userId(), key.month(), data.income().amount(), data.expense().amount(),
-                score.total(), json.writeValueAsString(patterns));
+                score.total(), json.writeValueAsString(patterns), reconstructed);
     }
 
     static YearMonth parse(String value) {

@@ -14,7 +14,11 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 class HistoryScheduler {
     private final HistoryService history;
-    HistoryScheduler(HistoryService history) { this.history = history; }
+    private final HistoryRecovery recovery;
+    HistoryScheduler(HistoryService history, HistoryRecovery recovery) {
+        this.history = history;
+        this.recovery = recovery;
+    }
 
     // Always targets the previous Colombo month. Repeating the scan resumes interrupted runs.
     @Scheduled(cron = "0 0 0 1 * *", zone = "Asia/Colombo")
@@ -26,6 +30,11 @@ class HistoryScheduler {
 
     static YearMonth previousMonth(Instant now) {
         return YearMonth.from(now.atZone(ZoneId.of("Asia/Colombo"))).minusMonths(1);
+    }
+
+    @Scheduled(fixedDelayString = "${finora.history.recovery-delay-ms:300000}")
+    void recoverMissedMonths() {
+        recovery.run(Instant.now());
     }
 
     @Scheduled(fixedDelayString = "${finora.history.refresh-delay-ms:5000}")
