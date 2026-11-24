@@ -338,6 +338,7 @@
     <string name="finance_help">Help</string>
     <string name="finance_help_text">Use Records to add or review transactions. Use Plan to manage budgets, bills and savings goals. SMS access is optional. You can enter transactions directly or import a CSV without allowing SMS access.</string>
     <string name="history_title">Monthly history</string>
+    <string name="history_reconstructed">Reconstructed from available records after month-end.</string>
     <string name="history_range">Show %1$s months</string>
     <string name="history_empty">No saved snapshots in this period.</string>
     <string name="history_refresh_pending">This month is being recalculated. Check again shortly.</string>

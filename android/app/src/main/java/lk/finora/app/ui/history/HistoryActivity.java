@@ -81,6 +81,9 @@ public final class HistoryActivity extends AppCompatActivity {
             showTrend();
             for (Month row : model.rows) {
                 line(BudgetListActivity.monthLabel(YearMonth.parse(row.month())), true);
+                if (row.reconstructedAt() != null) {
+                    line(getString(R.string.history_reconstructed), false);
+                }
                 if (row.refreshPending()) {
                     line(getString(R.string.history_refresh_pending), false);
                     continue;

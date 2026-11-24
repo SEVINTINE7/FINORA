@@ -36,7 +36,7 @@ public final class MonthlyRepository {
     }
 
     public record Month(String month, BigDecimal income, BigDecimal expense, BigDecimal net, Integer score,
-                        List<Pattern> insights, boolean refreshPending) {}
+                        List<Pattern> insights, boolean refreshPending, String reconstructedAt) {}
     public record Pattern(String type, Map<String, BigDecimal> facts) {}
     public record Advice(String month, Long id, String source, boolean verified, List<Item> items, Integer rating) {}
     public record Item(String actionId, String text, List<Fact> numbers) {}

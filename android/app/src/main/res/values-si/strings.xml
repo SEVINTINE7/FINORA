@@ -338,6 +338,7 @@
     <string name="finance_help">උදව්</string>
     <string name="finance_help_text">ගනුදෙනු එක් කිරීමට හෝ පරීක්ෂා කිරීමට වාර්තා භාවිත කරන්න. අයවැය, බිල්පත් සහ ඉතිරිකිරීමේ ඉලක්ක කළමනාකරණය කිරීමට සැලසුම භාවිත කරන්න. SMS ප්‍රවේශය අත්‍යවශ්‍ය නොවේ. SMS ප්‍රවේශයට අවසර නොදී ගනුදෙනු අතින් එක් කිරීමට හෝ CSV ගොනුවක් ආයාත කිරීමට හැකිය.</string>
     <string name="history_title">මාසික ඉතිහාසය</string>
+    <string name="history_reconstructed">මාසය අවසන් වූ පසු පවතින වාර්තා මත පදනම්ව යළි ගණනය කර ඇත.</string>
     <string name="history_range">මාස %1$sක් පෙන්වන්න</string>
     <string name="history_empty">මෙම කාලය සඳහා සුරැකි මාසික සාරාංශ නැත.</string>
     <string name="history_refresh_pending">මෙම මාසය සඳහා අගයන් යළි ගණනය වෙමින් පවතී. මඳ වේලාවකින් නැවත පරීක්ෂා කරන්න.</string>
