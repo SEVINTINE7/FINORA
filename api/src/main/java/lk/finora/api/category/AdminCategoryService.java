@@ -23,9 +23,10 @@ class AdminCategoryService {
 
     List<DefaultCategory> list() {
         return jdbc.query("""
-                SELECT id, name, name_si, kind, active FROM categories WHERE user_id IS NULL ORDER BY kind, name
+                SELECT id, name, name_si, kind, active, semantic_code FROM categories WHERE user_id IS NULL ORDER BY kind, name
                 """, (row, index) -> new DefaultCategory(row.getLong("id"), row.getString("name"),
-                row.getString("name_si"), CategoryKind.valueOf(row.getString("kind")), row.getBoolean("active")));
+                row.getString("name_si"), CategoryKind.valueOf(row.getString("kind")), row.getBoolean("active"),
+                row.getString("semantic_code")));
     }
 
     @Transactional
@@ -60,8 +61,8 @@ class AdminCategoryService {
 
     @Transactional
     public void remove(long id) {
-        find(id);
-        if (categories.countUses(id) == 0) {
+        var category = find(id);
+        if (category.semanticCode() == null && categories.countUses(id) == 0) {
             jdbc.update("DELETE FROM categories WHERE id = ? AND user_id IS NULL", id);
         } else {
             jdbc.update("UPDATE categories SET active = FALSE WHERE id = ? AND user_id IS NULL", id);
@@ -70,9 +71,10 @@ class AdminCategoryService {
 
     private DefaultCategory find(long id) {
         return jdbc.query("""
-                SELECT id, name, name_si, kind, active FROM categories WHERE id = ? AND user_id IS NULL FOR UPDATE
+                SELECT id, name, name_si, kind, active, semantic_code FROM categories WHERE id = ? AND user_id IS NULL FOR UPDATE
                 """, (row, index) -> new DefaultCategory(row.getLong("id"), row.getString("name"),
-                row.getString("name_si"), CategoryKind.valueOf(row.getString("kind")), row.getBoolean("active")), id)
+                row.getString("name_si"), CategoryKind.valueOf(row.getString("kind")), row.getBoolean("active"),
+                row.getString("semantic_code")), id)
                 .stream().findFirst().orElseThrow(() -> ApiException.notFound("Default category not found"));
     }
 

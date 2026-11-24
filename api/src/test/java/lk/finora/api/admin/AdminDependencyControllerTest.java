@@ -85,6 +85,45 @@ class AdminDependencyControllerTest extends IntegrationTest {
         assertEquals(0, jdbc.queryForObject("SELECT active FROM categories WHERE id = ?", Integer.class, id));
     }
 
+    @Test void renamePreservesSemanticCodeAndReferencesAndCannotAssignItToOtherCategories() throws Exception {
+        var user = createUser(Role.USER);
+        String admin = "Bearer " + tokenFor(createUser(Role.ADMIN));
+        String path = "/api/v1/admin/categories";
+        long savings = jdbc.queryForObject("SELECT id FROM categories WHERE semantic_code='SAVINGS'", Long.class);
+        long debt = jdbc.queryForObject("SELECT id FROM categories WHERE semantic_code='LOAN_PAYMENT'", Long.class);
+        jdbc.update("INSERT INTO budgets (user_id,category_id,month,limit_amount) VALUES (?,?,'2026-11',100.00)",
+                user.getId(), savings);
+        jdbc.update("INSERT INTO accounts (user_id,name,type) VALUES (?,'Synthetic','CASH')", user.getId());
+        jdbc.update("""
+                INSERT INTO transactions (user_id,account_id,category_id,type,amount,txn_date)
+                SELECT user_id,id,?,'EXPENSE',12.34,'2026-11-24' FROM accounts WHERE user_id=?
+                """, savings, user.getId());
+        String renamed = json(Map.of("name", "Renamed reserve", "nameSi", "යළි නම් කළ ඉතිරිය"));
+        mockMvc.perform(put(path + "/" + savings).header("Authorization", "Bearer " + tokenFor(user))
+                .contentType(MediaType.APPLICATION_JSON).content(renamed)).andExpect(status().isForbidden());
+        mockMvc.perform(put(path + "/" + savings).header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(renamed))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(savings))
+                .andExpect(jsonPath("$.name").value("Renamed reserve"))
+                .andExpect(jsonPath("$.nameSi").value("යළි නම් කළ ඉතිරිය"))
+                .andExpect(jsonPath("$.semanticCode").value("SAVINGS"));
+        mockMvc.perform(put(path + "/" + savings).header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("name", "Blocked", "nameSi", "Blocked", "semanticCode", "LOAN_PAYMENT"))))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(post(path).header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("kind", "EXPENSE", "name", "Savings", "nameSi", "Ordinary savings",
+                        "semanticCode", "SAVINGS")))).andExpect(status().isBadRequest());
+        mockMvc.perform(post(path).header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("kind", "EXPENSE", "name", "Savings", "nameSi", "Ordinary savings"))))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.semanticCode").doesNotExist());
+        mockMvc.perform(delete(path + "/" + debt).header("Authorization", admin)).andExpect(status().isNoContent());
+        assertEquals(0, jdbc.queryForObject("SELECT active FROM categories WHERE id=?", Integer.class, debt));
+        assertEquals("LOAN_PAYMENT", jdbc.queryForObject("SELECT semantic_code FROM categories WHERE id=?", String.class, debt));
+        assertEquals("SAVINGS", jdbc.queryForObject("SELECT semantic_code FROM categories WHERE id=?", String.class, savings));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM budgets WHERE category_id=?", Integer.class, savings));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM transactions WHERE category_id=?", Integer.class, savings));
+    }
+
     private org.springframework.test.web.servlet.ResultActions update(String token, long id, String state)
             throws Exception {
         return mockMvc.perform(put("/api/v1/admin/users/" + id + "/status").header("Authorization", "Bearer " + token)

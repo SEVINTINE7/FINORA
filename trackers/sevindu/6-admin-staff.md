@@ -52,7 +52,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 **Done when**
 - [x] Tests: USER cannot edit defaults; deactivated default stays on old transactions
 
-**Handoff notes:** D53. V19 enforces unique names per kind among defaults. MySQL preserved transaction and budget references when deactivating an in-use default and rejected USER edits. Android 17 verified create, edit and removal from ADMIN Home. Formal T41/T09 and independent review remain open.
+**Handoff notes:** D55/V22 preserves seeded savings and loan identity across bilingual renames, disallows client assignment, and deactivates semantic rows on delete. Existing transaction and budget references persist. T21/T23 still need Thilina’s semantic-code adoption and integrated downstream verification. Formal T41/T09 prerequisites and independent review remain open.
 
 ---
 
