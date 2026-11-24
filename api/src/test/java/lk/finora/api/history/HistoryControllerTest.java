@@ -117,6 +117,20 @@ class HistoryControllerTest extends IntegrationTest {
         assertEquals(new java.math.BigDecimal("9007199254740993.21"), row.insights().get(0).facts().get("wants"));
     }
 
+    @Test void deletingOwnerRemovesStoredHistoryAndPendingRefresh() {
+        long owner = createUser(Role.USER).getId();
+        long other = createUser(Role.USER).getId();
+        history.materialize(new HistoryService.Key(owner, "2026-10"), false);
+        history.materialize(new HistoryService.Key(other, "2026-10"), false);
+        jdbc.update("UPDATE monthly_history SET dirty = TRUE WHERE user_id = ?", owner);
+
+        jdbc.update("DELETE FROM users WHERE id = ?", owner);
+
+        assertTrue(history.read(owner, "2026-10", "2026-10").isEmpty());
+        assertFalse(history.dirty().contains(new HistoryService.Key(owner, "2026-10")));
+        assertEquals(1, history.read(other, "2026-10", "2026-10").size());
+    }
+
     @Test
     @org.springframework.transaction.annotation.Transactional(propagation =
             org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
