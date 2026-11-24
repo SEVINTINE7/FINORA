@@ -32,14 +32,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T49 · Staff SMS import troubleshooting · `STAFF-04`
 **Lead:** Sahan · **Support:** Sevindu · **Depends on:** T46, T45 · **Touches:** `and:sms/`, `api:support/`
-- [ ] T49.1 [AND] On parse failure the app offers "Report problem" sending only bank code, format version, error code
+- [x] T49.1 [AND] On parse failure the app offers "Report problem" sending only bank code, format version, error code
 - [x] T49.2 [API·Sevindu] Staff view of these reports grouped by bank/error; "Flag to admin" action
 - [x] T49.3 Staff cannot edit SMS formats (admin only, T45)
 
 **Done when**
-- [ ] Tests: report payload contains no SMS text, amounts or account numbers; staff edit format → 403
+- [x] Tests: report payload contains no SMS text, amounts or account numbers; staff edit format → 403
 
-**Handoff notes:** D47/D49. MySQL verified metadata-only intake, UTC-day deduplication, STAFF escalation and ADMIN-only format activation. Android 17 verified STAFF flagging and ADMIN resolution. The inbox can attribute approved NSB metadata without sending the sender or SMS. End-to-end report consent, payload capture and device acceptance remain open.
+**Handoff notes:** D47/D49. Android 17 verified cancel and confirm with an exact three-field capture and matching persisted metadata. STAFF grouped and flagged the report, and ADMIN resolved it. MySQL verified deduplication, private-field rejection and STAFF/USER mutation denial. Formal dependencies and handset evidence remain open.
 
 ---
 
@@ -52,4 +52,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] `./gradlew connectedV1DebugAndroidTest` output attached
 
-**Handoff notes:** D46 early start. Android 17 isolated emulator passed both Espresso tests. Android 8, recent-handset invocation and cross-device evidence remain open. Keep the original session runner available via the Gradle property.
+**Handoff notes:** D46/D49. Android 17 passed three connected tests and retained machine results. Registration was reproduced after a cold boot. The complete suite passed after correcting stale-focus waits and the budget assertion. API 26 and guarded handset acceptance remain open.

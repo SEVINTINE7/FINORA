@@ -1,11 +1,12 @@
 # MD05 English–Sinhala review inventory
 
-64 app resource pairs and four proposed saved replies. Final native-speaker approval is pending. Earlier approvals retain their original scope. The saved replies are proposed text and are not shipped in the app.
+70 app resource pairs and four proposed saved replies. Final native-speaker approval is pending. Earlier approvals retain their original scope. The saved replies are proposed text and are not shipped in the app.
 
 ## App resources
 
 | Resource | English | Sinhala |
 | --- | --- | --- |
+| `admin_stats_counts` | Active users: %1$d\nDisabled users: %2$d\nStaff: %3$d\nOpen requests: %4$d\nActive SMS formats: %5$d | සක්‍රිය පරිශීලකයන්: %1$d\nඅක්‍රිය පරිශීලකයන්: %2$d\nකාර්ය මණ්ඩලය: %3$d\nවිවෘත ඉල්ලීම්: %4$d\nසක්‍රිය SMS ආකෘති: %5$d |
 | `faq_language` | How do I change the app language? | යෙදුමේ භාෂාව වෙනස් කරන්නේ කෙසේද? |
 | `faq_language_body` | Tap Language and choose English or Sinhala. Connect to the internet to save the choice to your account. | භාෂාව ඔබා ඉංග්‍රීසි හෝ සිංහල තෝරන්න. තේරීම ඔබේ ගිණුමේ සුරැකීමට අන්තර්ජාලයට සම්බන්ධ වන්න. |
 | `faq_login` | How do I sign in? | මගේ ගිණුමට පිවිසෙන්නේ කෙසේද? |
@@ -27,7 +28,12 @@
 | `sms_diagnostic_updated` | Change saved. | වෙනස සුරකින ලදී. |
 | `sms_format_activate` | Activate approved NSB format | අනුමත NSB ආකෘතිය සක්‍රිය කරන්න |
 | `sms_format_disable` | Disable approved NSB format | අනුමත NSB ආකෘතිය අක්‍රිය කරන්න |
+| `sms_format_draft` | Draft approved NSB bundle revision | අනුමත NSB එකතුවේ අනුවාදයක් කෙටුම්පත් කරන්න |
 | `sms_format_nsb` | Approved NSB format, version 1 | අනුමත NSB ආකෘතිය, අනුවාදය 1 |
+| `sms_format_publish` | Publish validated revision | වලංගු අනුවාදය ප්‍රකාශයට පත් කරන්න |
+| `sms_format_published` | Published | ප්‍රකාශිතයි |
+| `sms_format_revision` | NSB deployment revision %1$d · %2$s | NSB යෙදවීමේ අනුවාදය %1$d · %2$s |
+| `sms_format_revision_number` | Deployment revision number | යෙදවීමේ අනුවාද අංකය |
 | `sms_report_failed` | Could not confirm delivery. You can try sending the same report again. | වාර්තාව ලැබුණු බව තහවුරු කළ නොහැක. එම වාර්තාව නැවත යැවීමට උත්සාහ කළ හැක. |
 | `sms_report_preview` | Bank: %1$s\nFormat version: unknown\nError code: %2$s\n\nOnly these details will be sent. Your message and financial details stay on this phone. | බැංකුව: %1$s\nආකෘති අනුවාදය: නොදනී\nදෝෂ කේතය: %2$s\n\nමෙම තොරතුරු පමණක් යවනු ලැබේ. ඔබේ පණිවිඩය සහ මූල්‍ය තොරතුරු මෙම දුරකථනයේම පවතී. |
 | `sms_report_problem` | Report problem | ගැටලුව වාර්තා කරන්න |

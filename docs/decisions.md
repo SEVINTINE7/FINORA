@@ -87,6 +87,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 - **D48 Guarded MD05 handset strategy** — Sahan approves the MD05 owner proposal's isolated handset strategy as device owner, conditional on Thilina's confirmed testing approval and all listed safeguards. The exact serial, existing test profile, signing and binary identity, isolated API and runner behavior must be verified before execution. No replacement of personal app binaries or sessions and no separate test application ID without explicit approval. This decision does not record Thilina's approval or physical acceptance.
 
 - **D49 MD05 owner approvals** — Sahan reports that Sevindu and Thilina verbally approved the architecture in the MD05 owner proposal and delegated reasonable technical decisions within Sahan's assigned scope. This covers the scoped backend and Android workflows and the guarded handset strategy. Preserve D35/D36 approved bank definitions, the original owners and all formal dependencies. This is authorization to implement, not independent review, native-speaker sign-off, handset evidence or permission to push.
+  - V18 revisions identify deployments of approved content. Drafting copies the D35 bundle, publication checks its pinned digest, and activation atomically switches the active revision under a bank lock. Parser template versions and D36 payloads are unchanged. New parsing content requires separate approved definitions and fixtures.
+  - Ticket text remains an allowlist of canonical subject/body pairs. An optional topic-specific error code supplements the ticket without introducing unstructured input. Only the owner and assignee can read it.
 
 ## Proposed — still open
 

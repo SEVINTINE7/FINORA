@@ -18,6 +18,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - 2026-11-22 audit: current T53 verify includes EndpointAuthTest and RoleAccessTest; existing discovery covers implemented endpoints, but does not assert exact error-field privacy. Highest-priority independent follow-up: T52.3 response-field privacy assertions on existing finance endpoints, on a separate T52 branch. T41/T46 and CI acceptance remain blocked; no new T52 tests or completion claimed here.
 - MD05 D45/D46 added focused T46.1 access and response-shape checks. Full T52 matrix, privacy review and CI remain open.
 - D49 MySQL checks cover STAFF revocation, ticket ownership and claim contention, diagnostic roles and ADMIN format mutation. The full matrix and independent review remain open.
+- V18 adds ADMIN count schema and role tests, STAFF/USER format mutation denial and approved rollback. Android loopback capture retained only the exact-match verdict for diagnostic metadata.
 
 ---
 
