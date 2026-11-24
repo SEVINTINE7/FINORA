@@ -7,6 +7,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class SupportTicketControllerTest extends IntegrationTest {
+    @org.springframework.beans.factory.annotation.Autowired
+    private SupportTicketService ticketService;
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbc;
     private static final String TICKETS = "/api/v1/support/tickets";
     private static final String STAFF = "/api/v1/staff/tickets";
     private static final String CATALOG = "/api/v1/staff/reply-catalog";
@@ -46,6 +50,41 @@ class SupportTicketControllerTest extends IntegrationTest {
                 .andExpect(status().isBadRequest());
         read(TICKETS, user).andExpect(jsonPath("$.length()").value(0));
         read(CATALOG, user).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional(
+            propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
+    void competingStaffCannotBothClaimTheSameTicket() throws Exception {
+        long owner = createUser(Role.USER).getId();
+        long first = createUser(Role.STAFF).getId();
+        long second = createUser(Role.STAFF).getId();
+        long ticket = ticketService.create(owner, "Sign-in", "I need help signing in.");
+        var gate = new java.util.concurrent.CyclicBarrier(2);
+        var workers = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            var firstClaim = workers.submit(() -> claimAfter(gate, first, ticket));
+            var secondClaim = workers.submit(() -> claimAfter(gate, second, ticket));
+            boolean firstWon = firstClaim.get(10, java.util.concurrent.TimeUnit.SECONDS);
+            boolean secondWon = secondClaim.get(10, java.util.concurrent.TimeUnit.SECONDS);
+            org.junit.jupiter.api.Assertions.assertNotEquals(firstWon, secondWon);
+            org.junit.jupiter.api.Assertions.assertEquals(firstWon ? first : second,
+                    jdbc.queryForObject("SELECT staff_id FROM support_tickets WHERE id = ?", Long.class, ticket));
+        } finally {
+            workers.shutdownNow();
+            jdbc.update("DELETE FROM users WHERE id IN (?, ?, ?)", owner, first, second);
+        }
+    }
+
+    private boolean claimAfter(java.util.concurrent.CyclicBarrier gate, long staff, long ticket) throws Exception {
+        gate.await(5, java.util.concurrent.TimeUnit.SECONDS);
+        try {
+            ticketService.claim(staff, ticket);
+            return true;
+        } catch (lk.finora.api.common.error.ApiException error) {
+            org.junit.jupiter.api.Assertions.assertEquals(org.springframework.http.HttpStatus.NOT_FOUND, error.getStatus());
+            return false;
+        }
     }
 
     private org.springframework.test.web.servlet.ResultActions read(String path, String token) throws Exception {
