@@ -36,6 +36,46 @@ public class TransactionRepositoryTest {
         }
     }
 
+    @Test public void smsBatchIsOneShotAndExplicitRetryReusesStructuredPayload() throws Exception {
+        try (var server = new MockWebServer()) {
+            server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AFTER_REQUEST));
+            server.enqueue(new MockResponse().setBody(
+                    "{\"items\":[{\"index\":1,\"status\":\"DUPLICATE\",\"possibleManualMatch\":[]}]}"));
+            var transaction = new TransactionRepository.SmsTransaction(1, null, "EXPENSE",
+                    new BigDecimal("1250.75"), "2026-11-21", "SYNTHETIC SHOP", "PASTE");
+            var batch = java.util.List.of(new TransactionRepository.SmsBatchItem("a".repeat(64), transaction));
+            var endpoint = server.url("/api/v1/transactions");
+            var request = TransactionRepository.smsBatchRequest(endpoint, batch);
+            var http = new OkHttpClient();
+            assertTrue(request.body().isOneShot());
+            assertThrows(IOException.class, () -> http.newCall(request).execute().close());
+            assertEquals(1, server.getRequestCount());
+            var first = server.takeRequest();
+            assertEquals("/api/v1/transactions/batch", first.getPath());
+            String posted = first.getBody().readUtf8();
+            var item = com.google.gson.JsonParser.parseString(posted).getAsJsonObject()
+                    .getAsJsonArray("items").get(0).getAsJsonObject();
+            assertEquals(java.util.Set.of("dedupHash", "transaction"), item.keySet());
+            assertEquals(java.util.Set.of("accountId", "type", "amount", "txnDate", "merchant", "source"),
+                    item.getAsJsonObject("transaction").keySet());
+
+            try (var response = http.newCall(TransactionRepository.smsBatchRequest(endpoint, batch)).execute()) {
+                assertEquals("DUPLICATE", TransactionRepository.readSmsBatch(response, 1).items().get(0).status());
+            }
+            assertEquals(posted, server.takeRequest().getBody().readUtf8());
+        }
+    }
+
+    @Test public void rejectsIncompleteBatchResponseAsUncertain() throws Exception {
+        try (var server = new MockWebServer()) {
+            server.enqueue(new MockResponse().setBody("{\"items\":[]}"));
+            var request = new okhttp3.Request.Builder().url(server.url("/")).build();
+            try (var response = new OkHttpClient().newCall(request).execute()) {
+                assertThrows(IOException.class, () -> TransactionRepository.readSmsBatch(response, 1));
+            }
+        }
+    }
+
     @Test public void includesAllSelectedFiltersAndZeroBasedPage() {
         HttpUrl endpoint = HttpUrl.get("https://example.test/api/v1/transactions");
         HttpUrl url = TransactionRepository.pageUrl(endpoint,

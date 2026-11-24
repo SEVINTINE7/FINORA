@@ -73,7 +73,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
         status = findViewById(R.id.sms_status);
         scan = findViewById(R.id.sms_scan);
         scanResult = findViewById(R.id.sms_scan_result);
-        preview = new SmsTransactionPreview(this, store, entryIdentity);
+        preview = new SmsTransactionPreview(this, store, entryIdentity, "SMS");
         previewButton = findViewById(R.id.sms_scan_preview);
         previewButton.setOnClickListener(view -> { if (verifySession() && canScan()) preview.open(); });
         scan.setOnClickListener(view -> scanInbox());

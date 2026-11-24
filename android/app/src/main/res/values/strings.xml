@@ -251,7 +251,6 @@
     <string name="sms_direction_credit">Credit</string>
     <string name="sms_needs_review">Needs manual review.</string>
     <string name="sms_transaction_preview">Review SMS transactions</string>
-    <string name="sms_preview_unavailable">Review and edit here. Saving SMS transactions is unavailable.</string>
     <string name="sms_preview_choices_unavailable">Could not load accounts or categories. Reopen the preview to try again.</string>
     <string name="sms_preview_date">Date: %1$s</string>
     <string name="sms_preview_no_selection">None selected</string>
@@ -259,4 +258,20 @@
     <string name="sms_preview_apply">Apply to preview</string>
     <string name="sms_preview_selected">Selected: %1$s</string>
     <string name="sms_preview_deselected">Not selected: %1$s</string>
+    <string name="sms_batch_review">Check selected rows before saving. Equal fingerprints can represent distinct transactions.</string>
+    <string name="sms_batch_invalid_selection">Select at least one row and choose an account and valid date for each selected row.</string>
+    <string name="sms_batch_save">Save SMS transactions</string>
+    <plurals name="sms_batch_confirm">
+        <item quantity="one">Save %1$d selected transaction?</item>
+        <item quantity="other">Save %1$d selected transactions?</item>
+    </plurals>
+    <string name="sms_batch_retry">Retry same batch</string>
+    <plurals name="sms_batch_uncertain">
+        <item quantity="one">The save result for %1$d row is unknown. Retry this same batch only, or cancel and review your records before starting over.</item>
+        <item quantity="other">The save result for %1$d rows is unknown. Retry this same batch only, or cancel and review your records before starting over.</item>
+    </plurals>
+    <string name="sms_batch_rejected">The batch was rejected. Review the selected transaction fields and accounts before confirming again.</string>
+    <string name="sms_batch_saved">Saved: %1$d</string>
+    <string name="sms_batch_duplicates">Unresolved duplicate rows: %1$s. Review existing records and use manual entry only for a confirmed distinct transaction.</string>
+    <string name="sms_batch_manual">Row %1$d: possible manual matches %2$s. Existing records were kept.</string>
 </resources>

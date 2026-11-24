@@ -18,8 +18,13 @@ final class SmsLocalTask {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
+    private final long deadlineSeconds;
     private CancellationSignal current;
     private Future<?> active;
+
+    SmsLocalTask() { this(3); }
+
+    SmsLocalTask(long deadlineSeconds) { this.deadlineSeconds = deadlineSeconds; }
 
     <T> void start(Operation<T> operation, Consumer<T> deliver, Runnable timedOut) {
         cancel();
@@ -30,12 +35,12 @@ final class SmsLocalTask {
             cancel();
             timedOut.run();
         };
-        main.postDelayed(deadline, TimeUnit.SECONDS.toMillis(3));
+        main.postDelayed(deadline, TimeUnit.SECONDS.toMillis(deadlineSeconds));
         active = executor.submit(() -> {
             long started = System.nanoTime();
             T result = operation.run(signal, () -> signal.isCanceled()
                     || Thread.currentThread().isInterrupted()
-                    || System.nanoTime() - started >= TimeUnit.SECONDS.toNanos(3));
+                    || System.nanoTime() - started >= TimeUnit.SECONDS.toNanos(deadlineSeconds));
             if (!signal.isCanceled()) main.post(() -> {
                 if (current != signal || signal.isCanceled()) return;
                 main.removeCallbacks(deadline);

@@ -29,6 +29,10 @@ import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.AccountRepository.ProtectedRequests;
 import lk.finora.app.data.repo.CategoryRepository;
+import lk.finora.app.data.repo.TransactionRepository;
+import lk.finora.app.data.repo.TransactionRepository.SmsBatchItem;
+import lk.finora.app.data.repo.TransactionRepository.SmsBatchResult;
+import lk.finora.app.data.repo.TransactionRepository.SmsTransaction;
 import lk.finora.app.sms.SmsParseResult.Parsed;
 import okhttp3.Call;
 import okhttp3.Response;
@@ -41,15 +45,20 @@ final class SmsTransactionPreview {
     private final AppCompatActivity activity;
     private final TokenStore store;
     private final Object login;
+    private record SaveResult(SmsBatchResult report, boolean rejected) {}
+    private final String source;
+    private final SmsLocalTask save = new SmsLocalTask(12);
+    private List<SmsBatchItem> pending = List.of();
     private final SmsLocalTask lookup = new SmsLocalTask();
     private final ArrayList<SmsPreviewDraft> drafts = new ArrayList<>();
     private AlertDialog dialog;
     private DatePickerDialog datePicker;
 
-    SmsTransactionPreview(AppCompatActivity activity, TokenStore store, Object login) {
+    SmsTransactionPreview(AppCompatActivity activity, TokenStore store, Object login, String source) {
         this.activity = activity;
         this.store = store;
         this.login = login;
+        this.source = source;
     }
 
     void replace(List<Parsed> rows) {
@@ -65,6 +74,10 @@ final class SmsTransactionPreview {
             requests = ProtectedRequests.currentUser();
         }
         if (drafts.isEmpty() || requests == null) return;
+        if (!pending.isEmpty()) {
+            confirm(requests, pending, true);
+            return;
+        }
         var loading = new AlertDialog.Builder(activity).setTitle(R.string.sms_transaction_preview)
                 .setMessage(R.string.records_loading).setNegativeButton(android.R.string.cancel, null).create();
         display(loading);
@@ -94,7 +107,7 @@ final class SmsTransactionPreview {
         if (!requests.isCurrent() || drafts.isEmpty()) return;
         var list = panel();
         text(list, R.string.sms_transaction_preview);
-        text(list, R.string.sms_preview_unavailable);
+        text(list, R.string.sms_batch_review);
         if (!choices.available()) text(list, R.string.sms_preview_choices_unavailable);
         String[] rows = new String[drafts.size()];
         for (int index = 0; index < rows.length; index++) {
@@ -105,7 +118,98 @@ final class SmsTransactionPreview {
         display(new AlertDialog.Builder(activity).setCustomTitle(list)
                 .setItems(rows, (ignored, index) -> {
                     if (requests.isCurrent() && index < drafts.size()) edit(requests, choices, index);
-                }).setNegativeButton(android.R.string.cancel, null).create());
+                }).setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.sms_batch_save, (ignored, which) -> confirmSelection(requests, choices))
+                .create());
+    }
+
+    private void confirmSelection(ProtectedRequests requests, Choices choices) {
+        if (!requests.isCurrent()) return;
+        var selected = new ArrayList<SmsBatchItem>();
+        for (var draft : drafts) {
+            if (!draft.selected()) continue;
+            if (draft.accountId() == null || draft.fields().date().getYear() < 1000
+                    || draft.fields().date().getYear() > 9999) {
+                cannotSave(requests, choices);
+                return;
+            }
+            var fields = draft.fields();
+            selected.add(new SmsBatchItem(draft.dedupHash(), new SmsTransaction(draft.accountId(),
+                    draft.categoryId(), draft.categoryKind(), fields.amount(), fields.date().toString(),
+                    fields.merchant(), source)));
+        }
+        if (selected.isEmpty()) {
+            cannotSave(requests, choices);
+            return;
+        }
+        confirm(requests, List.copyOf(selected), false);
+    }
+
+    private void cannotSave(ProtectedRequests requests, Choices choices) {
+        display(new AlertDialog.Builder(activity).setMessage(R.string.sms_batch_invalid_selection)
+                .setPositiveButton(android.R.string.ok, (ignored, which) -> showRows(requests, choices)).create());
+    }
+
+    private void confirm(ProtectedRequests requests, List<SmsBatchItem> items, boolean retry) {
+        if (!requests.isCurrent()) return;
+        int message = retry ? R.plurals.sms_batch_uncertain : R.plurals.sms_batch_confirm;
+        display(new AlertDialog.Builder(activity).setTitle(R.string.sms_batch_save)
+                .setMessage(activity.getResources().getQuantityString(message, items.size(), items.size()))
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(retry ? R.string.sms_batch_retry : R.string.sms_batch_save,
+                        (ignored, which) -> submit(requests, items)).create());
+    }
+
+    private void submit(ProtectedRequests requests, List<SmsBatchItem> items) {
+        if (!requests.isCurrent()) return;
+        pending = items;
+        display(new AlertDialog.Builder(activity).setMessage(R.string.records_loading)
+                .setCancelable(false).create());
+        save.start((signal, cancelled) -> {
+            try {
+                var call = new TransactionRepository(requests).saveSmsBatch(items);
+                var result = read(call, signal, response -> {
+                    if (response.code() == 400 || response.code() == 403) return new SaveResult(null, true);
+                    return new SaveResult(TransactionRepository.readSmsBatch(response, items.size()), false);
+                });
+                return result;
+            } catch (IOException | RuntimeException failure) {
+                return new SaveResult(null, false);
+            }
+        }, result -> showSaveResult(requests, items, result),
+                () -> showSaveResult(requests, items, new SaveResult(null, false)));
+    }
+
+    private void showSaveResult(ProtectedRequests requests, List<SmsBatchItem> items, SaveResult result) {
+        if (!requests.isCurrent()) return;
+        if (result.report() == null && !result.rejected()) {
+            confirm(requests, items, true);
+            return;
+        }
+        pending = List.of();
+        if (result.rejected()) {
+            display(new AlertDialog.Builder(activity).setMessage(R.string.sms_batch_rejected)
+                    .setPositiveButton(android.R.string.ok, (ignored, which) -> open()).create());
+            return;
+        }
+        int saved = 0;
+        var duplicates = new ArrayList<String>();
+        var matches = new StringBuilder();
+        for (var item : result.report().items()) {
+            if ("SAVED".equals(item.status())) saved++;
+            else duplicates.add(Integer.toString(item.index()));
+            if (!item.possibleManualMatch().isEmpty()) {
+                matches.append("\n").append(activity.getString(R.string.sms_batch_manual,
+                        item.index(), item.possibleManualMatch().toString()));
+            }
+        }
+        var summary = new StringBuilder(activity.getString(R.string.sms_batch_saved, saved));
+        if (!duplicates.isEmpty()) summary.append("\n").append(activity.getString(
+                R.string.sms_batch_duplicates, String.join(", ", duplicates)));
+        summary.append(matches);
+        drafts.clear();
+        display(new AlertDialog.Builder(activity).setTitle(R.string.sms_batch_save)
+                .setMessage(summary.toString()).setPositiveButton(android.R.string.ok, null).create());
     }
 
     private void edit(ProtectedRequests requests, Choices choices, int index) {
@@ -230,6 +334,8 @@ final class SmsTransactionPreview {
 
     void clear() {
         lookup.cancel();
+        save.cancel();
+        pending = List.of();
         drafts.clear();
         if (datePicker != null) datePicker.dismiss();
         datePicker = null;
@@ -240,5 +346,6 @@ final class SmsTransactionPreview {
     void close() {
         clear();
         lookup.close();
+        save.close();
     }
 }

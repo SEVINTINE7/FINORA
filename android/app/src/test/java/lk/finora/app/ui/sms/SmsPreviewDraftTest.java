@@ -27,6 +27,16 @@ public class SmsPreviewDraftTest {
         assertEquals(Long.valueOf(2), edited.accountId());
         assertEquals(Long.valueOf(3), edited.categoryId());
         assertEquals("EXPENSE", edited.categoryKind());
+        assertEquals(initial.dedupHash(), edited.dedupHash());
+    }
+
+    @Test public void canonicalFingerprintUsesOriginalFieldsAndNormalizesMerchant() {
+        var original = new SmsPreviewDraft(new Parsed(new BigDecimal("1250.75"),
+                LocalDate.of(2026, 11, 21), Direction.DEBIT, " Cafe\u0301 "));
+        var pasted = new SmsPreviewDraft(new Parsed(new BigDecimal("1250.75"),
+                LocalDate.of(2026, 11, 21), Direction.DEBIT, "Caf\u00e9"));
+        assertEquals("7c8fef0ee5c70b6250c63f417d06d59e0b9ce697a80de8ed7f64dfa4761ef93e", original.dedupHash());
+        assertEquals(original.dedupHash(), pasted.dedupHash());
     }
 
     @Test public void rejectsInvalidOrImpreciseAmounts() {

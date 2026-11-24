@@ -40,7 +40,7 @@ public final class PasteSmsActivity extends AppCompatActivity {
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_paste_title), true);
         result = findViewById(R.id.sms_paste_result);
         paste = findViewById(R.id.sms_paste_action);
-        preview = new SmsTransactionPreview(this, store, loginIdentity);
+        preview = new SmsTransactionPreview(this, store, loginIdentity, "PASTE");
         previewButton = findViewById(R.id.sms_paste_preview);
         previewButton.setOnClickListener(view -> { if (verifySession()) preview.open(); });
         paste.setOnClickListener(view -> paste());

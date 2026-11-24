@@ -61,6 +61,39 @@ public final class TransactionRepository {
     private record ManualCreate(long accountId, Long categoryId, String type, BigDecimal amount,
                                 String txnDate, String merchant, String note, String source) {}
 
+    public record SmsBatchItem(String dedupHash, SmsTransaction transaction) {}
+    public record SmsTransaction(long accountId, Long categoryId, String type, BigDecimal amount,
+                                 String txnDate, String merchant, String source) {}
+    public record SmsBatchResult(List<SmsItemResult> items) {}
+    public record SmsItemResult(int index, String status, List<Long> possibleManualMatch) {}
+    private record SmsBatchRequest(List<SmsBatchItem> items) {}
+
+    public Call saveSmsBatch(List<SmsBatchItem> items) {
+        return requests.call(smsBatchRequest(endpoint, items));
+    }
+
+    static Request smsBatchRequest(HttpUrl endpoint, List<SmsBatchItem> items) {
+        return new Request.Builder().url(endpoint.newBuilder().addPathSegment("batch").build())
+                .post(AccountRepository.json(new SmsBatchRequest(items))).build();
+    }
+
+    public static SmsBatchResult readSmsBatch(Response response, int expected) throws IOException {
+        var result = AccountRepository.read(response, SmsBatchResult.class);
+        if (result == null || result.items() == null || result.items().size() != expected) {
+            throw new IOException("Invalid SMS batch response");
+        }
+        for (int i = 0; i < expected; i++) {
+            var item = result.items().get(i);
+            if (item == null || item.index() != i + 1 || item.possibleManualMatch() == null
+                    || !("SAVED".equals(item.status()) || "DUPLICATE".equals(item.status()))
+                    || ("DUPLICATE".equals(item.status()) && !item.possibleManualMatch().isEmpty())
+                    || item.possibleManualMatch().stream().anyMatch(id -> id == null || id <= 0)) {
+                throw new IOException("Invalid SMS batch item response");
+            }
+        }
+        return result;
+    }
+
     public Call update(long id, Edit edit) {
         return requests.call(item(id).put(AccountRepository.json(edit)).build());
     }
