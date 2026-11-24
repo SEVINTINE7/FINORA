@@ -192,3 +192,11 @@ With TalkBack enabled on the isolated Android 17 emulator, two targeted instrume
 Targeted MySQL verification passed 3/3 for the ADMIN stats and STAFF provisioning controllers. The isolated Android 17 provisioning test passed in 21.457 seconds and the bilingual registration consent-gate test passed in 5.115 seconds. Android build and lint passed. T41 is now 3/4 and T43 is 4/4. T45 remains 2/6, T46 3/3 and T47 4/5. T07.4 gained emulator evidence. MD05 remains 14/16 and overall acceptance remains 82/84.
 
 See the [delivery handoff](md05-delivery-handoff.md) for the exact localization inventory, one TalkBack session, the private HTTPS authorization and the task-owner review sequence. No INDEX status, API contract or decision was changed.
+
+## D52 delegated gap closure
+
+T47 strips a single bounded labeled account/card line before storage. Android sends the canonical body and the API rejects arbitrary content. MySQL verified storage, safe owner/assignee disclosure, role isolation and unsafe-input rejection. T47 is 5/5.
+
+T45 lets ADMIN discard unpublished inactive NSB drafts. MySQL verified roles, published-revision protection, invalid pattern rejection, rollback and byte-identical USER responses across activation and rollback. Android parsed all three D35 synthetic examples with the exact V9 deployment definition, and the selected T16/parser regressions passed. T45 is 3/6. Arbitrary editable rules and per-sample validation remain outside the pinned deployment workflow.
+
+Focused results were 13/13 MySQL tests and 19/19 Android JVM tests. T41 stays 3/4 because T42/T44 implementations are missing. T43 remains 4/4 and T46 3/3. Delegated checks are counted separately. MD05 remains 14/16 and overall acceptance remains 82/84. No INDEX status changed. The existing [one-session checklist and owner handoff](md05-delivery-handoff.md) retain the spoken, localization, release HTTPS and independent review gates.

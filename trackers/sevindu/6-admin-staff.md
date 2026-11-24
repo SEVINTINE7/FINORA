@@ -13,7 +13,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 **Done when**
 - [x] Tests: USER/STAFF tokens and forged/expired tokens → 401/403; response contains no amounts
 
-**Handoff notes:** D49. MySQL verified first-ADMIN bootstrap, the exact five-count response, USER/STAFF denial and rejection of invalid and expired ADMIN tokens. Android displays counts and links to STAFF and SMS tools. T42/T44 navigation and formal review remain open.
+**Handoff notes:** D49. MySQL verified first-ADMIN bootstrap, exact five counts and role/expired-token denial. Android links to STAFF and SMS tools. T42 has no user list/status implementation and T44 has no default-category management implementation. Live links and formal review remain open.
 
 ---
 
@@ -65,12 +65,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - [ ] T45.5 [AND] Format list, edit, test-sample, activate/rollback
 
 **Done when**
-- [ ] Tests: invalid pattern rejected; rollback restores previous; T16 regression set still passes after a change
+- [x] Tests: invalid pattern rejected; rollback restores previous; T16 regression set still passes after a change
 
 **Handoff notes:**
 - D36 authorizes T45.3 ahead of T14 closure. V9 seeds only the D35 NSB bundle. USER-only GET returns a schema-v1 snapshot with no-store, an authoritative empty bundle when inactive, and a standard 503 for a corrupt approved row. MySQL-backed controller tests verified approval, authentication, roles, empty and invalid states. T45's other subtasks and parent gates remain open.
 - D49 adds ADMIN activation and disablement of the pinned NSB V1 bundle. MySQL verified STAFF and USER mutation denial and preservation of the USER empty/active response. General draft validation and rollback require approved version fixtures.
 - V18 adds draft, publish, activation and rollback of approved NSB deployment revisions. MySQL verified the switch back to revision 1, rejected a modified definition and preserved D36's payload. New bank rule authoring and sample editing remain open.
+- D52 adds ADMIN-only discard for unpublished inactive drafts. MySQL verifies immutable published revisions, exact D36 payload on activation and rollback, and invalid-definition rejection. Android reran the T16 NSB regressions and validated the exact V9 definition against all three approved synthetic examples. T45.1, T45.2 and T45.5 remain open for editable approved content and per-sample validation.
 
 ---
 
@@ -94,6 +95,6 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - [x] T47.4 [AND·Sahan] User "Help" form + staff ticket screens
 
 **Done when**
-- [ ] Tests: user sees only own tickets; staff can reply only to claimed tickets; account-number text redacted
+- [x] Tests: user sees only own tickets; staff can reply only to claimed tickets; account-number text redacted
 
-**Handoff notes:** D49/D50. The HMD Crest verified the USER Help form and STAFF ticket navigation, claim and bilingual replies; the corrected build restored Support focus. MySQL verified owner/assignee isolation and rejects unstructured sensitive text. The original redaction criterion remains open under the canonical-request contract. Formal dependencies and independent review remain open.
+**Handoff notes:** D49/D50/D52. The HMD Crest verified Help and STAFF ticket screens, claim and bilingual replies. MySQL verified owner/assignee isolation and removal of bounded labeled account/card lines before persistence, while rejecting unsafe content. Android keeps the canonical request form. Formal dependencies and independent review remain open.
