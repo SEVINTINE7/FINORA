@@ -49,7 +49,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Independent review corrections add USER navigation placeholders, bind protected calls before dispatch, and retain the latest logout revocation credential on storage failure. Both APKs built, 34 unit tests passed, and lint reported zero issues.
 - Corrected build `0de509e` passed the targeted HMD recheck for all five USER tabs, role guards, refresh, restoration, online and offline logout, and Back protection.
 - Sahan relayed Sevindu's verbal approval of the D07 refresh policy and confirmation of T08.5. Live login responses included role and language.
-- Sahan reported an independent source re-review with a conditional GO for `0de509e`. The policy condition is resolved. Exact-revision CI and independent final approval remain pending.
+- Sahan reported an independent source re-review with a conditional GO for `0de509e`. The policy condition is resolved. [Android and backend CI passed](https://github.com/SEVINTINE7/FINORA/actions/runs/44994510901) on delivered revision `ed8d5c1`. Independent final approval remains pending.
 
 ---
 

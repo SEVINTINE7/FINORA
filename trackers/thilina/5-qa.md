@@ -60,7 +60,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T55 · SMS, usability and performance checks · `NFR-SMS / NFR-USE / NFR-PERF`
 **Lead:** Thilina · **Support:** Sahan · **Depends on:** T16, T38 · **Touches:** `docs/evaluation.md`
-- [ ] T55.1 SMS field accuracy from T16 ≥ 90%
+- [x] T55.1 SMS field accuracy from T16 ≥ 90%
 - [ ] T55.2 Seed one year of data; measure main screens < 2 s on a mid-range phone
 - [ ] T55.3 SUS questionnaire with trial users; target ≥ 70
 - [ ] T55.4 Beta advice ratings: compare RULE vs AI with a statistical test
@@ -69,4 +69,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] `docs/evaluation.md` contains real measured numbers
 
 **Handoff notes:**
-- 2026-11-22 audit: T16/T38 remain todo; no device timing, SMS accuracy, SUS participants or ratings measurements available. T55 remains todo. Beta comparison wording also needs reconciliation with D03 V1-only scope before evaluation; no measurements invented.
+- T55.1 reuses the [T16 result](../sahan/3-sms-quality.md#t16--sms-parser-regression-tests--nfr-sms): 12/12 fields (100.0%) on the three approved D35 NSB fixtures. T20 measured the HMD dashboard at 505/504/486 ms with synthetic data over 12 months. T55.2 still needs the full main-screen timing scope. SUS and the D03-compatible evaluation decision remain open, as do formal T16/T38 prerequisite closure and Thilina’s evaluation review.

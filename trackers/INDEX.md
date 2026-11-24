@@ -2,7 +2,7 @@
 
 Find a task here, then open **only** its file and section. Status values: `todo` · `in-progress` · `review` · `done`. Update status here (only here).
 
-Development closure under D56 records **83/84 verified** across MD01–MD05. MD01–MD04 are 68/68 and MD05 is 15/16, with T40.1 deferred under D51/T56. T40 and T56 stay in progress. The original delegated scope is 22/22 and T07 is 7/7 in review. Task statuses below still follow formal prerequisites and independent review. [Handoff](../docs/md05-delivery-handoff.md).
+Development closure under D56 records **83/84 verified** across MD01–MD05. MD01–MD04 are 68/68 and MD05 is 15/16, with T40.1 deferred under D51/T56. T40 and T56 stay in progress. The original delegated scope is 22/22 and T07 is 7/7 in review. Task statuses below still follow formal prerequisites and independent review. T55.1 reuses verified T16 evidence. The T55 evaluation and its formal T16/T38 prerequisites remain open. [Handoff](../docs/md05-delivery-handoff.md).
 
 | ID | Task | Lead | Support | Depends on | File | Status |
 |---|---|---|---|---|---|---|

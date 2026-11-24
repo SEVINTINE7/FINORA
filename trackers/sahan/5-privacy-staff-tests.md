@@ -28,7 +28,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [x] Tests: only STAFF can manage templates; user sees FAQ
 
-**Handoff notes:** D49/D50. HMD Crest passed the bilingual saved-reply lifecycle and exposed localized FAQ headings, support status and STAFF preview/confirmation nodes at 130% text. MySQL rejects USER/ADMIN catalog management and arbitrary STAFF text. Native-speaker review and formal dependencies remain open. See the checkpoint for accessibility evidence limits.
+**Handoff notes:** D49/D50. HMD Crest passed the bilingual saved-reply lifecycle and exposed localized FAQ headings, support status and STAFF preview/confirmation nodes at 130% text. MySQL rejects USER/ADMIN catalog management and arbitrary STAFF text. Sahan approved all four bilingual saved-reply pairs in the [pinned MD05 inventory](../../docs/md05-sinhala-review.md) and confirmed the EN/SI HMD spoken labels on 2026-11-25. Second-STAFF operational publication, formal dependencies and independent review remain.
 
 ---
 

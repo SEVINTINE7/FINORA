@@ -38,6 +38,6 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - D37 permits isolated Android verification while T14 waits for formal closure. Sevindu approved synthetic-only T16.1 under D38, using the three D35 NSB fixtures. No original customer SMS was collected.
-- SmsAccuracyTest scored 12/12 expected amount, date, direction and merchant fields (100.0%) across three positives. Missing CEFT merchants counted as expected absent values.
+- SmsAccuracyTest scored 12/12 expected amount, date, direction and merchant fields (100.0%) across three positives. Missing CEFT merchants counted as expected absent values. This is the approved NSB fixture result carried into T55.1. The broader T55 evaluation remains open.
 - Six negative inputs went to manual review: unknown, malformed, ambiguous amount, reversal, ATM cash withdrawal and invalid date. Only NSB POS debit and the two approved CEFT formats are supported.
 - V1 debug built, 132 JVM tests passed, and lint reported zero errors and one existing budget-format warning. Formal dependency closure and independent review remain open.

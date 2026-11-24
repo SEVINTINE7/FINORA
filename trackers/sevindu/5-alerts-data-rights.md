@@ -28,7 +28,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [x] Tests: export contains every owned row and nothing of another user; unauthenticated → 401; no data in logs
 
-**Handoff notes:** D53. MySQL verified authenticated owner data, child-row ownership, credential exclusion and log privacy on synthetic fixtures. Android 17 saved the schema-1 JSON through the system picker. MySQL now covers all 18 export families, owner isolation, unauthenticated requests, log privacy and stable calendar dates. Formal prerequisites and independent review remain open.
+**Handoff notes:** D53. MySQL verified authenticated owner data, child-row ownership, credential exclusion and log privacy on synthetic fixtures. Android 17 and the isolated HMD Crest D50 tests saved the schema-1 JSON through the system picker. MySQL now covers all 18 export families, owner isolation, unauthenticated requests, log privacy and stable calendar dates. Formal prerequisites and independent review remain open.
 
 ---
 
@@ -42,4 +42,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [x] Tests: after delete no rows remain for that user; old tokens → 401; same email can register again
 
-**Handoff notes:** D21/D53. Password-confirmed deletion uses the D39 owner lock and FK cascade. MySQL verified retained foreign rows, old access/refresh rejection and same-email re-registration. The audit has no deleted-user identifiers. Android 17 verified confirmation and return to sign-in. Formal T35 and independent review remain open.
+**Handoff notes:** D21/D53. Password-confirmed deletion uses the D39 owner lock and FK cascade. MySQL verified retained foreign rows, old access/refresh rejection and same-email re-registration. The audit has no deleted-user identifiers. Android 17 and the isolated HMD Crest D50 tests verified password confirmation and return to sign-in. Formal T35 and independent review remain open.
