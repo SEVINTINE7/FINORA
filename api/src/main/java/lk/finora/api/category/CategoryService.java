@@ -12,15 +12,22 @@ import lk.finora.api.category.dto.CreateCategoryRequest;
 import lk.finora.api.category.dto.UpdateCategoryRequest;
 import lk.finora.api.common.error.ApiException;
 import lk.finora.api.common.error.ErrorCodes;
+import lk.finora.api.account.FinanceWriteLock;
+import lk.finora.api.history.HistoryInvalidation;
 
 /** Default + own categories (T09.2, T09.3). Defaults are read-only for users. */
 @Service
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final FinanceWriteLock writeLock;
+    private final HistoryInvalidation history;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, FinanceWriteLock writeLock,
+                           HistoryInvalidation history) {
         this.categoryRepository = categoryRepository;
+        this.writeLock = writeLock;
+        this.history = history;
     }
 
     @Transactional(readOnly = true)
@@ -58,6 +65,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponse update(Long userId, Long id, UpdateCategoryRequest request) {
+        writeLock.acquire(userId);
         Category category = findOwn(userId, id);
         String name = request.name().trim();
         if (categoryRepository.nameTaken(userId, category.getKind(), name, id)) {
@@ -66,8 +74,11 @@ public class CategoryService {
 
         category.setName(name);
         category.setNameSi(request.nameSi());
-        category.setNeedOrWant(toNeedOrWant(request.needOrWant()));
+        NeedOrWant classification = toNeedOrWant(request.needOrWant());
+        boolean reclassified = category.getNeedOrWant() != classification;
+        category.setNeedOrWant(classification);
         categoryRepository.save(category);
+        if (reclassified) history.allMonthsChanged(userId);
         return toResponse(category);
     }
 

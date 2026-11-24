@@ -1,0 +1,138 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/finora_outer_margin">
+
+        <TextView
+            android:id="@+id/goal_name"
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <ProgressBar
+            android:id="@+id/goal_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:max="100" />
+
+        <TextView
+            android:id="@+id/goal_details"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            android:id="@+id/goal_status"
+            style="@style/FinoraText.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_l" />
+
+        <TextView
+            android:id="@+id/goal_add_heading"
+            style="@style/FinoraText.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/goal_add_contribution" />
+
+        <EditText
+            android:id="@+id/contribution_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:hint="@string/bill_amount"
+            android:importantForAutofill="no"
+            android:inputType="numberDecimal"
+            android:minHeight="@dimen/finora_touch" />
+
+        <EditText
+            android:id="@+id/contribution_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:hint="@string/goal_contribution_date"
+            android:importantForAutofill="no"
+            android:inputType="date"
+            android:minHeight="@dimen/finora_touch" />
+
+        <Button
+            android:id="@+id/contribution_add"
+            style="@style/FinoraButton.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_l"
+            android:text="@string/goal_add" />
+
+        <TextView
+            android:id="@+id/goal_history_heading"
+            style="@style/FinoraText.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/goal_contributions" />
+
+        <TextView
+            android:id="@+id/goal_no_contributions"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/goal_no_contributions" />
+
+        <LinearLayout
+            android:id="@+id/records_rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_l"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/records_status"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:accessibilityLiveRegion="polite" />
+
+        <Button
+            android:id="@+id/records_retry"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/records_retry" />
+
+        <Button
+            android:id="@+id/goal_edit"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/goal_edit" />
+
+        <Button
+            android:id="@+id/goal_cancel"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/goal_cancel" />
+
+        <Button
+            android:id="@+id/goal_delete"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/goal_delete" />
+    </LinearLayout>
+</ScrollView>

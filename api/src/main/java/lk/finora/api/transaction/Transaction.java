@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 
 /**
  * One income or expense record. created_at / updated_at are filled by MySQL, so they are not mapped.
- * dedup_hash is not mapped yet; SMS de-duplication comes in T15.
+ * dedup_hash is set by CSV import (T12, D25); SMS de-duplication (T15) will reuse the column.
  */
 @Entity
 @Table(name = "transactions")
@@ -52,6 +52,10 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionSource source = TransactionSource.MANUAL;
+
+    // SHA-256 hex; unique per user, null for records that are not de-duplicated
+    @Column(name = "dedup_hash", columnDefinition = "char(64)")
+    private String dedupHash;
 
     public Long getId() {
         return id;
@@ -127,5 +131,13 @@ public class Transaction {
 
     public void setSource(TransactionSource source) {
         this.source = source;
+    }
+
+    public String getDedupHash() {
+        return dedupHash;
+    }
+
+    public void setDedupHash(String dedupHash) {
+        this.dedupHash = dedupHash;
     }
 }

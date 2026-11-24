@@ -3,8 +3,19 @@ package lk.finora.app.ui.sms;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SmsPermissionStateTest {
+    @Test
+    public void onlyDeclaredPermissionWithFirstRequestOrRationaleCanPrompt() {
+        assertFalse(SmsPermissionState.resolve(false, true, false, true).canRequest());
+        assertTrue(SmsPermissionState.resolve(true, false, false, false).canRequest());
+        assertTrue(SmsPermissionState.resolve(true, false, true, true).canRequest());
+        assertFalse(SmsPermissionState.resolve(true, false, true, false).canRequest());
+        assertFalse(SmsPermissionState.resolve(true, true, false, false).canRequest());
+    }
+
     @Test
     public void undeclaredPermissionIsUnavailableEvenWithEarlierRequestHistory() {
         assertEquals(SmsPermissionState.UNAVAILABLE,

@@ -2,6 +2,7 @@ package lk.finora.api.goal;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.common.error.ApiException;
+import lk.finora.api.account.FinanceWriteLock;
+import lk.finora.api.history.HistoryInvalidation;
 import lk.finora.api.goal.dto.ContributionRequest;
 import lk.finora.api.goal.dto.ContributionResponse;
 import lk.finora.api.goal.dto.GoalRequest;
@@ -22,10 +25,15 @@ public class GoalService {
 
     private final GoalRepository goalRepository;
     private final GoalContributionRepository contributionRepository;
+    private final FinanceWriteLock writeLock;
+    private final HistoryInvalidation history;
 
-    public GoalService(GoalRepository goalRepository, GoalContributionRepository contributionRepository) {
+    public GoalService(GoalRepository goalRepository, GoalContributionRepository contributionRepository,
+                       FinanceWriteLock writeLock, HistoryInvalidation history) {
         this.goalRepository = goalRepository;
         this.contributionRepository = contributionRepository;
+        this.writeLock = writeLock;
+        this.history = history;
     }
 
     // ---------- goals CRUD (T19.1) ----------
@@ -46,6 +54,7 @@ public class GoalService {
 
     @Transactional
     public GoalResponse create(Long userId, GoalRequest request) {
+        writeLock.acquire(userId);
         Goal goal = new Goal();
         goal.setUserId(userId);
         goal.setName(request.name().trim());
@@ -53,12 +62,14 @@ public class GoalService {
         goal.setTargetDate(request.targetDate());
         goal.setStatus(GoalStatus.ACTIVE);
         goalRepository.save(goal);
+        history.monthsChangedFrom(userId, YearMonth.now(java.time.ZoneId.of("Asia/Colombo")).toString());
         return toResponse(goal);
     }
 
     /** Edit name, target or date, or cancel the goal. A new target can make it DONE or ACTIVE again. */
     @Transactional
     public GoalResponse update(Long userId, Long id, GoalRequest request) {
+        writeLock.acquire(userId);
         Goal goal = findOwn(userId, id);
         goal.setName(request.name().trim());
         goal.setTargetAmount(request.targetAmount());
@@ -71,13 +82,16 @@ public class GoalService {
             updateStatus(goal);
         }
         goalRepository.save(goal);
+        history.allMonthsChanged(userId);
         return toResponse(goal);
     }
 
     /** Deletes the goal. Its contributions are removed by the database (ON DELETE CASCADE). */
     @Transactional
     public void delete(Long userId, Long id) {
+        writeLock.acquire(userId);
         goalRepository.delete(findOwn(userId, id));
+        history.allMonthsChanged(userId);
     }
 
     // ---------- contributions (T19.2) ----------
@@ -95,6 +109,7 @@ public class GoalService {
     /** Adds money to the goal and returns the goal with its new progress. */
     @Transactional
     public GoalResponse addContribution(Long userId, Long goalId, ContributionRequest request) {
+        writeLock.acquire(userId);
         Goal goal = findOwn(userId, goalId);
         GoalContribution contribution = new GoalContribution();
         contribution.setGoalId(goal.getId());
@@ -102,17 +117,20 @@ public class GoalService {
         contribution.setContribDate(request.date());
         contributionRepository.save(contribution);
         updateStatus(goal);
+        history.monthsChangedFrom(userId, YearMonth.from(request.date()).toString());
         return toResponse(goal);
     }
 
     /** Removes one contribution and returns the goal with its new progress. */
     @Transactional
     public GoalResponse deleteContribution(Long userId, Long goalId, Long contributionId) {
+        writeLock.acquire(userId);
         Goal goal = findOwn(userId, goalId);
         GoalContribution contribution = contributionRepository.findByIdAndGoalId(contributionId, goal.getId())
                 .orElseThrow(() -> ApiException.notFound("Contribution not found"));
         contributionRepository.delete(contribution);
         updateStatus(goal);
+        history.monthsChangedFrom(userId, YearMonth.from(contribution.getContribDate()).toString());
         return toResponse(goal);
     }
 

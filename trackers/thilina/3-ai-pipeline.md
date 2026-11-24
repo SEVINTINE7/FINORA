@@ -35,6 +35,7 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 - 2026-11-22: Mocked HTTP client tests 19/19 PASS. Groq/Gemini clients implemented. Live provider, exact retry behavior and final security review pending.
 - Final PR verification 2026-11-22: reconciled origin/main a0b5dfb without rewriting 72ec247/ed33c41. Mocked clients/verifier/pipeline 51/51 passed; full offline Java 17 verify 253/253, zero failures/errors/skips, exit 0; JaCoCo service lines 692/702 (98.58%), gate passed. Logs: api/target/final-pipeline-focused.log and final-pipeline-verify.log.
 - Documentation now describes disabled configuration, explicit models, object envelope, retry and privacy contract. No live calls, credentials or provider acceptance; task remains in-progress pending review.
+- D44 live acceptance needs Thilina-approved model IDs, authorized `GROQ_API_KEY` and `GEMINI_API_KEY` in the isolated environment, and a numeric call budget.
 
 ---
 
@@ -48,7 +49,7 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 
 **Handoff notes:**
 - 2026-11-22: Pipeline tests 13/13 PASS. Fallback implementation added. Full fallback acceptance and live integration pending.
-- Final PR run: 51 focused / 253 full tests passed after upstream reconciliation; backup, rule fallback and ownership exercised with mocked providers only. T30 delivery/Android integration and live acceptance remain separate; T28 stays in-progress.
+- Final PR run: 51 focused / 253 full tests passed. T30 now delivers through the V1 USER endpoint. Backup, fallback and ownership were exercised with mocked providers. Live Gemini backup under D44 remains open.
 
 ---
 
@@ -64,3 +65,4 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 **Handoff notes:**
 - 2026-11-22: Verifier tests 19/19 PASS. V8 migration validated. Final number-verification policy and real-world pass rate pending.
 - Final PR run: 51 focused / 253 full tests passed; provisional exact-claim policy documented in docs/ai-schema.md. No tolerance, semantic verification or real pass rate approved; T29 stays in-progress pending team policy acceptance.
+- T30 uses the existing verifier and preserves canonical fallback. Thilina's independent review covers the privacy allowlist, exact claims and live provider behavior under D44.
