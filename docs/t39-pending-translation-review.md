@@ -1,26 +1,26 @@
-# T39 remaining English–Sinhala review inventory
+# T39 English–Sinhala approval and pending planning inventory
 
-Resource baseline `80d5c200bb1464f6de80742e5363f6d6b72f4f95`. The EN and SI resources have 460 matching keys. Five pinned inventories cover 326 unique unchanged pairs. A further 45 match the 46-pair T09 acceptance at `9a8967e` in both languages. Those 371 unchanged approved pairs are excluded. The T09 category removal message changed and is included below. Prior approval of the four STAFF reply templates remains separate.
+Sahan approved these 28 English–Sinhala pairs on 2026-11-25 against revision `4a1cb52ed2ae7861e68c3164c455ecdf39059262`, with ten exact Sinhala corrections shown below. English values and the other 18 Sinhala values are unchanged. The corrected Sinhala resource is pinned to Git blob `5df2134a5e88419a8350911297499736cd13f43b`. The 371 earlier approvals retain their exact scope. The four STAFF saved replies remain separate.
 
-## Registration, Settings and shared records controls
+## Approved registration, Settings and shared Records pairs
 
 | Resource | English | Sinhala |
 | --- | --- | --- |
 | `category_remove_message` | Remove this category? | මෙම කාණ්ඩය ඉවත් කරන්නද? |
-| `register_consent` | I have read the above and agree to FINORA using my data this way | මම ඉහත කරුණු කියවා, FINORA මගේ දත්ත මේ ආකාරයට භාවිත කිරීමට එකඟ වෙමි |
+| `register_consent` | I have read the above and agree to FINORA using my data this way | මම ඉහත කරුණු කියවා ඇති අතර, FINORA විසින් මගේ දත්ත මේ ආකාරයෙන් භාවිත කිරීමට එකඟ වෙමි. |
 | `register_consent_heading` | How FINORA uses your data | FINORA ඔබේ දත්ත භාවිත කරන ආකාරය |
-| `register_consent_text` | • FINORA stores the income and expense records, budgets, bills and goals you enter, so it can show your spending patterns and a 0–100 money health score.\n• If you allow SMS reading, bank messages are read only on your phone. Only the amount, date, merchant and type that you confirm are sent to FINORA. The full SMS text never leaves your phone.\n• AI advice is created from totals and category names only. Your name, email, merchants and account numbers are never sent to the AI service, and every number in the advice is checked first.\n• FINORA never asks for your bank login. Admin and staff users cannot see your transactions.\n• You can withdraw this consent in Settings at any time. Encrypted backups are deleted after 30 days. | • ඔබේ වියදම් රටා සහ 0–100 මූල්‍ය සෞඛ්‍ය ලකුණ පෙන්වීමට, ඔබ ඇතුළත් කරන ආදායම් සහ වියදම් වාර්තා, අයවැය, බිල්පත් සහ ඉලක්ක FINORA ගබඩා කරයි.\n• ඔබ SMS කියවීමට ඉඩ දුන්නොත්, බැංකු පණිවිඩ කියවන්නේ ඔබේ දුරකථනයේ පමණි. ඔබ තහවුරු කරන මුදල, දිනය, වෙළෙන්දා සහ වර්ගය පමණක් FINORA වෙත යැවේ. සම්පූර්ණ SMS පණිවිඩය කිසිවිට ඔබේ දුරකථනයෙන් පිට නොයයි.\n• AI උපදෙස් සාදන්නේ එකතු කළ ගණන් සහ කාණ්ඩ නම් පමණක් භාවිතයෙනි. ඔබේ නම, ඊමේල්, වෙළෙන්දන් සහ ගිණුම් අංක කිසිවිට AI සේවාවට නොයැවේ, තවද උපදෙස්වල සෑම අංකයක්ම පළමුව පරීක්ෂා කෙරේ.\n• FINORA කිසිවිට ඔබේ බැංකු පිවිසුම් තොරතුරු ඉල්ලන්නේ නැත. පරිපාලක සහ කාර්ය මණ්ඩල පරිශීලකයින්ට ඔබේ ගනුදෙනු දැකිය නොහැක.\n• ඔබට ඕනෑම වේලාවක සැකසුම් තුළින් මෙම කැමැත්ත ඉවත් කර ගත හැක. සංකේතනය කළ උපස්ථ දින 30කට පසු මකා දැමේ. |
+| `register_consent_text` | • FINORA stores the income and expense records, budgets, bills and goals you enter, so it can show your spending patterns and a 0–100 money health score.\n• If you allow SMS reading, bank messages are read only on your phone. Only the amount, date, merchant and type that you confirm are sent to FINORA. The full SMS text never leaves your phone.\n• AI advice is created from totals and category names only. Your name, email, merchants and account numbers are never sent to the AI service, and every number in the advice is checked first.\n• FINORA never asks for your bank login. Admin and staff users cannot see your transactions.\n• You can withdraw this consent in Settings at any time. Encrypted backups are deleted after 30 days. | • ඔබේ වියදම් රටා සහ 0–100 අතර මූල්‍ය සෞඛ්‍ය ලකුණ පෙන්වීමට, ඔබ ඇතුළත් කරන ආදායම් සහ වියදම් වාර්තා, අයවැය, බිල්පත් සහ ඉලක්ක FINORA ගබඩා කරයි.\n• ඔබ SMS කියවීමට අවසර ලබා දුන්නොත්, බැංකු පණිවිඩ කියවන්නේ ඔබේ දුරකථනයේ පමණි. ඔබ තහවුරු කරන මුදල, දිනය, වෙළෙන්දා සහ ගනුදෙනු වර්ගය පමණක් FINORA වෙත යැවේ. සම්පූර්ණ SMS පණිවිඩය කිසිවිටෙක ඔබේ දුරකථනයෙන් පිටතට නොයැවේ.\n• AI උපදෙස් සකස් කරන්නේ සමස්ත මුදල් එකතුව සහ කාණ්ඩවල නම් පමණක් භාවිත කරමිනි. ඔබේ නම, ඊමේල් ලිපිනය, වෙළෙන්දන් සහ ගිණුම් අංක කිසිවිටෙක AI සේවාවට නොයැවේ. උපදෙස්වල සඳහන් සෑම සංඛ්‍යාවක්ම පළමුව පරීක්ෂා කෙරේ.\n• FINORA කිසිවිටෙක ඔබේ බැංකු පිවිසුම් තොරතුරු ඉල්ලන්නේ නැත. පරිපාලකයන්ට සහ කාර්ය මණ්ඩලයට ඔබේ ගනුදෙනු දැකිය නොහැක.\n• ඔබට ඕනෑම වේලාවක සැකසුම් තුළින් මෙම එකඟතාව ඉවත් කරගත හැක. සංකේතනය කළ උපස්ථ දින 30කට පසු මකා දැමේ. |
 | `register_done` | Account created. Enter your password to sign in. | ගිණුම සාදන ලදී. පිවිසීමට ඔබේ මුරපදය ඇතුළත් කරන්න. |
 | `register_email` | Email | ඊමේල් |
-| `register_email_taken` | An account with this email already exists. Sign in instead. | මෙම ඊමේල් සමඟ ගිණුමක් දැනටමත් ඇත. ඒ වෙනුවට පිවිසෙන්න. |
+| `register_email_taken` | An account with this email already exists. Sign in instead. | මෙම ඊමේල් ලිපිනයට අදාළ ගිණුමක් දැනටමත් ඇත. ඒ වෙනුවට පිවිසෙන්න. |
 | `register_have_account` | I already have an account | මට දැනටමත් ගිණුමක් ඇත |
 | `register_language` | App language | යෙදුමේ භාෂාව |
 | `register_name` | Full name | සම්පූර්ණ නම |
-| `register_name_invalid` | Enter your name (up to 100 characters). | ඔබේ නම ඇතුළත් කරන්න (අකුරු 100ක් දක්වා). |
+| `register_name_invalid` | Enter your name (up to 100 characters). | ඔබේ නම ඇතුළත් කරන්න (අක්ෂර 100ක් දක්වා). |
 | `register_open` | Create an account | ගිණුමක් සාදන්න |
-| `register_over18` | I am 18 years old or older | මම වයස අවුරුදු 18 හෝ ඊට වැඩි අයෙක්මි |
+| `register_over18` | I am 18 years old or older | මගේ වයස අවුරුදු 18ක් හෝ ඊට වැඩිය. |
 | `register_password` | Password | මුරපදය |
-| `register_password_rule` | At least 8 characters, with at least one letter and one number. | අවම වශයෙන් අකුරු 8ක්, අඩුම තරමින් එක් අකුරක් සහ එක් ඉලක්කමක් සමඟ. |
+| `register_password_rule` | At least 8 characters, with at least one letter and one number. | අවම වශයෙන් අක්ෂර 8ක් තිබිය යුතු අතර, අවම වශයෙන් එක් අකුරක් සහ එක් ඉලක්කමක් ඇතුළත් විය යුතුය. |
 | `register_submit` | Create account | ගිණුම සාදන්න |
 | `register_title` | Create your FINORA account | ඔබේ FINORA ගිණුම සාදන්න |
 | `register_under_18` | You must be 18 or older to use FINORA. | FINORA භාවිත කිරීමට ඔබ වයස අවුරුදු 18 හෝ ඊට වැඩි විය යුතුය. |
@@ -30,10 +30,10 @@ Resource baseline `80d5c200bb1464f6de80742e5363f6d6b72f4f95`. The EN and SI reso
 | `settings_language` | Language | භාෂාව |
 | `settings_privacy` | Privacy and data | පෞද්ගලිකත්වය සහ දත්ත |
 | `settings_title` | Settings | සැකසුම් |
-| `settings_withdraw` | Withdraw consent | කැමැත්ත ඉවත් කරන්න |
-| `settings_withdraw_action` | Withdraw | ඉවත් කරන්න |
-| `settings_withdraw_confirm` | Withdraw your consent and sign out on all devices? | ඔබේ කැමැත්ත ඉවත් කර සියලු උපාංගවලින් ඉවත් වන්නද? |
-| `settings_withdraw_info` | Withdrawing consent signs you out on every device. Next time you sign in you will be asked to agree again or delete your data. | කැමැත්ත ඉවත් කිරීමෙන් ඔබ සියලු උපාංගවලින් ඉවත් වේ. ඊළඟ වතාවේ පිවිසෙන විට නැවත එකඟ වීමට හෝ ඔබේ දත්ත මකා දැමීමට ඔබෙන් අසනු ඇත. |
+| `settings_withdraw` | Withdraw consent | එකඟතාව ඉවත් කරගන්න |
+| `settings_withdraw_action` | Withdraw | ඉවත් කරගන්න |
+| `settings_withdraw_confirm` | Withdraw your consent and sign out on all devices? | ඔබේ එකඟතාව ඉවත් කරගෙන සියලු උපාංගවලින් ගිණුමෙන් ඉවත් වන්නද? |
+| `settings_withdraw_info` | Withdrawing consent signs you out on every device. Next time you sign in you will be asked to agree again or delete your data. | ඔබේ එකඟතාව ඉවත් කරගත් විට, සියලු උපාංගවල ඇති ඔබේ ගිණුමේ පිවිසුම් අවසන් වේ. ඊළඟ වතාවේ පිවිසෙන විට, නැවත එකඟ වීමට හෝ ඔබේ දත්ත මකා දැමීමට ඔබෙන් ඉල්ලා සිටිනු ඇත. |
 
 ## Planning screens owned by Sevindu
 

@@ -64,6 +64,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] Every screen checked in both languages on a device; TalkBack reads main buttons
 
 **Handoff notes:**
+- Sahan approved 28 exact registration, Settings and shared Records pairs on 2026-11-25. The [pinned inventory](../../docs/t39-pending-translation-review.md) separates 61 pending planning pairs. T39.4 remains open.
 - All 32 original EN/SI resource pairs are unchanged, all 37 current pairs match, and the Java/layout review found no user-facing literals. USER locale changes require profile confirmation. Guest, ADMIN and STAFF choices remain local.
 - Both V1 APKs built after the stable login identity correction, 39 unit tests passed, and lint reported no issues.
 - HMD Crest 5G (Android 14) verified both languages on Login and the USER, ADMIN and STAFF homes. Sinhala samples, including all five USER tabs, showed no clipping at the tested settings.
