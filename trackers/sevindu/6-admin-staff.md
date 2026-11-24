@@ -80,9 +80,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - [x] T46.2 [AND·Sahan] Staff home screen
 
 **Done when**
-- [ ] Tests: STAFF → `/admin/**` 403; STAFF → user finance endpoints 403; disabled staff → 403
+- [x] Tests: STAFF → `/admin/**` 403; STAFF → user finance endpoints 403; disabled staff → 403
 
-**Handoff notes:** D45 early start. Queue stats reuse V5 and return two counts only. MySQL verified assignment/state filtering and route authorization. Android 17 verified isolated STAFF login, the two live counts and sign-out. STAFF provisioning and the broader acceptance matrix remain open.
+**Handoff notes:** D45 early start. Retained MySQL EndpointAuthTest and StaffStatsControllerTest reports verify wrong-role denial on ADMIN and USER finance routes and 403 on STAFF stats with a disabled caller. Android verified isolated STAFF dashboard counts and sign-out. Formal dependencies and independent review remain open.
 
 ---
 
@@ -91,9 +91,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - [x] T47.1 [API] USER: `POST /api/v1/support/tickets` (subject, body, optional error_code), list own
 - [x] T47.2 [API] STAFF: list unassigned/assigned, claim, reply, change status
 - [x] T47.3 [API] Strip/reject text that looks like card or account numbers; no attachments in v1
-- [ ] T47.4 [AND·Sahan] User "Help" form + staff ticket screens
+- [x] T47.4 [AND·Sahan] User "Help" form + staff ticket screens
 
 **Done when**
 - [ ] Tests: user sees only own tickets; staff can reply only to claimed tickets; account-number text redacted
 
-**Handoff notes:** D49. USER can submit canonical help topics with an optional matching error code. MySQL verified that the code is visible only to the owner or assignee. Free text is rejected to protect SMS and credentials. Full Android acceptance remains open.
+**Handoff notes:** D49/D50. The HMD Crest verified the USER Help form and STAFF ticket navigation, claim and bilingual replies; the corrected build restored Support focus. MySQL verified owner/assignee isolation and rejects unstructured sensitive text. The original redaction criterion remains open under the canonical-request contract. Formal dependencies and independent review remain open.

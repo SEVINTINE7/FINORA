@@ -13,7 +13,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** D45/D50/D51. HMD debug verified expiry, replacement-account isolation, offline recovery and protected Recents placeholders. The original HMD Back-focus defect is corrected in Android 17 TalkBack tests for USER Help and Support (EN/SI) and STAFF Support (EN). Fixed-build handset and audible verification remain open. Authenticated release HTTPS awaits T56.
+**Handoff notes:** D45/D50/D51. The fixed HMD debug build restored USER Help and Support (EN/SI) and STAFF Support focus and protected Recents. Expiry, replacement-account isolation and offline evidence remain valid. Audio diagnostics showed TalkBack speech activity; exact spoken labels remain unverified. Authenticated release HTTPS awaits T56.
 
 ---
 
