@@ -29,7 +29,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **D40 Android scope:** Keep the saved five-tab selection, route to existing non-exported USER activities, and verify refresh after writes. History and help need actual destinations before final acceptance.
 - [ ] T38.1 Bottom nav: Home (dashboard), Records, Plan (budgets/bills/goals), Insights, More (history, settings, help)
 - [x] T38.2 Wire each screen as its API task finishes (track here which are wired)
-- [ ] T38.3 Lists refresh after create/update/delete everywhere
+- [x] T38.3 Lists refresh after create/update/delete everywhere
 
 **Done when**
 - [ ] Every screen reachable; no stale data after edits (manual checklist in Handoff notes)
@@ -37,7 +37,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Handoff notes:**
 - Home has the dashboard. Records links transactions, manual entry, CSV and SMS. Plan links the existing budget, bill and goal screens. Insights links the D20 screen. More links accounts, categories, settings and help.
 - HMD Android 14 opened the implemented Records, Plan, Insights and More destinations and exercised Back. Home refreshed after transaction create, edit and delete and isolated two disposable logins. Prior emulator evidence covers selected-tab recreation.
-- History still needs Sevindu's T33.3 API and T33.4 Android screen. The full per-screen mutation refresh matrix and physical rotation remain open.
+- Isolated Android 17 verified every existing list after real API create, edit and delete with list re-entry: accounts, categories, transactions, budgets, bills and goals. Transaction mutations also refreshed Home and Insights. Plan selection survived landscape recreation.
+- History still needs Sevindu's T33.3 API and T33.4 Android screen. Full physical form-driven mutation, rotation and every-screen acceptance remain open.
+- History handoff needs USER-only, month-keyed score and insight snapshots, an approved month-range and missing-score contract, and recalculation for affected months including both months when a transaction changes date.
 
 ---
 
@@ -56,6 +58,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - HMD Android 14 displayed all four patterns, exact fixture figures and periods, score 47 with two not-applicable components and score 52 with five scored components. The zero-income month displayed missing inputs and an unavailable score.
 - A proxy withheld a committed declaration response. HMD showed uncertainty, one PUT was observed, and an explicit reload was required before editing and displayed the committed amount.
 - Corrected dark-on-dark Insights and declaration text. HMD screenshots verified readable English and Sinhala Insights after the fix. Sahan confirmed TalkBack spoke Previous month and Next month correctly in both languages, in order.
+- Isolated Android 17: a proxy dropped all three Insights reads; explicit Retry restored data. A held month response disabled month controls until completion. A positive response held across login replacement did not appear in the replacement user's empty Insights.
 
 ---
 
@@ -71,4 +74,6 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] Tests: duplicate rating → 409; V1 falls back to RULE when check fails
 - [ ] V1 advice and rating checked on a device
 
-**Handoff notes:** Thilina's USER-facing advice delivery and rating controllers and published response contract are pending. D40 retains the V1-only architecture and does not change ownership.
+**Handoff notes:**
+- Thilina's USER-facing delivery and rating controllers and published contracts remain pending. D40 retains V1-only architecture and existing ownership.
+- Delivery needs an owner-scoped, stable advice ID for the selected month, accepted advice or verified rule fallback, exact supporting facts, and defined empty/error behavior. Rating needs owner validation, 1–5 validation, and concurrency-safe uniqueness per advice and user with 409 on duplicates. Confirm how Android reconciles a lost rating response before enabling writes.
