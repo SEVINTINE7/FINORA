@@ -102,6 +102,44 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
                 .content(json(java.util.Map.of("definition", definition))));
     }
 
+    @Test
+    @org.springframework.transaction.annotation.Transactional(
+            propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
+    void simultaneousActivationKeepsOneApprovedRevisionActive() throws Exception {
+        var user = createUser(Role.ADMIN);
+        var admin = tokenFor(user);
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            for (int revision : new int[]{102, 103}) {
+                command(admin, "/" + revision).andExpect(status().isCreated());
+                command(admin, "/" + revision + "/validate").andExpect(status().isOk());
+                command(admin, "/" + revision + "/publish").andExpect(status().isNoContent());
+            }
+            var ready = new java.util.concurrent.CountDownLatch(2);
+            var start = new java.util.concurrent.CountDownLatch(1);
+            java.util.function.IntFunction<java.util.concurrent.Callable<Integer>> activate = revision -> () -> {
+                ready.countDown();
+                org.junit.jupiter.api.Assertions.assertTrue(start.await(10, java.util.concurrent.TimeUnit.SECONDS));
+                return command(admin, "/" + revision + "/activate").andReturn().getResponse().getStatus();
+            };
+            var first = pool.submit(activate.apply(102));
+            var second = pool.submit(activate.apply(103));
+            org.junit.jupiter.api.Assertions.assertTrue(ready.await(10, java.util.concurrent.TimeUnit.SECONDS));
+            start.countDown();
+            org.junit.jupiter.api.Assertions.assertEquals(204, first.get(15, java.util.concurrent.TimeUnit.SECONDS));
+            org.junit.jupiter.api.Assertions.assertEquals(204, second.get(15, java.util.concurrent.TimeUnit.SECONDS));
+            org.junit.jupiter.api.Assertions.assertTrue(java.util.Set.of(102, 103).contains(activeRevision()));
+        } finally {
+            pool.shutdownNow();
+            try {
+                command(admin, "/1/activate").andExpect(status().isNoContent());
+            } finally {
+                jdbc.update("DELETE FROM sms_formats WHERE bank_code = 'NSB' AND version IN (102,103)");
+                userRepository.deleteById(user.getId());
+            }
+        }
+    }
+
     private Integer activeRevision() {
         return jdbc.queryForObject("SELECT version FROM sms_formats WHERE bank_code = 'NSB' AND active", Integer.class);
     }

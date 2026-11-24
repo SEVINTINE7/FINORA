@@ -31,6 +31,7 @@ public final class DiagnosticQueueViewModel extends ViewModel {
     });
 
     void load() {
+        sampleResults = List.of();
         if (admin) {
             work.run(() -> SmsDiagnosticRepository.escalations(work.requests), response -> {
                 var items = AccountRepository.read(response, Escalation[].class);
