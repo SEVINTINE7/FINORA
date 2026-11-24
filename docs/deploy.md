@@ -122,3 +122,6 @@ If `FINORA_KEYSTORE_FILE` is set but another value is missing (or the API URL is
    Data written between that backup and the restore is lost, so announce it to users.
 3. **Bad Android release:** APKs are installed by hand (no store), so re-share the previous signed APK with a **higher `versionCode`** (Android refuses lower versions). Keep every released APK in the team drive.
 4. **Broken certificate/Nginx config:** `sudo nginx -t` shows the error. Restore the file from `deploy/nginx/finora.conf`, then `sudo systemctl reload nginx`. Certificate problems: `sudo certbot renew --dry-run`.
+### History recovery activation (D43)
+
+Set `FINORA_HISTORY_ACTIVATION_INSTANT` to the approved production activation timestamp in ISO-8601 UTC on first activation. The scheduler persists the first full Asia/Colombo month at or after that instant. Subsequent starts use the stored cutoff, and a conflicting configured cutoff stops the recovery pass. With neither a configured activation nor a stored cutoff, only the ordinary D27 jobs run. Review any gaps in the reported ranges outside the automatic six-closed-month window before arranging owner-directed recovery. The worker schedules missing older snapshots separately from D27's previous-month and dirty work.

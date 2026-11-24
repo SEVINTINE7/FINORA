@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,10 +49,29 @@ public class GlobalExceptionHandler {
     }
 
     /** A URL or query parameter is missing or has the wrong type, e.g. /accounts/abc instead of /accounts/5. */
-    @ExceptionHandler({ MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class })
+    @ExceptionHandler({ MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class,
+            MissingServletRequestPartException.class })
     public ResponseEntity<ErrorResponse> handleBadParameter(Exception ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ErrorCodes.VALIDATION_ERROR,
                 "A request parameter is missing or has the wrong type", request);
+    }
+
+    /** An uploaded file is over the multipart limit (1 MB, CSV import T12). */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleTooLarge(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONTENT_TOO_LARGE, ErrorCodes.FILE_TOO_LARGE, "The file is larger than 1 MB", request);
+    }
+
+    /** A file upload endpoint got a request that is not multipart/form-data. */
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ErrorResponse> handleBadMultipart(MultipartException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, ErrorCodes.BAD_REQUEST, "Expected a multipart file upload", request);
+    }
+
+    /** A unique key clashed, e.g. the same CSV rows confirmed twice at the same moment (T12). */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, ErrorCodes.CONFLICT, "This conflicts with data that already exists", request);
     }
 
     /** The body is empty or is not valid JSON. */

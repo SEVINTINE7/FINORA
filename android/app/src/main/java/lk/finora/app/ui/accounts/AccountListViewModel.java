@@ -72,6 +72,11 @@ public final class AccountListViewModel extends ViewModel {
 
         public <T> void run(Supplier<Call> factory, Decoder<T> decoder,
                 Consumer<T> success, boolean creation) {
+            run(factory, decoder, success, creation, ignored -> {});
+        }
+
+        public <T> void run(Supplier<Call> factory, Decoder<T> decoder,
+                Consumer<T> success, boolean creation, Consumer<Exception> onFailure) {
             if (!isCurrent() || busy()) return;
             error = 0;
             Call call;
@@ -85,21 +90,21 @@ public final class AccountListViewModel extends ViewModel {
             changed();
             call.enqueue(new Callback() {
                 @Override public void onFailure(Call call, IOException failure) {
-                    finish(call, null, failure, success, creation);
+                    finish(call, null, failure, success, creation, onFailure);
                 }
 
                 @Override public void onResponse(Call call, Response response) {
                     try (response) {
-                        finish(call, decoder.decode(response), null, success, creation);
+                        finish(call, decoder.decode(response), null, success, creation, onFailure);
                     } catch (IOException | RuntimeException failure) {
-                        finish(call, null, failure, success, creation);
+                        finish(call, null, failure, success, creation, onFailure);
                     }
                 }
             });
         }
 
         private <T> void finish(Call call, T result, Exception failure,
-                Consumer<T> success, boolean creation) {
+                Consumer<T> success, boolean creation, Consumer<Exception> onFailure) {
             main.post(() -> {
                 boolean currentLogin = isCurrent();
                 if (!acceptsResult(currentLogin, active, call)) {
@@ -113,6 +118,7 @@ public final class AccountListViewModel extends ViewModel {
                     error = message(failure);
                     ambiguousCreate = isAmbiguousCreate(creation, failure);
                     if (ambiguousCreate) error = R.string.records_uncertain;
+                    onFailure.accept(failure);
                 }
                 changed();
             });

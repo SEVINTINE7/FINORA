@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "templates": [
+    {
+      "id": "fictional-lab",
+      "version": 1,
+      "senderIds": ["FINORA-FICTION-ONLY"],
+      "numberStyle": "COMMA_GROUPED",
+      "dateSource": "MESSAGE",
+      "datePattern": "ISO",
+      "markers": {"prefix": "FICTION QA | ", "debit": "D", "credit": "C"},
+      "fields": [
+        {"name": "DIRECTION", "delimiter": " | "},
+        {"name": "CURRENCY", "delimiter": " | "},
+        {"name": "AMOUNT", "delimiter": " | "},
+        {"name": "DATE", "delimiter": " | "},
+        {"name": "MERCHANT", "delimiter": " | END"}
+      ]
+    }
+  ]
+}

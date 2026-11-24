@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.account.dto.AccountRequest;
@@ -18,8 +19,11 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
-    public AccountService(AccountRepository accountRepository) {
+    private final FinanceWriteLock writeLock;
+
+    public AccountService(AccountRepository accountRepository, FinanceWriteLock writeLock) {
         this.accountRepository = accountRepository;
+        this.writeLock = writeLock;
     }
 
     @Transactional(readOnly = true)
@@ -36,8 +40,9 @@ public class AccountService {
         return toResponse(findOwn(userId, id));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public AccountResponse create(Long userId, AccountRequest request) {
+        writeLock.acquire(userId);
         String name = request.name().trim();
         if (accountRepository.existsByUserIdAndName(userId, name)) {
             throw duplicateName();
@@ -52,8 +57,9 @@ public class AccountService {
         return toResponse(account);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public AccountResponse update(Long userId, Long id, AccountRequest request) {
+        writeLock.acquire(userId);
         Account account = findOwn(userId, id);
         String name = request.name().trim();
         if (accountRepository.existsByUserIdAndNameAndIdNot(userId, name, id)) {
@@ -68,8 +74,9 @@ public class AccountService {
     }
 
     /** Deletes the account, or only archives it when transactions use it, so no money records are lost. */
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void delete(Long userId, Long id) {
+        writeLock.acquire(userId);
         Account account = findOwn(userId, id);
         if (accountRepository.countTransactions(id) > 0) {
             account.setArchived(true);

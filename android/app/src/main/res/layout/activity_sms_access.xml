@@ -50,6 +50,31 @@
             android:layout_marginBottom="@dimen/finora_space_s" />
 
         <Button
+            android:id="@+id/sms_scan"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_scan_range"
+            android:visibility="gone"
+            android:layout_marginBottom="@dimen/finora_space_s" />
+
+        <TextView
+            android:id="@+id/sms_scan_result"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:saveEnabled="false" />
+
+        <Button
+            android:id="@+id/sms_scan_preview"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_transaction_preview"
+            android:visibility="gone" />
+
+        <Button
             android:id="@+id/sms_no_thanks_action"
             style="@style/FinoraButton.Secondary"
             android:layout_width="match_parent"
@@ -65,32 +90,28 @@
             android:text="@string/sms_alternatives"
             android:layout_marginBottom="@dimen/finora_space_s" />
 
-        <TextView
-            style="@style/FinoraText.Body"
+        <Button
+            android:id="@+id/sms_paste_entry_action"
+            style="@style/FinoraButton.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sms_paste"
             android:layout_marginBottom="@dimen/finora_space_s" />
 
-        <TextView
-            style="@style/FinoraText.Body"
+        <Button
+            android:id="@+id/sms_csv_import_action"
+            style="@style/FinoraButton.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sms_csv_import"
             android:layout_marginBottom="@dimen/finora_space_s" />
 
-        <TextView
-            style="@style/FinoraText.Body"
+        <Button
+            android:id="@+id/sms_manual_entry_action"
+            style="@style/FinoraButton.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sms_manual_entry"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <TextView
-            style="@style/FinoraText.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_fallback_unavailable"
             android:layout_marginBottom="@dimen/finora_space_s" />
     </LinearLayout>
 </ScrollView>

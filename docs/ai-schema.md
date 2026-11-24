@@ -29,9 +29,9 @@ to increase allocations. Essential-spending cuts, verified-payment claims, predi
 
 Prompt: `AiPrompt.SYSTEM` is the fixed instruction; `AiPrompt.user()` serializes only FactSheet and eligible
 server-generated rule actions. User-provided labels/notes/instructions are not interpolated. Do not log prompts or replies.
-The schema is a provider constraint, not a verifier: T29 must still check strict fields, eligible action ids,
-periods, units, text and numeric provenance before any generated text can be delivered. Until then, only rules
-are suitable for delivery. Provider failure, invalid data or failed verification must fall back to those rules.
+The provider schema constrains the response. The T29 verifier checks strict fields, eligible action IDs,
+periods, units, text and numeric provenance before delivery. Provider failure, invalid data or failed
+verification falls back to canonical rules.
 
 ## Preparatory T27–T29 integration (pending team acceptance)
 
@@ -50,5 +50,4 @@ directly to rules. No eligible actions or disabled providers require no provider
 
 Only generated request id, latency, bounded status and token counts are logged. V8 stores owner/month,
 provider, verified flag, bounded reason and UTC creation time, never prompts or rejected text.
-The pipeline is a backend service; T30 still owns HTTP delivery and Android integration. All verification
-in this PR is mocked HTTP, not live-provider acceptance, provider privacy capture or a real AI pass rate.
+T30 delivers the verified canonical result or rule fallback through the [USER-only V1 contract](api-contract.md#d41-monthly-history-and-v1-advice). Provider verification used mocked HTTP. D44 live verification still needs Thilina-approved Groq and Gemini model IDs, authorized isolated credentials and a numeric call budget. Live-provider acceptance, provider privacy capture and a measured live pass rate remain open.
