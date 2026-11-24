@@ -43,22 +43,27 @@ public final class AccountRepository {
     public static final class ProtectedRequests {
         private final TokenStore store;
         private final Object login;
+        private final String role;
 
-        private ProtectedRequests(TokenStore store, Object login) {
+        private ProtectedRequests(TokenStore store, Object login, String role) {
             this.store = store;
             this.login = login;
+            this.role = role;
         }
 
-        public static ProtectedRequests currentUser() {
+        public static ProtectedRequests currentUser() { return currentRole("USER"); }
+        public static ProtectedRequests currentStaff() { return currentRole("STAFF"); }
+
+        private static ProtectedRequests currentRole(String role) {
             TokenStore store = TokenStore.current();
             Session session = store == null ? null : store.verifiedSession();
-            return session != null && "USER".equals(session.role)
-                    ? new ProtectedRequests(store, session.loginIdentity()) : null;
+            return session != null && role.equals(session.role)
+                    ? new ProtectedRequests(store, session.loginIdentity(), role) : null;
         }
 
         public boolean isCurrent() {
             Session current = store.verifiedSession();
-            return current != null && current.loginIdentity() == login && "USER".equals(current.role);
+            return current != null && current.loginIdentity() == login && role.equals(current.role);
         }
 
         public void addListener(Runnable listener) { store.addSessionListener(listener); }

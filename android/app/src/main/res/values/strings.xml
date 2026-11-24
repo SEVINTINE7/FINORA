@@ -337,6 +337,7 @@
     <string name="score_save_uncertain">Could not confirm the save. Reload and review the monthly declarations before saving again.</string>
     <string name="finance_help">Help</string>
     <string name="faq_title">Frequently asked questions</string>
+    <string name="staff_queue_counts">My open tickets: %1$d\nUnassigned tickets: %2$d</string>
     <string name="faq_login">How do I sign in?</string>
     <string name="faq_login_body">Sign in using the email address and password for your FINORA account. If sign-in fails, check your connection and account details. Never share your password or a one-time code.</string>
     <string name="faq_navigation">Where do I manage records and plans?</string>
