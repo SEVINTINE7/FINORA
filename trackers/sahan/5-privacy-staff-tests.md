@@ -20,26 +20,26 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T48 · Staff application assistance · `STAFF-03`
 **Lead:** Sahan · **Depends on:** T46, T47 · **Touches:** `api:support/`, `and:ui/staff/`
 - [ ] T48.1 Saved reply templates (login, navigation, SMS permission, language) — staff can insert into ticket replies
-- [ ] T48.2 Templates never ask for passwords, OTPs or SMS text
+- [x] T48.2 Templates never ask for passwords, OTPs or SMS text
 - [x] T48.3 In-app FAQ screen for users (EN/SI)
 
 **Done when**
 - [ ] Tests: only STAFF can manage templates; user sees FAQ
 
-**Handoff notes:** D45 early start. USER More → Help verified in English and Sinhala on Android 17. Saved replies await agreed template and ticket policies.
+**Handoff notes:** D49 authorization. Saved replies use fixed bilingual sentence blocks with no interpolation. MySQL verified second-STAFF approval, assignee-only insertion and retirement preserving sent replies. USER FAQ evidence retained. Full STAFF UI evidence and native-speaker review remain open.
 
 ---
 
 ### T49 · Staff SMS import troubleshooting · `STAFF-04`
 **Lead:** Sahan · **Support:** Sevindu · **Depends on:** T46, T45 · **Touches:** `and:sms/`, `api:support/`
 - [ ] T49.1 [AND] On parse failure the app offers "Report problem" sending only bank code, format version, error code
-- [ ] T49.2 [API·Sevindu] Staff view of these reports grouped by bank/error; "Flag to admin" action
-- [ ] T49.3 Staff cannot edit SMS formats (admin only, T45)
+- [x] T49.2 [API·Sevindu] Staff view of these reports grouped by bank/error; "Flag to admin" action
+- [x] T49.3 Staff cannot edit SMS formats (admin only, T45)
 
 **Done when**
 - [ ] Tests: report payload contains no SMS text, amounts or account numbers; staff edit format → 403
 
-**Handoff notes:** D45 records open decisions for unavailable bank/format metadata, ADMIN escalation and format mutation. No report collection is active.
+**Handoff notes:** D47/D49. MySQL verified metadata-only intake, UTC-day deduplication, STAFF escalation and ADMIN-only format activation. Android 17 verified STAFF flagging and ADMIN resolution. The inbox can attribute approved NSB metadata without sending the sender or SMS. End-to-end report consent, payload capture and device acceptance remain open.
 
 ---
 

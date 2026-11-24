@@ -1,6 +1,6 @@
 # MD05 owner decisions and handset checklist
 
-**Proposed for approval.** D45 authorizes scoped implementation and early starts. D46 authorizes test preparation. D47 records Sahan's Android approval. D48 records Sahan's conditional device approval. The outstanding backend choices and Thilina's confirmation still require approval. Formal dependencies and independent review remain in force.
+**Authorization recorded.** D45–D48 document the earlier scope and conditions. D49 records Sahan's report that Sevindu and Thilina verbally approved the architecture and delegated implementation decisions. The guarded handset strategy still requires device and package preflight. Formal dependencies and independent review remain in force.
 
 | Decision and tracker | Recommended implementation and security rationale | Approval |
 | --- | --- | --- |

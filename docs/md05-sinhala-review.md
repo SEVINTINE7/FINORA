@@ -1,6 +1,6 @@
 # MD05 English–Sinhala review inventory
 
-Nine app resource pairs and four proposed saved replies. Final native-speaker approval is pending. Earlier approvals retain their original scope. The saved replies are proposed text and are not shipped in the app.
+64 app resource pairs and four proposed saved replies. Final native-speaker approval is pending. Earlier approvals retain their original scope. The saved replies are proposed text and are not shipped in the app.
 
 ## App resources
 
@@ -14,7 +14,62 @@ Nine app resource pairs and four proposed saved replies. Final native-speaker ap
 | `faq_privacy` | What should I keep private? | පෞද්ගලිකව තබා ගත යුත්තේ මොනවාද? |
 | `faq_privacy_body` | Keep passwords, one-time codes, bank account details and full SMS messages private. FINORA checks supported bank messages on your phone. Review any extracted transaction before saving it. | මුරපද, එක් වරක් භාවිත කරන කේත, බැංකු ගිණුම් විස්තර සහ සම්පූර්ණ SMS පණිවිඩ පෞද්ගලිකව තබා ගන්න. FINORA සහාය දක්වන බැංකු පණිවිඩ ඔබේ දුරකථනයේදීම පරීක්ෂා කරයි. පණිවිඩයෙන් හඳුනාගත් ගනුදෙනුවක් සුරැකීමට පෙර එය පරීක්ෂා කරන්න. |
 | `faq_title` | Frequently asked questions | නිතර අසන ප්‍රශ්න |
+| `sms_diagnostic_ack` | Acknowledge flag | ලැබුණු බව තහවුරු කරන්න |
+| `sms_diagnostic_acknowledged` | Acknowledged | ලැබුණු බව තහවුරු කර ඇත |
+| `sms_diagnostic_admin` | SMS diagnostics and formats | SMS දෝෂ වාර්තා සහ ආකෘති |
+| `sms_diagnostic_close` | Close flag | වාර්තාව වසන්න |
+| `sms_diagnostic_count` | %1$s · %2$s · Version %3$s · Reports %4$d | %1$s · %2$s · අනුවාදය %3$s · වාර්තා %4$d |
+| `sms_diagnostic_escalation` | %1$s · %2$s · %3$s | %1$s · %2$s · %3$s |
+| `sms_diagnostic_flag` | Flag for administrator | පරිපාලක වෙත යොමු කරන්න |
+| `sms_diagnostic_open` | Open | විවෘතයි |
+| `sms_diagnostic_queue` | SMS diagnostics | SMS දෝෂ වාර්තා |
+| `sms_diagnostic_unknown` | Unknown | නොදනී |
+| `sms_diagnostic_updated` | Change saved. | වෙනස සුරකින ලදී. |
+| `sms_format_activate` | Activate approved NSB format | අනුමත NSB ආකෘතිය සක්‍රිය කරන්න |
+| `sms_format_disable` | Disable approved NSB format | අනුමත NSB ආකෘතිය අක්‍රිය කරන්න |
+| `sms_format_nsb` | Approved NSB format, version 1 | අනුමත NSB ආකෘතිය, අනුවාදය 1 |
+| `sms_report_failed` | Could not confirm delivery. You can try sending the same report again. | වාර්තාව ලැබුණු බව තහවුරු කළ නොහැක. එම වාර්තාව නැවත යැවීමට උත්සාහ කළ හැක. |
+| `sms_report_preview` | Bank: %1$s\nFormat version: unknown\nError code: %2$s\n\nOnly these details will be sent. Your message and financial details stay on this phone. | බැංකුව: %1$s\nආකෘති අනුවාදය: නොදනී\nදෝෂ කේතය: %2$s\n\nමෙම තොරතුරු පමණක් යවනු ලැබේ. ඔබේ පණිවිඩය සහ මූල්‍ය තොරතුරු මෙම දුරකථනයේම පවතී. |
+| `sms_report_problem` | Report problem | ගැටලුව වාර්තා කරන්න |
+| `sms_report_send` | Send report | වාර්තාව යවන්න |
+| `sms_report_sent` | Report sent. | වාර්තාව යවන ලදී. |
+| `staff_account_summary` | %1$s · %2$s | %1$s · %2$s |
+| `staff_activate` | Set up staff access | කාර්ය මණ්ඩල ප්‍රවේශය සකසන්න |
+| `staff_activation_done` | Password changed. Go back and sign in with your new password. | මුරපදය වෙනස් කරන ලදී. ආපසු ගොස් නව මුරපදයෙන් පිවිසෙන්න. |
+| `staff_activation_failed` | Could not confirm setup. Check the details or try signing in with your new password. | ප්‍රවේශය සැකසූ බව තහවුරු කළ නොහැක. විස්තර පරීක්ෂා කරන්න හෝ නව මුරපදයෙන් පිවිසීමට උත්සාහ කරන්න. |
+| `staff_create` | Create staff account | කාර්ය මණ්ඩල ගිණුමක් සාදන්න |
+| `staff_disable` | Disable staff account | කාර්ය මණ්ඩල ගිණුම අක්‍රිය කරන්න |
+| `staff_enable` | Enable staff account | කාර්ය මණ්ඩල ගිණුම සක්‍රිය කරන්න |
+| `staff_full_name` | Full name | සම්පූර්ණ නම |
+| `staff_manage` | Manage staff access | කාර්ය මණ්ඩල ප්‍රවේශය කළමනාකරණය කරන්න |
+| `staff_new_password` | New password | නව මුරපදය |
 | `staff_queue_counts` | My open tickets: %1$d\nUnassigned tickets: %2$d | මට පැවරූ විවෘත සහාය ඉල්ලීම්: %1$d\nපවරා නොමැති සහාය ඉල්ලීම්: %2$d |
+| `staff_reissue` | Replace temporary password | තාවකාලික මුරපදය ප්‍රතිස්ථාපනය කරන්න |
+| `staff_secret_once` | %1$s\n\nShown once. Share it only through the approved secure channel. It expires in 24 hours. | %1$s\n\nඑක් වරක් පමණක් පෙන්වයි. අනුමත ආරක්ෂිත මාර්ගයෙන් පමණක් බෙදා ගන්න. පැය 24කින් කල් ඉකුත් වේ. |
+| `staff_temporary` | Temporary staff password | කාර්ය මණ්ඩල තාවකාලික මුරපදය |
+| `support_active` | Active | සක්‍රියයි |
+| `support_approve` | Approve reply | පිළිතුර අනුමත කරන්න |
+| `support_catalog` | Saved replies | සුරැකි පිළිතුරු |
+| `support_claim` | Claim request | ඉල්ලීම භාර ගන්න |
+| `support_close` | Close request | ඉල්ලීම වසන්න |
+| `support_closed` | Closed | වසා ඇත |
+| `support_create` | New support request | නව සහාය ඉල්ලීම |
+| `support_draft` | Draft a saved reply | සුරැකි පිළිතුරක් කෙටුම්පත් කරන්න |
+| `support_draft_state` | Draft | කෙටුම්පත |
+| `support_in_progress` | In progress | ක්‍රියාත්මකයි |
+| `support_language` | Language | භාෂාව |
+| `support_load_replies` | Load saved replies | සුරැකි පිළිතුරු පූරණය කරන්න |
+| `support_navigation` | Navigation | යෙදුම තුළ ගමන් කිරීම |
+| `support_no_reply` | No approved replies are loaded. Load the saved replies and try again. | අනුමත පිළිතුරු පූරණය වී නැත. සුරැකි පිළිතුරු පූරණය කර නැවත උත්සාහ කරන්න. |
+| `support_privacy` | Choose a help topic. FINORA sends only the standard request for that topic. Do not share passwords, codes or SMS messages. | සහාය මාතෘකාවක් තෝරන්න. FINORA යවන්නේ එම මාතෘකාවට අදාළ සම්මත ඉල්ලීම පමණි. මුරපද, කේත හෝ SMS පණිවිඩ බෙදා නොගන්න. |
+| `support_replies` | View replies | පිළිතුරු බලන්න |
+| `support_reply` | Send a saved reply | සුරැකි පිළිතුරක් යවන්න |
+| `support_retire` | Retire reply | පිළිතුර භාවිතයෙන් ඉවත් කරන්න |
+| `support_retired` | Retired | භාවිතයෙන් ඉවත් කර ඇත |
+| `support_sign_in` | Sign-in | පිවිසීම |
+| `support_sms` | SMS permission | SMS අවසරය |
+| `support_ticket_summary` | Request %1$d · %2$s · %3$s | ඉල්ලීම %1$d · %2$s · %3$s |
+| `support_tickets` | Support requests | සහාය ඉල්ලීම් |
 
 ## Proposed saved replies
 

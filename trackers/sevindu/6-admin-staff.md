@@ -6,14 +6,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 
 ### T41 · Admin login and dashboard · `ADMIN-01`
 **Lead:** Sevindu · **Depends on:** T06, T08 · **Touches:** `api:admin/`, `and:ui/admin/`
-- [ ] T41.1 [API] Seed first ADMIN from env vars on startup (no hard-coded password)
+- [x] T41.1 [API] Seed first ADMIN from env vars on startup (no hard-coded password)
 - [ ] T41.2 [API] `GET /api/v1/admin/stats` → user counts by status, staff count, open tickets, active SMS formats (no financial data)
 - [ ] T41.3 [AND] Admin home screen with these counts and links to T42–T45
 
 **Done when**
 - [ ] Tests: USER/STAFF tokens and forged/expired tokens → 401/403; response contains no amounts
 
-**Handoff notes:** —
+**Handoff notes:** D49 and V17. First ADMIN seeds from deployment secrets under a shared lock. MySQL verified no reset or second account on retry. ADMIN staff and diagnostics entry points are wired. Full dashboard stats and navigation remain open.
 
 ---
 
@@ -32,14 +32,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 
 ### T43 · Admin manages staff accounts · `ADMIN-03`
 **Lead:** Sevindu · **Depends on:** T41 · **Touches:** `api:admin/`, `and:ui/admin/`
-- [ ] T43.1 [API] `POST /api/v1/admin/staff` create STAFF (temporary password, must change at first login)
-- [ ] T43.2 [API] Disable/enable staff; role field cannot be set to ADMIN by any endpoint
+- [x] T43.1 [API] `POST /api/v1/admin/staff` create STAFF (temporary password, must change at first login)
+- [x] T43.2 [API] Disable/enable staff; role field cannot be set to ADMIN by any endpoint
 - [ ] T43.3 [AND] Staff list + create/disable
 
 **Done when**
 - [ ] Tests: staff cannot create staff/admins or change own role; disabled staff session → 403
 
-**Handoff notes:** —
+**Handoff notes:** D49. MySQL verified ADMIN-only provisioning, single-use activation and credential generations across disable/re-enable. Android provisioning and first-login UI built. Independent review and device evidence remain open.
 
 ---
 
@@ -69,6 +69,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 
 **Handoff notes:**
 - D36 authorizes T45.3 ahead of T14 closure. V9 seeds only the D35 NSB bundle. USER-only GET returns a schema-v1 snapshot with no-store, an authoritative empty bundle when inactive, and a standard 503 for a corrupt approved row. MySQL-backed controller tests verified approval, authentication, roles, empty and invalid states. T45's other subtasks and parent gates remain open.
+- D49 adds ADMIN activation and disablement of the pinned NSB V1 bundle. MySQL verified STAFF and USER mutation denial and preservation of the USER empty/active response. General draft validation and rollback require approved version fixtures.
 
 ---
 
@@ -87,11 +88,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 ### T47 · Staff support requests · `STAFF-02`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T46 · **Touches:** `api:support/`, `and:ui/support/`, `and:ui/staff/`
 - [ ] T47.1 [API] USER: `POST /api/v1/support/tickets` (subject, body, optional error_code), list own
-- [ ] T47.2 [API] STAFF: list unassigned/assigned, claim, reply, change status
-- [ ] T47.3 [API] Strip/reject text that looks like card or account numbers; no attachments in v1
+- [x] T47.2 [API] STAFF: list unassigned/assigned, claim, reply, change status
+- [x] T47.3 [API] Strip/reject text that looks like card or account numbers; no attachments in v1
 - [ ] T47.4 [AND·Sahan] User "Help" form + staff ticket screens
 
 **Done when**
 - [ ] Tests: user sees only own tickets; staff can reply only to claimed tickets; account-number text redacted
 
-**Handoff notes:** —
+**Handoff notes:** D49. USER can submit canonical help topics. Arbitrary text and ticket error_code remain open under T47.1. MySQL verified owner/assignee checks, claims, approved replies, closing and private-input rejection. Full Android acceptance remains open.

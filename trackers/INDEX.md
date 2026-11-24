@@ -44,15 +44,15 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T38 | Financial screens and navigation | Sahan | — | T37, T09 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
 | T39 | Sinhala and English support | Sahan | — | T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | review |
 | T40 | Android privacy and resilience | Sahan | — | T37, T08 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
-| T41 | Admin login and dashboard | Sevindu | — | T06, T08 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
+| T41 | Admin login and dashboard | Sevindu | — | T06, T08 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T42 | Admin manages user accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
-| T43 | Admin manages staff accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
+| T43 | Admin manages staff accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T44 | Admin default categories | Sevindu | — | T41, T09 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
-| T45 | Admin bank SMS formats | Sevindu | Sahan | T41, T14 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
+| T45 | Admin bank SMS formats | Sevindu | Sahan | T41, T14 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T46 | Staff login and dashboard | Sevindu | Sahan | T06, T08, T43 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
-| T47 | Staff support requests | Sevindu | Sahan | T46 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
+| T47 | Staff support requests | Sevindu | Sahan | T46 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T48 | Staff application assistance | Sahan | — | T46, T47 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
-| T49 | Staff SMS import troubleshooting | Sahan | Sevindu | T46, T45 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | todo |
+| T49 | Staff SMS import troubleshooting | Sahan | Sevindu | T46, T45 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
 | T50 | Backend API test suite | Sevindu | Thilina | T05 (grows with every API task) | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | review |
 | T51 | Android functional tests | Sahan | Thilina | T38 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
 | T52 | Three-role authorization tests | Thilina | Sevindu | T06, T41, T46 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
