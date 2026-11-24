@@ -19,14 +19,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T48 · Staff application assistance · `STAFF-03`
 **Lead:** Sahan · **Depends on:** T46, T47 · **Touches:** `api:support/`, `and:ui/staff/`
-- [ ] T48.1 Saved reply templates (login, navigation, SMS permission, language) — staff can insert into ticket replies
+- [x] T48.1 Saved reply templates (login, navigation, SMS permission, language) — staff can insert into ticket replies
 - [x] T48.2 Templates never ask for passwords, OTPs or SMS text
 - [x] T48.3 In-app FAQ screen for users (EN/SI)
 
 **Done when**
-- [ ] Tests: only STAFF can manage templates; user sees FAQ
+- [x] Tests: only STAFF can manage templates; user sees FAQ
 
-**Handoff notes:** D49 authorization. Saved replies use fixed bilingual sentence blocks with no interpolation. MySQL verified second-STAFF approval, assignee-only insertion and retirement preserving sent replies. USER FAQ evidence retained. Full STAFF UI evidence and native-speaker review remain open.
+**Handoff notes:** D49. Android 17 verified drafting, second-STAFF approval, preview and explicit send in both languages, retirement, versioning and the USER reading both preserved replies. MySQL rejects USER/ADMIN catalog management and arbitrary STAFF text. USER FAQ evidence retained. Handset TalkBack, native-speaker review and formal dependencies remain open.
 
 ---
 
@@ -52,4 +52,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] `./gradlew connectedV1DebugAndroidTest` output attached
 
-**Handoff notes:** D46/D49. Android 17 passed three connected tests and retained machine results. Registration was reproduced after a cold boot. The complete suite passed after correcting stale-focus waits and the budget assertion. API 26 and guarded handset acceptance remain open.
+**Handoff notes:** D46/D49. Four connected tests passed on isolated Android 8 (API 26), including the registration and finance journey. Android 17 also passed four, with separate cold-boot registration evidence. Machine results are retained for both emulators. Handset execution and its report/capture evidence remain open.
