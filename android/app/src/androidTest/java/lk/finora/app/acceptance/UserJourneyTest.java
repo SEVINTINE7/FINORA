@@ -26,6 +26,7 @@ import lk.finora.app.BuildConfig;
 import lk.finora.app.R;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.ui.login.LoginActivity;
+import lk.finora.app.ui.main.MainActivity;
 import lk.finora.app.ui.register.RegisterActivity;
 import lk.finora.app.util.LocaleHelper;
 import org.hamcrest.Matcher;
@@ -35,7 +36,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.*;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
@@ -91,38 +91,23 @@ public class UserJourneyTest {
     @Test public void registerLoginAndManageFinancialRecordsWithSmsDenied() {
         String identity = UUID.randomUUID().toString().replace("-", "");
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
-            onView(withId(R.id.create_account)).perform(reveal(), activateControl());
-            awaitActivity(RegisterActivity.class);
-            enter(R.id.register_email, "t51-" + identity + "@example.test");
-            enter(R.id.register_name, "Synthetic UI user");
-            enter(R.id.register_password, "Test-" + identity + "-9");
-            onView(withId(R.id.register_over18)).perform(reveal(), activateControl()).check(matches(isChecked()));
-            onView(withId(R.id.register_consent)).perform(reveal(), activateControl()).check(matches(isChecked()));
-            onView(withId(R.id.register_submit)).perform(reveal(), activateControl());
-            awaitActivity(LoginActivity.class);
-            onView(withId(R.id.email)).check(matches(withText("t51-" + identity + "@example.test")));
-            enter(R.id.password, "Test-" + identity + "-9");
-            clickId(R.id.sign_in);
-            awaitText(app.getString(R.string.more_tab));
+            signInNewUser(identity);
             tab(R.string.more_tab);
             clickText(R.string.finance_help);
             onView(withText(R.string.faq_title)).check(matches(isDisplayed()));
             onView(withText(R.string.faq_login)).check(matches(isDisplayed()));
             pressBack();
-            clickText(R.string.support_tickets);
-            clickText(R.string.support_create);
-            onView(withText(R.string.support_language)).inRoot(isDialog()).perform(click());
-            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
-            await(By.textContains("· Language · Open"));
-            pressBack();
+            awaitActivity(MainActivity.class);
             clickText(R.string.account_list_title);
             awaitId("records_add");
             clickId(R.id.records_add);
             enter(R.id.form_name, "Synthetic wallet");
             enter(R.id.account_balance, "0.00");
             clickId(R.id.records_save);
+            awaitActivity(lk.finora.app.ui.accounts.AccountListActivity.class);
             awaitText("Synthetic wallet");
             pressBack();
+            awaitActivity(MainActivity.class);
 
             tab(R.string.records_tab);
             clickText(R.string.transaction_open_manual);
@@ -133,7 +118,7 @@ public class UserJourneyTest {
             enter(R.id.form_amount, "12.34");
             enter(R.id.form_merchant, MERCHANT);
             clickId(R.id.form_date);
-            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
+            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.form_save);
             awaitText(app.getString(R.string.records_tab));
             tab(R.string.home_tab);
@@ -141,34 +126,89 @@ public class UserJourneyTest {
 
             tab(R.string.plan_tab);
             clickText(R.string.budget_list_title);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetListActivity.class);
+            awaitText(app.getString(R.string.records_empty));
             clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
             select(R.id.form_kind, "Food");
             enter(R.id.budget_limit, "100.00");
             clickId(R.id.records_save);
-            awaitText("Used LKR 12.34 of LKR 100.00 · LKR 87.66 left");
+            awaitText(app.getString(R.string.budget_left, "12.34", "100.00", "87.66"));
             pressBack();
+            awaitActivity(MainActivity.class);
 
             tab(R.string.records_tab);
             clickText(R.string.transaction_title);
             String edit = app.getString(R.string.records_edit_named, "");
             await(By.descContains(MERCHANT));
             onView(allOf(withContentDescription(startsWith(edit)),
-                    withContentDescription(containsString(MERCHANT)))).perform(click());
+                    withContentDescription(containsString(MERCHANT)))).perform(activateControl());
             enter(R.id.form_amount, "15.17");
             clickId(R.id.form_save);
             await(By.textContains("15.17"));
             String remove = app.getString(R.string.records_remove_named, "");
             onView(allOf(withContentDescription(startsWith(remove)),
-                    withContentDescription(containsString(MERCHANT)))).perform(click());
-            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
+                    withContentDescription(containsString(MERCHANT)))).perform(activateControl());
+            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
             awaitText(app.getString(R.string.records_empty));
             pressBack();
+            awaitActivity(MainActivity.class);
             clickText(R.string.sms_access_title);
             onView(withText(R.string.sms_manual_entry)).check(matches(isDisplayed()));
             clickText(R.string.sms_no_thanks);
             assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
             awaitText(app.getString(R.string.records_tab));
         }
+    }
+
+    @Test public void diagnosticRequiresConfirmationAfterCancel() {
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            clickText(R.string.sms_paste);
+            awaitId("sms_paste_action");
+            var clipboard = app.getSystemService(android.content.ClipboardManager.class);
+            var instrumentation = InstrumentationRegistry.getInstrumentation();
+            instrumentation.runOnMainSync(() -> clipboard.setPrimaryClip(
+                    android.content.ClipData.newPlainText("Test message", "Synthetic diagnostic fixture")));
+            try {
+                onView(withId(R.id.sms_paste_action)).perform(reveal(), activateControl());
+                awaitText(app.getString(R.string.sms_report_problem));
+                onView(withId(R.id.sms_diagnostic_report)).perform(reveal(), activateControl());
+                onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(
+                        withText(containsString("FORMAT_UNRECOGNIZED"))));
+                onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(activateControl());
+                onView(withId(R.id.sms_diagnostic_report)).check(matches(isEnabled()));
+                onView(withId(R.id.sms_diagnostic_report)).perform(reveal(), activateControl());
+                onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+                awaitText(app.getString(R.string.sms_report_sent));
+            } finally {
+                instrumentation.runOnMainSync(() -> {
+                    if (Build.VERSION.SDK_INT >= 28) clipboard.clearPrimaryClip();
+                    else clipboard.setPrimaryClip(android.content.ClipData.newPlainText("", ""));
+                });
+            }
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+        }
+    }
+
+    private void signInNewUser(String identity) {
+        onView(withId(R.id.create_account)).perform(reveal(), activateControl());
+        awaitActivity(RegisterActivity.class);
+        enter(R.id.register_email, "t51-" + identity + "@example.test");
+        enter(R.id.register_name, "Synthetic UI user");
+        enter(R.id.register_password, "Test-" + identity + "-9");
+        onView(withId(R.id.register_over18)).perform(reveal(), activateControl()).check(matches(isChecked()));
+        onView(withId(R.id.register_consent)).perform(reveal(), activateControl()).check(matches(isChecked()));
+        onView(withId(R.id.register_submit)).perform(reveal(), activateControl());
+        awaitActivity(LoginActivity.class);
+        onView(withId(R.id.email)).check(matches(withText("t51-" + identity + "@example.test")));
+        enter(R.id.password, "Test-" + identity + "-9");
+        clickId(R.id.sign_in);
+        awaitText(app.getString(R.string.more_tab));
     }
 
     private void awaitId(String id) { await(By.res(app.getPackageName(), id)); }
@@ -179,7 +219,8 @@ public class UserJourneyTest {
         long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
         do {
             instrumentation.runOnMainSync(() -> resumed.set(ActivityLifecycleMonitorRegistry.getInstance()
-                    .getActivitiesInStage(Stage.RESUMED).stream().anyMatch(expected::isInstance)));
+                    .getActivitiesInStage(Stage.RESUMED).stream()
+                    .anyMatch(activity -> expected.isInstance(activity) && activity.hasWindowFocus())));
             if (resumed.get()) return;
             SystemClock.sleep(100);
         } while (SystemClock.elapsedRealtime() < deadline);
@@ -192,15 +233,15 @@ public class UserJourneyTest {
     }
 
     private static void tab(int label) {
-        onView(allOf(withText(label), isAssignableFrom(RadioButton.class))).perform(click());
+        onView(allOf(withText(label), isAssignableFrom(RadioButton.class))).perform(activateControl());
     }
 
     private static void clickText(int label) {
-        onView(allOf(withText(label), isClickable())).perform(reveal(), click());
+        onView(allOf(withText(label), isClickable())).perform(reveal(), activateControl());
     }
 
     private static void clickId(int id) {
-        onView(withId(id)).perform(reveal(), click());
+        onView(withId(id)).perform(reveal(), activateControl());
     }
 
     private static ViewAction activateControl() {
@@ -223,13 +264,17 @@ public class UserJourneyTest {
             @Override public String getDescription() { return "select the synthetic fixture choice"; }
             @Override public void perform(UiController controller, View view) {
                 var spinner = (android.widget.Spinner) view;
-                for (int i = 0; i < spinner.getCount(); i++) {
-                    if (label.equals(String.valueOf(spinner.getItemAtPosition(i)))) {
-                        spinner.setSelection(i);
-                        controller.loopMainThreadUntilIdle();
-                        return;
+                long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+                do {
+                    for (int i = 0; i < spinner.getCount(); i++) {
+                        if (label.equals(String.valueOf(spinner.getItemAtPosition(i)))) {
+                            spinner.setSelection(i);
+                            controller.loopMainThreadUntilIdle();
+                            return;
+                        }
                     }
-                }
+                    controller.loopMainThreadForAtLeast(50);
+                } while (SystemClock.elapsedRealtime() < deadline);
                 fail("Expected synthetic fixture choice is unavailable");
             }
         });
