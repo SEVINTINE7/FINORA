@@ -92,15 +92,15 @@ public class UserJourneyTest {
         String identity = UUID.randomUUID().toString().replace("-", "");
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
             onView(withId(R.id.create_account)).perform(reveal(), activateControl());
-            awaitRegistrationActivity();
+            awaitActivity(RegisterActivity.class);
             enter(R.id.register_email, "t51-" + identity + "@example.test");
             enter(R.id.register_name, "Synthetic UI user");
             enter(R.id.register_password, "Test-" + identity + "-9");
-            clickId(R.id.register_over18);
-            clickId(R.id.register_consent);
-            clickId(R.id.register_submit);
-            awaitId("sign_in");
-            enter(R.id.email, "t51-" + identity + "@example.test");
+            onView(withId(R.id.register_over18)).perform(reveal(), activateControl()).check(matches(isChecked()));
+            onView(withId(R.id.register_consent)).perform(reveal(), activateControl()).check(matches(isChecked()));
+            onView(withId(R.id.register_submit)).perform(reveal(), activateControl());
+            awaitActivity(LoginActivity.class);
+            onView(withId(R.id.email)).check(matches(withText("t51-" + identity + "@example.test")));
             enter(R.id.password, "Test-" + identity + "-9");
             clickId(R.id.sign_in);
             awaitText(app.getString(R.string.more_tab));
@@ -167,17 +167,17 @@ public class UserJourneyTest {
 
     private void awaitId(String id) { await(By.res(app.getPackageName(), id)); }
 
-    private static void awaitRegistrationActivity() {
+    private static void awaitActivity(Class<? extends android.app.Activity> expected) {
         var instrumentation = InstrumentationRegistry.getInstrumentation();
         var resumed = new AtomicBoolean();
         long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
         do {
             instrumentation.runOnMainSync(() -> resumed.set(ActivityLifecycleMonitorRegistry.getInstance()
-                    .getActivitiesInStage(Stage.RESUMED).stream().anyMatch(RegisterActivity.class::isInstance)));
+                    .getActivitiesInStage(Stage.RESUMED).stream().anyMatch(expected::isInstance)));
             if (resumed.get()) return;
             SystemClock.sleep(100);
         } while (SystemClock.elapsedRealtime() < deadline);
-        fail("Create account did not resume RegisterActivity");
+        fail("Expected resumed activity: " + expected.getSimpleName());
     }
 
     private void awaitText(String text) { await(By.text(text)); }
@@ -204,7 +204,7 @@ public class UserJourneyTest {
             }
             @Override public String getDescription() { return "activate the view's click action"; }
             @Override public void perform(UiController controller, View view) {
-                assertTrue("The view did not handle activation", view.performClick());
+                view.performClick();
             }
         };
     }
