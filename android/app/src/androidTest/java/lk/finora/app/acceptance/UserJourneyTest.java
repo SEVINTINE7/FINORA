@@ -172,6 +172,77 @@ public class UserJourneyTest {
         awaitActivity(MainActivity.class);
     }
 
+    @Test public void moreRoutesRestoreAccessibilityFocus() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Requires TalkBack on the isolated device",
+                "true".equals(arguments.getString("finoraCheckBackFocus")));
+        var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+        sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.more_tab);
+            checkBackFocus(R.string.finance_help, lk.finora.app.ui.help.FaqActivity.class, MainActivity.class);
+            checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            tab(R.string.more_tab);
+            checkBackFocus(R.string.finance_help, lk.finora.app.ui.help.FaqActivity.class, MainActivity.class);
+            checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
+        }
+    }
+
+    @Test public void staffSupportRestoresAccessibilityFocus() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Requires TalkBack and isolated STAFF fixtures",
+                "true".equals(arguments.getString("finoraCheckBackFocus"))
+                        && "true".equals(arguments.getString("finoraSupportFixtures")));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
+            checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class,
+                    lk.finora.app.ui.staff.StaffHomeActivity.class);
+        }
+    }
+
+    private void checkBackFocus(int label, Class<? extends android.app.Activity> screen,
+                               Class<? extends android.app.Activity> origin) {
+        var automation = InstrumentationRegistry.getInstrumentation().getUiAutomation(
+                android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+        var manager = app.getSystemService(android.view.accessibility.AccessibilityManager.class);
+        long serviceDeadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        while (!manager.isTouchExplorationEnabled() && SystemClock.elapsedRealtime() < serviceDeadline) {
+            SystemClock.sleep(100);
+        }
+        assertTrue("Touch exploration must be enabled", manager.isTouchExplorationEnabled());
+        String expected = app.getString(label);
+        var root = automation.getRootInActiveWindow();
+        assertNotNull(root);
+        var button = root.findAccessibilityNodeInfosByText(expected).stream()
+                .filter(node -> node.isClickable() && node.getText() != null
+                        && expected.equalsIgnoreCase(node.getText().toString()))
+                .findFirst().orElseThrow();
+        button.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
+        assertTrue(button.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK));
+        awaitActivity(screen);
+        long now = SystemClock.uptimeMillis();
+        for (int action : new int[]{android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.ACTION_UP}) {
+            assertTrue(automation.injectInputEvent(
+                    new android.view.KeyEvent(now, now, action, android.view.KeyEvent.KEYCODE_BACK, 0), true));
+        }
+        awaitActivity(origin);
+        long deadline = SystemClock.elapsedRealtime() + 3000;
+        CharSequence actual = null;
+        do {
+            var focused = automation.findFocus(android.view.accessibility.AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+            if (focused != null && app.getPackageName().contentEquals(focused.getPackageName())) {
+                actual = focused.getText() != null ? focused.getText() : focused.getContentDescription();
+                if (actual != null && expected.equalsIgnoreCase(actual.toString())) return;
+            }
+            SystemClock.sleep(100);
+        } while (SystemClock.elapsedRealtime() < deadline);
+        fail("Expected restored focus " + expected + ", observed " + actual);
+    }
+
     @Test public void loginAndLanguageDialogUseSecureWindows() {
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             screen.onActivity(activity -> assertTrue((activity.getWindow().getAttributes().flags

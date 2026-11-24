@@ -33,8 +33,7 @@ public final class StaffHomeActivity extends ProtectedHomeActivity {
         layout.addView(diagnostics);
         var support = new Button(this);
         support.setText(R.string.support_tickets);
-        support.setOnClickListener(view -> startActivity(new android.content.Intent(this,
-                lk.finora.app.ui.support.SupportActivity.class)));
+        bindFocusReturningRoute(support, R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class);
         layout.addView(support);
         stats.work.changes.observe(this, ignored -> {
             var result = stats.stats;
