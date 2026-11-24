@@ -61,6 +61,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D36 T45.3/T14.2 sequencing and delegation** — Sahan records project lead and backend owner Sevindu's explicit authorization, as relayed by Sahan, to implement only T45.3 and its Android integration. T45.3 can be implemented and verified before T14 closes, and T14.2 may integrate the approved endpoint while T13 remains in review. This breaks the subtask sequencing cycle; the parent task dependencies, ownership and independent review requirements remain in force. Only the three D35 NSB definitions are approved.
 
+- **D37 MD03 Android early start (T15/T16)** — Sahan, exercising delegated Android-task approval authority, approved local transaction preview and synthetic parser regression work while T10 and T14 await formal closure. Only extracted transaction fields enter the in-memory preview. D26 still governs batch saving; T15.3 remains Sevindu-owned and D29 prohibits automatic replay of uncertain writes. Hash generation stays blocked on approved sender/reference semantics and canonical encoding. The D35 masked account suffix is not a transaction reference. Formal dependencies and independent review remain in force.
+
 ## Proposed — still open
 
 - _None currently._
