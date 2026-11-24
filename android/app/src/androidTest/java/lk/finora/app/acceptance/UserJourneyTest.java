@@ -309,6 +309,82 @@ public class UserJourneyTest {
         awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
     }
 
+    @Test public void adminDashboardOpensWorkingUserAndCategoryManagement() {
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        String email = "t51-" + identity + "@example.test";
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            signOut();
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.admin_manage_users);
+            typeFixture(onView(withHint(R.string.admin_user_search)), email);
+            clickText(R.string.admin_search);
+            awaitButton(R.string.admin_disable_user);
+            clickText(R.string.admin_disable_user);
+            confirm();
+            awaitButton(R.string.admin_enable_user);
+            clickText(R.string.admin_enable_user);
+            confirm();
+            awaitButton(R.string.admin_disable_user);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            clickText(R.string.admin_default_categories);
+            awaitButton(R.string.records_add);
+            clickText(R.string.records_add);
+            String name = "Synthetic default " + identity.substring(0, 8);
+            String sinhala = "පරීක්ෂණ " + identity.substring(0, 8);
+            typeFixture(onView(withHint(R.string.admin_category_name_en)).inRoot(isDialog()), name);
+            typeFixture(onView(withHint(R.string.admin_category_name_si)).inRoot(isDialog()), sinhala);
+            confirm();
+            String row = name + " · " + sinhala + " · " + app.getString(R.string.support_active);
+            awaitText(row);
+            onView(withContentDescription(app.getString(R.string.records_edit) + ". " + row))
+                    .perform(reveal(), activateControl());
+            typeFixture(onView(withHint(R.string.admin_category_name_en)).inRoot(isDialog()), name + " edited");
+            confirm();
+            row = name + " edited · " + sinhala + " · " + app.getString(R.string.support_active);
+            awaitText(row);
+            onView(withContentDescription(app.getString(R.string.records_remove) + ". " + row))
+                    .perform(reveal(), activateControl());
+            confirm();
+            assertTrue(device.wait(Until.gone(By.text(row)), UI_TIMEOUT_MS));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            clickText(R.string.sms_diagnostic_admin);
+            awaitButton(R.string.sms_format_sample_check);
+            clickText(R.string.sms_format_sample_check);
+            typeFixture(onView(withHint(R.string.sms_format_synthetic_sample)), "Synthetic unmatched text");
+            clickText(R.string.sms_format_sample_check);
+            awaitText(app.getString(R.string.sms_format_sample_result,
+                    app.getString(R.string.sms_format_approved_match), app.getString(R.string.sms_format_sample_unmatched)));
+        }
+    }
+
+    @Test public void userExportsThroughSystemPickerAndConfirmsAccountDeletion() {
+        org.junit.Assume.assumeTrue("Creates a synthetic export on the isolated emulator",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraDataRightsFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.more_tab);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            clickText(R.string.settings_export_data);
+            var save = device.wait(Until.findObject(By.text(java.util.regex.Pattern.compile("Save",
+                    java.util.regex.Pattern.CASE_INSENSITIVE))), UI_TIMEOUT_MS);
+            assertNotNull("System document picker did not offer Save", save);
+            save.click();
+            awaitText(app.getString(R.string.settings_export_saved));
+            clickText(R.string.settings_delete);
+            confirm();
+            typeFixture(onView(withHint(R.string.password)).inRoot(isDialog()), "Test-" + identity + "-9");
+            confirm();
+            awaitActivity(LoginActivity.class);
+        }
+    }
+
     @Test public void adminCanDiscardAnUnpublishedNsbDraft() {
         org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
                 "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));

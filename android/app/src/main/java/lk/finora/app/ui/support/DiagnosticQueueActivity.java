@@ -59,6 +59,8 @@ public final class DiagnosticQueueActivity extends SecureActivity {
         if (model.admin) {
             label(getString(R.string.sms_format_nsb));
             addButton(R.string.sms_format_draft, this::draft);
+            addButton(R.string.sms_format_sample_check, () -> startActivity(
+                    new android.content.Intent(this, FormatSampleActivity.class)));
             for (var revision : model.revisions) {
                 String summary = getString(R.string.sms_format_revision, revision.version(),
                         getString(revision.active() ? R.string.support_active

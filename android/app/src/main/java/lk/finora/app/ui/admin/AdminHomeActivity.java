@@ -16,11 +16,18 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
 
     @Override protected void addNavigation(android.widget.LinearLayout layout, android.widget.TextView title,
             android.os.Bundle state) {
+        var actions = new android.widget.LinearLayout(this);
+        actions.setOrientation(android.widget.LinearLayout.VERTICAL);
+        var scroll = new android.widget.ScrollView(this);
+        scroll.addView(actions);
+        layout.addView(scroll, new android.widget.LinearLayout.LayoutParams(-1, 0, 1));
+        addDirectory(actions, R.string.admin_manage_users, false);
+        addDirectory(actions, R.string.admin_default_categories, true);
         var diagnostics = new android.widget.Button(this);
         diagnostics.setText(R.string.sms_diagnostic_admin);
         diagnostics.setOnClickListener(view -> startActivity(new android.content.Intent(this,
                 lk.finora.app.ui.support.DiagnosticQueueActivity.class)));
-        layout.addView(diagnostics);
+        actions.addView(diagnostics);
         var staff = new android.widget.Button(this);
         staff.setText(R.string.staff_manage);
         staff.setOnClickListener(view -> {
@@ -28,7 +35,7 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
             startActivity(new android.content.Intent(this, screen)
                     .putExtra(lk.finora.app.ui.staff.StaffAccessActivity.ADMINISTRATION, true));
         });
-        layout.addView(staff);
+        actions.addView(staff);
         var summary = new android.widget.TextView(this);
         summary.setTextColor(getColor(R.color.finora_on_navy));
         summary.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
@@ -37,7 +44,7 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
         var retry = new android.widget.Button(this);
         retry.setText(R.string.records_retry);
         retry.setOnClickListener(view -> loadCounts());
-        layout.addView(retry);
+        actions.addView(retry);
         countsWork.changes.observe(this, ignored -> {
             retry.setVisibility(countsWork.error == 0 ? android.view.View.GONE : android.view.View.VISIBLE);
             if (!countsWork.isCurrent()) summary.setText("");
@@ -46,6 +53,14 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
             else if (counts != null) summary.setText(getString(R.string.admin_stats_counts, counts.activeUsers(),
                     counts.disabledUsers(), counts.staff(), counts.openTickets(), counts.activeFormats()));
         });
+    }
+
+    private void addDirectory(android.widget.LinearLayout layout, int label, boolean categories) {
+        var button = new android.widget.Button(this);
+        button.setText(label);
+        button.setOnClickListener(view -> startActivity(new android.content.Intent(this, AdminDirectoryActivity.class)
+                .putExtra(AdminDirectoryActivity.CATEGORIES, categories)));
+        layout.addView(button);
     }
 
     @Override protected void onResume() { super.onResume(); loadCounts(); }
