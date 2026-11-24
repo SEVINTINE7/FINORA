@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -13,15 +14,19 @@ import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import androidx.test.runner.lifecycle.Stage;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lk.finora.app.BuildConfig;
 import lk.finora.app.R;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.ui.login.LoginActivity;
+import lk.finora.app.ui.register.RegisterActivity;
 import lk.finora.app.util.LocaleHelper;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -74,13 +79,7 @@ public class UserJourneyTest {
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             screen.onActivity(activity -> assertTrue((activity.getWindow().getAttributes().flags
                     & WindowManager.LayoutParams.FLAG_SECURE) != 0));
-            onView(allOf(withText(R.string.language_selector), isClickable())).perform(new ViewAction() {
-                @Override public Matcher<View> getConstraints() { return isEnabled(); }
-                @Override public String getDescription() { return "open the language dialog for window inspection"; }
-                @Override public void perform(UiController controller, View view) {
-                    assertTrue(view.performClick());
-                }
-            });
+            onView(allOf(withText(R.string.language_selector), isClickable())).perform(activateControl());
             onView(withText(R.string.language_english)).inRoot(isDialog()).check((view, failure) -> {
                 if (failure != null) throw failure;
                 var params = (WindowManager.LayoutParams) view.getRootView().getLayoutParams();
@@ -92,8 +91,8 @@ public class UserJourneyTest {
     @Test public void registerLoginAndManageFinancialRecordsWithSmsDenied() {
         String identity = UUID.randomUUID().toString().replace("-", "");
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
-            clickId(R.id.create_account);
-            awaitId("register_email");
+            onView(withId(R.id.create_account)).perform(reveal(), activateControl());
+            awaitRegistrationActivity();
             enter(R.id.register_email, "t51-" + identity + "@example.test");
             enter(R.id.register_name, "Synthetic UI user");
             enter(R.id.register_password, "Test-" + identity + "-9");
@@ -167,6 +166,20 @@ public class UserJourneyTest {
     }
 
     private void awaitId(String id) { await(By.res(app.getPackageName(), id)); }
+
+    private static void awaitRegistrationActivity() {
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var resumed = new AtomicBoolean();
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        do {
+            instrumentation.runOnMainSync(() -> resumed.set(ActivityLifecycleMonitorRegistry.getInstance()
+                    .getActivitiesInStage(Stage.RESUMED).stream().anyMatch(RegisterActivity.class::isInstance)));
+            if (resumed.get()) return;
+            SystemClock.sleep(100);
+        } while (SystemClock.elapsedRealtime() < deadline);
+        fail("Create account did not resume RegisterActivity");
+    }
+
     private void awaitText(String text) { await(By.text(text)); }
     private void await(BySelector selector) {
         assertTrue("Expected FINORA screen state did not appear", device.wait(Until.hasObject(selector), UI_TIMEOUT_MS));
@@ -182,6 +195,18 @@ public class UserJourneyTest {
 
     private static void clickId(int id) {
         onView(withId(id)).perform(reveal(), click());
+    }
+
+    private static ViewAction activateControl() {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() {
+                return allOf(isEnabled(), isClickable());
+            }
+            @Override public String getDescription() { return "activate the view's click action"; }
+            @Override public void perform(UiController controller, View view) {
+                assertTrue("The view did not handle activation", view.performClick());
+            }
+        };
     }
 
     private static void select(int id, String label) {
