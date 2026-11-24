@@ -9,18 +9,18 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **D40 Android scope:** Read `GET /api/v1/dashboard?month=YYYY-MM` with an authenticated USER request bound to the current login. Keep exact totals and category/month amounts in decimal form, provide text equivalents for charts, and reload Home after returning from Records. Verify the server fixture and keep the physical performance criterion separate.
 - [x] T20.1 [API·Sevindu] `GET /api/v1/dashboard?month=` → income, expense, net, by-category totals, 6-month trend
 - [ ] T20.2 [AND] Dashboard: totals cards, category pie, trend bar chart (MPAndroidChart), month picker
-- [ ] T20.3 [AND] Empty state for new users
+- [x] T20.3 [AND] Empty state for new users
 
 **Done when**
 - [x] API test: dashboard totals equal sum of raw transactions for fixture data
 - [ ] Screen loads < 2 s with one year of data on a mid-range phone
 
 **Handoff notes:**
-- API part done (T20.1); **T20.2–T20.3 (Android) still open — blocked by T37**. Screen-load check (< 2 s) also waits for the app.
+- D40 dashboard reads exact backend totals, category amounts and six-month net. Isolated Android 17 verified an empty month, exact fixture values including negative net, month switches and refresh after a transaction was added.
 - `api:dashboard/`: `DashboardController`, `DashboardService`, `dto/` (`DashboardResponse`, `CategoryTotal`, `MonthTotal`). New `TransactionRepository.sumExpenseByCategory` (GROUP BY).
 - D17: pie = expenses only (null category = one slice, app shows "Uncategorised" from strings.xml); `month` optional → current month (Asia/Colombo); trend = 6 months oldest first.
 - Empty state (T20.3): new user gets 0.00 totals, `byCategory: []`, 6 zero trend months.
-- Tests: `DashboardControllerTest` (6); suite 111/111. `docs/api-contract.md` updated.
+- Focused backend suite passed 54 tests, including 6 dashboard tests. The 24-row, 12-month fixture returned in 86–110 ms on loopback; emulator tap-to-text detection including UI polling was 2,844 and 2,478 ms. The mid-range physical-phone target and prescribed MPAndroidChart integration remain open.
 
 ---
 
@@ -34,7 +34,10 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] Every screen reachable; no stale data after edits (manual checklist in Handoff notes)
 
-**Handoff notes:** —
+**Handoff notes:**
+- Home has the dashboard. Records links transactions, manual entry, CSV and SMS. Plan links the existing budget, bill and goal screens. Insights links the D20 screen. More links accounts, categories, settings and help.
+- Isolated Android 17 reached all five tabs, returned from Insights using Back, opened Help and kept Plan selected across configuration change. Home reloaded exact totals after a synthetic transaction write.
+- History still needs Sevindu's T33.3 API and T33.4 Android screen. Full refresh matrix, TalkBack and bilingual device checks remain open.
 
 ---
 
@@ -43,12 +46,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **D40 Android scope:** Use `GET /api/v1/insights`, `GET /api/v1/score`, and `GET/PUT /api/v1/score-inputs/{month}`. Show server facts, five D20 components and explanations, with missing and not-applicable values kept distinct. Verify against backend fixtures and protect all requests with the current USER login.
 - [ ] T24.1 Insights list: each pattern with its numbers (amount, % of income, period)
 - [ ] T24.2 Score screen: total 0–100 + five parts, each with its reason
-- [ ] T24.3 "General guidance, not professional financial advice" note (EN/SI)
+- [x] T24.3 "General guidance, not professional financial advice" note (EN/SI)
 
 **Done when**
 - [ ] Screen values match Thilina's backend fixture results
 
-**Handoff notes:** —
+**Handoff notes:**
+- Isolated Android 17 displayed an unavailable D20 score, saved and reloaded a declaration, retained an unsaved 123.45 reserve through landscape recreation, and displayed the financial-guidance note. English/Sinhala resources contain the note.
+- Focused insight and score backend tests passed. Full device comparison for positive patterns and score fixtures, accessibility and broader error-path acceptance remain open.
 
 ---
 
