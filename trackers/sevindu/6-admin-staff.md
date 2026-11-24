@@ -74,13 +74,13 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 
 ### T46 · Staff login and dashboard · `STAFF-01`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T06, T08, T43 · **Touches:** `api:staff/`, `and:ui/staff/`
-- [ ] T46.1 [API] `GET /api/v1/staff/stats` → my open tickets, unassigned tickets
-- [ ] T46.2 [AND·Sahan] Staff home screen
+- [x] T46.1 [API] `GET /api/v1/staff/stats` → my open tickets, unassigned tickets
+- [x] T46.2 [AND·Sahan] Staff home screen
 
 **Done when**
 - [ ] Tests: STAFF → `/admin/**` 403; STAFF → user finance endpoints 403; disabled staff → 403
 
-**Handoff notes:** —
+**Handoff notes:** D45 early start. Queue stats reuse V5 and return two counts only. MySQL verified assignment/state filtering and route authorization. Android 17 verified isolated STAFF login, the two live counts and sign-out. STAFF provisioning and the broader acceptance matrix remain open.
 
 ---
 
