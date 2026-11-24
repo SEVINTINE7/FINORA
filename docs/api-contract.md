@@ -128,3 +128,16 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 **Budgets (T17):** `used` = sum of the user's EXPENSE transactions in that category from the 1st to the last day of `month`. `remaining` = `limitAmount − used` (negative when over). `state`: `OVER` if used > limit, `NEAR` if used ≥ 80% of limit, else `OK`.
 
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.
+
+
+## SMS format distribution (T45.3)
+
+| Method | Path | Role | Response |
+|---|---|---|---|
+| GET | `/api/v1/sms-formats` | USER | `200` JSON, `Cache-Control: no-store` |
+
+No query parameters or request body. The complete schema-v1 snapshot has exactly two keys, `schemaVersion` (integer `1`) and `templates` (array). A populated v1 snapshot contains the three approved D35 NSB templates. Each template has `id`, `version`, `senderIds`, `numberStyle`, `dateSource`, `datePattern`, `markers` and `fields`. NSB v1 uses `COMMA_GROUPED`, `MESSAGE` and `DAY_MONTH_YEAR_WITH_TIME`. Marker keys are `prefix`, `debit`, `credit`, `suffix` and `requiredDirection`. The ordered field entries have `name` and a literal `delimiter`. The bundled Android asset contains the complete approved example. No executable patterns, message examples or user data are returned.
+
+A successful `{"schemaVersion":1,"templates":[]}` disables this bundle, including offline use after a client has observed the empty response. Only a validated, populated response re-enables it. An unavailable endpoint, network failure or invalid response does not change the last known disablement. Before any observed disablement, the Android client can use the approved bundled NSB snapshot offline. Disablement is installation-wide for the configured API origin because the response is shared reference data, with updates accepted only from the current USER login.
+
+Missing or invalid credentials use the standard `401` response, and ADMIN/STAFF receive `403`. An active D35 row that fails the pinned approval check yields `503 SMS_FORMATS_UNAVAILABLE` with the standard error body and no format payload.

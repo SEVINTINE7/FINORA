@@ -59,6 +59,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 
 - **D35 Bundled NSB alert formats (T13/T14)** — Sahan, exercising delegated Android-task approval authority, approved three bundled NSB alert variants: POS debit, outward CEFT debit and inward CEFT credit. Use exact SMS-provider address `NSB` for inbox filtering. This is a format constraint, with no sender authentication claim. Parse only the transaction amount and the message-local Asia/Colombo date, direction and POS merchant. Synthetic fixtures replace customer and financial details. Verify the local Paste SMS and inbox paths together while T13 and T14 are in progress. D30 and raw-SMS privacy remain in force. Formal dependency and independent review requirements, T45.3 ownership and remote contract, and T15 remain outside this approval.
 
+- **D36 T45.3/T14.2 sequencing and delegation** — Sahan records project lead and backend owner Sevindu's explicit authorization, as relayed by Sahan, to implement only T45.3 and its Android integration. T45.3 can be implemented and verified before T14 closes, and T14.2 may integrate the approved endpoint while T13 remains in review. This breaks the subtask sequencing cycle; the parent task dependencies, ownership and independent review requirements remain in force. Only the three D35 NSB definitions are approved.
+
 ## Proposed — still open
 
 - _None currently._
