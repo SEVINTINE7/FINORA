@@ -100,7 +100,7 @@ public final class PasteSmsActivity extends AppCompatActivity {
         result.setText(R.string.records_loading);
         task.start((signal, cancelled) -> {
             try {
-                var parser = SmsLocalResults.load(this);
+                var parser = SmsLocalResults.load(this, store, loginIdentity, signal, cancelled);
                 if (parser.approvedSenderIds().isEmpty()) {
                     return getString(R.string.sms_no_formats) + "\n" + getString(R.string.sms_needs_review);
                 }

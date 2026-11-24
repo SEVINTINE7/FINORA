@@ -177,7 +177,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
         scanResult.setText(R.string.records_loading);
         scanTask.start((signal, cancelled) -> {
             try {
-                var parser = SmsLocalResults.load(this);
+                var parser = SmsLocalResults.load(this, store, entryIdentity, signal, cancelled);
                 Instant now = Instant.now();
                 return new SmsInboxReader(parser, getContentResolver(), this::canScan)
                         .read(now.minus(31, ChronoUnit.DAYS), now, SmsInboxReader.MAX_ROWS, signal, cancelled);

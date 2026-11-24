@@ -19,6 +19,10 @@ public final class SmsParser {
 
     SmsParser(List<SmsTemplate> templates) { this.templates = templates; }
 
+    public boolean hasSameTemplates(SmsParser other) {
+        return templates.equals(other.templates);
+    }
+
     public java.util.Set<String> approvedSenderIds() {
         var senders = new java.util.LinkedHashSet<String>();
         for (SmsTemplate template : templates) senders.addAll(template.senderIds());
