@@ -124,6 +124,54 @@ public class UserJourneyTest {
         }
     }
 
+    @Test public void verifyFaqTextLayoutAtLargeScale() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit handset layout probe only",
+                "true".equals(arguments.getString("finoraIsolatedHandset"))
+                        && "true".equals(arguments.getString("finoraCheckFaqLayout")));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            checkFaqLayout();
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+            sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            checkFaqLayout();
+        }
+    }
+
+    private void checkFaqLayout() {
+        tab(R.string.more_tab);
+        clickText(R.string.finance_help);
+        awaitActivity(lk.finora.app.ui.help.FaqActivity.class);
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        instrumentation.runOnMainSync(() -> {
+            var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                    .stream().filter(lk.finora.app.ui.help.FaqActivity.class::isInstance).findFirst().orElseThrow();
+            assertEquals(1.3f, activity.getResources().getConfiguration().fontScale, 0.01f);
+            var content = (android.view.ViewGroup) activity.findViewById(android.R.id.content);
+            var scroll = (ScrollView) content.getChildAt(0);
+            var labels = (android.view.ViewGroup) scroll.getChildAt(0);
+            assertEquals(9, labels.getChildCount());
+            for (int index = 0; index < labels.getChildCount(); index++) {
+                var label = (android.widget.TextView) labels.getChildAt(index);
+                assertEquals(index == 0 || index % 2 == 1, androidx.core.view.ViewCompat.isAccessibilityHeading(label));
+                var layout = label.getLayout();
+                assertNotNull(layout);
+                assertTrue(layout.getHeight() <= label.getHeight() - label.getCompoundPaddingTop()
+                        - label.getCompoundPaddingBottom());
+                for (int line = 0; line < layout.getLineCount(); line++) {
+                    assertEquals(0, layout.getEllipsisCount(line));
+                    assertTrue("FAQ label " + index + ", line " + line + " exceeds its text width",
+                            layout.getLineMax(line) <= layout.getWidth() + 1f);
+                }
+            }
+        });
+        pressBack();
+        awaitActivity(MainActivity.class);
+    }
+
     @Test public void loginAndLanguageDialogUseSecureWindows() {
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             screen.onActivity(activity -> assertTrue((activity.getWindow().getAttributes().flags
