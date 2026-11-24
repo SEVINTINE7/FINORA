@@ -40,6 +40,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Isolated Android 17 verified every existing list after real API create, edit and delete with list re-entry: accounts, categories, transactions, budgets, bills and goals. Transaction mutations also refreshed Home and Insights. Plan selection survived landscape recreation.
 - The emulator opened History and Advice against real USER endpoints. Form-driven create, edit and delete refreshed account, category, budget, bill and goal lists. HMD Android 14 verified History totals, score and Back. The remaining form-driven matrix and physical rotation stay open.
 - The [final acceptance matrix](../../docs/md04-final-acceptance.md) records the additional form checks and the HMD test-profile rotation restriction. Full dependent-screen refresh acceptance remains open.
+- The [targeted closure checklist](../../docs/md04-targeted-closure.md) records Plan-to-Insights, category and declaration refresh checks and emulator recreation. The HMD rotation alternative awaits explicit approval.
 
 ---
 

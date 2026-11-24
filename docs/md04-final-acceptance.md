@@ -20,6 +20,8 @@ Full Maven verification passed 317 tests with zero failures, errors or skipped t
 
 ## Form-driven refresh matrix
 
+See the [targeted closure checklist](md04-targeted-closure.md) for subsequent test evidence and the remaining rows.
+
 PASS uses Android forms and a real isolated MySQL-backed API. BLOCKED means the full requested form-to-dependent-screen chain was not demonstrated. Existing API and prior screen checks are retained separately.
 
 | Operation | Result | Evidence and remaining check |
