@@ -73,6 +73,10 @@ public final class SmsDiagnosticRepository {
         return requests.call(new Request.Builder().url(url.build()).post(AccountRepository.json(Map.of())).build());
     }
 
+    public static Call discardRevision(ProtectedRequests requests, int revision) {
+        return requests.call(request(requests, "/api/v1/admin/sms-formats/NSB/revisions/" + revision).delete().build());
+    }
+
     private static Request.Builder request(ProtectedRequests requests, String path) {
         return new Request.Builder().url(requests.origin().newBuilder().encodedPath(path).build());
     }

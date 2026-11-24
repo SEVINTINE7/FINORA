@@ -10,6 +10,21 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SmsDiagnosticRepositoryTest {
+    @Test public void everyReportUsesOnlyApprovedBankAndUnknownFormatVersion() throws Exception {
+        for (Code code : Code.values()) {
+            for (var bank : java.util.Arrays.asList(null, lk.finora.app.sms.SmsInboxReader.BankCode.NSB)) {
+                var bytes = new Buffer();
+                SmsDiagnosticRepository.reportBody(code, bank).writeTo(bytes);
+                var payload = JsonParser.parseString(bytes.readUtf8()).getAsJsonObject();
+                assertEquals(Set.of("bankCode", "formatVersion", "errorCode"), payload.keySet());
+                assertEquals(code.name(), payload.get("errorCode").getAsString());
+                assertTrue(payload.get("formatVersion").isJsonNull());
+                if (bank == null) assertTrue(payload.get("bankCode").isJsonNull());
+                else assertEquals(bank.name(), payload.get("bankCode").getAsString());
+            }
+        }
+    }
+
     @Test public void reportContainsOnlyExplicitNullMetadataAndStableErrorCode() throws Exception {
         var request = SmsDiagnosticRepository.reportBody(Code.from(new ManualReview(Reason.AMBIGUOUS_FORMAT)), null);
         assertTrue(request.isOneShot());

@@ -64,9 +64,10 @@ public final class DiagnosticQueueActivity extends SecureActivity {
                         getString(revision.active() ? R.string.support_active
                                 : revision.published() ? R.string.sms_format_published : R.string.support_draft_state));
                 label(summary);
-                if (!revision.published()) confirmRow(R.string.sms_format_publish, summary,
-                        () -> model.publish(revision.version()));
-                else if (!revision.active()) confirmRow(R.string.sms_format_activate, summary,
+                if (!revision.published()) {
+                    confirmRow(R.string.sms_format_publish, summary, () -> model.publish(revision.version()));
+                    confirmRow(R.string.records_remove, summary, () -> model.discard(revision.version()));
+                } else if (!revision.active()) confirmRow(R.string.sms_format_activate, summary,
                         () -> model.activate(revision.version()));
                 else confirmRow(R.string.sms_format_disable, summary,
                         () -> model.deactivate(revision.version()));

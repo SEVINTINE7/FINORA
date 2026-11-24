@@ -309,6 +309,26 @@ public class UserJourneyTest {
         awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
     }
 
+    @Test public void adminCanDiscardAnUnpublishedNsbDraft() {
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.sms_diagnostic_admin);
+            awaitButton(R.string.sms_format_draft);
+            clickText(R.string.sms_format_draft);
+            typeFixture(onView(withHint(R.string.sms_format_revision_number)).inRoot(isDialog()), "999");
+            confirm();
+            String draft = app.getString(R.string.sms_format_revision, 999, app.getString(R.string.support_draft_state));
+            awaitText(draft);
+            onView(withContentDescription(app.getString(R.string.records_remove) + ". " + draft))
+                    .perform(reveal(), activateControl());
+            confirm();
+            assertTrue("Draft still visible after discard", device.wait(Until.gone(By.text(draft)), UI_TIMEOUT_MS));
+            awaitText(app.getString(R.string.sms_format_revision, 1, app.getString(R.string.support_active)));
+        }
+    }
+
     @Test public void registrationRequiresBothConsentCheckboxesInEachLanguage() {
         try (var screen = ActivityScenario.launch(RegisterActivity.class)) {
             checkConsentGate();
@@ -428,6 +448,13 @@ public class UserJourneyTest {
         String identity = UUID.randomUUID().toString().replace("-", "");
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
             signInNewUser(identity);
+            if ("SI".equals(InstrumentationRegistry.getArguments().getString("finoraDiagnosticLocale"))) {
+                clickText(R.string.language_selector);
+                dialogChoice(app.getString(R.string.language_sinhala));
+                var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+                sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+                awaitText(app.createConfigurationContext(sinhala).getString(R.string.records_tab));
+            }
             tab(R.string.records_tab);
             clickText(R.string.sms_access_title);
             clickText(R.string.sms_paste);
@@ -439,8 +466,21 @@ public class UserJourneyTest {
                 onView(withId(R.id.sms_paste_action)).perform(reveal(), activateControl());
                 awaitText(app.getString(R.string.sms_report_problem));
                 onView(withId(R.id.sms_diagnostic_report)).perform(reveal(), activateControl());
-                onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(
-                        withText(containsString("FORMAT_UNRECOGNIZED"))));
+                onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(
+                        app.getString(R.string.sms_report_preview, app.getString(R.string.sms_diagnostic_unknown),
+                                "FORMAT_UNRECOGNIZED"))));
+                onView(withId(android.R.id.message)).inRoot(isDialog()).check((view, failure) -> {
+                    if (failure != null) throw failure;
+                    var message = (android.widget.TextView) view;
+                    var layout = message.getLayout();
+                    assertNotNull(layout);
+                    assertTrue(layout.getHeight() <= message.getHeight() - message.getCompoundPaddingTop()
+                            - message.getCompoundPaddingBottom());
+                    for (int line = 0; line < layout.getLineCount(); line++) {
+                        assertEquals(0, layout.getEllipsisCount(line));
+                        assertTrue(layout.getLineMax(line) <= layout.getWidth() + 1f);
+                    }
+                });
                 onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(activateControl());
                 onView(withId(R.id.sms_diagnostic_report)).check(matches(isEnabled()));
                 onView(withId(R.id.sms_diagnostic_report)).perform(reveal(), activateControl());

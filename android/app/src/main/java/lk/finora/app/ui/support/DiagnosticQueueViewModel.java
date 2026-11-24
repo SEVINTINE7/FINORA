@@ -73,6 +73,7 @@ public final class DiagnosticQueueViewModel extends ViewModel {
         write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "deactivate"));
     }
     void draft(int revision) { write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "")); }
+    void discard(int revision) { write(() -> SmsDiagnosticRepository.discardRevision(work.requests, revision)); }
     void publish(int revision) {
         write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "publish"));
     }
