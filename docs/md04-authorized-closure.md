@@ -22,7 +22,7 @@ Final Android verification ran 140 JVM tests with no failures or skips. V1 debug
 
 Live Groq and Gemini calls remain unverified. The authorized environment has no configured `GROQ_API_KEY`, `GEMINI_API_KEY`, approved `finora.llm.groq-model`, approved `finora.llm.gemini-model`, or approved numeric call budget. Existing verified rule fallback and aggregate-only privacy protections are unchanged. No provider calls were made for these checks.
 
-The existing 22-pair History and Advice sheet pinned to `11d80ed` awaits native-speaker approval. The 96- and 64-pair approvals and all 354 existing paired definitions were preserved. This change adds one separate pair for review:
+The 22-pair History and Advice sheet pinned to `11d80ed` and the separate D43 pair below were superseded by the [approved 23-pair inventory at `d884e20`](md04-history-advice-native-speaker-approval.md). The earlier 96- and 64-pair approvals remain in force.
 
 | Resource key | English | Sinhala |
 |---|---|---|
@@ -32,4 +32,4 @@ The existing 22-pair History and Advice sheet pinned to `11d80ed` awaits native-
 
 T20 is 5/5, T38 is 4/4, T24 is 4/4 and T30 is 7/7. MD04 is **20/20 tracked technical checks**. T33 remains 5/5 separately, and MD01–MD03 remain 48/48. The T38 checkbox uses the retained 14/14 matrix, the HMD accessibility and focus verification, and the D42 recreation evidence. HMD physical rotation remains unverified. No INDEX status changed. T38 still depends on T09, T33 on T23, and T30 on T25, T29 and T38. Independent review remains open.
 
-NO-GO to start MD05 under the current dependency gates. In INDEX, T31 and T34 require T17, T18 and T19. T32 requires T19. T35 requires T10 and T17–T19, and T36 requires T35. Live-provider verification and translation approval remain separate open MD04 checks.
+NO-GO to start MD05 under the current dependency gates. In INDEX, T31 and T34 require T17, T18 and T19. T32 requires T19. T35 requires T10 and T17–T19, and T36 requires T35. Live-provider verification remains open.
