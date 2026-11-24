@@ -289,7 +289,7 @@
     <string name="insight_empty">No spending patterns for this month.</string>
     <string name="insight_wants">High wants spending</string>
     <string name="insight_bills">High fixed bills</string>
-    <string name="insight_payday">Payday spending</string>
+    <string name="insight_payday">Spending on income days and the following two days</string>
     <string name="insight_weekend">Weekend spending</string>
     <string name="insight_period">Period: %1$s to %2$s</string>
     <string name="insight_income_share">LKR %1$s, %2$s of income</string>

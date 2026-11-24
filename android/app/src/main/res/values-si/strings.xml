@@ -289,7 +289,7 @@
     <string name="insight_empty">මෙම මාසය සඳහා වියදම් රටා නැත.</string>
     <string name="insight_wants">අත්‍යවශ්‍ය නොවන දේ සඳහා වැඩි වියදම්</string>
     <string name="insight_bills">වැඩි ස්ථාවර බිල්පත් වියදම්</string>
-    <string name="insight_payday">වැටුප් දිනයේ වියදම්</string>
+    <string name="insight_payday">ආදායම ලැබුණු දිනයේ සහ ඉන් පසු දින දෙකේ වියදම්</string>
     <string name="insight_weekend">සති අන්ත වියදම්</string>
     <string name="insight_period">කාලය: %1$s සිට %2$s දක්වා</string>
     <string name="insight_income_share">රු. %1$s, ආදායමෙන් %2$s</string>
