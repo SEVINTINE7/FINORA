@@ -11,7 +11,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T01.4 Each member confirms their local setup: JDK 17, MySQL 8, Android Studio, Git — all three confirmed
 
 **Done when**
-- [x] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md` (only P05 left, needed by T23)
+- [x] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md` (P05 was subsequently approved as D20 for T23)
 
 **Handoff notes:**
 - P01, P03, P04, P06–P08 accepted → D07, D09–D13. P02 rate limit removed (D08). Git: direct push to `main` (D13). Test DB: local `finora_test` (D11).
