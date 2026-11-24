@@ -37,6 +37,7 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.*;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
@@ -195,6 +196,137 @@ public class UserJourneyTest {
         }
     }
 
+    @Test public void approvedBilingualReplySurvivesCatalogRetirement() {
+        org.junit.Assume.assumeTrue("Requires the isolated acceptance database with two disposable staff accounts",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraSupportFixtures")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        String fixturePassword = "Synthetic9-support-suite";
+        String englishReply = "Check your connection and try signing in again.";
+        String sinhalaReply = "ඔබේ අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කර නැවත පිවිසීමට උත්සාහ කරන්න.";
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.more_tab);
+            clickText(R.string.support_tickets);
+            awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
+            awaitButton(R.string.support_create);
+            onView(withText(R.string.support_catalog)).check(doesNotExist());
+            clickText(R.string.support_create);
+            dialogChoice(app.getString(R.string.support_sign_in));
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.sms_diagnostic_open)));
+            pressBack();
+            awaitActivity(MainActivity.class);
+            signOut();
+
+            signInStaff("support-drafter@example.test", fixturePassword);
+            openCatalog();
+            clickText(R.string.support_draft);
+            dialogChoice(app.getString(R.string.support_sign_in));
+            confirm();
+            awaitButton(R.string.support_approve);
+            clickText(R.string.support_approve);
+            confirm();
+            awaitText(app.getString(R.string.records_missing));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+            signOut();
+
+            signInStaff("support-reviewer@example.test", fixturePassword);
+            openCatalog();
+            clickText(R.string.support_approve);
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_active)));
+            clickText(R.string.support_tickets);
+            awaitButton(R.string.support_claim);
+            clickText(R.string.support_claim);
+            confirm();
+            awaitButton(R.string.support_reply);
+            sendReply(englishReply);
+            sendReply(sinhalaReply);
+            clickText(R.string.support_catalog);
+            awaitButton(R.string.support_retire);
+            clickText(R.string.support_retire);
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_retired)));
+            clickText(R.string.support_draft);
+            dialogChoice(app.getString(R.string.support_sign_in));
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_draft_state)));
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_retired)));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+            signOut();
+
+            enter(R.id.email, "t51-" + identity + "@example.test");
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitActivity(MainActivity.class);
+            tab(R.string.more_tab);
+            clickText(R.string.support_tickets);
+            awaitButton(R.string.support_replies);
+            clickText(R.string.support_replies);
+            awaitText(englishReply);
+            awaitText(sinhalaReply);
+        }
+    }
+
+    private void openCatalog() {
+        clickText(R.string.support_tickets);
+        awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
+        awaitButton(R.string.support_catalog);
+        clickText(R.string.support_catalog);
+        awaitButton(R.string.support_draft);
+    }
+
+    private void sendReply(String text) {
+        clickText(R.string.support_reply);
+        dialogChoice(app.getString(R.string.support_sign_in));
+        dialogChoice(text);
+        onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(text)));
+        confirm();
+        awaitText(app.getString(R.string.sms_diagnostic_updated));
+    }
+
+    private void signInStaff(String email, String password) {
+        enter(R.id.email, email);
+        enter(R.id.password, password);
+        clickId(R.id.sign_in);
+        awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+    }
+
+    private void signOut() {
+        clickText(R.string.sign_out);
+        awaitActivity(LoginActivity.class);
+    }
+
+    private static void confirm() {
+        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+    }
+
+    private static void dialogChoice(String label) {
+        onView(isAssignableFrom(android.widget.ListView.class)).inRoot(isDialog()).perform(new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isAssignableFrom(android.widget.ListView.class); }
+            @Override public String getDescription() { return "select the visible dialog option"; }
+            @Override public void perform(UiController controller, View view) {
+                var list = (android.widget.ListView) view;
+                for (int index = 0; index < list.getCount(); index++) {
+                    if (label.equals(String.valueOf(list.getItemAtPosition(index)))) {
+                        list.performItemClick(list.getChildAt(index - list.getFirstVisiblePosition()), index,
+                                list.getItemIdAtPosition(index));
+                        controller.loopMainThreadUntilIdle();
+                        return;
+                    }
+                }
+                fail("Expected dialog option is unavailable");
+            }
+        });
+    }
+
     private void signInNewUser(String identity) {
         onView(withId(R.id.create_account)).perform(reveal(), activateControl());
         awaitActivity(RegisterActivity.class);
@@ -228,6 +360,10 @@ public class UserJourneyTest {
     }
 
     private void awaitText(String text) { await(By.text(text)); }
+    private void awaitButton(int label) {
+        await(By.text(java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(app.getString(label)),
+                java.util.regex.Pattern.CASE_INSENSITIVE | java.util.regex.Pattern.UNICODE_CASE)));
+    }
     private void await(BySelector selector) {
         assertTrue("Expected FINORA screen state did not appear", device.wait(Until.hasObject(selector), UI_TIMEOUT_MS));
     }

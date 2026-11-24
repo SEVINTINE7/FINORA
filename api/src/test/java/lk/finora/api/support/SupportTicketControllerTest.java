@@ -46,10 +46,19 @@ class SupportTicketControllerTest extends IntegrationTest {
 
     @Test void rejectsUnstructuredContentAndNonStaffCatalogAccess() throws Exception {
         var user = tokenFor(createUser(Role.USER));
+        var admin = tokenFor(createUser(Role.ADMIN));
+        var staff = tokenFor(createUser(Role.STAFF));
         send(TICKETS, user, "{\"subject\":\"Sign-in\",\"body\":\"Synthetic account 123456789\"}")
                 .andExpect(status().isBadRequest());
         read(TICKETS, user).andExpect(jsonPath("$.length()").value(0));
         read(CATALOG, user).andExpect(status().isForbidden());
+        read(CATALOG, admin).andExpect(status().isForbidden());
+        for (String token : new String[]{user, admin}) {
+            send(CATALOG, token, "{\"topic\":\"SIGN_IN\"}").andExpect(status().isForbidden());
+        }
+        send(CATALOG, staff, "{\"topic\":\"SIGN_IN\",\"text\":\"Unapproved synthetic reply\"}")
+                .andExpect(status().isBadRequest());
+        read(CATALOG, staff).andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test void optionalErrorCodeIsAllowlistedAndVisibleOnlyAfterClaim() throws Exception {
