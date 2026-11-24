@@ -141,7 +141,7 @@ All endpoints in this section are ADMIN-only.
 
 ## Account export and deletion (T35, T36)
 
-- `GET /api/v1/me/export` is USER-only and returns JSON, `Cache-Control: no-store` and attachment filename `finora-export-YYYY-MM-DD.json` using the Asia/Colombo date. The schema-1 response has `profile` and an allowlisted `data` collection of owned records. Child payment, contribution and support reply rows are joined through their owned parents. Security credentials, push tokens, deduplication hashes and internal audit data are excluded. The snapshot is read in one transaction without server-side temporary files.
+- `GET /api/v1/me/export` is USER-only and returns JSON, `Cache-Control: no-store` and attachment filename `finora-export-YYYY-MM-DD.json` using the Asia/Colombo date. The schema-1 response has `profile` and an allowlisted `data` collection of owned records. Child payment, contribution and support reply rows are joined through their owned parents. Security credentials, push tokens, deduplication hashes and internal audit data are excluded. Date-only fields use YYYY-MM-DD and preserve the stored calendar day regardless of the API host timezone. The snapshot is read in one transaction without server-side temporary files.
 - `DELETE /api/v1/me` is USER-only and requires `{password}`. A wrong password returns 400 `INVALID_CREDENTIALS` without retrying authentication. A successful request returns 204 after deletion and token/device cascade. The deletion event has no actor ID, target ID or reason. Existing USER status audit events lose that target ID. Backup retention remains D21.
 
 ## SMS format distribution (T45.3)

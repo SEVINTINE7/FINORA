@@ -17,7 +17,7 @@ class ExportService {
             Map.entry("accounts", "SELECT id, name, type, opening_balance, archived, created_at FROM accounts WHERE user_id = ? ORDER BY id"),
             Map.entry("categories", "SELECT id, name, name_si, kind, need_or_want, active, created_at FROM categories WHERE user_id = ? ORDER BY id"),
             Map.entry("transactions", """
-                    SELECT id, account_id, category_id, type, amount, txn_date, merchant, note, source, created_at, updated_at
+                    SELECT id, account_id, category_id, type, amount, CAST(txn_date AS CHAR) AS txn_date, merchant, note, source, created_at, updated_at
                     FROM transactions WHERE user_id = ? ORDER BY id
                     """),
             Map.entry("budgets", "SELECT id, category_id, month, limit_amount, created_at FROM budgets WHERE user_id = ? ORDER BY id"),
@@ -26,15 +26,15 @@ class ExportService {
                     SELECT p.id, p.bill_id, p.month, p.paid_at FROM bill_payments p JOIN bills b ON b.id=p.bill_id
                     WHERE b.user_id = ? ORDER BY p.id
                     """),
-            Map.entry("goals", "SELECT id, name, target_amount, target_date, status, created_at FROM goals WHERE user_id = ? ORDER BY id"),
+            Map.entry("goals", "SELECT id, name, target_amount, CAST(target_date AS CHAR) AS target_date, status, created_at FROM goals WHERE user_id = ? ORDER BY id"),
             Map.entry("goalContributions", """
-                    SELECT c.id, c.goal_id, c.amount, c.contrib_date, c.created_at FROM goal_contributions c
+                    SELECT c.id, c.goal_id, c.amount, CAST(c.contrib_date AS CHAR) AS contrib_date, c.created_at FROM goal_contributions c
                     JOIN goals g ON g.id=c.goal_id WHERE g.user_id = ? ORDER BY c.id
                     """),
             Map.entry("insights", "SELECT month, type, facts, created_at FROM insights WHERE user_id = ? ORDER BY id"),
             Map.entry("healthScores", "SELECT month, total, parts, created_at FROM health_scores WHERE user_id = ? ORDER BY id"),
             Map.entry("scoreInputs", """
-                    SELECT month, emergency_reserve, reserve_as_of, no_applicable_debt, no_applicable_goals, confirmed_at
+                    SELECT month, emergency_reserve, CAST(reserve_as_of AS CHAR) AS reserve_as_of, no_applicable_debt, no_applicable_goals, confirmed_at
                     FROM score_inputs WHERE user_id = ? ORDER BY id
                     """),
             Map.entry("history", "SELECT month, income, expense, score, insights FROM monthly_history WHERE user_id = ? ORDER BY month"),
@@ -46,7 +46,7 @@ class ExportService {
                     WHERE t.user_id = ? ORDER BY r.id
                     """),
             Map.entry("smsDiagnostics", """
-                    SELECT bank_code, format_version, error_code, report_day FROM sms_diagnostic_reports
+                    SELECT bank_code, format_version, error_code, CAST(report_day AS CHAR) AS report_day FROM sms_diagnostic_reports
                     WHERE user_id = ? ORDER BY report_day, bank_code, format_version, error_code
                     """));
     private final JdbcTemplate jdbc;

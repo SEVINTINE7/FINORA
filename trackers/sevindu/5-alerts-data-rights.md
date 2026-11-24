@@ -26,9 +26,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T35.3 [AND·Sahan] Download button → save via Storage Access Framework
 
 **Done when**
-- [ ] Tests: export contains every owned row and nothing of another user; unauthenticated → 401; no data in logs
+- [x] Tests: export contains every owned row and nothing of another user; unauthenticated → 401; no data in logs
 
-**Handoff notes:** D53. MySQL verified authenticated owner data, child-row ownership, credential exclusion and log privacy on synthetic fixtures. Android 17 saved the schema-1 JSON through the system picker. Exhaustive fixture coverage across all exported data families and formal prerequisites remain open.
+**Handoff notes:** D53. MySQL verified authenticated owner data, child-row ownership, credential exclusion and log privacy on synthetic fixtures. Android 17 saved the schema-1 JSON through the system picker. MySQL now covers all 18 export families, owner isolation, unauthenticated requests, log privacy and stable calendar dates. Formal prerequisites and independent review remain open.
 
 ---
 
