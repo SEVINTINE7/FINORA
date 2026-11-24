@@ -29,7 +29,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Thilina · **Depends on:** T21, T22, T23 · **Touches:** `api:advice/rules/`, shared `api:advice/ai/` DTOs, `api-test:advice/`, `docs/ai-schema.md`
 - [x] T25.1 Approved catalogue: REVIEW_SPENDING_DEFICIT, REVIEW_HIGH_WANTS, REVIEW_UNMARKED_LOAN_BILLS, BUILD_EMERGENCY_BUFFER, REVIEW_GOAL_PROGRESS, SAVE_WITHIN_AVAILABLE_HEADROOM; conditions use D10/D20 only (see docs/ai-schema.md)
 - [x] T25.2 Every text number has an exact factKey/value/LKR/period reference; extra allocations bounded by leftover after existing savings and suppressed for unknown/unmarked debt
-- [x] T25.3 Shared `AdviceItem {actionId,text,numbers[]}` schema for rules and later verified AI; server-only RuleAdviceService, no T30 delivery endpoint yet
+- [x] T25.3 Shared `AdviceItem {actionId,text,numbers[]}` schema for rules and verified AI. The server-only RuleAdviceService feeds T30 V1 delivery.
 
 **Done when**
 - [ ] Tests across budget, savings and debt scenarios; every number traceable to a fact
@@ -39,4 +39,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - `RuleAdviceEngine` and `RuleAdviceService` generate structured advice from server aggregates; advice protects essentials and labels bill markers as proxies, never verified repayments.
 - `RuleAdviceTest` 11 + `FactSheetPrivacyTest` 1 = 12 passing tests (0 failures/errors/skips), Java 17 and isolated `finora_test`; evidence `api/target/t25-t26-tests.log`.
 - Every numeric token has tested exact provenance; saving suggestions use min(shortfall, recorded leftover) and are blocked for unknown/unmarked obligations. No inferred reserves or added goal allocations.
-- Next: team/PR review, T27-T29 provider/claim checks and T30 delivery. Budget-specific recommendations and real-provider evaluation are not claimed; T50 was not repeated.
+- T30 now delivers canonical rule fallback or verified advice through its [Sahan tracker entry](../sahan/4-screens.md). Budget-specific coverage and Thilina's review remain open.

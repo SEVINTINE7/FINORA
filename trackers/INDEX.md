@@ -64,6 +64,8 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 
 ## Your parts inside other members' tasks
 
+MD04 delivery retains 20/20 technical checks and 5/5 for delegated T33 separately. T20, T24, T30, T33 and T38 remain in progress under the dependencies above. T39 remains in review. See the [closure evidence](../docs/md04-authorized-closure.md) for independent review and live-provider gates. D40 and D41 permit scoped early implementation.
+
 T53 verification update (2026-11-22): remains **in-progress**. Final upstream-compatible offline Java 17 + isolated finora_test Maven verify passed 206/206 tests (0 failures/errors/skips, exit 0); service coverage 668/677 lines (98.67%), JaCoCo gate passed. Earlier branch-only result was 151/151. Deployed TLS, device/provider captures, comprehensive scans and acceptance remain open; details in the T53 handoff. No other task statuses changed.
 
 - **Sevindu:** T08, T15, T20, T27, T49, T52, T53 — look for subtasks tagged `[…·Sevindu]`

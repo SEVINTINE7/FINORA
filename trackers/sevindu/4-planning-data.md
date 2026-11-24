@@ -80,3 +80,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - The isolated scheduler and emulator showed October net 866.85 then 766.85 after edit, a null score, and a separate 92/100 trend. Formal dependencies and independent review remain open.
 - V13 implements D43 missed-month recovery with a persisted cutoff, bounded batches, durable retries and reconstruction provenance. The 322-test Maven run passed, including five new recovery tests and 27 D39 cases.
 - An isolated scheduler recovered a synthetic September row with exact net LKR −9.77 and a null score. HMD displayed its Sinhala reconstruction notice and verified bilingual History return focus.
+- Sevindu's independent review covers V10–V13 and the D39 owner lock. Production recovery requires the approved `FINORA_HISTORY_ACTIVATION_INSTANT` as described in [deployment](../../docs/deploy.md#history-recovery-activation-d43).
