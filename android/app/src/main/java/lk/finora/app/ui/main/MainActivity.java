@@ -58,7 +58,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
         addMoreAction(recordActions, R.string.transaction_open_manual, TransactionFormActivity.class);
         addMoreAction(recordActions, R.string.sms_csv_import, CsvImportActivity.class);
-        addMoreAction(recordActions, R.string.sms_access_title, SmsAccessActivity.class);
+        addFocusableRoute(recordActions, R.string.sms_access_title, SmsAccessActivity.class);
         LinearLayout planActions = new LinearLayout(this);
         planActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(planActions, R.string.budget_list_title, BudgetListActivity.class);

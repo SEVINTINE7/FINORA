@@ -50,12 +50,12 @@ After expansion approval, verify incoming changes before integration. Stage appr
   - `SmsPermissionState.resolve(granted, requestedBefore, showRationale)` distinguishes first request from a denied state with no rationale; persist only the request-attempt flag. `openAppSettings()` sends `ACTION_APPLICATION_DETAILS_SETTINGS` with the app package; recheck on resume and before any query. Handle a settings launch failure locally. Keys `sms_permission_settings`, `sms_open_settings`, `sms_settings_unavailable`. Tests `distinguishesFirstRequestAndSettingsPath`, `rechecksAfterSettingsReturn`; Under D34, verify permanent denial and the App info link on the HMD Crest, and Settings revocation and regrant on the isolated emulator.
 
 **Done when**
-- [ ] On device: grant, deny, deny-forever all lead to a working path
+- [x] On device: grant, deny, deny-forever all lead to a working path
 
 **Handoff notes:**
 - Google Play restricts `READ_SMS`. Proposal 7.3 specifies a side-loaded trial APK. SMS access is optional, and side-loading alone does not guarantee a grant because Android requires the installer to allowlist this restricted permission. [Android permission reference](https://developer.android.com/reference/android/Manifest.permission#READ_SMS)
 - D30 limits `READ_SMS` to the V1 debug APK as verified by APK inspection. Release omits it. `SmsAccessActivity` remains non-exported.
-- HMD Crest (Android 14): normal debug install allowlisted the test user only. USER Records, explanation, No thanks, deny, grant, permanent denial and Settings return verified. Sahan confirmed Sinhala TalkBack labels for Settings, No thanks and manual entry.
+- HMD Crest (Android 14): the rebuilt D50 acceptance APK showed the real Android SMS prompt. Selecting Allow exposed Scan. Earlier current D50 runs verified ordinary denial, permanent denial, Settings guidance and all fallbacks. No phone inbox was opened. See the [audit register](../../docs/sahan-final-audit.md).
 - At `9774733`, HMD Crest verified CSV → T12.5 → system picker, and manual entry under permanent denial. English/Sinhala labels checked; Sahan confirmed both Sinhala TalkBack action labels.
 - CSV integration: V1 debug/test APKs built, 103 JVM tests passed, EN/SI resources matched, and lint reported zero errors and one existing budget-format warning.
 - D34: HMD Crest verified permanent-denial guidance and the App info link. Permissions did not open in its test profile, so physical Settings revocation remains unverified. On the isolated Android 17 emulator at `6d6266a`, Settings revocation hid Scan and preserved all three fallback actions; Settings regrant restored Scan. D35 verifies working paste separately from physical fallback navigation.
