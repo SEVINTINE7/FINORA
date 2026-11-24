@@ -83,6 +83,25 @@ class AdviceDeliveryControllerTest extends IntegrationTest {
         assertNotNull(repository.publish(owner, "2026-11", replacement, fallback()).id());
     }
 
+    @Test
+    void processingFailureReleasesClaimForImmediateRetry() {
+        long owner = createUser(Role.USER).getId();
+        var pipeline = mock(AdvicePipelineService.class);
+        when(pipeline.forCurrentUser("2026-11"))
+                .thenThrow(new IllegalStateException("Synthetic processing failure"))
+                .thenReturn(fallback());
+        var service = new AdviceDeliveryService(repository, pipeline);
+        authenticate(owner);
+        try {
+            assertThrows(IllegalStateException.class, () -> service.get("2026-11", "V1"));
+            assertEquals(0, jdbc.queryForObject(
+                    "SELECT COUNT(*) FROM advice_generation_leases WHERE user_id = ?", Integer.class, owner));
+            assertEquals("RULE", service.get("2026-11", "V1").source());
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+    }
+
     private static void authenticate(long owner) {
         SecurityContextHolder.getContext().setAuthentication(
                 UsernamePasswordAuthenticationToken.authenticated(owner, null, List.of()));
