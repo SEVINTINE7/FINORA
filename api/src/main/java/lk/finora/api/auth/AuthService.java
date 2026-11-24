@@ -118,7 +118,7 @@ public class AuthService {
         if (user.getStatus() == UserStatus.DISABLED) {
             throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
         }
-        if (user.getRole() == Role.STAFF && stored.getStaffSessionGeneration() != user.getStaffSessionGeneration()) {
+        if (stored.getStaffSessionGeneration() != user.getStaffSessionGeneration()) {
             throw new ApiException(ErrorCodes.INVALID_REFRESH_TOKEN, HttpStatus.UNAUTHORIZED, "Please log in again");
         }
         return createTokens(user);

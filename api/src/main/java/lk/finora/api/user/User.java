@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 /** A row in the users table. created_at / updated_at are filled by MySQL, so they are not mapped. */
 @Entity
 @Table(name = "users")
+@org.hibernate.annotations.DynamicUpdate
 public class User {
 
     @Id
