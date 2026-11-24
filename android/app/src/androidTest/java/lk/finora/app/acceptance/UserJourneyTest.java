@@ -53,9 +53,13 @@ import static org.junit.Assert.*;
 public class UserJourneyTest {
     private static final long UI_TIMEOUT_MS = 12_000;
     private static final String MERCHANT = "Synthetic UI purchase";
+    private static final String DRAFTER = "support-drafter@example.test";
+    private static final String REVIEWER = "support-reviewer@example.test";
+    private static final String SUPPORT_FIXTURE_PASSWORD = "Synthetic9-support-suite";
     private Context app;
     private UiDevice device;
     private TokenStore sessions;
+    private boolean keepAccessibilityFixture;
 
     @Before public void requireIsolatedTarget() throws Exception {
         var instrumentation = InstrumentationRegistry.getInstrumentation();
@@ -85,9 +89,38 @@ public class UserJourneyTest {
     }
 
     @After public void clearSession() throws Exception {
+        if (keepAccessibilityFixture) return;
         if (sessions != null) {
             var current = sessions.session();
             if (current != null) assertTrue(sessions.clear(current));
+        }
+    }
+
+    @Test public void stageHandsetAccessibilityFixture() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Opt-in handset fixture only",
+                "true".equals(arguments.getString("finoraIsolatedHandset"))
+                        && "true".equals(arguments.getString("finoraStageAccessibility")));
+        var screen = ActivityScenario.launch(LoginActivity.class);
+        try {
+            if ("STAFF".equals(arguments.getString("finoraStageRole"))) {
+                signInStaff(DRAFTER, SUPPORT_FIXTURE_PASSWORD);
+                openCatalog();
+                awaitButton(R.string.support_approve);
+                clickText(R.string.support_approve);
+                confirm();
+                await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                        + app.getString(R.string.support_active)));
+                pressBack();
+                awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+                signOut();
+                signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
+            } else {
+                signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            }
+            keepAccessibilityFixture = true;
+        } finally {
+            screen.close();
         }
     }
 
@@ -217,7 +250,6 @@ public class UserJourneyTest {
         org.junit.Assume.assumeTrue("Requires the isolated acceptance database with two disposable staff accounts",
                 "true".equals(InstrumentationRegistry.getArguments().getString("finoraSupportFixtures")));
         String identity = UUID.randomUUID().toString().replace("-", "");
-        String fixturePassword = "Synthetic9-support-suite";
         String englishReply = "Check your connection and try signing in again.";
         String sinhalaReply = "ඔබේ අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කර නැවත පිවිසීමට උත්සාහ කරන්න.";
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
@@ -236,7 +268,7 @@ public class UserJourneyTest {
             awaitActivity(MainActivity.class);
             signOut();
 
-            signInStaff("support-drafter@example.test", fixturePassword);
+            signInStaff(DRAFTER, SUPPORT_FIXTURE_PASSWORD);
             openCatalog();
             clickText(R.string.support_draft);
             dialogChoice(app.getString(R.string.support_sign_in));
@@ -249,7 +281,7 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
             signOut();
 
-            signInStaff("support-reviewer@example.test", fixturePassword);
+            signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
             openCatalog();
             clickText(R.string.support_approve);
             confirm();
