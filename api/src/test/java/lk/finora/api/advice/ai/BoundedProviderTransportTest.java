@@ -79,6 +79,7 @@ class BoundedProviderTransportTest {
             var result = client.generate(new FactSheet("2026-11", Map.of(), List.of()), List.of());
             assertEquals(failure, result.failure());
             assertEquals(attempts, requests.get());
+            assertEquals(attempts, result.httpAttempts());
             if (failure == null) assertEquals("[]", result.reply());
         } finally {
             server.stop(0);

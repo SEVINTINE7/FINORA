@@ -73,11 +73,11 @@ abstract class JsonHttpLlmClient implements LlmClient {
                 if (status != 200) {
                     log(requestId, start, "HTTP_" + status, null, null);
                     if (attempt == 0 && (status == 429 || status >= 500 && status <= 599)) continue;
-                    return Result.failed(Failure.HTTP_ERROR);
+                    return Result.failed(Failure.HTTP_ERROR).withHttpAttempts(attempt + 1);
                 }
                 if (response.body() == null || response.body().length() > 64000) {
                     log(requestId, start, "INVALID_RESPONSE", null, null);
-                    return Result.failed(Failure.INVALID_RESPONSE);
+                    return Result.failed(Failure.INVALID_RESPONSE).withHttpAttempts(attempt + 1);
                 }
                 try {
                     JsonNode json = mapper.readTree(response.body());
@@ -85,33 +85,33 @@ abstract class JsonHttpLlmClient implements LlmClient {
                     if (reply == null || reply.isBlank() || reply.length() > 16000) throw new IllegalArgumentException();
                     log(requestId, start, "HTTP_200", tokens(json, "prompt_tokens", "promptTokenCount"),
                             tokens(json, "completion_tokens", "candidatesTokenCount"));
-                    return Result.received(reply);
+                    return Result.received(reply).withHttpAttempts(attempt + 1);
                 } catch (RuntimeException invalid) {
                     log(requestId, start, "INVALID_RESPONSE", null, null);
-                    return Result.failed(Failure.INVALID_RESPONSE);
+                    return Result.failed(Failure.INVALID_RESPONSE).withHttpAttempts(attempt + 1);
                 }
             } catch (HttpTimeoutException timeoutFailure) {
                 log(requestId, start, "TIMEOUT", null, null);
-                if (attempt == 1) return Result.failed(Failure.TIMEOUT);
+                if (attempt == 1) return Result.failed(Failure.TIMEOUT).withHttpAttempts(attempt + 1);
             } catch (IOException transportFailure) {
                 if (causedBy(transportFailure, InvalidBody.class)) {
                     log(requestId, start, "INVALID_RESPONSE", null, null);
-                    return Result.failed(Failure.INVALID_RESPONSE);
+                    return Result.failed(Failure.INVALID_RESPONSE).withHttpAttempts(attempt + 1);
                 }
                 if (causedBy(transportFailure, HttpTimeoutException.class)) {
                     log(requestId, start, "TIMEOUT", null, null);
-                    if (attempt == 1) return Result.failed(Failure.TIMEOUT);
+                    if (attempt == 1) return Result.failed(Failure.TIMEOUT).withHttpAttempts(attempt + 1);
                     continue;
                 }
                 log(requestId, start, "IO_ERROR", null, null);
-                if (attempt == 1) return Result.failed(Failure.IO_ERROR);
+                if (attempt == 1) return Result.failed(Failure.IO_ERROR).withHttpAttempts(attempt + 1);
             } catch (InterruptedException interrupted) {
                 Thread.currentThread().interrupt();
                 log(requestId, start, "INTERRUPTED", null, null);
-                return Result.failed(Failure.INTERRUPTED);
+                return Result.failed(Failure.INTERRUPTED).withHttpAttempts(attempt + 1);
             }
         }
-        return Result.failed(Failure.IO_ERROR);
+        return Result.failed(Failure.IO_ERROR).withHttpAttempts(2);
     }
 
     private static boolean causedBy(Throwable error, Class<? extends Throwable> expected) {
