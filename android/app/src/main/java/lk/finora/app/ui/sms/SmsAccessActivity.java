@@ -109,7 +109,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        clearScan();
+        clearScan(isChangingConfigurations());
         if (entryIdentity != null) {
             store.removeSessionListener(sessionChanged);
         }
@@ -118,7 +118,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
 
     @Override protected void onDestroy() {
         scanTask.close();
-        if (preview != null) preview.close();
+        if (preview != null) preview.close(isChangingConfigurations());
         super.onDestroy();
     }
 
@@ -162,6 +162,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
         settings.setVisibility(state == SmsPermissionState.SETTINGS_AVAILABLE ? View.VISIBLE : View.GONE);
         scan.setVisibility(state == SmsPermissionState.GRANTED ? View.VISIBLE : View.GONE);
         if (state != SmsPermissionState.GRANTED) clearScan();
+        else if (preview.hasPending()) previewButton.setVisibility(View.VISIBLE);
         status.setText(switch (state) {
             case UNAVAILABLE -> R.string.sms_permission_unavailable;
             case GRANTED -> R.string.sms_access_granted;
@@ -179,6 +180,10 @@ public final class SmsAccessActivity extends AppCompatActivity {
 
     private void scanInbox() {
         if (!verifySession() || !canScan()) return;
+        if (preview.hasPending()) {
+            preview.open();
+            return;
+        }
         preview.clear();
         previewButton.setVisibility(View.GONE);
         scan.setEnabled(false);
@@ -226,8 +231,10 @@ public final class SmsAccessActivity extends AppCompatActivity {
         });
     }
 
-    private void clearScan() {
-        if (preview != null) preview.clear();
+    private void clearScan() { clearScan(false); }
+
+    private void clearScan(boolean changingConfiguration) {
+        if (preview != null) preview.stop(changingConfiguration);
         if (previewButton != null) previewButton.setVisibility(View.GONE);
         scanTask.cancel();
         if (scan != null) scan.setEnabled(true);

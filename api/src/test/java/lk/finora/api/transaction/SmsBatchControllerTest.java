@@ -85,6 +85,37 @@ class SmsBatchControllerTest extends IntegrationTest {
         assertEquals(1, count(other));
     }
 
+    @Test void rejectsForeignCategoryEvenAfterValidRowAndNeverReturnsOtherUsersManualIds() throws Exception {
+        User caller = createUser(Role.USER);
+        User other = createUser(Role.USER);
+        long account = account(caller);
+        long otherAccount = account(other);
+        jdbc.update("INSERT INTO categories(user_id, name, kind) VALUES (?, ?, 'EXPENSE')",
+                other.getId(), "Synthetic foreign category");
+        long foreignCategory = jdbc.queryForObject("SELECT id FROM categories WHERE user_id = ?",
+                Long.class, other.getId());
+        jdbc.update("INSERT INTO transactions(user_id, account_id, type, amount, txn_date, source)"
+                + " VALUES (?, ?, 'EXPENSE', 1250.75, '2026-11-21', 'MANUAL')", other.getId(), otherAccount);
+
+        var foreign = item(account, "SMS", "c".repeat(64));
+        var invalid = new LinkedHashMap<Object, Object>((Map<?, ?>) foreign.get("transaction"));
+        invalid.put("categoryId", foreignCategory);
+        foreign.put("transaction", invalid);
+        send(caller, List.of(item(account, "SMS", HASH), foreign)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Item 2: Category not found"));
+        assertEquals(0, count(caller));
+        var mistyped = item(account, "SMS", "d".repeat(64));
+        var malformed = new LinkedHashMap<Object, Object>((Map<?, ?>) mistyped.get("transaction"));
+        malformed.put("txnDate", "not-a-date");
+        mistyped.put("transaction", malformed);
+        send(caller, List.of(item(account, "SMS", HASH), mistyped)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Item 2: Invalid transaction fields"));
+        assertEquals(0, count(caller));
+        send(caller, List.of(item(account, "SMS", HASH))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].possibleManualMatch").isEmpty());
+        assertEquals(1, count(other));
+    }
+
     @Test void requiresUserRole() throws Exception {
         mockMvc.perform(post(PATH).contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isUnauthorized());

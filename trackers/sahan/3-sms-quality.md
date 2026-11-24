@@ -21,6 +21,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Android 17 isolated emulator: confirmed Paste saved one and reported a manual match. The equivalent inbox row was flagged, two distinct CEFT rows saved, and a deliberately lost response led to no auto-replay. The explicit identical retry saved zero and the original manual row remained.
 - MySQL verification passed 276 tests and the coverage gate, including concurrent duplicate handling, atomic rejection and ownership. Android passed 132 JVM tests, V1 debug and lint (one existing budget-format warning). Release manifest omits READ_SMS.
 - Three inspected batch requests contained only permitted fields. No private fixture markers appeared in 327 FINORA app log lines. Pending writes remain in memory for the active screen and login. T10/T14 gates and independent review remain.
+- Audit of cd3ab57: fixed retry loss on rotation or a new scan/paste action, and added indexed 400 responses for mistyped rows. Android 17 verified rotation retention and process-death clearing, both without automatic replay. Six focused backend and 25 focused Android tests passed, with debug build and lint successful.
 
 ---
 

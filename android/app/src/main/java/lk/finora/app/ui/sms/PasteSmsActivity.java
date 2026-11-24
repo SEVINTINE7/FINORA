@@ -43,6 +43,7 @@ public final class PasteSmsActivity extends AppCompatActivity {
         preview = new SmsTransactionPreview(this, store, loginIdentity, "PASTE");
         previewButton = findViewById(R.id.sms_paste_preview);
         previewButton.setOnClickListener(view -> { if (verifySession()) preview.open(); });
+        if (preview.hasPending()) previewButton.setVisibility(android.view.View.VISIBLE);
         paste.setOnClickListener(view -> paste());
     }
 
@@ -57,14 +58,14 @@ public final class PasteSmsActivity extends AppCompatActivity {
     }
 
     @Override protected void onStop() {
-        clear();
+        clear(isChangingConfigurations());
         if (loginIdentity != null) store.removeSessionListener(sessionChanged);
         super.onStop();
     }
 
     @Override protected void onDestroy() {
         task.close();
-        if (preview != null) preview.close();
+        if (preview != null) preview.close(isChangingConfigurations());
         super.onDestroy();
     }
 
@@ -79,6 +80,10 @@ public final class PasteSmsActivity extends AppCompatActivity {
 
     private void paste() {
         if (!verifySession()) return;
+        if (preview.hasPending()) {
+            preview.open();
+            return;
+        }
         preview.clear();
         previewButton.setVisibility(android.view.View.GONE);
         var clipboard = getSystemService(ClipboardManager.class);
@@ -136,8 +141,10 @@ public final class PasteSmsActivity extends AppCompatActivity {
 
     private record PasteResult(String label, lk.finora.app.sms.SmsParseResult.Parsed parsed) {}
 
-    private void clear() {
-        if (preview != null) preview.clear();
+    private void clear() { clear(false); }
+
+    private void clear(boolean changingConfiguration) {
+        if (preview != null) preview.stop(changingConfiguration);
         if (previewButton != null) previewButton.setVisibility(android.view.View.GONE);
         task.cancel();
         if (result != null) result.setText("");

@@ -48,7 +48,7 @@ final class SmsTransactionPreview {
     private record SaveResult(SmsBatchResult report, boolean rejected) {}
     private final String source;
     private final SmsLocalTask save = new SmsLocalTask(12);
-    private List<SmsBatchItem> pending = List.of();
+    private final SmsPendingBatch pending;
     private final SmsLocalTask lookup = new SmsLocalTask();
     private final ArrayList<SmsPreviewDraft> drafts = new ArrayList<>();
     private AlertDialog dialog;
@@ -59,6 +59,8 @@ final class SmsTransactionPreview {
         this.store = store;
         this.login = login;
         this.source = source;
+        pending = new androidx.lifecycle.ViewModelProvider(activity).get(SmsPendingBatch.class);
+        pending.bind(login);
     }
 
     void replace(List<Parsed> rows) {
@@ -73,11 +75,12 @@ final class SmsTransactionPreview {
             if (current == null || current.loginIdentity() != login) return;
             requests = ProtectedRequests.currentUser();
         }
-        if (drafts.isEmpty() || requests == null) return;
-        if (!pending.isEmpty()) {
-            confirm(requests, pending, true);
+        if (requests == null) return;
+        if (hasPending()) {
+            confirm(requests, pending.items(), true);
             return;
         }
+        if (drafts.isEmpty()) return;
         var loading = new AlertDialog.Builder(activity).setTitle(R.string.sms_transaction_preview)
                 .setMessage(R.string.records_loading).setNegativeButton(android.R.string.cancel, null).create();
         display(loading);
@@ -162,7 +165,7 @@ final class SmsTransactionPreview {
 
     private void submit(ProtectedRequests requests, List<SmsBatchItem> items) {
         if (!requests.isCurrent()) return;
-        pending = items;
+        pending.retain(items);
         display(new AlertDialog.Builder(activity).setMessage(R.string.records_loading)
                 .setCancelable(false).create());
         save.start((signal, cancelled) -> {
@@ -186,7 +189,7 @@ final class SmsTransactionPreview {
             confirm(requests, items, true);
             return;
         }
-        pending = List.of();
+        pending.clear();
         if (result.rejected()) {
             display(new AlertDialog.Builder(activity).setMessage(R.string.sms_batch_rejected)
                     .setPositiveButton(android.R.string.ok, (ignored, which) -> open()).create());
@@ -332,10 +335,14 @@ final class SmsTransactionPreview {
         next.show();
     }
 
-    void clear() {
+    boolean hasPending() { return !pending.items().isEmpty(); }
+
+    void clear() { stop(false); }
+
+    void stop(boolean changingConfiguration) {
         lookup.cancel();
         save.cancel();
-        pending = List.of();
+        if (!changingConfiguration) pending.clear();
         drafts.clear();
         if (datePicker != null) datePicker.dismiss();
         datePicker = null;
@@ -343,8 +350,8 @@ final class SmsTransactionPreview {
         dialog = null;
     }
 
-    void close() {
-        clear();
+    void close(boolean changingConfiguration) {
+        stop(changingConfiguration);
         lookup.close();
         save.close();
     }
