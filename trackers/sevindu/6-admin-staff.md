@@ -11,9 +11,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - [ ] T41.3 [AND] Admin home screen with these counts and links to T42–T45
 
 **Done when**
-- [ ] Tests: USER/STAFF tokens and forged/expired tokens → 401/403; response contains no amounts
+- [x] Tests: USER/STAFF tokens and forged/expired tokens → 401/403; response contains no amounts
 
-**Handoff notes:** D49. MySQL verified first-ADMIN bootstrap and an ADMIN-only dashboard response with five counts. Android dashboard shows counts and links to STAFF and SMS tools. T42/T44 navigation remains open.
+**Handoff notes:** D49. MySQL verified first-ADMIN bootstrap, the exact five-count response, USER/STAFF denial and rejection of invalid and expired ADMIN tokens. Android displays counts and links to STAFF and SMS tools. T42/T44 navigation and formal review remain open.
 
 ---
 
@@ -34,12 +34,12 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 **Lead:** Sevindu · **Depends on:** T41 · **Touches:** `api:admin/`, `and:ui/admin/`
 - [x] T43.1 [API] `POST /api/v1/admin/staff` create STAFF (temporary password, must change at first login)
 - [x] T43.2 [API] Disable/enable staff; role field cannot be set to ADMIN by any endpoint
-- [ ] T43.3 [AND] Staff list + create/disable
+- [x] T43.3 [AND] Staff list + create/disable
 
 **Done when**
-- [ ] Tests: staff cannot create staff/admins or change own role; disabled staff session → 403
+- [x] Tests: staff cannot create staff/admins or change own role; disabled staff session → 403
 
-**Handoff notes:** D49. MySQL verified ADMIN-only provisioning, single-use activation and credential generations across disable/re-enable. Android provisioning and first-login UI built. Independent review and device evidence remain open.
+**Handoff notes:** D49. Isolated Android 17 verified STAFF list, create, first-login activation and disable using the UI. MySQL denied STAFF provisioning and role changes, returned 403 while disabled and rejected the old credentials after re-enable. Formal T41 and independent review remain open.
 
 ---
 

@@ -53,9 +53,9 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T07.1 [API] Consent row on register (version D12, over18, accepted_at)
 - [x] T07.2 [API] `GET /api/v1/me` → `{email, fullName, language, consentVersion}`; `PUT /api/v1/me` `{fullName, language}`
 - [x] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes all refresh tokens; next login asks to re-consent or delete data (deletion = T36)
-- [ ] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
+- [x] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
 - [ ] T07.5 [AND·Sahan] Settings screen: language picker (applies at once, saved via `PUT /me`), withdraw consent, "Delete my data" entry (opens T36 flow)
-  - T07.4–T07.5 implemented 2026-11-23 (unit tests 7 new, suite 76/76, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check below.
+  - T07.4: isolated Android 17 verified both languages, visible consent copy and disabled submit with either box unchecked. T07.5 retains the T36 linkage gap and the combined physical acceptance check.
 
 **Done when**
 - [x] API tests for `/me` GET/PUT and withdraw (tokens revoked afterwards)
