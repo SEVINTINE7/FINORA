@@ -130,6 +130,20 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.
 
 
+## ADMIN account and default-category management (T42, T44)
+
+All endpoints in this section are ADMIN-only.
+
+- `GET /api/v1/admin/users?q=` searches USER email or name by literal substring. The optional query accepts up to 120 characters. Return at most 100 rows, newest ID first, with only `id,email,name,status,created_at`.
+- `PUT /api/v1/admin/users/{id}/status` accepts `{status,reason}`. Status is `ACTIVE` or `DISABLED`. Reason is one of `SECURITY`, `POLICY`, `SUPPORT`, `RESTORED`. A transition returns 204 and logs a bounded audit event. Repeating the same status returns 204 without a duplicate audit event. A STAFF, ADMIN or missing target returns 404. Disabling revokes refresh tokens and invalidates existing access tokens across re-enable.
+- `GET /api/v1/admin/categories` lists only default categories, including deactivated entries. Each row has `id,name,nameSi,kind,active`. `POST` accepts `{name,nameSi,kind}` and returns 201. `PUT /{id}` accepts `{name,nameSi}` and returns 200. Both names are required and are unique per kind among defaults. Conflicts return 409. Existing category kind and ownership are immutable.
+- `DELETE /api/v1/admin/categories/{id}` returns 204. A default with recorded uses is deactivated without deleting references. An unused default is removed. Non-default and missing targets return 404.
+
+## Account export and deletion (T35, T36)
+
+- `GET /api/v1/me/export` is USER-only and returns JSON, `Cache-Control: no-store` and attachment filename `finora-export-YYYY-MM-DD.json` using the Asia/Colombo date. The schema-1 response has `profile` and an allowlisted `data` collection of owned records. Child payment, contribution and support reply rows are joined through their owned parents. Security credentials, push tokens, deduplication hashes and internal audit data are excluded. The snapshot is read in one transaction without server-side temporary files.
+- `DELETE /api/v1/me` is USER-only and requires `{password}`. A wrong password returns 400 `INVALID_CREDENTIALS` without retrying authentication. A successful request returns 204 after deletion and token/device cascade. The deletion event has no actor ID, target ID or reason. Existing USER status audit events lose that target ID. Backup retention remains D21.
+
 ## SMS format distribution (T45.3)
 
 | Method | Path | Role | Response |

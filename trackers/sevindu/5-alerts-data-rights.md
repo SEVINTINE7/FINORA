@@ -21,25 +21,25 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T35 · Data download · `FR11`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T10, T17, T18, T19 · **Touches:** `api:export/`, `and:ui/settings/`
-- [ ] T35.1 [API] `GET /api/v1/me/export` → JSON (or ZIP of CSVs) of all the user's own data; documented in `docs/api-contract.md`
-- [ ] T35.2 [API] Stream in memory, no temp files left; safe filename `finora-export-YYYY-MM-DD`
-- [ ] T35.3 [AND·Sahan] Download button → save via Storage Access Framework
+- [x] T35.1 [API] `GET /api/v1/me/export` → JSON (or ZIP of CSVs) of all the user's own data; documented in `docs/api-contract.md`
+- [x] T35.2 [API] Stream in memory, no temp files left; safe filename `finora-export-YYYY-MM-DD`
+- [x] T35.3 [AND·Sahan] Download button → save via Storage Access Framework
 
 **Done when**
 - [ ] Tests: export contains every owned row and nothing of another user; unauthenticated → 401; no data in logs
 
-**Handoff notes:** —
+**Handoff notes:** D53. MySQL verified authenticated owner data, child-row ownership, credential exclusion and log privacy on synthetic fixtures. Android 17 saved the schema-1 JSON through the system picker. Exhaustive fixture coverage across all exported data families and formal prerequisites remain open.
 
 ---
 
 ### T36 · Data deletion · `FR11`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T35 · **Touches:** `api:user/`, `and:ui/settings/`
-- [ ] T36.1 [API] `DELETE /api/v1/me` with password confirmation → cascade delete all rows, revoke tokens, remove device tokens
-- [ ] T36.2 [API] Audit event `USER_DELETED` with no personal or financial payload
-- [ ] T36.3 Decide and record backup retention (e.g. backups expire in 30 days) in `docs/decisions.md`
-- [ ] T36.4 [AND·Sahan] Two-step confirm screen; clear local storage after success
+- [x] T36.1 [API] `DELETE /api/v1/me` with password confirmation → cascade delete all rows, revoke tokens, remove device tokens
+- [x] T36.2 [API] Audit event `USER_DELETED` with no personal or financial payload
+- [x] T36.3 Decide and record backup retention (e.g. backups expire in 30 days) in `docs/decisions.md`
+- [x] T36.4 [AND·Sahan] Two-step confirm screen; clear local storage after success
 
 **Done when**
-- [ ] Tests: after delete no rows remain for that user; old tokens → 401; same email can register again
+- [x] Tests: after delete no rows remain for that user; old tokens → 401; same email can register again
 
-**Handoff notes:** —
+**Handoff notes:** D21/D53. Password-confirmed deletion uses the D39 owner lock and FK cascade. MySQL verified retained foreign rows, old access/refresh rejection and same-email re-registration. The audit has no deleted-user identifiers. Android 17 verified confirmation and return to sign-in. Formal T35 and independent review remain open.

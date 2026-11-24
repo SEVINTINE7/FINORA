@@ -19,6 +19,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - MD05 D45/D46 added focused T46.1 access and response-shape checks. Full T52 matrix, privacy review and CI remain open.
 - D49 MySQL checks cover STAFF revocation, ticket ownership and claim contention, diagnostic roles and ADMIN format mutation. The full matrix and independent review remain open.
 - V18 adds ADMIN count schema and role tests, STAFF/USER format mutation denial and approved rollback. Android loopback capture retained only the exact-match verdict for diagnostic metadata.
+- D53 adds targeted ADMIN user-management and default-category checks, USER export/deletion isolation and old-token rejection. Complete T52's full per-endpoint matrix and review on the final revision.
 
 ---
 

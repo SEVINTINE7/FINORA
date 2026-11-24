@@ -38,16 +38,16 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T32 | Savings goal simulator | Thilina | Sahan | T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | todo |
 | T33 | Monthly insights and score history | Sevindu | Sahan | T22, T23 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
 | T34 | Budget, bill and goal alerts | Sevindu | Sahan | T17, T18, T19, T37 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | todo |
-| T35 | Data download | Sevindu | Sahan | T10, T17, T18, T19 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | todo |
-| T36 | Data deletion | Sevindu | Sahan | T35 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | todo |
+| T35 | Data download | Sevindu | Sahan | T10, T17, T18, T19 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | in-progress |
+| T36 | Data deletion | Sevindu | Sahan | T35 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | in-progress |
 | T37 | Mobile app skeleton | Sahan | — | T02 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | done |
 | T38 | Financial screens and navigation | Sahan | — | T37, T09 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
 | T39 | Sinhala and English support | Sahan | — | T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | review |
 | T40 | Android privacy and resilience | Sahan | — | T37, T08 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
 | T41 | Admin login and dashboard | Sevindu | — | T06, T08 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
-| T42 | Admin manages user accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
+| T42 | Admin manages user accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T43 | Admin manages staff accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
-| T44 | Admin default categories | Sevindu | — | T41, T09 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | todo |
+| T44 | Admin default categories | Sevindu | — | T41, T09 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T45 | Admin bank SMS formats | Sevindu | Sahan | T41, T14 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T46 | Staff login and dashboard | Sevindu | Sahan | T06, T08, T43 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T47 | Staff support requests | Sevindu | Sahan | T46 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
