@@ -336,6 +336,14 @@
     <string name="score_input_invalid">Enter a valid reserve amount and a date in the selected month, or leave both blank.</string>
     <string name="score_save_uncertain">Could not confirm the save. Reload and review the monthly declarations before saving again.</string>
     <string name="finance_help">Help</string>
+    <string name="faq_title">Frequently asked questions</string>
+    <string name="faq_login">How do I sign in?</string>
+    <string name="faq_login_body">Sign in using the email address and password for your FINORA account. If sign-in fails, check your connection and account details. Never share your password or a one-time code.</string>
+    <string name="faq_navigation">Where do I manage records and plans?</string>
+    <string name="faq_language">How do I change the app language?</string>
+    <string name="faq_language_body">Tap Language and choose English or Sinhala. Connect to the internet to save the choice to your account.</string>
+    <string name="faq_privacy">What should I keep private?</string>
+    <string name="faq_privacy_body">Keep passwords, one-time codes, bank account details and full SMS messages private. FINORA checks supported bank messages on your phone. Review any extracted transaction before saving it.</string>
     <string name="finance_help_text">Use Records to add or review transactions. Use Plan to manage budgets, bills and savings goals. SMS access is optional. You can enter transactions directly or import a CSV without allowing SMS access.</string>
     <string name="history_title">Monthly history</string>
     <string name="history_reconstructed">Reconstructed from available records after month-end.</string>

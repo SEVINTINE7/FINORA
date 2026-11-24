@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
@@ -31,6 +30,7 @@ import lk.finora.app.ui.categories.CategoryListActivity;
 import lk.finora.app.ui.dashboard.DashboardPanel;
 import lk.finora.app.ui.dashboard.DashboardViewModel;
 import lk.finora.app.ui.goals.GoalListActivity;
+import lk.finora.app.ui.help.FaqActivity;
 import lk.finora.app.ui.history.HistoryActivity;
 import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.insights.InsightsActivity;
@@ -75,12 +75,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
         addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
         historyAction = addFocusableRoute(moreActions, R.string.history_title, HistoryActivity.class);
-        Button help = new Button(this);
-        help.setText(R.string.finance_help);
-        help.setOnClickListener(view -> new AlertDialog.Builder(this)
-                .setTitle(R.string.finance_help).setMessage(R.string.finance_help_text)
-                .setPositiveButton(android.R.string.ok, null).show());
-        moreActions.addView(help, new LinearLayout.LayoutParams(-1, -2));
+        addMoreAction(moreActions, R.string.finance_help, FaqActivity.class);
         LinearLayout recordActions = new LinearLayout(this);
         recordActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
