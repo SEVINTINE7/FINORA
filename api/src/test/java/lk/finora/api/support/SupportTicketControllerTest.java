@@ -2,10 +2,14 @@ package lk.finora.api.support;
 
 import lk.finora.api.user.Role;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ExtendWith(OutputCaptureExtension.class)
 class SupportTicketControllerTest extends IntegrationTest {
     @org.springframework.beans.factory.annotation.Autowired
     private SupportTicketService ticketService;
@@ -77,14 +81,14 @@ class SupportTicketControllerTest extends IntegrationTest {
         read(STAFF, staff).andExpect(jsonPath("$[0].error_code").value("SIGN_IN_FAILED"));
     }
 
-    @Test void stripsBoundedIdentifierLinesBeforeStorageAndDisclosure() throws Exception {
+    @Test void stripsBoundedIdentifierLinesBeforeStorageAndDisclosure(CapturedOutput output) throws Exception {
         var owner = tokenFor(createUser(Role.USER));
         var assignee = tokenFor(createUser(Role.STAFF));
         var otherUser = tokenFor(createUser(Role.USER));
         var otherStaff = tokenFor(createUser(Role.STAFF));
         String canonical = "I need help signing in.";
-        for (String line : java.util.List.of("Account number: 0000-0000-0000-0000-000",
-                "Card number: 0000 0000 0000 0000")) {
+        for (String line : java.util.List.of("Account number: 0000-0000-0000-0000-987",
+                "Card number: 0000 0000 0000 0789")) {
             String result = send(TICKETS, owner, json(java.util.Map.of("subject", "Sign-in",
                     "body", canonical + "\n" + line, "error_code", "SIGN_IN_FAILED")))
                     .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
@@ -98,6 +102,11 @@ class SupportTicketControllerTest extends IntegrationTest {
             send(STAFF + "/" + id + "/claim", assignee, "").andExpect(status().isNoContent());
             read(STAFF, assignee).andExpect(jsonPath("$[0].body").value(canonical));
             read(STAFF, otherStaff).andExpect(jsonPath("$.length()").value(0));
+            String identifier = line.substring(line.indexOf(':') + 2);
+            org.junit.jupiter.api.Assertions.assertFalse(output.getAll().contains(identifier));
+            org.junit.jupiter.api.Assertions.assertEquals(0L, jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM audit_events WHERE reason LIKE ?
+                    """, Long.class, "%" + identifier + "%"));
         }
     }
 
