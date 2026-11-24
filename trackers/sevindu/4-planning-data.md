@@ -9,7 +9,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T17.1 [API] CRUD `/api/v1/budgets` per category per month (`YYYY-MM`)
 - [x] T17.2 [API] `GET /api/v1/budgets?month=` returns limit, used, remaining, state `OK|NEAR(≥80%)|OVER`
 - [ ] T17.3 [AND·Sahan] Budget list with progress bars + add/edit
-  - Implemented 2026-11-23 (unit tests 9/9, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
+  - MD04 emulator forms verified list refresh after create/edit/delete and exact usage after transaction edits. The T17-specific physical-device checklist remains open.
 
 **Done when**
 - [x] Tests: used amount counts only that month's expenses in that category; first/last day of month; over-spend state
@@ -30,7 +30,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T18.2 [API] Mark paid/unpaid per month; due_day 31 in short months = last day
 - [x] T18.3 [API] Monthly bill total exposed for budgets/planning (T31)
 - [ ] T18.4 [AND·Sahan] Bills list with paid toggle and next due date
-  - Implemented 2026-11-23 (unit tests 8 new, suite 84/84, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
+  - MD04 emulator forms verified list refresh, the paid toggle and dependent Insights and History refresh. The T18-specific physical-device checklist remains open.
 
 **Done when**
 - [x] Tests: February due dates, month rollover resets unpaid, paid twice → 409
@@ -50,7 +50,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T19.1 [API] CRUD `/api/v1/goals` (target > 0, target date in future)
 - [x] T19.2 [API] Contributions add/delete; progress = sum(contributions) / target, capped display at 100%
 - [ ] T19.3 [AND·Sahan] Goals list + detail with contributions
-  - Implemented 2026-11-23 (unit tests 8 new, suite 92/92, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check.
+  - MD04 emulator forms verified list/detail refresh, goal lifecycle and contribution changes. T19-specific device acceptance remains open.
 
 **Done when**
 - [x] Tests: progress after edit/delete of contributions, invalid targets, no double counting

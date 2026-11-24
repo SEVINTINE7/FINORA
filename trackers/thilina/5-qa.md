@@ -49,6 +49,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - 2026-11-22 audit: recovered T27-T29 branch contains mocked client/verifier/fallback tests; historical 253-test result is branch-specific and was not rerun here. Real LLM pass-rate testing remains unauthorized; T29 acceptance blocks T54 completion. Do not report mocked results as real pass rates.
+- D44 now authorizes a bounded synthetic live check for T30 once approved models, isolated credentials and a numeric call budget are available. The T54 pass-rate evaluation and its T29 prerequisite remain open.
 
 ---
 
