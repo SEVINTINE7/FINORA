@@ -5,12 +5,16 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.os.Build;
+import android.os.Process;
 import android.os.SystemClock;
+import android.os.UserManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.ScrollView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
@@ -38,7 +42,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.*;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
@@ -54,15 +57,25 @@ public class UserJourneyTest {
     private UiDevice device;
     private TokenStore sessions;
 
-    @Before public void isolatedEmulatorOnly() throws Exception {
+    @Before public void requireIsolatedTarget() throws Exception {
         var instrumentation = InstrumentationRegistry.getInstrumentation();
-        assertEquals("An explicit isolated-emulator opt-in is required", "true",
-                InstrumentationRegistry.getArguments().getString("finoraIsolatedEmulator"));
-        assertTrue("Connected test suite is restricted to emulator hardware",
-                "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE));
+        var arguments = InstrumentationRegistry.getArguments();
         app = instrumentation.getTargetContext();
         assertTrue(BuildConfig.DEBUG);
         assertEquals("http://127.0.0.1:8080/", BuildConfig.API_BASE_URL);
+        boolean emulator = "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE);
+        if ("true".equals(arguments.getString("finoraIsolatedHandset"))) {
+            assertEquals("Handset mode requires the separate acceptance package",
+                    "lk.finora.app.acceptance", app.getPackageName());
+            long serial = app.getSystemService(UserManager.class).getSerialNumberForUser(Process.myUserHandle());
+            assertTrue("Handset mode requires a known Android user serial", serial > 0);
+            assertEquals("Wrong Android test profile", Long.toString(serial),
+                    arguments.getString("finoraTestUserSerial"));
+        } else {
+            assertEquals("An explicit isolated-emulator opt-in is required", "true",
+                    arguments.getString("finoraIsolatedEmulator"));
+            assertTrue("Emulator mode requires emulator hardware", emulator);
+        }
         device = UiDevice.getInstance(instrumentation);
         assertEquals("Revoke READ_SMS on this isolated emulator before running this suite",
                 PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
@@ -433,7 +446,17 @@ public class UserJourneyTest {
             @Override public Matcher<View> getConstraints() { return isAssignableFrom(View.class); }
             @Override public String getDescription() { return "show the form control"; }
             @Override public void perform(UiController controller, View view) {
-                if (!isDisplayingAtLeast(90).matches(view)) scrollTo().perform(controller, view);
+                if (isDisplayingAtLeast(90).matches(view)) return;
+                for (var parent = view.getParent(); parent != null; parent = parent.getParent()) {
+                    if (parent instanceof ScrollView scroll) {
+                        Rect bounds = new Rect(0, 0, view.getWidth(), view.getHeight());
+                        scroll.offsetDescendantRectToMyCoords(view, bounds);
+                        scroll.scrollTo(scroll.getScrollX(), bounds.centerY() - scroll.getHeight() / 2);
+                        controller.loopMainThreadUntilIdle();
+                        break;
+                    }
+                }
+                assertTrue("The form control could not be brought into view", isDisplayed().matches(view));
             }
         };
     }
