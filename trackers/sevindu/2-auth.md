@@ -55,14 +55,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes normal access and refresh credentials; password sign-in offers restricted re-consent, export or deletion (D15/D54)
 - [x] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
 - [x] T07.5 [AND·Sahan] Settings screen: language picker (applies at once, saved via `PUT /me`), withdraw consent, "Delete my data" entry (opens T36 flow)
-  - T07.4: isolated Android 17 verified both languages, visible consent copy and disabled submit with either box unchecked. T07.5 now opens the T36 password-confirmed deletion flow, verified on Android 17. The combined physical acceptance check remains open.
+  - Android 14 HMD Crest, isolated D50 profile. Physical instrumentation verified the bilingual registration gate, withdrawal and restricted re-consent, and Settings export and password-confirmed deletion. The Settings language switch saved Sinhala without changing the profile name.
 
 **Done when**
 - [x] API tests for `/me` GET/PUT and withdraw (tokens revoked afterwards)
-- [ ] On a device: cannot register without both ticks; language change switches UI to Sinhala
+- [x] On a device: cannot register without both ticks; language change switches UI to Sinhala
 
 **Handoff notes:**
 - D54/V21 adds password-authenticated, five-minute, single-use consent grants. The restricted flow issues no normal tokens. It preserves authorized T35 export and password-confirmed T36 deletion.
 - Acceptance requires the current consent version and a fresh password sign-in afterwards. MySQL verified revoked sessions, expiry, replacement, replay, invalid version, explicit acceptance and competing requests.
-- Android 17 verified withdrawal, restricted sign-in, explicit acceptance and fresh sign-in. Combined HMD Crest acceptance and EN/SI consent-copy review remain open.
+- Android 17 and the Android 14 HMD Crest verified withdrawal, restricted sign-in, explicit acceptance and fresh sign-in. The isolated HMD API retained the revoked prior refresh credential and issued a new session after recovery. EN/SI consent-copy review remains open.
 - Original task ownership, prerequisites and independent review remain in force.
