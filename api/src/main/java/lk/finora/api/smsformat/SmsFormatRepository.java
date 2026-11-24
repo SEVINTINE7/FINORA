@@ -13,10 +13,10 @@ class SmsFormatRepository {
         this.jdbc = jdbc;
     }
 
-    List<String> activeNsbV1() {
+    List<String> activeNsb() {
         return jdbc.queryForList(
-                "SELECT pattern FROM sms_formats WHERE bank_code = ? AND version = ? AND active = TRUE",
-                String.class, "NSB", 1);
+                "SELECT pattern FROM sms_formats WHERE bank_code = 'NSB' AND active = TRUE AND published = TRUE",
+                String.class);
     }
 
     List<String> lockNsbV1() {
@@ -25,7 +25,33 @@ class SmsFormatRepository {
                 """, String.class);
     }
 
-    void setNsbV1Active(boolean active) {
-        jdbc.update("UPDATE sms_formats SET active = ? WHERE bank_code = 'NSB' AND version = 1", active);
+    void deactivate(int revision) {
+        jdbc.update("UPDATE sms_formats SET active = FALSE WHERE bank_code = 'NSB' AND version = ?", revision);
+    }
+
+    void draftNsb(int revision, String definition) {
+        jdbc.update("INSERT INTO sms_formats (bank_code, version, pattern) VALUES ('NSB', ?, ?)", revision, definition);
+    }
+
+    List<String> revision(int revision, boolean published) {
+        return jdbc.queryForList("""
+                SELECT pattern FROM sms_formats WHERE bank_code = 'NSB' AND version = ? AND published = ?
+                """, String.class, revision, published);
+    }
+
+    void publish(int revision) {
+        jdbc.update("UPDATE sms_formats SET published = TRUE WHERE bank_code = 'NSB' AND version = ?", revision);
+    }
+
+    void activate(int revision) {
+        jdbc.update("UPDATE sms_formats SET active = FALSE WHERE bank_code = 'NSB' AND active = TRUE");
+        jdbc.update("UPDATE sms_formats SET active = TRUE WHERE bank_code = 'NSB' AND version = ?", revision);
+    }
+
+    List<SmsFormatService.Revision> revisions() {
+        return jdbc.query("""
+                SELECT version, published, active FROM sms_formats WHERE bank_code = 'NSB' ORDER BY version DESC LIMIT 100
+                """, (row, n) -> new SmsFormatService.Revision(row.getInt("version"),
+                        row.getBoolean("published"), row.getBoolean("active")));
     }
 }

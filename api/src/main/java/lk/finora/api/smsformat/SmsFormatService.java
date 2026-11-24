@@ -30,7 +30,7 @@ class SmsFormatService {
     }
 
     SmsFormatsResponse activeFormats() {
-        var rows = repository.activeNsbV1();
+        var rows = repository.activeNsb();
         if (rows.isEmpty()) return new SmsFormatsResponse(1, List.of());
         String pattern = rows.get(0);
         if (!APPROVED_NSB_V1_SHA256.equals(sha256(pattern))) {
@@ -48,8 +48,56 @@ class SmsFormatService {
         if (active && !APPROVED_NSB_V1_SHA256.equals(sha256(rows.get(0)))) {
             throw new ApiException("CONFLICT", HttpStatus.CONFLICT, "SMS format is not approved");
         }
-        repository.setNsbV1Active(active);
+        if (active) repository.activate(1);
+        else repository.deactivate(1);
     }
+
+    List<Revision> revisions() { return repository.revisions(); }
+
+    @Transactional
+    public void draft(int revision) {
+        if (revision < 2) throw ApiException.badRequest("Deployment revision must be greater than one");
+        String definition = approved(repository.lockNsbV1());
+        try {
+            repository.draftNsb(revision, definition);
+        } catch (org.springframework.dao.DuplicateKeyException duplicate) {
+            throw new ApiException("CONFLICT", HttpStatus.CONFLICT, "Deployment revision already exists");
+        }
+    }
+
+    @Transactional
+    public void publish(int revision) {
+        approved(repository.lockNsbV1());
+        approved(repository.revision(revision, false));
+        repository.publish(revision);
+    }
+
+    @Transactional
+    public void activate(int revision) {
+        approved(repository.lockNsbV1());
+        approved(repository.revision(revision, true));
+        repository.activate(revision);
+    }
+
+    @Transactional
+    public void deactivate(int revision) {
+        repository.lockNsbV1();
+        if (repository.revision(revision, true).isEmpty()) {
+            throw ApiException.notFound("SMS format revision unavailable");
+        }
+        repository.deactivate(revision);
+    }
+
+    private static String approved(List<String> definitions) {
+        if (definitions.isEmpty()) throw ApiException.notFound("SMS format revision unavailable");
+        String definition = definitions.get(0);
+        if (!APPROVED_NSB_V1_SHA256.equals(sha256(definition))) {
+            throw new ApiException("CONFLICT", HttpStatus.CONFLICT, "SMS format is not approved");
+        }
+        return definition;
+    }
+
+    record Revision(int version, boolean published, boolean active) {}
 
     private static String sha256(String value) {
         try {

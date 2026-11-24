@@ -16,12 +16,13 @@ final class SupportTicketController {
     @PostMapping("/api/v1/support/tickets")
     @ResponseStatus(HttpStatus.CREATED)
     TicketId create(@RequestBody JsonNode payload) {
-        if (!payload.isObject() || payload.size() != 2 || !payload.path("subject").isString()
-                || !payload.path("body").isString()) {
+        var code = payload.get("error_code");
+        if (!payload.isObject() || payload.size() != (code == null ? 2 : 3) || !payload.path("subject").isString()
+                || !payload.path("body").isString() || (code != null && !code.isNull() && !code.isString())) {
             throw ApiException.badRequest("Choose a supported help topic");
         }
         return new TicketId(tickets.create(CurrentUser.id(), payload.path("subject").asString(),
-                payload.path("body").asString()));
+                payload.path("body").asString(), code == null || code.isNull() ? null : code.asString()));
     }
 
     @GetMapping("/api/v1/support/tickets")

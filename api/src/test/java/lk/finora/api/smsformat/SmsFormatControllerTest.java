@@ -23,7 +23,7 @@ class SmsFormatControllerTest extends IntegrationTest {
     }
 
     @Test void userGetsOnlyApprovedActiveSnapshot() throws Exception {
-        jdbc.update("INSERT INTO sms_formats(bank_code, version, pattern, active) VALUES (?, ?, ?, TRUE)",
+        jdbc.update("INSERT INTO sms_formats(bank_code, version, pattern, active, published) VALUES (?, ?, ?, TRUE, TRUE)",
                 "UNAPPROVED", 1, "{}");
         fetch(Role.USER).andExpect(status().isOk())
                 .andExpect(header().string("Cache-Control", "no-store"))

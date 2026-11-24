@@ -74,3 +74,4 @@ T46.1 reads aggregate counts from V5 `support_tickets` without a schema change. 
 - V15 adds immutable bilingual saved-reply revisions. The existing ticket and reply tables continue to store claims and rendered replies. Active revision uniqueness is enforced by a generated key.
 - V16 adds STAFF activation hashes and expiry, plus credential generations on users and refresh tokens. Generation zero preserves existing sessions until an operator changes that STAFF account's state.
 - V17 adds a singleton lock row for first-ADMIN bootstrap across concurrent backend instances.
+- V18 distinguishes draft and published SMS deployment revisions. A generated unique key restricts active versions to one per bank, and a check rejects active drafts. The V9 NSB definition remains published and its payload remains hash-pinned.

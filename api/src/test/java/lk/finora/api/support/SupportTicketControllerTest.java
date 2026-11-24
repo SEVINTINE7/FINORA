@@ -52,6 +52,22 @@ class SupportTicketControllerTest extends IntegrationTest {
         read(CATALOG, user).andExpect(status().isForbidden());
     }
 
+    @Test void optionalErrorCodeIsAllowlistedAndVisibleOnlyAfterClaim() throws Exception {
+        var user = tokenFor(createUser(Role.USER));
+        var staff = tokenFor(createUser(Role.STAFF));
+        String payload = """
+                {"subject":"Sign-in","body":"I need help signing in.","error_code":"SIGN_IN_FAILED"}
+                """;
+        send(TICKETS, user, payload.replace("SIGN_IN_FAILED", "UNKNOWN")).andExpect(status().isBadRequest());
+        var created = send(TICKETS, user, payload).andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long id = jsonMapper.readTree(created).get("id").asLong();
+        read(TICKETS, user).andExpect(jsonPath("$[0].error_code").value("SIGN_IN_FAILED"));
+        read(STAFF, staff).andExpect(jsonPath("$[0].error_code").isEmpty());
+        send(STAFF + "/" + id + "/claim", staff, "").andExpect(status().isNoContent());
+        read(STAFF, staff).andExpect(jsonPath("$[0].error_code").value("SIGN_IN_FAILED"));
+    }
+
     @Test
     @org.springframework.transaction.annotation.Transactional(
             propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)

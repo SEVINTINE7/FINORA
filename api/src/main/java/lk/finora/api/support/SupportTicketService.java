@@ -16,28 +16,43 @@ class SupportTicketService {
     SupportTicketService(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
     long create(long user, String subject, String body) {
+        return create(user, subject, body, null);
+    }
+
+    long create(long user, String subject, String body, String errorCode) {
         SupportCopy option = SupportCopy.ticket(subject, body);
+        String expected = switch (option) {
+            case SIGN_IN -> "SIGN_IN_FAILED";
+            case NAVIGATION -> "NAVIGATION_HELP";
+            case SMS_PERMISSION -> "SMS_PERMISSION_DENIED";
+            case LANGUAGE -> "LANGUAGE_UPDATE_FAILED";
+        };
+        if (errorCode != null && !expected.equals(errorCode)) {
+            throw ApiException.badRequest("Unsupported help error code");
+        }
         var key = new GeneratedKeyHolder();
         jdbc.update(connection -> {
             var insert = connection.prepareStatement(
-                    "INSERT INTO support_tickets (user_id, subject, body) VALUES (?, ?, ?)",
+                    "INSERT INTO support_tickets (user_id, subject, body, error_code) VALUES (?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
             insert.setLong(1, user);
             insert.setString(2, option.subject);
             insert.setString(3, option.userBody);
+            insert.setString(4, errorCode);
             return insert;
         }, key);
         return java.util.Objects.requireNonNull(key.getKey()).longValue();
     }
 
     List<Ticket> own(long user) {
-        return read("SELECT id, subject, body, status FROM support_tickets WHERE user_id = ? ORDER BY id DESC LIMIT 100", user);
+        return read("SELECT id, subject, body, status, error_code FROM support_tickets WHERE user_id = ? ORDER BY id DESC LIMIT 100", user);
     }
 
     List<Ticket> staff(long staff) {
         return read("""
                 SELECT id, IF(staff_id IS NULL, NULL, subject) AS subject,
-                       IF(staff_id IS NULL, NULL, body) AS body, status
+                       IF(staff_id IS NULL, NULL, body) AS body,
+                       IF(staff_id IS NULL, NULL, error_code) AS error_code, status
                 FROM support_tickets
                 WHERE (staff_id IS NULL AND status = 'OPEN') OR staff_id = ?
                 ORDER BY id DESC LIMIT 100
@@ -46,7 +61,7 @@ class SupportTicketService {
 
     private List<Ticket> read(String sql, Object... args) {
         return jdbc.query(sql, (row, index) -> new Ticket(row.getLong("id"), row.getString("subject"),
-                row.getString("body"), row.getString("status")), args);
+                row.getString("body"), row.getString("status"), row.getString("error_code")), args);
     }
 
     void claim(long staff, long ticket) {
@@ -82,7 +97,7 @@ class SupportTicketService {
     }
 
     List<Reply> replies(long owner, long ticket) {
-        if (read("SELECT id, subject, body, status FROM support_tickets WHERE id = ? AND user_id = ?",
+        if (read("SELECT id, subject, body, status, error_code FROM support_tickets WHERE id = ? AND user_id = ?",
                 ticket, owner).isEmpty()) throw missing();
         return jdbc.query("""
                 SELECT r.body FROM ticket_replies r JOIN support_tickets t ON t.id = r.ticket_id
@@ -121,7 +136,8 @@ class SupportTicketService {
                 revision) != 1) throw missing();
     }
 
-    record Ticket(long id, String subject, String body, String status) {}
+    record Ticket(long id, String subject, String body, String status,
+            @com.fasterxml.jackson.annotation.JsonProperty("error_code") String errorCode) {}
     record Reply(String body) {}
     record Revision(long id, String topic, String state, String english, String sinhala) {}
 }
