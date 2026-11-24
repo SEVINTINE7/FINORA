@@ -69,7 +69,7 @@ public final class FormatSampleActivity extends SecureActivity {
             save = new Button(this);
             save.setText(R.string.records_save);
             save.setOnClickListener(view -> saveDraft());
-            page.addView(save);
+            page.addView(save, 1);
             work = new Work(admin, () -> {
                 definition.setText("");
                 sample.setText("");

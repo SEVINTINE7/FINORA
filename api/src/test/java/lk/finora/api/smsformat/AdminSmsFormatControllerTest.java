@@ -86,6 +86,11 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
         edit(admin, "{}").andExpect(status().isBadRequest());
         edit(admin, original).andExpect(status().isNoContent());
         command(admin, "/2/publish").andExpect(status().isConflict());
+        var changedBoundary = original.replace(". ATM POS Transaction.", ". Synthetic POS boundary.");
+        edit(admin, changedBoundary).andExpect(status().isNoContent());
+        command(admin, "/2/validate").andExpect(status().isOk())
+                .andExpect(jsonPath("$.samples", org.hamcrest.Matchers.contains(false, true, true)));
+        command(admin, "/2/publish").andExpect(status().isConflict());
         edit(admin, original + " ").andExpect(status().isNoContent());
         command(admin, "/2/validate").andExpect(status().isOk())
                 .andExpect(jsonPath("$.samples", org.hamcrest.Matchers.contains(true, true, true)));

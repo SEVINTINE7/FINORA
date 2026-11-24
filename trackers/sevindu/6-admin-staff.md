@@ -58,22 +58,20 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 
 ### T45 · Admin bank SMS formats · `ADMIN-05 / FR12`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T41, T14 · **Touches:** `api:smsformat/`, `and:ui/admin/`
-- [ ] T45.1 [API] CRUD versioned formats per bank (pattern + field mapping); only one active version per bank
-- [ ] T45.2 [API] Validate a format against redacted sample text before activating
+- [x] T45.1 [API] CRUD versioned formats per bank (pattern + field mapping); only one active version per bank
+- [x] T45.2 [API] Validate a format against redacted sample text before activating
 - [x] T45.3 [API] `GET /api/v1/sms-formats` (USER) → active formats for the app's local parser (T14)
 - [x] T45.4 [API] Roll back = activate an older version
-- [ ] T45.5 [AND] Format list, edit, test-sample, activate/rollback
+- [x] T45.5 [AND] Format list, edit, test-sample, activate/rollback
 
 **Done when**
 - [x] Tests: invalid pattern rejected; rollback restores previous; T16 regression set still passes after a change
 
 **Handoff notes:**
-- D36 authorizes T45.3 ahead of T14 closure. V9 seeds only the D35 NSB bundle. USER-only GET returns a schema-v1 snapshot with no-store, an authoritative empty bundle when inactive, and a standard 503 for a corrupt approved row. MySQL-backed controller tests verified approval, authentication, roles, empty and invalid states. T45's other subtasks and parent gates remain open.
-- D49 adds ADMIN activation and disablement of the pinned NSB V1 bundle. MySQL verified STAFF and USER mutation denial and preservation of the USER empty/active response. General draft validation and rollback require approved version fixtures.
-- V18 adds draft, publish, activation and rollback of approved NSB deployment revisions. MySQL verified the switch back to revision 1, rejected a modified definition and preserved D36's payload. New bank rule authoring and sample editing remain open.
-- D52 adds ADMIN-only discard for unpublished inactive drafts. MySQL verifies immutable published revisions, exact D36 payload on activation and rollback, and invalid-definition rejection. Android reran the T16 NSB regressions and validated the exact V9 definition against all three approved synthetic examples. T45.1, T45.2 and T45.5 remain open for editable approved content and per-sample validation.
-- Android ADMIN now exposes discard on unpublished drafts with a confirmation. Isolated Android 17 verified draft creation, removal and retention of active revision 1.
-- D53 adds a secure local candidate editor and synthetic sample probe using the same parser as USER import. Android 17 exercised the screen, and JVM tests ran all three approved D35 samples. Edits remain local and now clear the sample result when either input changes. Targeted MySQL tests verified that changing a published revision’s bytes prevents activation and leaves the previous D36 snapshot active. D54 adds persistent draft edits and mandatory per-sample validation bound to the stored definition and fixture revision. MySQL verifies stale evidence, independent production approval, rollback and the D36 snapshot. The end-to-end ADMIN emulator path and final acceptance remain open.
+- D35/D36: NSB is the approved bank. USER receives the unchanged schema-1 snapshot or an authoritative empty response when disabled. New production definitions require separate approval.
+- D54/V20 adds ADMIN-only persisted drafts and server-side validation of all three synthetic fixtures using the Android parser. Editing clears evidence. Publication and activation require the approved definition plus matching candidate and fixture digests. Published definitions are immutable.
+- MySQL verified authorization, invalid definitions, stale and modified revisions, simultaneous activation, rollback and unchanged USER results. Android 17 verified ADMIN draft edit/save, fixture validation, publish, activation and rollback. D35 parser regressions remain green.
+- Formal T41/T14 prerequisites and independent review remain open.
 
 ---
 

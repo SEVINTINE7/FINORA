@@ -126,9 +126,21 @@ The following 29 pairs are pinned to Android resources at `221758e44806baf9b1667
 
 ## D54 ADMIN validation labels
 
-These two new pairs also await native-speaker approval. Earlier entries remain unchanged.
+These two pairs are pinned to Android resources at `9da27f3` and await native-speaker approval. Earlier entries remain unchanged.
 
 | Resource | English | Sinhala |
 | --- | --- | --- |
 | `sms_format_validate_approved` | Validate approved samples | අනුමත නියැදි පරීක්ෂා කරන්න |
 | `sms_format_fixture_result` | Sample %1$d · %2$s | නියැදිය %1$d · %2$s |
+
+## D54 restricted consent labels
+
+These five pairs are pinned to Android resources at `6804384` and await native-speaker approval alongside the two ADMIN validation pairs above.
+
+| Resource | English | Sinhala |
+| --- | --- | --- |
+| `consent_recover_title` | Review your consent | ඔබේ කැමැත්ත යළි පරීක්ෂා කරන්න |
+| `consent_continue` | Agree and return to sign-in | එකඟ වී පිවිසීමේ තිරයට ආපසු යන්න |
+| `consent_restored` | Consent restored. Sign in again. | කැමැත්ත යළි ලබා දී ඇත. නැවත පිවිසෙන්න. |
+| `consent_deleted` | Your account was deleted. | ඔබේ ගිණුම මකා දමා ඇත. |
+| `consent_retry` | Could not confirm the result. Sign in again before trying again. | ප්‍රතිඵලය තහවුරු කළ නොහැක. නැවත උත්සාහ කිරීමට පෙර යළි පිවිසෙන්න. |

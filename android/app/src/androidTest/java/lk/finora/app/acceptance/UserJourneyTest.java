@@ -405,6 +405,88 @@ public class UserJourneyTest {
         }
     }
 
+    @Test public void withdrawnUserMustExplicitlyRestoreConsentBeforeFreshSignIn() {
+        org.junit.Assume.assumeTrue("Requires an isolated consent fixture",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraConsentFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.more_tab);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            clickText(R.string.settings_withdraw);
+            onView(withText(R.string.settings_withdraw_action)).inRoot(isDialog()).perform(activateControl());
+            awaitActivity(LoginActivity.class);
+            enter(R.id.email, "t51-" + identity + "@example.test");
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitText(app.getString(R.string.consent_recover_title));
+            onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal())
+                    .check(matches(not(isEnabled())));
+            onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(activateControl());
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("SI"));
+            var configuration = new android.content.res.Configuration(app.getResources().getConfiguration());
+            configuration.setLocale(java.util.Locale.forLanguageTag("si"));
+            var sinhala = app.createConfigurationContext(configuration);
+            awaitText(sinhala.getString(R.string.sign_in));
+            enter(R.id.email, "t51-" + identity + "@example.test");
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitText(sinhala.getString(R.string.consent_recover_title));
+            onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal())
+                    .check(matches(not(isEnabled())));
+            onView(withText(R.string.register_consent)).inRoot(isDialog()).perform(reveal(), activateControl());
+            onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal(), activateControl());
+            awaitText(sinhala.getString(R.string.consent_restored));
+            awaitActivity(LoginActivity.class);
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitActivity(lk.finora.app.ui.main.MainActivity.class);
+        }
+    }
+
+    @Test public void adminEditsValidatesPublishesActivatesAndRollsBackNsbDraft() {
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.sms_diagnostic_admin);
+            awaitButton(R.string.sms_format_draft);
+            clickText(R.string.sms_format_draft);
+            typeFixture(onView(withHint(R.string.sms_format_revision_number)).inRoot(isDialog()), "991");
+            confirm();
+            String draft = app.getString(R.string.sms_format_revision, 991, app.getString(R.string.support_draft_state));
+            awaitText(draft);
+            formatRevisionAction(R.string.records_edit, draft);
+            awaitActivity(lk.finora.app.ui.support.FormatSampleActivity.class);
+            assertTrue("Draft could not be loaded", device.wait(
+                    Until.hasObject(By.text(java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(
+                            app.getString(R.string.records_save)), java.util.regex.Pattern.CASE_INSENSITIVE))
+                            .enabled(true)), UI_TIMEOUT_MS));
+            clickText(R.string.records_save);
+            awaitText(draft);
+            formatRevisionAction(R.string.sms_format_validate_approved, draft);
+            confirm();
+            awaitText(app.getString(R.string.sms_format_fixture_result, 3, app.getString(R.string.sms_format_sample_matched)));
+            formatRevisionAction(R.string.sms_format_publish, draft);
+            confirm();
+            String published = app.getString(R.string.sms_format_revision, 991, app.getString(R.string.sms_format_published));
+            awaitText(published);
+            formatRevisionAction(R.string.sms_format_activate, published);
+            confirm();
+            String active = app.getString(R.string.sms_format_revision, 991, app.getString(R.string.support_active));
+            awaitText(active);
+            String prior = app.getString(R.string.sms_format_revision, 1, app.getString(R.string.sms_format_published));
+            formatRevisionAction(R.string.sms_format_activate, prior);
+            confirm();
+            awaitText(app.getString(R.string.sms_format_revision, 1, app.getString(R.string.support_active)));
+        }
+    }
+
+    private void formatRevisionAction(int label, String revision) {
+        onView(withContentDescription(app.getString(label) + ". " + revision)).perform(reveal(), activateControl());
+    }
+
     @Test public void registrationRequiresBothConsentCheckboxesInEachLanguage() {
         try (var screen = ActivityScenario.launch(RegisterActivity.class)) {
             checkConsentGate();
