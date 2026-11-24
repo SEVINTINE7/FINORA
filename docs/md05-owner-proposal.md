@@ -1,6 +1,6 @@
 # MD05 owner decisions and handset checklist
 
-**Proposed for approval.** D45 authorizes scoped implementation and early starts. D46 authorizes test preparation. The choices below still require the named owners' approval. Formal dependencies and independent review remain in force.
+**Proposed for approval.** D45 authorizes scoped implementation and early starts. D46 authorizes test preparation. D47 records Sahan's Android approval. D48 records Sahan's conditional device approval. The outstanding backend choices and Thilina's confirmation still require approval. Formal dependencies and independent review remain in force.
 
 | Decision and tracker | Recommended implementation and security rationale | Approval |
 | --- | --- | --- |
@@ -17,9 +17,9 @@
 
 | Topic | English | Sinhala |
 | --- | --- | --- |
-| Sign-in | Check your connection and try signing in again. | ඔබේ අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කර නැවත පුරනය වීමට උත්සාහ කරන්න. |
+| Sign-in | Check your connection and try signing in again. | ඔබේ අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කර නැවත පිවිසීමට උත්සාහ කරන්න. |
 | Navigation | Open Records to review transactions, or Plan to manage budgets and savings goals. | ගනුදෙනු පරීක්ෂා කිරීමට වාර්තා විවෘත කරන්න. අයවැය සහ ඉතිරිකිරීමේ ඉලක්ක කළමනාකරණය කිරීමට සැලසුම විවෘත කරන්න. |
-| SMS permission | SMS access is optional. You can enter a transaction manually or import a CSV file without it. | SMS ප්‍රවේශය අත්‍යවශ්‍ය නොවේ. එය නොදී ගනුදෙනුවක් අතින් ඇතුළත් කිරීමට හෝ CSV ගොනුවක් ආයාත කිරීමට හැකිය. |
+| SMS permission | SMS access is optional. You can enter a transaction manually or import a CSV file without it. | SMS ප්‍රවේශය අත්‍යවශ්‍ය නොවේ. SMS ප්‍රවේශයට අවසර නොදී ගනුදෙනුවක් අතින් ඇතුළත් කිරීමට හෝ CSV ගොනුවක් ආයාත කිරීමට හැකිය. |
 | Language | Open Language and choose English or Sinhala. Connect to the internet to save the choice to your account. | භාෂාව විවෘත කර ඉංග්‍රීසි හෝ සිංහල තෝරන්න. තේරීම ඔබේ ගිණුමට සුරැකීමට අන්තර්ජාලයට සම්බන්ධ වන්න. |
 
 ## One consolidated HMD Crest session
