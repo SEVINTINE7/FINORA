@@ -1,6 +1,8 @@
 package lk.finora.app.acceptance;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -144,6 +146,8 @@ public class UserJourneyTest {
             await(By.descContains(MERCHANT));
             onView(allOf(withContentDescription(startsWith(edit)),
                     withContentDescription(containsString(MERCHANT)))).perform(activateControl());
+            awaitActivity(lk.finora.app.ui.transactions.TransactionFormActivity.class);
+            awaitId("form_amount");
             enter(R.id.form_amount, "15.17");
             clickId(R.id.form_save);
             await(By.textContains("15.17"));
@@ -170,10 +174,9 @@ public class UserJourneyTest {
             clickText(R.string.sms_access_title);
             clickText(R.string.sms_paste);
             awaitId("sms_paste_action");
-            var clipboard = app.getSystemService(android.content.ClipboardManager.class);
             var instrumentation = InstrumentationRegistry.getInstrumentation();
-            instrumentation.runOnMainSync(() -> clipboard.setPrimaryClip(
-                    android.content.ClipData.newPlainText("Test message", "Synthetic diagnostic fixture")));
+            instrumentation.runOnMainSync(() -> app.getSystemService(ClipboardManager.class)
+                    .setPrimaryClip(ClipData.newPlainText("Test message", "Synthetic diagnostic fixture")));
             try {
                 onView(withId(R.id.sms_paste_action)).perform(reveal(), activateControl());
                 awaitText(app.getString(R.string.sms_report_problem));
@@ -187,8 +190,9 @@ public class UserJourneyTest {
                 awaitText(app.getString(R.string.sms_report_sent));
             } finally {
                 instrumentation.runOnMainSync(() -> {
+                    var clipboard = app.getSystemService(ClipboardManager.class);
                     if (Build.VERSION.SDK_INT >= 28) clipboard.clearPrimaryClip();
-                    else clipboard.setPrimaryClip(android.content.ClipData.newPlainText("", ""));
+                    else clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
                 });
             }
             pressBack();
