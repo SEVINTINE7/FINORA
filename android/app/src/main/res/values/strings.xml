@@ -337,4 +337,26 @@
     <string name="score_save_uncertain">Could not confirm the save. Reload and review the monthly declarations before saving again.</string>
     <string name="finance_help">Help</string>
     <string name="finance_help_text">Use Records to add or review transactions. Use Plan to manage budgets, bills and savings goals. SMS access is optional. You can enter transactions directly or import a CSV without allowing SMS access.</string>
+    <string name="history_title">Monthly history</string>
+    <string name="history_range">Show %1$s months</string>
+    <string name="history_empty">No saved snapshots in this period.</string>
+    <string name="history_refresh_pending">This month is being recalculated. Check again shortly.</string>
+    <string name="history_chart">Financial health score trend</string>
+    <string name="advice_title">Monthly advice</string>
+    <string name="advice_empty">No advice is available for this month.</string>
+    <string name="advice_verified">Verified advice</string>
+    <string name="advice_rules">Rule-based guidance</string>
+    <string name="advice_figure">%1$s %2$s · %3$s</string>
+    <string name="advice_rated">Your rating: %1$s out of 5</string>
+    <string name="advice_rating_prompt">Rate this advice</string>
+    <string name="advice_rating_option">%1$s out of 5</string>
+    <string name="advice_send_rating">Submit rating</string>
+    <string name="advice_check_rating">Check saved rating</string>
+    <string name="advice_rating_uncertain">Could not confirm your rating. Check the saved rating before submitting again.</string>
+    <string name="advice_action_deficit">Recorded spending exceeds recorded income by LKR %1$s. Review the shortfall while protecting essential costs.</string>
+    <string name="advice_action_wants">Recorded wants are LKR %1$s. The rounded policy reference is LKR %2$s. Review optional spending.</string>
+    <string name="advice_action_loan">Loan bills totaling LKR %1$s are not marked paid. Review their recorded status. Markers do not verify payment.</string>
+    <string name="advice_action_reserve">Declared emergency reserves are LKR %1$s. The next reserve milestone is LKR %2$s. Build gradually after essentials and due payments.</string>
+    <string name="advice_action_goal">Recorded goal allocations remain LKR %1$s below current targets. Review affordability before allocating more.</string>
+    <string name="advice_action_savings">Recorded headroom supports up to LKR %1$s toward the initial savings target. Confirm all essential costs and obligations first.</string>
 </resources>

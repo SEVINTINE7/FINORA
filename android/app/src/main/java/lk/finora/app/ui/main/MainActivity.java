@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import lk.finora.app.R;
 import lk.finora.app.ui.accounts.AccountListActivity;
+import lk.finora.app.ui.advice.AdviceActivity;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
 import lk.finora.app.ui.bills.BillListActivity;
 import lk.finora.app.ui.budgets.BudgetListActivity;
@@ -24,6 +25,7 @@ import lk.finora.app.ui.categories.CategoryListActivity;
 import lk.finora.app.ui.dashboard.DashboardPanel;
 import lk.finora.app.ui.dashboard.DashboardViewModel;
 import lk.finora.app.ui.goals.GoalListActivity;
+import lk.finora.app.ui.history.HistoryActivity;
 import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.insights.InsightsActivity;
 import lk.finora.app.ui.settings.SettingsActivity;
@@ -49,6 +51,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
         addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
+        addMoreAction(moreActions, R.string.history_title, HistoryActivity.class);
         Button help = new Button(this);
         help.setText(R.string.finance_help);
         help.setOnClickListener(view -> new AlertDialog.Builder(this)
@@ -69,6 +72,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         LinearLayout insightActions = new LinearLayout(this);
         insightActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(insightActions, R.string.insight_open, InsightsActivity.class);
+        addMoreAction(insightActions, R.string.advice_title, AdviceActivity.class);
 
         dashboard = new ViewModelProvider(this).get(DashboardViewModel.class);
         ScrollView home = new DashboardPanel(this, dashboard).view();
