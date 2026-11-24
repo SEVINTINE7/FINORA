@@ -13,7 +13,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** D45/D50. HMD Crest isolated debug verification blocked dashboard capture and recovered through explicit retry after an offline cold restart. The app-process Logcat sample had no JWT-like or synthetic diagnostic-body matches. Android 17 lifecycle and packaged release evidence remain valid. Authenticated release runtime and complete handset privacy evidence remain open.
+**Handoff notes:** D45/D50/D51. Local MySQL/API verified expiry, token rotation, replacement-user data isolation and diagnostic field rejection. HMD debug builds blocked dashboard and support capture and recovered after offline cold launch. Authenticated release HTTPS verification awaits T56. Spoken labels, visual clipping, exact Back focus and physical Recents evidence remain open.
 
 ---
 
