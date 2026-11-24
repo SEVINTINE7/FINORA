@@ -57,17 +57,17 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `res:values*/strings.xml`, `and:util/LocaleHelper.java`
 - [x] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
 - [ ] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
-- [ ] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
+- [x] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
 - [ ] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
 
 **Done when**
-- [ ] Every screen checked in both languages on a device; TalkBack reads main buttons
+- [x] Every screen checked in both languages on a device; TalkBack reads main buttons
 
 **Handoff notes:**
 - Sahan approved 28 exact registration, Settings and shared Records pairs on 2026-11-25. The [pinned inventory](../../docs/t39-pending-translation-review.md) separates 61 pending planning pairs. T39.4 remains open.
 - All 32 original EN/SI resource pairs are unchanged, all 37 current pairs match, and the Java/layout review found no user-facing literals. USER locale changes require profile confirmation. Guest, ADMIN and STAFF choices remain local.
 - Both V1 APKs built after the stable login identity correction, 39 unit tests passed, and lint reported no issues.
-- HMD Crest 5G (Android 14) verified both languages on Login and the USER, ADMIN and STAFF homes. Sinhala samples, including all five USER tabs, showed no clipping at the tested settings.
+- The HMD Sinhala rendering samples and the isolated Android 17 bilingual text-fit matrix across 31 activities support T39.3. The [audit evidence](../../docs/sahan-final-audit.md) records the measured text fit and the separate Sahan-confirmed ADMIN TalkBack pass on the emulator.
 - Sahan confirmed the spoken TalkBack labels for Sign in, Show password and Language, and approved all 37 Sinhala resource pairs as native-speaker reviewer on 2026-11-22.
 - Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart.
 - Sahan reported a technical GO from independent source re-review of `92f2dd3`, including the stable login identity correction. Independent human final approval remains pending. The separate MD04 [64-pair](../../docs/md04-sinhala-native-speaker-approval.md) and [23-pair](../../docs/md04-history-advice-native-speaker-approval.md) approvals are recorded at their reviewed revisions.

@@ -11,10 +11,12 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserManager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
@@ -129,19 +131,322 @@ public class UserJourneyTest {
         org.junit.Assume.assumeTrue("Explicit isolated layout probe only",
                 ("true".equals(arguments.getString("finoraIsolatedHandset")) || "true".equals(arguments.getString("finoraIsolatedEmulator")))
                         && "true".equals(arguments.getString("finoraCheckFaqLayout")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale", "1.3"));
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
-            checkFaqLayout();
+            checkFaqLayout(scale);
             clickText(R.string.language_selector);
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
             awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
-            checkFaqLayout();
+            checkFaqLayout(scale);
         }
     }
 
-    private void checkFaqLayout() {
+    @Test public void bilingualUserRoutesFitText() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated emulator walkthrough only",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraCheckUserTextFit")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
+        var problems = new java.util.ArrayList<String>();
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
+            checkScreenText(LoginActivity.class, "en", scale, problems);
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            checkUserRoutes("en", scale, problems);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+            sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            checkUserRoutes("si", scale, problems);
+            signOut();
+            checkScreenText(LoginActivity.class, "si", scale, problems);
+        }
+        assertTrue(String.join("\n", problems), problems.isEmpty());
+    }
+
+    @Test public void bilingualRoleRoutesFitText() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated emulator role fixtures only",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraCheckRoleTextFit")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
+        var problems = new java.util.ArrayList<String>();
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            checkRoleRoutes(true, "en", scale, problems);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            checkRoleRoutes(true, "si", scale, problems);
+            signOut();
+            signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
+            checkRoleRoutes(false, "si", scale, problems);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_english));
+            checkRoleRoutes(false, "en", scale, problems);
+        }
+        assertTrue(String.join("\n", problems), problems.isEmpty());
+    }
+
+    @Test public void bilingualRegistrationTextFits() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated emulator registration text check only",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraCheckRegistrationTextFit")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
+        var problems = new java.util.ArrayList<String>();
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            for (String language : new String[]{"en", "si"}) {
+                chooseTestLanguage(language);
+                awaitActivity(LoginActivity.class);
+                clickId(R.id.create_account);
+                checkScreenText(RegisterActivity.class, language, scale, problems);
+                pressBack();
+                awaitActivity(LoginActivity.class);
+            }
+        }
+        assertTrue(String.join("\n", problems), problems.isEmpty());
+    }
+
+    @Test public void stageAdminTalkBackFocus() {
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated emulator listener session only",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraAdminListener")));
+        var automation = instrumentation.getUiAutomation(
+                android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+        var manager = app.getSystemService(android.view.accessibility.AccessibilityManager.class);
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        while (!manager.isTouchExplorationEnabled() && SystemClock.elapsedRealtime() < deadline) {
+            SystemClock.sleep(100);
+        }
+        assertTrue("TalkBack touch exploration must be enabled", manager.isTouchExplorationEnabled());
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            for (String language : new String[]{"en", "si"}) {
+                chooseTestLanguage(language);
+                awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+                var config = new android.content.res.Configuration(app.getResources().getConfiguration());
+                config.setLocale(java.util.Locale.forLanguageTag(language));
+                var localized = app.createConfigurationContext(config);
+                SystemClock.sleep(2_500);
+                automation = instrumentation.getUiAutomation(
+                        android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+                for (int id : new int[]{R.string.admin_manage_users, R.string.admin_default_categories,
+                        R.string.staff_manage, R.string.sms_diagnostic_admin}) {
+                    String label = localized.getString(id);
+                    var root = automation.getRootInActiveWindow();
+                    assertNotNull(root);
+                    assertEquals(app.getPackageName(), root.getPackageName().toString());
+                    var node = root.findAccessibilityNodeInfosByText(label).stream()
+                            .filter(item -> item.isVisibleToUser() && item.isClickable() && item.getText() != null
+                                    && label.equalsIgnoreCase(item.getText().toString()))
+                            .findFirst().orElseThrow();
+                    if (node.isAccessibilityFocused()) {
+                        node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS);
+                        node.refresh();
+                    }
+                    node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
+                    assertTrue(node.refresh());
+                    assertTrue(node.isAccessibilityFocused());
+                    android.util.Log.i("FinoraTextFitTest", "Listener focus " + language + ": " + label);
+                    SystemClock.sleep(4_500);
+                }
+            }
+        }
+    }
+
+    private void chooseTestLanguage(String language) {
+        var config = new android.content.res.Configuration(app.getResources().getConfiguration());
+        config.setLocale(java.util.Locale.ENGLISH);
+        String english = app.createConfigurationContext(config).getString(R.string.language_selector);
+        config.setLocale(java.util.Locale.forLanguageTag("si"));
+        var sinhala = app.createConfigurationContext(config);
+        onView(anyOf(withText(english), withText(sinhala.getString(R.string.language_selector))))
+                .perform(reveal(), activateControl());
+        dialogChoice(sinhala.getString("en".equals(language) ? R.string.language_english : R.string.language_sinhala));
+    }
+
+    private void checkRoleRoutes(boolean admin, String language, float scale, java.util.List<String> problems) {
+        var home = admin ? lk.finora.app.ui.admin.AdminHomeActivity.class
+                : lk.finora.app.ui.staff.StaffHomeActivity.class;
+        var diagnostics = lk.finora.app.ui.support.DiagnosticQueueActivity.class;
+        checkScreenText(home, language, scale, problems);
+        if (admin) {
+            for (int label : new int[]{R.string.admin_manage_users, R.string.admin_default_categories,
+                    R.string.staff_manage}) {
+                clickText(label);
+                checkScreenText(label == R.string.staff_manage ? lk.finora.app.ui.staff.StaffAccessActivity.class
+                        : lk.finora.app.ui.admin.AdminDirectoryActivity.class, language, scale, problems);
+                pressBack();
+                awaitActivity(home);
+            }
+        } else {
+            clickText(R.string.support_tickets);
+            checkScreenText(lk.finora.app.ui.support.SupportActivity.class, language, scale, problems);
+            pressBack();
+            awaitActivity(home);
+        }
+        clickText(admin ? R.string.sms_diagnostic_admin : R.string.sms_diagnostic_queue);
+        checkScreenText(diagnostics, language, scale, problems);
+        if (admin) {
+            clickText(R.string.sms_format_sample_check);
+            checkScreenText(lk.finora.app.ui.support.FormatSampleActivity.class, language, scale, problems);
+            pressBack();
+            awaitActivity(diagnostics);
+        }
+        pressBack();
+        awaitActivity(home);
+    }
+
+    private void checkUserRoutes(String language, float scale, java.util.List<String> problems) {
+        tab(R.string.home_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        tab(R.string.records_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.transaction_title, lk.finora.app.ui.transactions.TransactionActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.transaction_open_manual, lk.finora.app.ui.transactions.TransactionFormActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.sms_csv_import, lk.finora.app.ui.importer.CsvImportActivity.class,
+                null, language, scale, problems);
+        clickText(R.string.sms_access_title);
+        checkScreenText(lk.finora.app.ui.sms.SmsAccessActivity.class, language, scale, problems);
+        clickId(R.id.sms_paste_entry_action);
+        checkScreenText(lk.finora.app.ui.sms.PasteSmsActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+        pressBack();
+        awaitActivity(MainActivity.class);
+
+        tab(R.string.plan_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.budget_list_title, lk.finora.app.ui.budgets.BudgetListActivity.class,
+                lk.finora.app.ui.budgets.BudgetFormActivity.class, language, scale, problems);
+        checkRoute(R.string.bill_list_title, lk.finora.app.ui.bills.BillListActivity.class,
+                lk.finora.app.ui.bills.BillFormActivity.class, language, scale, problems);
+        checkRoute(R.string.goal_list_title, lk.finora.app.ui.goals.GoalListActivity.class,
+                lk.finora.app.ui.goals.GoalFormActivity.class, language, scale, problems);
+        clickText(R.string.goal_list_title);
+        awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+        if ("en".equals(language)) {
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.goals.GoalFormActivity.class);
+            enter(R.id.form_name, "Synthetic text-fit goal");
+            enter(R.id.goal_target, "25000.00");
+            clickId(R.id.records_save);
+            awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+        }
+        awaitText("Synthetic text-fit goal");
+        clickId(R.id.goal_open);
+        checkScreenText(lk.finora.app.ui.goals.GoalDetailActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+        pressBack();
+        awaitActivity(MainActivity.class);
+
+        tab(R.string.insights_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.insight_open, lk.finora.app.ui.insights.InsightsActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.advice_title, lk.finora.app.ui.advice.AdviceActivity.class,
+                null, language, scale, problems);
+
+        tab(R.string.more_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.account_list_title, lk.finora.app.ui.accounts.AccountListActivity.class,
+                lk.finora.app.ui.accounts.AccountFormActivity.class, language, scale, problems);
+        checkRoute(R.string.category_list_title, lk.finora.app.ui.categories.CategoryListActivity.class,
+                lk.finora.app.ui.categories.CategoryFormActivity.class, language, scale, problems);
+        checkRoute(R.string.settings_title, lk.finora.app.ui.settings.SettingsActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.history_title, lk.finora.app.ui.history.HistoryActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class,
+                null, language, scale, problems);
+    }
+
+    private void checkRoute(int label, Class<? extends android.app.Activity> screen,
+            Class<? extends android.app.Activity> form, String language, float scale,
+            java.util.List<String> problems) {
+        clickText(label);
+        checkScreenText(screen, language, scale, problems);
+        if (form != null) {
+            clickId(R.id.records_add);
+            checkScreenText(form, language, scale, problems);
+            pressBack();
+            awaitActivity(screen);
+        }
+        pressBack();
+        awaitActivity(MainActivity.class);
+    }
+
+    private static void checkScreenText(Class<? extends android.app.Activity> screen, String language,
+            float scale, java.util.List<String> problems) {
+        awaitActivity(screen);
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var localeReady = new AtomicBoolean();
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        do {
+            instrumentation.runOnMainSync(() -> localeReady.set(
+                    ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                            .stream().anyMatch(activity -> screen.isInstance(activity)
+                                    && language.equals(activity.getResources().getConfiguration()
+                                            .getLocales().get(0).getLanguage()))));
+            if (localeReady.get()) break;
+            SystemClock.sleep(100);
+        } while (SystemClock.elapsedRealtime() < deadline);
+        assertTrue("Expected " + screen.getSimpleName() + " in " + language, localeReady.get());
+        instrumentation.waitForIdleSync();
+        instrumentation.runOnMainSync(() -> {
+            var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                    .stream().filter(screen::isInstance).findFirst().orElseThrow();
+            var config = activity.getResources().getConfiguration();
+            assertEquals(language, config.getLocales().get(0).getLanguage());
+            assertEquals(scale, config.fontScale, 0.01f);
+            String context = screen.getSimpleName() + "/" + language + "/" + scale;
+            assertTrue("No visible text checked on " + context,
+                    checkVisibleText(activity.findViewById(android.R.id.content), context, problems) > 0);
+            android.util.Log.i("FinoraTextFitTest", "Checked " + context);
+        });
+    }
+
+    private static int checkVisibleText(View view, String context, java.util.List<String> problems) {
+        if (!view.isShown()) return 0;
+        int count = 0;
+        if (view instanceof TextView text && !(text instanceof EditText) && text.length() > 0) {
+            var layout = text.getLayout();
+            if (layout != null && text.getWidth() > 0 && text.getHeight() > 0) {
+                count++;
+                String label = context + ": " + text.getText();
+                if (layout.getHeight() > text.getHeight() - text.getCompoundPaddingTop()
+                        - text.getCompoundPaddingBottom() + 1) {
+                    problems.add("Text height exceeded on " + label);
+                }
+                for (int line = 0; line < layout.getLineCount(); line++) {
+                    if (layout.getEllipsisCount(line) != 0 || layout.getLineMax(line) > layout.getWidth() + 1f) {
+                        problems.add("Text width exceeded on " + label);
+                        break;
+                    }
+                }
+            }
+        }
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                count += checkVisibleText(group.getChildAt(i), context, problems);
+            }
+        }
+        return count;
+    }
+
+    private void checkFaqLayout(float scale) {
         tab(R.string.more_tab);
         clickText(R.string.finance_help);
         awaitActivity(lk.finora.app.ui.help.FaqActivity.class);
@@ -149,7 +454,7 @@ public class UserJourneyTest {
         instrumentation.runOnMainSync(() -> {
             var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
                     .stream().filter(lk.finora.app.ui.help.FaqActivity.class::isInstance).findFirst().orElseThrow();
-            assertEquals(1.3f, activity.getResources().getConfiguration().fontScale, 0.01f);
+            assertEquals(scale, activity.getResources().getConfiguration().fontScale, 0.01f);
             var content = (android.view.ViewGroup) activity.findViewById(android.R.id.content);
             var scroll = (ScrollView) content.getChildAt(0);
             var labels = (android.view.ViewGroup) scroll.getChildAt(0);
