@@ -19,6 +19,7 @@ import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.category.Category;
 import lk.finora.api.category.CategoryRepository;
 import lk.finora.api.common.error.ApiException;
+import lk.finora.api.history.HistoryInvalidation;
 import lk.finora.api.transaction.dto.SummaryResponse;
 import lk.finora.api.transaction.dto.TransactionPage;
 import lk.finora.api.transaction.dto.TransactionRequest;
@@ -34,13 +35,15 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
     private final FinanceWriteLock writeLock;
+    private final HistoryInvalidation history;
 
     public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository,
-            CategoryRepository categoryRepository, FinanceWriteLock writeLock) {
+            CategoryRepository categoryRepository, FinanceWriteLock writeLock, HistoryInvalidation history) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
         this.writeLock = writeLock;
+        this.history = history;
     }
 
     @Transactional(readOnly = true)
@@ -81,6 +84,7 @@ public class TransactionService {
         transaction.setUserId(userId);
         copyRequest(userId, request, transaction);
         transactionRepository.save(transaction);
+        invalidate(transaction);
         return toResponse(transaction);
     }
 
@@ -103,6 +107,7 @@ public class TransactionService {
         transaction.setSource(TransactionSource.CSV);
         transaction.setDedupHash(dedupHash);
         transactionRepository.save(transaction);
+        invalidate(transaction);
         return toResponse(transaction);
     }
 
@@ -114,21 +119,35 @@ public class TransactionService {
         copyRequest(userId, request, transaction);
         transaction.setDedupHash(dedupHash);
         transactionRepository.save(transaction);
+        invalidate(transaction);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransactionResponse update(Long userId, Long id, TransactionRequest request) {
         writeLock.acquire(userId);
         Transaction transaction = findOwn(userId, id);
+        LocalDate oldDate = transaction.getTxnDate();
+        TransactionType oldType = transaction.getType();
         copyRequest(userId, request, transaction);
         transactionRepository.save(transaction);
+        if (!oldDate.equals(transaction.getTxnDate()) || oldType != transaction.getType()) {
+            history.transactionChanged(userId, oldDate, oldType == TransactionType.INCOME);
+        }
+        invalidate(transaction);
         return toResponse(transaction);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void delete(Long userId, Long id) {
         writeLock.acquire(userId);
-        transactionRepository.delete(findOwn(userId, id));
+        Transaction transaction = findOwn(userId, id);
+        transactionRepository.delete(transaction);
+        invalidate(transaction);
+    }
+
+    private void invalidate(Transaction transaction) {
+        history.transactionChanged(transaction.getUserId(), transaction.getTxnDate(),
+                transaction.getType() == TransactionType.INCOME);
     }
 
     @Transactional(readOnly = true)
