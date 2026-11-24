@@ -33,10 +33,10 @@ Find a task here, then open **only** its file and section. Status values: `todo`
 | T27 | Server-only Groq integration | Thilina | Sevindu | T04, T26 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | in-progress |
 | T28 | Gemini backup and rule fallback | Thilina | — | T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | in-progress |
 | T29 | Number and claim verification | Thilina | — | T26, T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | in-progress |
-| T30 | Advice delivery and ratings | Sahan | Thilina | T25, T29, T38 | [sahan/4-screens.md](sahan/4-screens.md) | todo |
+| T30 | Advice delivery and ratings | Sahan | Thilina | T25, T29, T38 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
 | T31 | Daily spending guide | Thilina | Sahan | T17, T18, T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | todo |
 | T32 | Savings goal simulator | Thilina | Sahan | T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | todo |
-| T33 | Monthly insights and score history | Sevindu | Sahan | T22, T23 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | todo |
+| T33 | Monthly insights and score history | Sevindu | Sahan | T22, T23 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
 | T34 | Budget, bill and goal alerts | Sevindu | Sahan | T17, T18, T19, T37 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | todo |
 | T35 | Data download | Sevindu | Sahan | T10, T17, T18, T19 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | todo |
 | T36 | Data deletion | Sevindu | Sahan | T35 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | todo |

@@ -66,12 +66,15 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T33 · Monthly insights and score history · `FR15`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T22, T23 · **Touches:** `api:history/`, `and:ui/history/`
-- [ ] T33.1 [API] Snapshot job: store month's insights + health score once (idempotent upsert on user+month)
-- [ ] T33.2 [API] Recalculate a month when its transactions change
-- [ ] T33.3 [API] `GET /api/v1/history?from&to` → score + key insights per month
-- [ ] T33.4 [AND·Sahan] History screen: score trend chart + month list
+- [x] T33.1 [API] Snapshot job: store month's insights + health score once (idempotent upsert on user+month)
+- [x] T33.2 [API] Recalculate a month when its transactions change
+- [x] T33.3 [API] `GET /api/v1/history?from&to` → score + key insights per month
+- [x] T33.4 [AND·Sahan] History screen: score trend chart + month list
 
 **Done when**
-- [ ] Tests: running snapshot twice = same rows; editing an old transaction updates that month's score
+- [x] Tests: running snapshot twice = same rows; editing an old transaction updates that month's score
 
-**Handoff notes:** —
+**Handoff notes:**
+- D41 permits early implementation with T23 open. V10 preserves exact monthly amounts and nullable scores. Dirty months show pending until recalculation succeeds after commit, and phase-one D39 owner-lock ordering is retained.
+- MySQL verified idempotence, the Colombo year boundary, rollback, a cross-month edit, exact JSON facts and API isolation. A scored past-month edit changed the saved 92 to the recalculated D20 score. A separate MySQL connection observed the worker block on the finance owner lock until commit.
+- The isolated scheduler and emulator showed October net 866.85 then 766.85 after edit, a null score, and a separate 92/100 trend. Physical History verification, formal dependencies and independent review remain open.

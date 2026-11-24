@@ -27,7 +27,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T38 · Financial screens and navigation · `FR02–FR15`
 **Lead:** Sahan · **Depends on:** T37, T09 · **Touches:** `and:ui/main/`, nav graph
 **D40 Android scope:** Keep the saved five-tab selection, route to existing non-exported USER activities, and verify refresh after writes. History and help need actual destinations before final acceptance.
-- [ ] T38.1 Bottom nav: Home (dashboard), Records, Plan (budgets/bills/goals), Insights, More (history, settings, help)
+- [x] T38.1 Bottom nav: Home (dashboard), Records, Plan (budgets/bills/goals), Insights, More (history, settings, help)
 - [x] T38.2 Wire each screen as its API task finishes (track here which are wired)
 - [x] T38.3 Lists refresh after create/update/delete everywhere
 
@@ -38,8 +38,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Home has the dashboard. Records links transactions, manual entry, CSV and SMS. Plan links the existing budget, bill and goal screens. Insights links the D20 screen. More links accounts, categories, settings and help.
 - HMD Android 14 opened the implemented Records, Plan, Insights and More destinations and exercised Back. Home refreshed after transaction create, edit and delete and isolated two disposable logins. Prior emulator evidence covers selected-tab recreation.
 - Isolated Android 17 verified every existing list after real API create, edit and delete with list re-entry: accounts, categories, transactions, budgets, bills and goals. Transaction mutations also refreshed Home and Insights. Plan selection survived landscape recreation.
-- History still needs Sevindu's T33.3 API and T33.4 Android screen. Full physical form-driven mutation, rotation and every-screen acceptance remain open.
-- History handoff needs USER-only, month-keyed score and insight snapshots, an approved month-range and missing-score contract, and recalculation for affected months including both months when a transaction changes date.
+- The emulator opened History and Advice against real USER endpoints. Form-driven create, edit and delete refreshed account, category, budget, bill and goal lists. HMD Android 14 verified History totals, score and Back. The remaining form-driven matrix and physical rotation stay open.
 
 ---
 
@@ -64,16 +63,17 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T30 · Advice delivery and ratings · `FR09 / FR10`
 **Lead:** Sahan · **Support:** Thilina · **Depends on:** T25, T29, T38 · **Touches:** `and:ui/advice/`, `api:advice/`
-- [ ] T30.1 [API·Thilina] `GET /api/v1/advice?month=&mode=V1` — V1 returns AI if verified else RULE (D03/D40; contract pending)
-- [ ] T30.2 [API·Thilina] `POST /api/v1/advice/{id}/rating` 1–5, once per advice per user
-- [ ] T30.3 [AND] D03/D40 V1-only advice screen uses the server's verified result or rule fallback
-- [ ] T30.4 [AND] `v1` flavor: one advice card with its supporting numbers + rating
-- [ ] T30.5 [AND] Mode taken from `BuildConfig.ADVICE_MODE`, never from user input
+- [x] T30.1 [API·Thilina] `GET /api/v1/advice?month=&mode=V1` — V1 returns AI if verified else RULE (D03/D40)
+- [x] T30.2 [API·Thilina] `POST /api/v1/advice/{id}/rating` 1–5, once per advice per user
+- [x] T30.3 [AND] D03/D40 V1-only advice screen uses the server's verified result or rule fallback
+- [x] T30.4 [AND] `v1` flavor: one advice card with its supporting numbers + rating
+- [x] T30.5 [AND] Mode taken from `BuildConfig.ADVICE_MODE`, never from user input
 
 **Done when**
-- [ ] Tests: duplicate rating → 409; V1 falls back to RULE when check fails
-- [ ] V1 advice and rating checked on a device
+- [x] Tests: duplicate rating → 409; V1 falls back to RULE when check fails
+- [x] V1 advice and rating checked on a device
 
 **Handoff notes:**
-- Thilina's USER-facing delivery and rating controllers and published contracts remain pending. D40 retains V1-only architecture and existing ownership.
-- Delivery needs an owner-scoped, stable advice ID for the selected month, accepted advice or verified rule fallback, exact supporting facts, and defined empty/error behavior. Rating needs owner validation, 1–5 validation, and concurrency-safe uniqueness per advice and user with 409 on duplicates. Confirm how Android reconciles a lost rating response before enabling writes.
+- D41 permits early implementation with T25, T29 and T38 open. Published V1 contracts preserve the existing verifier and canonical fallback, a stable monthly delivery ID and one owner rating.
+- MySQL verified stable rule delivery, exact facts, owner/role checks and concurrent rating results 201/409. Existing verifier and provider fallback suites passed with mocks.
+- Isolated Android and HMD Android 14 matched LKR 50.23 in English and Sinhala. A dropped 201 reconciled rating 5 with GET and a single POST on both devices. Live-provider evidence remains open.
