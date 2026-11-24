@@ -2,7 +2,7 @@
 
 Find a task here, then open **only** its file and section. Status values: `todo` · `in-progress` · `review` · `done`. Update status here (only here).
 
-The [criterion audit](../docs/sahan-final-audit.md) supports **76/84 verified** across MD01–MD05. The original delegated scope is 22/22 within its approved scope. T07 is 6/7. T13 and T39 need additional evidence or correction, and T40.1 remains deferred under D51/D56/T56. Formal prerequisites and independent reviews remain in force.
+The [criterion audit](../docs/sahan-final-audit.md) supports **78/84 verified** across MD01–MD05. The original delegated scope is 22/22 within its approved scope. T07 is 6/7. T13 retains its physical outcome check and T39 needs additional evidence or correction, and T40.1 remains deferred under D51/D56/T56. Formal prerequisites and independent reviews remain in force.
 
 | ID | Task | Lead | Support | Depends on | File | Status |
 |---|---|---|---|---|---|---|

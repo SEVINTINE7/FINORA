@@ -126,8 +126,8 @@ public class UserJourneyTest {
 
     @Test public void verifyFaqTextLayoutAtLargeScale() {
         var arguments = InstrumentationRegistry.getArguments();
-        org.junit.Assume.assumeTrue("Explicit handset layout probe only",
-                "true".equals(arguments.getString("finoraIsolatedHandset"))
+        org.junit.Assume.assumeTrue("Explicit isolated layout probe only",
+                ("true".equals(arguments.getString("finoraIsolatedHandset")) || "true".equals(arguments.getString("finoraIsolatedEmulator")))
                         && "true".equals(arguments.getString("finoraCheckFaqLayout")));
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
@@ -625,6 +625,106 @@ public class UserJourneyTest {
             assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
             awaitText(app.getString(R.string.records_tab));
         }
+    }
+
+    @Test public void smsRefusalKeepsEveryFallbackReachable() {
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+            onView(withText(R.string.sms_access_explanation)).perform(reveal()).check(matches(isDisplayed()));
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+
+            clickId(R.id.sms_paste_entry_action);
+            awaitActivity(lk.finora.app.ui.sms.PasteSmsActivity.class);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_csv_import_action);
+            awaitActivity(lk.finora.app.ui.importer.CsvImportActivity.class);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_manual_entry_action);
+            awaitActivity(lk.finora.app.ui.transactions.TransactionFormActivity.class);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_no_thanks_action);
+            awaitActivity(MainActivity.class);
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+        }
+    }
+
+    @Test public void smsRuntimeDenialThenGrantUpdatesScanAvailability() {
+        var arguments = InstrumentationRegistry.getArguments();
+        // Android kills the app on permission revocation. Run this method alone on a disposable AVD.
+        org.junit.Assume.assumeTrue("Permission changes require a standalone disposable-emulator run",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraSmsPermissionMutation")));
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_allow);
+            clickSmsPermissionChoice("deny");
+            awaitText(app.getString(R.string.sms_access_denied));
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            assertFalse(device.hasObject(By.res(app.getPackageName(), "sms_scan")));
+
+            clickId(R.id.sms_allow);
+            clickSmsPermissionChoice("allow");
+            awaitText(app.getString(R.string.sms_access_granted));
+            assertEquals(PackageManager.PERMISSION_GRANTED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            onView(withId(R.id.sms_scan)).perform(reveal()).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test public void smsPermanentDenialRecoversThroughAppSettings() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Permission changes require a standalone disposable-emulator run",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraSmsPermissionMutation")));
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+            for (int attempt = 0; attempt < 2; attempt++) {
+                clickId(R.id.sms_allow);
+                clickSmsPermissionChoice("deny(?:_and_dont_ask_again)?");
+                awaitText(app.getString(attempt == 0 ? R.string.sms_access_denied : R.string.sms_permission_settings));
+            }
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            clickId(R.id.sms_settings);
+            clickSystemText("Permissions");
+            clickSystemText("SMS");
+            clickSystemText("Allow");
+
+            for (int back = 0; back < 3; back++) device.pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+            awaitText(app.getString(R.string.sms_access_granted));
+            assertEquals(PackageManager.PERMISSION_GRANTED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            onView(withId(R.id.sms_scan)).perform(reveal()).check(matches(isDisplayed()));
+        }
+    }
+
+    private void clickSystemText(String text) {
+        var control = device.wait(Until.findObject(By.text(text)), UI_TIMEOUT_MS);
+        assertNotNull("Expected Android Settings control: " + text, control);
+        control.click();
+    }
+
+    private void clickSmsPermissionChoice(String choice) {
+        var selector = By.res(java.util.regex.Pattern.compile(
+                "(?:com\\.android|com\\.google\\.android)\\.permissioncontroller:id/permission_"
+                        + choice + "_button"));
+        var button = device.wait(Until.findObject(selector), UI_TIMEOUT_MS);
+        assertNotNull("Expected SMS permission dialog choice: " + choice, button);
+        button.click();
     }
 
     @Test public void diagnosticRequiresConfirmationAfterCancel() {
