@@ -317,13 +317,13 @@
     <string name="score_goal_missing">ඉලක්ක තොරතුරු අසම්පූර්ණයි.</string>
     <string name="score_goal_na">අදාළ ඉලක්ක නැත.</string>
     <string name="score_goal_basis">වාර්තා කළ ඉලක්ක දායක මුදල් මත පදනම් වේ.</string>
-    <string name="score_reserve_missing">දිනය සඳහන් හදිසි සංචිත ප්‍රකාශයක් අවශ්‍යයි.</string>
+    <string name="score_reserve_missing">හදිසි අවස්ථා සඳහා වෙන් කළ මුදල සහ එයට අදාළ දිනය ඇතුළත් කරන්න.</string>
     <string name="score_needs_missing">වාර්තා කළ අත්‍යවශ්‍ය වියදම් ලබාගත නොහැක.</string>
-    <string name="score_reserve_basis">ඔබ ප්‍රකාශ කළ සංචිතය සහ වාර්තා කළ අත්‍යවශ්‍ය වියදම් මත පදනම් වේ.</string>
+    <string name="score_reserve_basis">ඔබ සඳහන් කළ හදිසි අවස්ථා සඳහා වෙන් කළ මුදල සහ වාර්තා කළ අත්‍යවශ්‍ය වියදම් මත පදනම් වේ.</string>
     <string name="score_fact_spending">ආදායම රු. %1$s · පරිභෝජනය සඳහා කළ වියදම රු. %2$s</string>
     <string name="score_fact_savings">දත්ත අනුව ඉතිරිකිරීම් රු. %1$s · ඉලක්ක අනුපාතය %2$s</string>
     <string name="score_fact_progress">ගණනය කළ මුදල රු. %1$s · ඉලක්කය රු. %2$s</string>
-    <string name="score_fact_emergency">ප්‍රකාශ කළ සංචිතය රු. %1$s · අත්‍යවශ්‍ය වියදම් රු. %2$s</string>
+    <string name="score_fact_emergency">හදිසි අවස්ථා සඳහා වෙන් කළ බව ඔබ සඳහන් කළ මුදල රු. %1$s · අත්‍යවශ්‍ය වියදම් රු. %2$s</string>
     <string name="score_disclaimer">මෙය පොදු මඟපෙන්වීමකි. වෘත්තීය මූල්‍ය උපදෙසක් නොවේ.</string>
     <string name="score_inputs">ලකුණ ගණනය කිරීමට අවශ්‍ය තොරතුරු</string>
     <string name="score_reserve">හදිසි අවස්ථා සඳහා වෙන් කළ මුදල (රු.) (අත්‍යවශ්‍ය නොවේ)</string>
@@ -333,8 +333,8 @@
     <string name="score_unknown">නොදනී</string>
     <string name="score_yes">ඔව්</string>
     <string name="score_no">නැත</string>
-    <string name="score_input_invalid">වලංගු සංචිත මුදලක් සහ තෝරාගත් මාසයේ දිනයක් ඇතුළත් කරන්න, නැතහොත් දෙකම හිස්ව තබන්න.</string>
-    <string name="score_save_uncertain">සුරැකීම තහවුරු කළ නොහැක. නැවත සුරැකීමට පෙර මාසික ප්‍රකාශ යළි පූරණය කර පරීක්ෂා කරන්න.</string>
+    <string name="score_input_invalid">හදිසි අවස්ථා සඳහා වෙන් කළ වලංගු මුදලක් සහ තෝරාගත් මාසයට අදාළ දිනයක් ඇතුළත් කරන්න, නැතහොත් දෙකම හිස්ව තබන්න.</string>
+    <string name="score_save_uncertain">සුරැකීම තහවුරු කළ නොහැක. නැවත සුරැකීමට පෙර ලකුණ ගණනය කිරීමට අවශ්‍ය මාසික තොරතුරු යළි පූරණය කර පරීක්ෂා කරන්න.</string>
     <string name="finance_help">උදව්</string>
     <string name="finance_help_text">ගනුදෙනු එක් කිරීමට හෝ පරීක්ෂා කිරීමට වාර්තා භාවිත කරන්න. අයවැය, බිල්පත් සහ ඉතිරිකිරීමේ ඉලක්ක කළමනාකරණය කිරීමට සැලසුම භාවිත කරන්න. SMS ප්‍රවේශය අත්‍යවශ්‍ය නොවේ. SMS ප්‍රවේශයට අවසර නොදී ගනුදෙනු අතින් එක් කිරීමට හෝ CSV ගොනුවක් ආයාත කිරීමට හැකිය.</string>
 </resources>
