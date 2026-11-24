@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -24,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
 import lk.finora.app.sms.SmsInboxReader;
@@ -31,7 +31,7 @@ import lk.finora.app.sms.SmsInboxReader.Status;
 import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.transactions.TransactionFormActivity;
 
-public final class SmsAccessActivity extends AppCompatActivity {
+public final class SmsAccessActivity extends SecureActivity {
     private static final String PERMISSION = Manifest.permission.READ_SMS;
     private static final String REQUESTED = "read_sms_requested";
     private final ActivityResultLauncher<String> permissionRequest = registerForActivityResult(
@@ -64,7 +64,6 @@ public final class SmsAccessActivity extends AppCompatActivity {
         declared = declaresReadSms();
         preferences = getSharedPreferences("sms_access", MODE_PRIVATE);
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_sms_access);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_title), true);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_alternatives_title), true);

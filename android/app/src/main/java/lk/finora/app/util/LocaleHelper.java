@@ -24,6 +24,7 @@ import lk.finora.app.R;
 import lk.finora.app.data.api.SessionClient;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
+import lk.finora.app.ui.SecureActivity;
 import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -39,12 +40,12 @@ public final class LocaleHelper {
         button.setText(R.string.language_selector);
         button.setMinHeight(Math.round(48 * activity.getResources().getDisplayMetrics().density));
         button.setAllCaps(false);
-        button.setOnClickListener(view -> new AlertDialog.Builder(activity)
+        button.setOnClickListener(view -> SecureActivity.showSecure(new AlertDialog.Builder(activity)
                 .setTitle(R.string.language_selector)
                 .setItems(new String[]{activity.getString(R.string.language_english),
                         activity.getString(R.string.language_sinhala)}, (dialog, position) ->
                         select.accept(position == 0 ? "EN" : "SI"))
-                .show());
+                .create()));
         return button;
     }
 

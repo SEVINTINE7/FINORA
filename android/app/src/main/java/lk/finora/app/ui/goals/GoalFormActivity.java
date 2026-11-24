@@ -3,18 +3,18 @@ package lk.finora.app.ui.goals;
 import android.os.Bundle;
 import android.widget.EditText;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.math.BigDecimal;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
 /** Add or edit a goal: name, target amount and an optional target date after today (T19.3, D16). */
-public final class GoalFormActivity extends AppCompatActivity {
+public final class GoalFormActivity extends SecureActivity {
     private GoalFormViewModel model;
     private boolean filled;
     private EditText name;

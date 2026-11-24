@@ -5,7 +5,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -14,12 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.CategoryDto;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
 /** Add or edit a monthly bill: name, amount, due day (1–31) and an optional expense category (T18.4). */
-public final class BillFormActivity extends AppCompatActivity {
+public final class BillFormActivity extends SecureActivity {
     private BillFormViewModel model;
     private boolean filled;
     private EditText name;

@@ -5,7 +5,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,6 +20,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.MonthlyRepository;
 import lk.finora.app.data.repo.MonthlyRepository.Month;
@@ -28,7 +28,7 @@ import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 import lk.finora.app.ui.budgets.BudgetListActivity;
 
-public final class HistoryActivity extends AppCompatActivity {
+public final class HistoryActivity extends SecureActivity {
     private Model model;
     private LinearLayout page;
 

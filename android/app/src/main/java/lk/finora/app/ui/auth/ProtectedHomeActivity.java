@@ -8,14 +8,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
 
-public abstract class ProtectedHomeActivity extends AppCompatActivity {
+public abstract class ProtectedHomeActivity extends SecureActivity {
     private Session entry;
     private HomeViewModel model;
     private TokenStore observedStore;

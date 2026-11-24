@@ -6,11 +6,11 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -22,7 +22,7 @@ import lk.finora.app.ui.auth.SessionNavigation;
  * Account settings for a USER (T07.5): language (applies at once, saved via PUT /me), withdraw consent,
  * and the entry to data deletion (T36, not built yet).
  */
-public final class SettingsActivity extends AppCompatActivity {
+public final class SettingsActivity extends SecureActivity {
     private SettingsViewModel model;
     private HomeViewModel session;
     private Session entry;
@@ -47,9 +47,9 @@ public final class SettingsActivity extends AppCompatActivity {
         ((FrameLayout) findViewById(R.id.settings_language))
                 .addView(ProfileLanguageButton.create(this, entry, session::signingOut));
         findViewById(R.id.settings_withdraw).setOnClickListener(view -> confirmWithdraw());
-        findViewById(R.id.settings_delete).setOnClickListener(view -> new AlertDialog.Builder(this)
+        findViewById(R.id.settings_delete).setOnClickListener(view -> showSecure(new AlertDialog.Builder(this)
                 .setMessage(R.string.settings_delete_unavailable)
-                .setPositiveButton(android.R.string.ok, null).show());
+                .setPositiveButton(android.R.string.ok, null).create()));
         session.signedOut().observe(this, failed -> {
             if (failed != null) SessionNavigation.openLogin(this, failed);
         });
@@ -63,12 +63,12 @@ public final class SettingsActivity extends AppCompatActivity {
 
     private void confirmWithdraw() {
         if (!AccountListActivity.verify(this, model.work) || model.work.busy()) return;
-        new AlertDialog.Builder(this)
+        showSecure(new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_withdraw)
                 .setMessage(R.string.settings_withdraw_confirm)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.settings_withdraw_action, (dialog, which) -> model.withdrawConsent())
-                .show();
+                .create());
     }
 
     private void render() {

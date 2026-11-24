@@ -8,7 +8,6 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,12 +19,13 @@ import java.time.format.FormatStyle;
 import java.util.Locale;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.BillDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.budgets.BudgetListActivity;
 
 /** Monthly bills with a paid toggle and the due date in the shown month (T18.4). */
-public final class BillListActivity extends AppCompatActivity {
+public final class BillListActivity extends SecureActivity {
     private static final ZoneId COLOMBO = ZoneId.of("Asia/Colombo");
     private BillListViewModel model;
 

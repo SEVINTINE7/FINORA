@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
@@ -27,6 +26,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.LoginRepository.Result;
 import lk.finora.app.ui.common.StateView;
 import lk.finora.app.ui.auth.SessionNavigation;
@@ -34,7 +34,7 @@ import lk.finora.app.ui.register.RegisterActivity;
 import lk.finora.app.util.LoginInput;
 import lk.finora.app.util.LocaleHelper;
 
-public final class LoginActivity extends AppCompatActivity {
+public final class LoginActivity extends SecureActivity {
     private EditText email;
     private EditText password;
     private Button submit;

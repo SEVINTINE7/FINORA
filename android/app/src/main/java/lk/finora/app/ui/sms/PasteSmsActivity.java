@@ -3,19 +3,18 @@ package lk.finora.app.ui.sms;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.os.Bundle;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 
 import java.io.IOException;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 
-public final class PasteSmsActivity extends AppCompatActivity {
+public final class PasteSmsActivity extends SecureActivity {
     private final SmsLocalTask task = new SmsLocalTask();
     private final Runnable sessionChanged = () -> runOnUiThread(this::verifySession);
     private TokenStore store;
@@ -34,7 +33,6 @@ public final class PasteSmsActivity extends AppCompatActivity {
             return;
         }
         loginIdentity = session.loginIdentity();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
         setContentView(R.layout.activity_paste_sms);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_paste_title), true);
