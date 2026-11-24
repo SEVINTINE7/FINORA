@@ -6,7 +6,7 @@ Development closure under D56 records **83/84 verified** across MD01–MD05. MD0
 
 | ID | Task | Lead | Support | Depends on | File | Status |
 |---|---|---|---|---|---|---|
-| T01 | Confirm implementation decisions | Sevindu | Sahan, Thilina | — | [sevindu/1-foundation.md](sevindu/1-foundation.md) | in-progress |
+| T01 | Confirm implementation decisions | Sevindu | Sahan, Thilina | — | [sevindu/1-foundation.md](sevindu/1-foundation.md) | review |
 | T02 | Repository and build setup | Sevindu | — | T01 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
 | T03 | Database design and migrations | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
 | T04 | Backend API foundation | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
@@ -65,6 +65,8 @@ Development closure under D56 records **83/84 verified** across MD01–MD05. MD0
 | T57 | End-to-end acceptance and handoff | Sevindu | Sahan, Thilina | all tasks | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | todo |
 
 ## Your parts inside other members' tasks
+
+See the [Sahan responsibility matrix](../docs/sahan-responsibility-matrix.md) for the 16 lead tasks, 19 explicit support tasks, overlapping delegated scopes and adjacent QA/deployment contributions. T01 is in review after its five technical checks. Ownership and independent approval remain unchanged.
 
 MD04 delivery retains 20/20 technical checks and 5/5 for delegated T33 separately. T20, T24, T30, T33 and T38 remain in progress under the dependencies above. T39 remains in review. See the [closure evidence](../docs/md04-authorized-closure.md) for independent review and live-provider gates. D40 and D41 permit scoped early implementation.
 

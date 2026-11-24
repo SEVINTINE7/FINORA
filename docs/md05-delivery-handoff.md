@@ -34,6 +34,8 @@ The T40.1 checkbox stays open. Sahan verifies authenticated V1 Release behavior 
 
 ### Resume from this checkpoint
 
+See the [Sahan responsibility and INDEX readiness matrix](sahan-responsibility-matrix.md) for the final cross-team responsibility inventory and formal blockers.
+
 Use draft PR #16 and the tip of `sahan/md05-integration-review`. Read the decision, INDEX and retained evidence before starting a separately authorized audit. The implementation and physical-evidence baseline is `cd184e61f22fdc1cc24801e74ba5c6d34bc1692b`. This development closure records its disposition. Keep the PR draft until the required independent reviews and merge authorization are provided.
 
 ## Formal reviews and owner handoff
