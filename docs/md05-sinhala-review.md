@@ -1,6 +1,6 @@
 # MD05 English–Sinhala review inventory
 
-70 app resource pairs and four proposed saved replies. Final native-speaker approval is pending. Earlier approvals retain their original scope. The saved replies are proposed text and are not shipped in the app.
+70 app resource pairs and four proposed saved replies pinned to `08a9f2b0b6f6e0ab5a73fc0be6507b4255907147`. The app pairs come from the English and Sinhala `strings.xml` files, and the saved replies come from the server-side `SupportCopy.java` catalog. Staff publication requires second-STAFF approval. Native-speaker approval is pending. The earlier 183 approved pairs retain their original scope.
 
 ## App resources
 
