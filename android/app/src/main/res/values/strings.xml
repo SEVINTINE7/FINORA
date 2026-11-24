@@ -335,4 +335,6 @@
     <string name="score_no">No</string>
     <string name="score_input_invalid">Enter a valid reserve amount and a date in the selected month, or leave both blank.</string>
     <string name="score_save_uncertain">Could not confirm the save. Reload and review the monthly declarations before saving again.</string>
+    <string name="finance_help">Help</string>
+    <string name="finance_help_text">Use Records to add or review transactions. Use Plan to manage budgets, bills and savings goals. SMS access is optional. You can enter transactions directly or import a CSV without allowing SMS access.</string>
 </resources>

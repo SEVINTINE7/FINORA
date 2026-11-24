@@ -13,6 +13,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
+import androidx.appcompat.app.AlertDialog;
 
 import lk.finora.app.R;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -48,6 +49,12 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
         addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
+        Button help = new Button(this);
+        help.setText(R.string.finance_help);
+        help.setOnClickListener(view -> new AlertDialog.Builder(this)
+                .setTitle(R.string.finance_help).setMessage(R.string.finance_help_text)
+                .setPositiveButton(android.R.string.ok, null).show());
+        moreActions.addView(help, new LinearLayout.LayoutParams(-1, -2));
         LinearLayout recordActions = new LinearLayout(this);
         recordActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
