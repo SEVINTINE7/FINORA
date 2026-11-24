@@ -6,6 +6,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.StringRes;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import lk.finora.app.R;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -32,6 +33,12 @@ public final class FaqActivity extends SecureActivity {
         addSection(page, R.string.faq_language, R.string.faq_language_body);
         addSection(page, R.string.faq_privacy, R.string.faq_privacy_body);
         scroll.addView(page);
+        ViewCompat.setOnApplyWindowInsetsListener(scroll, (view, windowInsets) -> {
+            var bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout());
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return windowInsets;
+        });
         setContentView(scroll);
     }
 
