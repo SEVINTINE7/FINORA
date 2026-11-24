@@ -370,7 +370,7 @@
     <string name="advice_action_goal">ඉලක්ක සඳහා වාර්තා කළ වෙන් කිරීම් වත්මන් ඉලක්කවලට වඩා රු. %1$sකින් අඩුය. වැඩි මුදලක් වෙන් කිරීමට පෙර එය දැරිය හැකිදැයි පරීක්ෂා කරන්න.</string>
     <string name="advice_action_savings">වාර්තා අනුව මුල් ඉතිරිකිරීමේ ඉලක්කය සඳහා රු. %1$sක් දක්වා වෙන් කළ හැක. පළමුව සියලු අත්‍යවශ්‍ය වියදම් සහ ගෙවීම් තහවුරු කරන්න.</string>
     <string name="sms_report_problem">ගැටලුව වාර්තා කරන්න</string>
-    <string name="sms_report_preview">බැංකුව: %1$s\nආකෘති අනුවාදය: නොදනී\nදෝෂ කේතය: %2$s\n\nමෙම තොරතුරු පමණක් යවනු ලැබේ. ඔබේ පණිවිඩය සහ මූල්‍ය තොරතුරු මෙම දුරකථනයේම පවතී.</string>
+    <string name="sms_report_preview">බැංකුව: %1$s\nආකෘති අනුවාදය: නොදනී\nදෝෂ කේතය: %2$s\n\nමෙම වාර්තාව සමඟ යවනු ලබන්නේ මෙම තොරතුරු පමණි. ඔබේ මුල් SMS පණිවිඩය සහ මූල්‍ය තොරතුරු මෙම වාර්තාවට ඇතුළත් නොවේ.</string>
     <string name="sms_report_send">වාර්තාව යවන්න</string>
     <string name="sms_report_sent">වාර්තාව යවන ලදී.</string>
     <string name="sms_report_failed">වාර්තාව ලැබුණු බව තහවුරු කළ නොහැක. එම වාර්තාව නැවත යැවීමට උත්සාහ කළ හැක.</string>
@@ -404,15 +404,15 @@
     <string name="support_claim">ඉල්ලීම භාර ගන්න</string>
     <string name="support_close">ඉල්ලීම වසන්න</string>
     <string name="support_reply">සුරැකි පිළිතුරක් යවන්න</string>
-    <string name="support_load_replies">සුරැකි පිළිතුරු පූරණය කරන්න</string>
-    <string name="support_no_reply">අනුමත පිළිතුරු පූරණය වී නැත. සුරැකි පිළිතුරු පූරණය කර නැවත උත්සාහ කරන්න.</string>
-    <string name="support_in_progress">ක්‍රියාත්මකයි</string>
+    <string name="support_load_replies">සුරැකි පිළිතුරු ලබාගන්න</string>
+    <string name="support_no_reply">අනුමත පිළිතුරු තවම ලබාගෙන නැත. සුරැකි පිළිතුරු ලබාගෙන නැවත උත්සාහ කරන්න.</string>
+    <string name="support_in_progress">කටයුතු සිදු වෙමින් පවතී</string>
     <string name="support_closed">වසා ඇත</string>
     <string name="support_draft_state">කෙටුම්පත</string>
     <string name="support_active">සක්‍රියයි</string>
     <string name="support_retired">භාවිතයෙන් ඉවත් කර ඇත</string>
     <string name="staff_activate">කාර්ය මණ්ඩල ප්‍රවේශය සකසන්න</string>
-    <string name="staff_temporary">කාර්ය මණ්ඩල තාවකාලික මුරපදය</string>
+    <string name="staff_temporary">කාර්ය මණ්ඩලය සඳහා තාවකාලික මුරපදය</string>
     <string name="staff_new_password">නව මුරපදය</string>
     <string name="staff_activation_done">මුරපදය වෙනස් කරන ලදී. ආපසු ගොස් නව මුරපදයෙන් පිවිසෙන්න.</string>
     <string name="staff_activation_failed">ප්‍රවේශය සැකසූ බව තහවුරු කළ නොහැක. විස්තර පරීක්ෂා කරන්න හෝ නව මුරපදයෙන් පිවිසීමට උත්සාහ කරන්න.</string>
@@ -424,7 +424,7 @@
     <string name="staff_disable">කාර්ය මණ්ඩල ගිණුම අක්‍රිය කරන්න</string>
     <string name="staff_full_name">සම්පූර්ණ නම</string>
     <string name="staff_secret_once">%1$s\n\nඑක් වරක් පමණක් පෙන්වයි. අනුමත ආරක්ෂිත මාර්ගයෙන් පමණක් බෙදා ගන්න. පැය 24කින් කල් ඉකුත් වේ.</string>
-    <string name="admin_stats_counts">සක්‍රිය පරිශීලකයන්: %1$d\nඅක්‍රිය පරිශීලකයන්: %2$d\nකාර්ය මණ්ඩලය: %3$d\nවිවෘත ඉල්ලීම්: %4$d\nසක්‍රිය SMS ආකෘති: %5$d</string>
+    <string name="admin_stats_counts">සක්‍රිය පරිශීලකයන්: %1$d\nඅක්‍රිය කළ පරිශීලකයන්: %2$d\nකාර්ය මණ්ඩලය: %3$d\nවිවෘත ඉල්ලීම්: %4$d\nසක්‍රිය SMS ආකෘති: %5$d</string>
     <string name="sms_format_draft">අනුමත NSB එකතුවේ අනුවාදයක් කෙටුම්පත් කරන්න</string>
     <string name="sms_format_revision">NSB යෙදවීමේ අනුවාදය %1$d · %2$s</string>
     <string name="sms_format_revision_number">යෙදවීමේ අනුවාද අංකය</string>
