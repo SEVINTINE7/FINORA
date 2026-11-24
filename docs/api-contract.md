@@ -125,3 +125,9 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 **Budgets (T17):** `used` = sum of the user's EXPENSE transactions in that category from the 1st to the last day of `month`. `remaining` = `limitAmount − used` (negative when over). `state`: `OVER` if used > limit, `NEAR` if used ≥ 80% of limit, else `OK`.
 
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.
+
+### Savings goal simulation (T32)
+
+| Method | Path | Role | Inputs | Result | Task |
+|---|---|---|---|---|---|
+| POST | `/api/v1/simulate` | USER | owned goal ID, explicit monthly savings baseline, signed change and category cuts; see [T32 candidate contract](t32-simulator-contract.md) | `200` hypothetical result or unavailable status; `400` invalid inputs; `404` missing or foreign goal; read-only | T32 |

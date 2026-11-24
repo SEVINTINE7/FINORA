@@ -31,6 +31,23 @@ First assumed contribution: end of next calendar month.
 Beyond 1200 months: BEYOND_HORIZON.
 Completion dates are hypothetical, never guaranteed.
 
+## Android handoff
+
+Label the screen and result “Simulation” in English and Sinhala. Prompt for the baseline and
+explain that the signed adjustment excludes separately listed reductions. Show the reference
+month and assumptions. Keep `monthsRequired` and `hypotheticalFinishDate` unavailable when
+the server supplies null. Render the completed-goal and no-capacity states separately, and
+discard stale responses after session changes. No save action is required by this API.
+
+Example request: `{"goalId":42,"baselineMonthlySavings":3000.00,"monthlyChange":-500.00,"categoryCuts":[]}`.
+For a synthetic owner goal with LKR 10,000 target and LKR 5,000 saved on Colombo 2026-11-24,
+the result has `hypotheticalMonthlySavings: 2500.00`, `monthsRequired: 2`,
+`hypotheticalFinishDate: "2027-01-31"`, and `spendingReferenceMonth: "2026-10"`.
+
+Use the standard error envelope. Invalid inputs, duplicate/excessive cuts and cancelled goals
+return 400. Missing or inaccessible resources return 404. Missing authentication returns 401;
+ADMIN/STAFF return 403. Keep MD05 device acceptance and implementation approval separate.
+
 ## Security and persistence
 Only the authenticated user's goal and expenses are accessed.
 Foreign and missing goals both return 404.
