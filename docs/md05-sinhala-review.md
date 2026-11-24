@@ -123,3 +123,12 @@ The following 29 pairs are pinned to Android resources at `221758e44806baf9b1667
 | Navigation | Open Records to review transactions, or Plan to manage budgets and savings goals. | ගනුදෙනු පරීක්ෂා කිරීමට වාර්තා විවෘත කරන්න. අයවැය සහ ඉතිරිකිරීමේ ඉලක්ක කළමනාකරණය කිරීමට සැලසුම විවෘත කරන්න. |
 | SMS permission | SMS access is optional. You can enter a transaction manually or import a CSV file without it. | SMS ප්‍රවේශය අත්‍යවශ්‍ය නොවේ. SMS ප්‍රවේශයට අවසර නොදී ගනුදෙනුවක් අතින් ඇතුළත් කිරීමට හෝ CSV ගොනුවක් ආයාත කිරීමට හැකිය. |
 | Language | Open Language and choose English or Sinhala. Connect to the internet to save the choice to your account. | භාෂාව විවෘත කර ඉංග්‍රීසි හෝ සිංහල තෝරන්න. තේරීම ඔබේ ගිණුමට සුරැකීමට අන්තර්ජාලයට සම්බන්ධ වන්න. |
+
+## D54 ADMIN validation labels
+
+These two new pairs also await native-speaker approval. Earlier entries remain unchanged.
+
+| Resource | English | Sinhala |
+| --- | --- | --- |
+| `sms_format_validate_approved` | Validate approved samples | අනුමත නියැදි පරීක්ෂා කරන්න |
+| `sms_format_fixture_result` | Sample %1$d · %2$s | නියැදිය %1$d · %2$s |

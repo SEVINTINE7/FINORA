@@ -458,4 +458,6 @@
     <string name="sms_format_sample_matched">Sample parsed successfully.</string>
     <string name="sms_format_sample_unmatched">Sample was not parsed.</string>
     <string name="sms_format_sample_result">%1$s\n%2$s</string>
+    <string name="sms_format_validate_approved">Validate approved samples</string>
+    <string name="sms_format_fixture_result">Sample %1$d · %2$s</string>
 </resources>

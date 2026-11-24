@@ -55,6 +55,11 @@ public final class DiagnosticQueueActivity extends SecureActivity {
         }
         if (model.work.error != 0) label(getString(model.work.error));
         if (model.notice != 0) label(getString(model.notice));
+        for (int index = 0; index < model.sampleResults.size(); index++) {
+            label(getString(R.string.sms_format_fixture_result, index + 1, getString(
+                    model.sampleResults.get(index) ? R.string.sms_format_sample_matched
+                            : R.string.sms_format_sample_unmatched)));
+        }
         addButton(R.string.records_retry, model::load);
         if (model.admin) {
             label(getString(R.string.sms_format_nsb));
@@ -66,7 +71,12 @@ public final class DiagnosticQueueActivity extends SecureActivity {
                         getString(revision.active() ? R.string.support_active
                                 : revision.published() ? R.string.sms_format_published : R.string.support_draft_state));
                 label(summary);
+                confirmRow(R.string.sms_format_validate_approved, summary, () -> model.validate(revision.version()));
                 if (!revision.published()) {
+                    addButton(R.string.records_edit, () -> startActivity(new android.content.Intent(
+                            this, FormatSampleActivity.class).putExtra(FormatSampleActivity.REVISION, revision.version())));
+                    rows.getChildAt(rows.getChildCount() - 1)
+                            .setContentDescription(getString(R.string.records_edit) + ". " + summary);
                     confirmRow(R.string.sms_format_publish, summary, () -> model.publish(revision.version()));
                     confirmRow(R.string.records_remove, summary, () -> model.discard(revision.version()));
                 } else if (!revision.active()) confirmRow(R.string.sms_format_activate, summary,

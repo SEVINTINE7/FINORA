@@ -21,11 +21,13 @@ public final class DiagnosticQueueViewModel extends ViewModel {
     List<Escalation> escalations = List.of();
     List<FormatRevision> revisions = List.of();
     int notice;
+    List<Boolean> sampleResults = List.of();
     final Work work = new Work(admin ? administrator : ProtectedRequests.currentStaff(), () -> {
         groups = List.of();
         escalations = List.of();
         revisions = List.of();
         notice = 0;
+        sampleResults = List.of();
     });
 
     void load() {
@@ -81,7 +83,21 @@ public final class DiagnosticQueueViewModel extends ViewModel {
         write(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "activate"));
     }
 
+    void validate(int revision) {
+        notice = 0;
+        sampleResults = List.of();
+        work.run(() -> SmsDiagnosticRepository.changeRevision(work.requests, revision, "validate"), response -> {
+            var validation = AccountRepository.read(response, SmsDiagnosticRepository.Validation.class);
+            if (validation.samples() == null || validation.samples().length != 3
+                    || java.util.Arrays.asList(validation.samples()).contains(null)) {
+                throw new IOException("Invalid fixture validation response");
+            }
+            return List.of(validation.samples());
+        }, results -> sampleResults = results, false);
+    }
+
     private void write(Supplier<Call> request) {
+        sampleResults = List.of();
         notice = 0;
         work.run(request, Work::empty, ignored -> {
             notice = R.string.sms_diagnostic_updated;

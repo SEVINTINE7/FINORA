@@ -25,6 +25,26 @@ final class AdminSmsFormatController {
     @ResponseStatus(HttpStatus.CREATED)
     void draft(@org.springframework.web.bind.annotation.PathVariable int revision) { formats.draft(revision); }
 
+    @org.springframework.web.bind.annotation.GetMapping("/api/v1/admin/sms-formats/NSB/revisions/{revision}")
+    Definition readDraft(@PathVariable int revision) { return new Definition(formats.draftDefinition(revision)); }
+
+    @org.springframework.web.bind.annotation.PutMapping("/api/v1/admin/sms-formats/NSB/revisions/{revision}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void editDraft(@PathVariable int revision, @RequestBody JsonNode payload) {
+        if (!payload.isObject() || payload.size() != 1 || !payload.path("definition").isString()) {
+            throw ApiException.badRequest("Expected a definition string");
+        }
+        formats.editDraft(revision, payload.path("definition").asString());
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/api/v1/admin/sms-formats/NSB/revisions/{revision}/validate")
+    Validation validate(@PathVariable int revision) {
+        return new Validation(formats.validate(revision));
+    }
+
+    record Definition(String definition) {}
+    record Validation(java.util.List<Boolean> samples) {}
+
     @DeleteMapping("/api/v1/admin/sms-formats/NSB/revisions/{revision}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void discardDraft(@PathVariable int revision) { formats.discardDraft(revision); }

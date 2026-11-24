@@ -101,3 +101,6 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
 ## Proposed — still open
 
 - _None currently._
+- **D54 T45 authoring and D15 restricted re-consent** — Sahan reports Sevindu explicitly approved persistent ADMIN draft authoring with mandatory candidate-bound validation and a password-authenticated restricted D15 flow. Formal prerequisites, task ownership and independent review remain in force. This approval adds no production bank definition.
+  - T45 validates bounded definitions using the Android parser and a server-controlled revision of the three D35 synthetic fixtures and expected fields. Store the exact definition digest and fixture revision only after every sample passes. An edit clears both in the draft transaction. Publish and activate require current evidence and the separately approved definition digest under the bank lock. Legacy revision 1 replays the fixtures before activation. Existing approved active content and D36 wire format stay intact.
+  - D15 scope includes restricted export and deletion, explicit current-version acceptance, one-time expiring credentials and fresh sign-in after restoration. Ordinary financial access and refresh issuance stay unavailable while consent is withdrawn. Implementation and acceptance evidence are tracked separately.

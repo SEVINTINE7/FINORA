@@ -458,4 +458,6 @@
     <string name="sms_format_sample_matched">උදාහරණයේ දත්ත සාර්ථකව හඳුනා ගන්නා ලදී.</string>
     <string name="sms_format_sample_unmatched">උදාහරණයේ දත්ත හඳුනාගත නොහැකි විය.</string>
     <string name="sms_format_sample_result">%1$s\n%2$s</string>
+    <string name="sms_format_validate_approved">අනුමත නියැදි පරීක්ෂා කරන්න</string>
+    <string name="sms_format_fixture_result">නියැදිය %1$d · %2$s</string>
 </resources>

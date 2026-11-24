@@ -46,6 +46,27 @@ class SmsFormatRepository {
                 """, String.class, revision, published);
     }
 
+    void editDraft(int revision, String definition) {
+        jdbc.update("""
+                UPDATE sms_formats SET pattern = ?, validated_definition = NULL, validated_fixtures = NULL
+                WHERE bank_code = 'NSB' AND version = ? AND published = FALSE AND active = FALSE
+                """, definition, revision);
+    }
+
+    void recordValidation(int revision, String definitionDigest, String fixtureRevision) {
+        jdbc.update("""
+                UPDATE sms_formats SET validated_definition = ?, validated_fixtures = ?
+                WHERE bank_code = 'NSB' AND version = ?
+                """, definitionDigest, fixtureRevision, revision);
+    }
+
+    boolean hasValidation(int revision, String definitionDigest, String fixtureRevision) {
+        return Boolean.TRUE.equals(jdbc.queryForObject("""
+                SELECT EXISTS(SELECT 1 FROM sms_formats WHERE bank_code = 'NSB' AND version = ?
+                AND validated_definition = ? AND validated_fixtures = ?)
+                """, Boolean.class, revision, definitionDigest, fixtureRevision));
+    }
+
     void publish(int revision) {
         jdbc.update("UPDATE sms_formats SET published = TRUE WHERE bank_code = 'NSB' AND version = ?", revision);
     }

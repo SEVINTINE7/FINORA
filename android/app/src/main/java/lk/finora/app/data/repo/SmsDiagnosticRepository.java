@@ -73,6 +73,22 @@ public final class SmsDiagnosticRepository {
         return requests.call(new Request.Builder().url(url.build()).post(AccountRepository.json(Map.of())).build());
     }
 
+    public record Definition(String definition) {}
+    public record Validation(Boolean[] samples) {}
+
+    public static Call readDraft(ProtectedRequests requests, int revision) {
+        return requests.call(request(requests, draftPath(revision)).build());
+    }
+
+    public static Call editDraft(ProtectedRequests requests, int revision, String definition) {
+        return requests.call(request(requests, draftPath(revision))
+                .put(AccountRepository.json(new Definition(definition))).build());
+    }
+
+    private static String draftPath(int revision) {
+        return "/api/v1/admin/sms-formats/NSB/revisions/" + revision;
+    }
+
     public static Call discardRevision(ProtectedRequests requests, int revision) {
         return requests.call(request(requests, "/api/v1/admin/sms-formats/NSB/revisions/" + revision).delete().build());
     }

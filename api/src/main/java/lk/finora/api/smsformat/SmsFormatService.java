@@ -48,7 +48,10 @@ class SmsFormatService {
         if (active && !APPROVED_NSB_V1_SHA256.equals(sha256(rows.get(0)))) {
             throw new ApiException("CONFLICT", HttpStatus.CONFLICT, "SMS format is not approved");
         }
-        if (active) repository.activate(1);
+        if (active) {
+            requireValidation(1, rows.get(0));
+            repository.activate(1);
+        }
         else repository.deactivate(1);
     }
 
@@ -73,16 +76,54 @@ class SmsFormatService {
     }
 
     @Transactional
+    public void editDraft(int revision, String definition) {
+        repository.lockNsbV1();
+        definition(repository.revision(revision, false));
+        ApprovedSmsFixtures.parser(definition);
+        repository.editDraft(revision, definition);
+    }
+
+    @Transactional
+    public List<Boolean> validate(int revision) {
+        repository.lockNsbV1();
+        var rows = repository.revision(revision, false);
+        String candidate = definition(rows.isEmpty() ? repository.revision(revision, true) : rows);
+        List<Boolean> results = ApprovedSmsFixtures.validate(candidate);
+        boolean passed = results.stream().allMatch(Boolean.TRUE::equals);
+        repository.recordValidation(revision, passed ? sha256(candidate) : null,
+                passed ? ApprovedSmsFixtures.REVISION : null);
+        return results;
+    }
+
+    String draftDefinition(int revision) {
+        return definition(repository.revision(revision, false));
+    }
+
+    private static String definition(List<String> rows) {
+        if (rows.isEmpty()) throw ApiException.notFound("SMS format revision unavailable");
+        return rows.get(0);
+    }
+
+    private void requireValidation(int revision, String candidate) {
+        // Revision 1 is the shipped, byte-pinned D35 baseline. Replay its approved fixtures
+        // before permitting an explicit activation of that legacy revision.
+        if (revision == 1 && ApprovedSmsFixtures.validate(candidate).stream().allMatch(Boolean.TRUE::equals)) return;
+        if (!repository.hasValidation(revision, sha256(candidate), ApprovedSmsFixtures.REVISION)) {
+            throw new ApiException("CONFLICT", HttpStatus.CONFLICT, "SMS format requires current fixture validation");
+        }
+    }
+
+    @Transactional
     public void publish(int revision) {
         approved(repository.lockNsbV1());
-        approved(repository.revision(revision, false));
+        requireValidation(revision, approved(repository.revision(revision, false)));
         repository.publish(revision);
     }
 
     @Transactional
     public void activate(int revision) {
         approved(repository.lockNsbV1());
-        approved(repository.revision(revision, true));
+        requireValidation(revision, approved(repository.revision(revision, true)));
         repository.activate(revision);
     }
 
@@ -106,7 +147,7 @@ class SmsFormatService {
 
     record Revision(int version, boolean published, boolean active) {}
 
-    private static String sha256(String value) {
+    static String sha256(String value) {
         try {
             byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));

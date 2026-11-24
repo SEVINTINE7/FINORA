@@ -39,6 +39,7 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
         command(user, "/2/publish").andExpect(status().isForbidden());
         command(admin, "/2").andExpect(status().isCreated());
         command(admin, "/2/activate").andExpect(status().isNotFound());
+        command(admin, "/2/validate").andExpect(status().isOk());
         command(admin, "/2/publish").andExpect(status().isNoContent());
         command(admin, "/2/publish").andExpect(status().isNotFound());
         command(admin, "/2/activate").andExpect(status().isNoContent());
@@ -62,12 +63,43 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
                 .andReturn().getResponse().getContentAsString();
 
         command(admin, "/2").andExpect(status().isCreated());
+        command(admin, "/2/validate").andExpect(status().isOk());
         command(admin, "/2/publish").andExpect(status().isNoContent());
         jdbc.update("UPDATE sms_formats SET pattern = CONCAT(pattern, ' ') WHERE bank_code = 'NSB' AND version = 2");
 
         command(admin, "/2/activate").andExpect(status().isConflict());
         org.junit.jupiter.api.Assertions.assertEquals(1, activeRevision());
         mockMvc.perform(request).andExpect(status().isOk()).andExpect(content().string(initial));
+    }
+
+    @Test void draftEditsInvalidateEvidenceAndApprovalRemainsSeparateFromFixtures() throws Exception {
+        var admin = tokenFor(createUser(Role.ADMIN));
+        var staff = tokenFor(createUser(Role.STAFF));
+        command(admin, "/2").andExpect(status().isCreated());
+        command(admin, "/2/publish").andExpect(status().isConflict());
+        command(staff, "/2/validate").andExpect(status().isForbidden());
+        command(admin, "/2/validate").andExpect(status().isOk())
+                .andExpect(jsonPath("$.samples", org.hamcrest.Matchers.contains(true, true, true)));
+        String original = jdbc.queryForObject(
+                "SELECT pattern FROM sms_formats WHERE bank_code = 'NSB' AND version = 1", String.class);
+        edit(staff, original).andExpect(status().isForbidden());
+        edit(admin, "{}").andExpect(status().isBadRequest());
+        edit(admin, original).andExpect(status().isNoContent());
+        command(admin, "/2/publish").andExpect(status().isConflict());
+        edit(admin, original + " ").andExpect(status().isNoContent());
+        command(admin, "/2/validate").andExpect(status().isOk())
+                .andExpect(jsonPath("$.samples", org.hamcrest.Matchers.contains(true, true, true)));
+        command(admin, "/2/publish").andExpect(status().isConflict());
+        edit(admin, original).andExpect(status().isNoContent());
+        command(admin, "/2/validate").andExpect(status().isOk());
+        command(admin, "/2/publish").andExpect(status().isNoContent());
+        edit(admin, original).andExpect(status().isNotFound());
+    }
+
+    private org.springframework.test.web.servlet.ResultActions edit(String token, String definition) throws Exception {
+        return mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(REVISIONS + "/2")
+                .header("Authorization", "Bearer " + token).contentType("application/json")
+                .content(json(java.util.Map.of("definition", definition))));
     }
 
     private Integer activeRevision() {
@@ -85,6 +117,7 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
         discard(admin, 2).andExpect(status().isNoContent());
         discard(admin, 2).andExpect(status().isNotFound());
         command(admin, "/2").andExpect(status().isCreated());
+        command(admin, "/2/validate").andExpect(status().isOk());
         command(admin, "/2/publish").andExpect(status().isNoContent());
         discard(admin, 2).andExpect(status().isNotFound());
         command(admin, "/2/activate").andExpect(status().isNoContent());

@@ -10,13 +10,21 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import java.io.IOException;
 import lk.finora.app.R;
+import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.AccountRepository.ProtectedRequests;
+import lk.finora.app.data.repo.SmsDiagnosticRepository;
+import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 import lk.finora.app.sms.SmsParseResult.Parsed;
 import lk.finora.app.sms.SmsTemplateLoader;
 import lk.finora.app.ui.SecureActivity;
 
 public final class FormatSampleActivity extends SecureActivity {
+    static final String REVISION = "formatRevision";
     private ProtectedRequests admin;
+    private Work work;
+    private Button save;
+    private int revision;
+    private boolean loaded;
     private EditText definition;
     private EditText sample;
     private TextView result;
@@ -26,6 +34,7 @@ public final class FormatSampleActivity extends SecureActivity {
         super.onCreate(state);
         admin = ProtectedRequests.currentAdmin();
         if (!checkSession()) return;
+        revision = getIntent().getIntExtra(REVISION, 0);
         var scroll = new ScrollView(this);
         var page = new LinearLayout(this);
         page.setOrientation(LinearLayout.VERTICAL);
@@ -56,6 +65,23 @@ public final class FormatSampleActivity extends SecureActivity {
         };
         definition.addTextChangedListener(invalidateResult);
         sample.addTextChangedListener(invalidateResult);
+        if (revision > 0) {
+            save = new Button(this);
+            save.setText(R.string.records_save);
+            save.setOnClickListener(view -> saveDraft());
+            page.addView(save);
+            work = new Work(admin, () -> {
+                definition.setText("");
+                sample.setText("");
+            });
+            work.changes.observe(this, ignored -> {
+                if (!checkSession()) return;
+                save.setEnabled(loaded && !work.busy());
+                definition.setEnabled(loaded && !work.busy());
+                if (work.busy()) result.setText(R.string.records_loading);
+                else if (work.error != 0) result.setText(work.error);
+            });
+        }
         setContentView(scroll);
     }
 
@@ -63,6 +89,19 @@ public final class FormatSampleActivity extends SecureActivity {
         super.onStart();
         if (!checkSession()) return;
         admin.addListener(sessionChange);
+        if (revision > 0) {
+            work.run(() -> SmsDiagnosticRepository.readDraft(admin, revision), response -> {
+                var draft = AccountRepository.read(response, SmsDiagnosticRepository.Definition.class);
+                if (draft.definition() == null || draft.definition().length() > 65536) {
+                    throw new IOException("Invalid draft response");
+                }
+                return draft.definition();
+            }, value -> {
+                definition.setText(value);
+                loaded = true;
+            }, false);
+            return;
+        }
         try (var input = okio.Okio.buffer(okio.Okio.source(getAssets().open("sms/bank_formats.json")))) {
             definition.setText(input.readUtf8());
         } catch (IOException failure) {
@@ -73,11 +112,23 @@ public final class FormatSampleActivity extends SecureActivity {
     @Override protected void onStop() {
         if (admin != null) admin.removeListener(sessionChange);
         if (definition != null) {
-            definition.setText("");
+            if (revision == 0) definition.setText("");
             sample.setText("");
             result.setText("");
         }
         super.onStop();
+    }
+
+    @Override protected void onDestroy() {
+        if (work != null) work.close();
+        super.onDestroy();
+    }
+
+    private void saveDraft() {
+        if (!loaded || !checkSession()) return;
+        String candidate = definition.getText().toString();
+        work.run(() -> SmsDiagnosticRepository.editDraft(admin, revision, candidate), Work::empty,
+                ignored -> finish(), false);
     }
 
     private boolean checkSession() {
