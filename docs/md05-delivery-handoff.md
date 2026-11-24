@@ -1,6 +1,6 @@
 # FINORA delivery handoff through MD05
 
-Post-audit technical acceptance is **78/84**. MD01–MD04 account for 63/68 and MD05 for 15/16. T40.1 remains the sole open MD05 criterion and is deferred to T56 under D56. The criterion audit records the reopened T13 and T39 checks. Other tasks retain their original ownership, formal approvals and prerequisite order.
+Post-audit technical acceptance is **80/84**. MD01–MD04 account for 65/68 and MD05 for 15/16. T40.1 remains the sole open MD05 criterion and is deferred to T56 under D56. The criterion audit records T13 physical permission acceptance and the remaining T39 checks. Other tasks retain their original ownership, formal approvals and prerequisite order.
 
 ## Completed physical listening pass
 
@@ -23,12 +23,12 @@ The T40.1 checkbox stays open. Sahan verifies authenticated V1 Release behavior 
 
 | Scope | Verified | Remaining disposition |
 | --- | ---: | --- |
-| MD01 | 19/23 | T08 remains in review. T39 needs a profile-write correction and localization and device evidence. |
-| MD02 | 15/16 | T13 needs a current physical permission outcome check. T11/T14 retain formal prerequisites. |
+| MD01 | 20/23 | T08 remains in review. T39 needs profile-write correction, planning translation approval and an approved every-screen device walkthrough. |
+| MD02 | 16/16 | T13 is in review after the HMD permission outcome checks. T11/T14 retain formal prerequisites. |
 | MD03 | 9/9 | T15/T16 retain formal T10/T14 prerequisites as applicable. |
 | MD04 | 20/20 | Formal prerequisites and independent reviews; D55 and planning integration remain separate. |
 | MD05 | 15/16 | T40.1 deferred to deployment; formal prerequisites and independent reviews remain. |
-| Total | 78/84 | Five open MD requirements and one deployment deferral. |
+| Total | 80/84 | Three open T39 requirements and one deployment deferral. |
 | Original delegated MD05 scope | 22/22 | T41 4/4, T43 4/4, T45 6/6, T46 3/3, T47 5/5. Formal reviews remain. |
 | T07 | 6/7 | In progress pending the profile-write correction. |
 
@@ -91,7 +91,7 @@ T31.3 and T32.2 are Sahan-supported Android work. T31 PR #14 (`109a151`) provide
 Once the contracts and sequencing are approved, T31 should show server assumptions, missing-input states, changed bill totals requiring confirmation again, and the server’s zero/warning result. T32 should show a bilingual Simulation label, explicit baseline, signed change and separate category cuts, plus nullable result dates and distinct completed/no-capacity states. Both screens must discard stale session responses and render the exact server results, with tests against the approved APIs.
 ### Tracker delivery reconciliation
 
-The five original trackers contain 19/23, 15/16, 9/9, 20/20 and 15/16 checked. The remaining items are the T13 device criterion, T39.2–T39.4, the T39 device criterion and T40.1. The 22/22 original delegated count covers T41, T43, T45, T46 and T47. Other verified support items include T07 6/7, T09.4/5, T10.4, T12.5, T33 5/5, T35 4/4 and T36 5/5. T17.3, T18.4 and T19.3 have implemented flows and emulator evidence, but retain their task-specific physical checks. T55.1 reuses the T16 measurement while broader evaluation remains open.
+The five original trackers contain 20/23, 16/16, 9/9, 20/20 and 15/16 checked. The remaining items are T39.2, T39.4, the T39 device criterion and T40.1. The 22/22 original delegated count covers T41, T43, T45, T46 and T47. Other verified support items include T07 6/7, T09.4/5, T10.4, T12.5, T33 5/5, T35 4/4 and T36 5/5. T17.3, T18.4 and T19.3 have implemented flows and emulator evidence, but retain their task-specific physical checks. T55.1 reuses the T16 measurement while broader evaluation remains open.
 
 Draft PR #16 carries the reconciled trackers. At base `b70c36a03cc805a1f48393fcce94db4263fe72c4`, main still carries 0/16 on the original MD05 tracker. The existing implementation and acceptance evidence remain scoped to the review branch until an authorized merge.
 

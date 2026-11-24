@@ -1,7 +1,7 @@
 # Sahan 1 — App skeleton, role routing, languages (T37, T08, T39)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
-**MD01 — 19/23 verified.** T37 is done. T08 remains in review. T39 is in progress pending profile-write correction and broader localization and device evidence. Linked T09 still requires Sevindu’s independent-review handoff. [Development handoff](../../docs/md05-delivery-handoff.md).
+**MD01 — 20/23 verified.** T37 is done. T08 remains in review. T39 is in progress pending profile-write correction and broader localization and device evidence. Linked T09 still requires Sevindu’s independent-review handoff. [Development handoff](../../docs/md05-delivery-handoff.md).
 
 ---
 
@@ -61,7 +61,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
 
 **Done when**
-- [x] Every screen checked in both languages on a device; TalkBack reads main buttons
+- [ ] Every screen checked in both languages on a device; TalkBack reads main buttons
 
 **Handoff notes:**
 - Sahan approved 28 exact registration, Settings and shared Records pairs on 2026-11-25. The [pinned inventory](../../docs/t39-pending-translation-review.md) separates 61 pending planning pairs. T39.4 remains open.
