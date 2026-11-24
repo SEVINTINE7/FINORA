@@ -40,6 +40,11 @@ public class User {
     @Column(nullable = false)
     private Language language = Language.EN;
 
+    @Column(name = "staff_session_generation", nullable = false)
+    private long staffSessionGeneration;
+
+    public long getStaffSessionGeneration() { return staffSessionGeneration; }
+
     public Long getId() {
         return id;
     }

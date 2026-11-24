@@ -71,7 +71,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                if (user != null) {
+                Long generation = claims.get("staffGeneration", Long.class);
+                if (user != null && user.getRole().name().equals(role)
+                        && (!"STAFF".equals(role) || user.getStaffSessionGeneration() == (generation == null ? 0 : generation))) {
                     // The principal is the user id; read it with CurrentUser.id() or @AuthenticationPrincipal Long userId
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             userId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));

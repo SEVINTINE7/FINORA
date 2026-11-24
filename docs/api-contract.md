@@ -179,3 +179,11 @@ USER `POST /api/v1/support/tickets` accepts one of four canonical subject/body p
 STAFF lists the queue with `GET /api/v1/staff/tickets`. Unassigned rows disclose only the ID and status. `POST /api/v1/staff/tickets/{id}/claim` takes an OPEN unassigned ticket to IN_PROGRESS in one update. Only the assignee can close via `POST …/{id}/close` or reply via `POST …/{id}/replies` with `{revision,language}`. The server renders an approved revision and stores the exact sent text. The reply is preserved if its source revision is retired.
 
 STAFF `GET /api/v1/staff/reply-catalog` returns draft, active and retired versions available for review. `POST` with `{topic}` creates a draft using server-owned bilingual sentence blocks. A different STAFF member approves a draft via `POST …/{id}/approve`. STAFF can retire a revision via `POST …/{id}/retire`. A database unique key permits one active revision per topic. No user-provided text or interpolation is accepted. Separate native-speaker approval remains a release gate.
+
+## Staff provisioning (T43)
+
+ADMIN can list or create STAFF at `/api/v1/admin/staff`. Creation accepts `{email,fullName}` and returns 201 with `{id,temporaryPassword}` and `Cache-Control: no-store`. The role is fixed to STAFF. A pending account has no active sign-in. The temporary password itself is a single-use password-change credential, valid for 24 hours and accepted only at `POST /api/v1/auth/staff/activate` with `{email,temporaryPassword,password}`. A successful activation returns 204 without tokens. Sign in again with the new password.
+
+ADMIN can replace a pending temporary password at `POST /api/v1/admin/staff/{id}/activation`, which invalidates the previous temporary password. ADMIN can disable or re-enable activated STAFF at `PATCH /api/v1/admin/staff/{id}` with `{enabled}`. Each transition advances a server-side session generation, so prior access and refresh credentials remain invalid after re-enable. No endpoint promotes a user to ADMIN.
+
+ADMIN can activate or disable the hash-pinned D35 NSB bundle via `PATCH /api/v1/admin/sms-formats/NSB/1` with `{active}`. Activation verifies the approved content under a row lock. It returns 204 and preserves D36 distribution behavior. Draft format authoring and rollback remain outside this endpoint.

@@ -118,6 +118,9 @@ public class AuthService {
         if (user.getStatus() == UserStatus.DISABLED) {
             throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
         }
+        if (user.getRole() == Role.STAFF && stored.getStaffSessionGeneration() != user.getStaffSessionGeneration()) {
+            throw new ApiException(ErrorCodes.INVALID_REFRESH_TOKEN, HttpStatus.UNAUTHORIZED, "Please log in again");
+        }
         return createTokens(user);
     }
 
@@ -132,7 +135,8 @@ public class AuthService {
     }
 
     private LoginResponse createTokens(User user) {
-        String accessToken = jwtService.createAccessToken(user.getId(), user.getRole().name());
+        String accessToken = jwtService.createAccessToken(user.getId(), user.getRole().name(),
+                user.getStaffSessionGeneration());
 
         // The refresh token is 32 random bytes. The app keeps the token; we keep only its hash.
         byte[] bytes = new byte[32];
@@ -142,6 +146,7 @@ public class AuthService {
         RefreshToken stored = new RefreshToken();
         stored.setUserId(user.getId());
         stored.setTokenHash(sha256(refreshToken));
+        stored.setStaffSessionGeneration(user.getStaffSessionGeneration());
         stored.setExpiresAt(Instant.now().plus(REFRESH_TOKEN_LIFETIME));
         refreshTokenRepository.save(stored);
 

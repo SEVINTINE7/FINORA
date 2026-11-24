@@ -69,3 +69,7 @@ D41 adds `monthly_history` in V10 with owner/month uniqueness, exact decimal tot
 D43 adds V13. `monthly_history.reconstructed_at` records the first reconstruction time in UTC and stays null on ordinary D27 snapshots. `history_recovery_policy` stores the first eligible Colombo month. `history_recovery_retry` stores the next attempt time per owner/month and cascades on user deletion. See the [production activation procedure](deploy.md#history-recovery-activation-d43).
 
 T46.1 reads aggregate counts from V5 `support_tickets` without a schema change. Assigned and unassigned counts include OPEN and IN_PROGRESS only.
+
+- V14 adds SMS diagnostic metadata and escalation states. A per-user UTC-day key deduplicates submissions. A generated unique key limits each bank/error group to one active escalation. No message bodies or financial values are stored.
+- V15 adds immutable bilingual saved-reply revisions. The existing ticket and reply tables continue to store claims and rendered replies. Active revision uniqueness is enforced by a generated key.
+- V16 adds STAFF activation hashes and expiry, plus credential generations on users and refresh tokens. Generation zero preserves existing sessions until an operator changes that STAFF account's state.

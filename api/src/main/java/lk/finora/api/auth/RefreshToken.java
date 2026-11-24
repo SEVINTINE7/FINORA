@@ -31,6 +31,12 @@ public class RefreshToken {
     @Column(name = "revoked_at")
     private Instant revokedAt;
 
+    @Column(name = "staff_session_generation", nullable = false)
+    private long staffSessionGeneration;
+
+    public long getStaffSessionGeneration() { return staffSessionGeneration; }
+    public void setStaffSessionGeneration(long value) { staffSessionGeneration = value; }
+
     public Long getId() {
         return id;
     }
