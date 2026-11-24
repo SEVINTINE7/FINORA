@@ -41,9 +41,38 @@ public class AdviceDeliveryRepository {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Delivered publish(long owner, String month, AdvicePipelineService.Delivery candidate) {
+    public boolean claimGeneration(long owner, String month, String token) {
+        lock.acquire(owner);
+        if (find(owner, month).isPresent()) return false;
+        jdbc.update("""
+                DELETE FROM advice_generation_leases
+                WHERE user_id = ? AND month = ? AND expires_at <= UTC_TIMESTAMP(6)
+                """, owner, month);
+        return jdbc.update("""
+                INSERT INTO advice_generation_leases (user_id, month, lease_token, expires_at)
+                SELECT ?, ?, ?, UTC_TIMESTAMP(6) + INTERVAL 120 SECOND
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM advice_generation_leases WHERE user_id = ? AND month = ?
+                )
+                """, owner, month, token, owner, month) == 1;
+    }
+
+    public void releaseGeneration(long owner, String month, String token) {
+        jdbc.update("""
+                DELETE FROM advice_generation_leases WHERE user_id = ? AND month = ? AND lease_token = ?
+                """, owner, month, token);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public Delivered publish(long owner, String month, String token, AdvicePipelineService.Delivery candidate) {
         lock.acquire(owner);
         return find(owner, month).orElseGet(() -> {
+            if (jdbc.update("""
+                    DELETE FROM advice_generation_leases
+                    WHERE user_id = ? AND month = ? AND lease_token = ? AND expires_at > UTC_TIMESTAMP(6)
+                    """, owner, month, token) != 1) {
+                throw AdviceDeliveryService.generationInProgress();
+            }
             // MySQL JSON can coerce fractional JSON numbers to binary floating point.
             var stored = candidate.advice().stream().map(item -> new StoredItem(item.actionId(), item.text(),
                     item.numbers().stream().map(fact -> new StoredFact(fact.factKey().name(),
