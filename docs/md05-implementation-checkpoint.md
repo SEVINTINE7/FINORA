@@ -6,7 +6,7 @@ Baseline `b70c36a`. D45 and D46 record scoped delegation and early-start authori
 | --- | --- |
 | T40.1 | Existing encrypted token storage retained. Release artifact checks cover backup rules, cleartext and recognizable credential signatures. Runtime release logging evidence remains open. |
 | T40.2 | Release backup disabled and token exclusions retained. Activity windows and app-owned dialogs use secure windows. Retain platform-specific screenshot and Recents checks in the device checklist. |
-| T40.3 | Existing session and recovery paths retained. MD05 device lifecycle and expired-session matrix remains open. |
+| T40.3 | Android 17 verified process restart, rotation, offline retry and expired refresh rejection. A replacement login could not see the prior login's account. |
 | T40 Done when | Record device checklist results and sanitized Logcat evidence for tokens and SMS. |
 | T48.1 | Pending approval of saved-reply ownership, lifecycle, validation and starter text. |
 | T48.2 | FAQ warns against sharing sensitive information. Saved-reply privacy enforcement remains open. |
@@ -57,6 +57,16 @@ The connected XML reports 2 tests, 0 failures, 0 errors and 0 skips. Android JVM
 
 On Android 17, separate live checks verified the Sinhala USER FAQ and STAFF login, two queue counters, screenshot suppression and sign-out. The opt-in session runner APK built successfully and its packaged manifest names the original runner. The default runner uses Espresso 3.7.0 to avoid obsolete InputManager reflection. An emulator journey also exposed the FAQ's system-bar inset issue, which was corrected and retested. Recent-device Recents, lifecycle/resilience, runtime redaction and consolidated accessibility evidence remain open.
 
-Tracked acceptance is T40 1/4, T48 1/4, T49 0/4 and T51 1/4, for MD05 3/16. Delegated T41 0/4, T43 0/4, T45 1/6 (retained T45.3), T46 2/3 and T47 0/5 are counted separately. T52 remains in progress with no new checkbox.
+Tracked acceptance is T40 2/4, T48 1/4, T49 0/4 and T51 1/4, for MD05 4/16. Delegated T41 0/4, T43 0/4, T45 1/6 (retained T45.3), T46 2/3 and T47 0/5 are counted separately. T52 remains in progress with no new checkbox.
 
 Android 8/API 26 was unavailable. The official SDK command-line tools download attempt timed out: `curl: (28) Connection timed out after 10006 milliseconds`. The connected run used Android 17 only. Physical instrumentation was not run.
+
+Pending approval details, proposed bilingual saved replies and the consolidated handset checklist are in [MD05 owner decisions and handset checklist](md05-owner-proposal.md).
+
+## Android 17 follow-up on `84daafa`
+
+- Isolated Android 17 with a MySQL-backed disposable API restored a USER session across force-stop and relaunch. The dashboard survived a genuine portrait-to-landscape change. The original rotation settings were restored and read back.
+- Removing only the test reverse route reproduced offline session restore failure. Restoring the route and pressing the explicit Retry control restored the same session. Expiring only the disposable user's server-side refresh records led to sign-in. A replacement user did not see the prior account, and logout returned to sign-in. This verified definitive expiry handling through the refresh path.
+- The dashboard screenshot had no app content. Android Recents showed the FINORA login task as a blank preview. The final debug app process produced 16,527 bytes of Logcat, with zero matches for the known synthetic credential/record markers or JWT pattern. This sample covers one process and no SMS parsing or release runtime. Those logging checks and the physical checklist stay open.
+- Only Android 19 and Android 37.2 image packages are installed. Android 19 is an API level, below minSdk 26. Google's HTTPS command-line tools ZIP and SDK catalog both timed out in bounded connection attempts (curl 28, 8,001 ms and 8,005 ms) although DNS resolved. API 26 remains untested.
+- A fresh-boot connected run reported one test failure while waiting for the registration screen. After the emulator was warm, with the screen awake and animations temporarily disabled, the unchanged connected suite passed: `Tests 2/2 completed. (0 skipped) (0 failed)`, `BUILD SUCCESSFUL in 38s`. The retry does not isolate the first run's cause. Animation settings were restored and read back.

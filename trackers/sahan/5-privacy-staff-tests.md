@@ -8,12 +8,12 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sahan · **Depends on:** T37, T08 · **Touches:** `and:`, `AndroidManifest.xml`, `res:xml/`
 - [ ] T40.1 Tokens only in EncryptedSharedPreferences; no keys in APK; release logs stripped
 - [x] T40.2 `allowBackup=false` or backup rules excluding tokens; `FLAG_SECURE` on financial screens
-- [ ] T40.3 Handle network loss, process death, rotation and expired session gracefully
+- [x] T40.3 Handle network loss, process death, rotation and expired session gracefully
 
 **Done when**
 - [ ] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** D45 early start. Unsigned release APK checked for TLS, backup and transfer exclusions, debug-only READ_SMS, credential signatures and app logger calls. Android 17 verified secure login and language-dialog windows and blocked STAFF screen capture. Device privacy and resilience checklist remains open.
+**Handoff notes:** D45 early start. Release APK static checks retained. Isolated Android 17 verified process restoration, offline retry, rotation, expired refresh rejection and replacement-login isolation. Dashboard screenshot and login Recents preview were blocked. The handset checklist and release/SMS runtime Logcat evidence remain open.
 
 ---
 
