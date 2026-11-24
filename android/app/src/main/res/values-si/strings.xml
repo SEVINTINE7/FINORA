@@ -448,7 +448,7 @@
     <string name="admin_expense_kind">වියදම</string>
     <string name="settings_export_data">මගේ දත්ත බාගන්න</string>
     <string name="settings_export_saved">දත්ත ගොනුව සුරකින ලදී.</string>
-    <string name="settings_delete_confirm">ඔබේ FINORA ගිණුම සහ එහි දත්ත ස්ථිරව මකන්නද? මෙය ආපසු හැරවිය නොහැක.</string>
+    <string name="settings_delete_confirm">ඔබේ FINORA ගිණුම සහ එහි දත්ත ස්ථිරව මකා දමන්නද? මෙම ක්‍රියාව ආපසු හැරවිය නොහැක.</string>
     <string name="settings_delete_action">ගිණුම මකන්න</string>
     <string name="sms_format_sample_check">ආකෘතිය දුරකථනයේදීම පරීක්ෂා කරන්න</string>
     <string name="sms_format_candidate">පරීක්ෂා කිරීමට ඇති ආකෘතියේ JSON</string>
@@ -460,9 +460,9 @@
     <string name="sms_format_sample_result">%1$s\n%2$s</string>
     <string name="sms_format_validate_approved">අනුමත නියැදි පරීක්ෂා කරන්න</string>
     <string name="sms_format_fixture_result">නියැදිය %1$d · %2$s</string>
-    <string name="consent_recover_title">ඔබේ කැමැත්ත යළි පරීක්ෂා කරන්න</string>
+    <string name="consent_recover_title">ඔබේ එකඟතාව නැවත පරීක්ෂා කරන්න</string>
     <string name="consent_continue">එකඟ වී පිවිසීමේ තිරයට ආපසු යන්න</string>
-    <string name="consent_restored">කැමැත්ත යළි ලබා දී ඇත. නැවත පිවිසෙන්න.</string>
+    <string name="consent_restored">ඔබේ එකඟතාව නැවත සටහන් කර ඇත. නැවත පිවිසෙන්න.</string>
     <string name="consent_deleted">ඔබේ ගිණුම මකා දමා ඇත.</string>
     <string name="consent_retry">ප්‍රතිඵලය තහවුරු කළ නොහැක. නැවත උත්සාහ කිරීමට පෙර යළි පිවිසෙන්න.</string>
 </resources>
