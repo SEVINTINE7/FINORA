@@ -1,0 +1,110 @@
+package lk.finora.api.history;
+
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import lk.finora.api.support.IntegrationTest;
+import lk.finora.api.user.Role;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+class HistoryControllerTest extends IntegrationTest {
+    @Autowired private HistoryService history;
+    @Autowired private JdbcTemplate jdbc;
+    @Autowired private org.springframework.transaction.PlatformTransactionManager transactions;
+
+    @Test void usesColomboMonthBoundaryAndReadsExactSnapshotFacts() {
+        assertEquals(java.time.YearMonth.of(2025, 11), HistoryScheduler.previousMonth(
+                java.time.Instant.parse("2025-12-31T18:29:59Z")));
+        assertEquals(java.time.YearMonth.of(2025, 12), HistoryScheduler.previousMonth(
+                java.time.Instant.parse("2025-12-31T18:30:00Z")));
+        var owner = createUser(Role.USER);
+        jdbc.update("""
+                INSERT INTO monthly_history(user_id, month, income, expense, insights)
+                VALUES (?, '2025-12', 0, 0, '[{"type":"HIGH_WANTS","facts":{"wants":"9007199254740993.21"}}]')
+                """, owner.getId());
+        var row = history.read(owner.getId(), "2025-12", "2025-12").get(0);
+        assertEquals(new java.math.BigDecimal("9007199254740993.21"), row.insights().get(0).facts().get("wants"));
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional(propagation =
+            org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
+    void rolledBackTransactionDoesNotQueueOrAlterSnapshot() throws Exception {
+        var user = createUser(Role.USER);
+        try {
+            var month = new HistoryService.Key(user.getId(), "2026-10");
+            history.materialize(month, false);
+            jdbc.update("INSERT INTO accounts(user_id,name,type) VALUES (?, 'Rollback wallet','CASH')", user.getId());
+            long account = jdbc.queryForObject("SELECT id FROM accounts WHERE user_id=?", Long.class, user.getId());
+            String auth = "Bearer " + tokenFor(user);
+            new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(tx -> {
+                try {
+                    mockMvc.perform(post("/api/v1/transactions").header("Authorization", auth)
+                            .contentType(MediaType.APPLICATION_JSON).content(json(Map.of("accountId", account,
+                                    "type", "EXPENSE", "amount", "19.73", "txnDate", "2026-10-18"))))
+                            .andExpect(status().isCreated());
+                } catch (Exception failure) {
+                    throw new AssertionError(failure);
+                }
+                assertTrue(history.read(user.getId(), "2026-10", "2026-10").get(0).refreshPending());
+                tx.setRollbackOnly();
+            });
+            assertFalse(history.read(user.getId(), "2026-10", "2026-10").get(0).refreshPending());
+            assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM transactions WHERE user_id=?",
+                    Integer.class, user.getId()));
+        } finally {
+            jdbc.update("DELETE FROM users WHERE id = ?", user.getId());
+        }
+    }
+
+    @Test void repeatsSnapshotAndMovesTransactionBetweenExistingMonths() throws Exception {
+        var user = createUser(Role.USER);
+        String auth = "Bearer " + tokenFor(user);
+        var december = new HistoryService.Key(user.getId(), "2025-12");
+        var january = new HistoryService.Key(user.getId(), "2026-01");
+        history.materialize(december, false);
+        history.materialize(january, false);
+        history.materialize(january, false);
+        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM monthly_history WHERE user_id=?", Integer.class,
+                user.getId()));
+        jdbc.update("INSERT INTO accounts(user_id,name,type) VALUES (?, 'History wallet','CASH')", user.getId());
+        long account = jdbc.queryForObject("SELECT id FROM accounts WHERE user_id=?", Long.class, user.getId());
+        var created = mockMvc.perform(post("/api/v1/transactions").header("Authorization", auth)
+                .contentType(MediaType.APPLICATION_JSON).content(json(Map.of("accountId", account,
+                        "type", "INCOME", "amount", "17.21", "txnDate", "2025-12-31"))))
+                .andExpect(status().isCreated()).andReturn();
+        long id = jsonMapper.readTree(created.getResponse().getContentAsString()).path("id").longValue();
+        var pending = history.read(user.getId(), "2025-12", "2025-12").get(0);
+        assertTrue(pending.refreshPending());
+        assertNull(pending.income());
+        history.materialize(december, true);
+        mockMvc.perform(put("/api/v1/transactions/" + id).header("Authorization", auth)
+                .contentType(MediaType.APPLICATION_JSON).content(json(Map.of("accountId", account,
+                        "type", "INCOME", "amount", "17.21", "txnDate", "2026-01-01"))))
+                .andExpect(status().isOk());
+        history.materialize(december, true);
+        history.materialize(january, true);
+        mockMvc.perform(get("/api/v1/history").param("from", "2025-12").param("to", "2026-01")
+                .header("Authorization", auth))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].income").value(0.0))
+                .andExpect(jsonPath("$[1].income").value(17.21))
+                .andExpect(jsonPath("$[1].score").isEmpty());
+        assertTrue(history.read(createUser(Role.USER).getId(), "2025-12", "2026-01").isEmpty());
+    }
+
+    @Test void boundsAndRolesAreEnforced() throws Exception {
+        var call = "/api/v1/history?from=2024-01&to=2026-01";
+        mockMvc.perform(get(call)).andExpect(status().isUnauthorized());
+        for (Role role : new Role[]{Role.ADMIN, Role.STAFF}) {
+            mockMvc.perform(get(call).header("Authorization", "Bearer " + tokenFor(createUser(role))))
+                    .andExpect(status().isForbidden());
+        }
+        mockMvc.perform(get(call).header("Authorization", "Bearer " + tokenFor(createUser(Role.USER))))
+                .andExpect(status().isBadRequest());
+    }
+}
