@@ -216,8 +216,23 @@ public class UserJourneyTest {
     }
 
     private static void select(int id, String label) {
-        clickId(id);
-        onData(hasToString(is(label))).perform(click());
+        onView(withId(id)).perform(reveal(), new ViewAction() {
+            @Override public Matcher<View> getConstraints() {
+                return allOf(isAssignableFrom(android.widget.Spinner.class), isEnabled());
+            }
+            @Override public String getDescription() { return "select the synthetic fixture choice"; }
+            @Override public void perform(UiController controller, View view) {
+                var spinner = (android.widget.Spinner) view;
+                for (int i = 0; i < spinner.getCount(); i++) {
+                    if (label.equals(String.valueOf(spinner.getItemAtPosition(i)))) {
+                        spinner.setSelection(i);
+                        controller.loopMainThreadUntilIdle();
+                        return;
+                    }
+                }
+                fail("Expected synthetic fixture choice is unavailable");
+            }
+        });
     }
 
     private static void enter(int id, String value) {

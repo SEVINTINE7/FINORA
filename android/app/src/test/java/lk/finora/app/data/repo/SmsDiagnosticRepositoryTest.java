@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 
 public class SmsDiagnosticRepositoryTest {
     @Test public void reportContainsOnlyExplicitNullMetadataAndStableErrorCode() throws Exception {
-        var request = SmsDiagnosticRepository.reportBody(Code.from(new ManualReview(Reason.AMBIGUOUS_FORMAT)));
+        var request = SmsDiagnosticRepository.reportBody(Code.from(new ManualReview(Reason.AMBIGUOUS_FORMAT)), null);
         assertTrue(request.isOneShot());
         var bytes = new Buffer();
         request.writeTo(bytes);
@@ -21,5 +21,11 @@ public class SmsDiagnosticRepositoryTest {
         assertTrue(json.get("formatVersion").isJsonNull());
         assertEquals("FORMAT_AMBIGUOUS", json.get("errorCode").getAsString());
         assertNull(Code.from(new ManualReview(Reason.CANCELLED)));
+        var inbox = new Buffer();
+        SmsDiagnosticRepository.reportBody(Code.FORMAT_UNRECOGNIZED,
+                lk.finora.app.sms.SmsInboxReader.BankCode.NSB).writeTo(inbox);
+        var metadata = JsonParser.parseString(inbox.readUtf8()).getAsJsonObject();
+        assertEquals("NSB", metadata.get("bankCode").getAsString());
+        assertTrue(metadata.get("formatVersion").isJsonNull());
     }
 }

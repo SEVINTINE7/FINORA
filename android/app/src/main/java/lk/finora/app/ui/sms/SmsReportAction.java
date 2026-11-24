@@ -11,6 +11,7 @@ import lk.finora.app.data.repo.AccountRepository.ProtectedRequests;
 import lk.finora.app.data.repo.SmsDiagnosticRepository;
 import lk.finora.app.data.repo.SmsDiagnosticRepository.Code;
 import lk.finora.app.ui.SecureActivity;
+import lk.finora.app.sms.SmsInboxReader.BankCode;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -21,6 +22,7 @@ final class SmsReportAction {
     private final BooleanSupplier permitted;
     private final IntConsumer message;
     private Code code;
+    private BankCode bank;
     private Call active;
     private AlertDialog dialog;
 
@@ -33,27 +35,35 @@ final class SmsReportAction {
     }
 
     void set(Code value) {
+        set(value, null);
+    }
+
+    void set(Code value, BankCode approvedBank) {
         reset();
         code = value;
+        bank = approvedBank;
         button.setVisibility(code == null ? View.GONE : View.VISIBLE);
     }
 
     private void confirm() {
         if (!permitted.getAsBoolean() || code == null || active != null) return;
         Code selected = code;
+        BankCode selectedBank = bank;
         dialog = SecureActivity.showSecure(new AlertDialog.Builder(owner).setTitle(R.string.sms_report_problem)
-                .setMessage(owner.getString(R.string.sms_report_preview, selected.name()))
+                .setMessage(owner.getString(R.string.sms_report_preview,
+                        selectedBank == null ? owner.getString(R.string.sms_diagnostic_unknown) : selectedBank.name(),
+                        selected.name()))
                 .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(R.string.sms_report_send, (prompt, which) -> send(selected)).create());
+                .setPositiveButton(R.string.sms_report_send, (prompt, which) -> send(selected, selectedBank)).create());
     }
 
-    private void send(Code selected) {
-        if (!permitted.getAsBoolean() || code != selected) return;
+    private void send(Code selected, BankCode selectedBank) {
+        if (!permitted.getAsBoolean() || code != selected || bank != selectedBank) return;
         var requests = ProtectedRequests.currentUser();
         if (requests == null || !permitted.getAsBoolean()) return;
         Call call;
         try {
-            call = SmsDiagnosticRepository.prepare(requests, selected);
+            call = SmsDiagnosticRepository.prepare(requests, selected, selectedBank);
         } catch (IllegalStateException ended) {
             permitted.getAsBoolean();
             return;
@@ -83,6 +93,7 @@ final class SmsReportAction {
         if (active != null) active.cancel();
         active = null;
         code = null;
+        bank = null;
         button.setEnabled(true);
         button.setVisibility(View.GONE);
     }

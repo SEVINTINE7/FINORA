@@ -223,14 +223,10 @@ public final class SmsAccessActivity extends SecureActivity {
                         for (var row : result.results()) {
                             if (row instanceof lk.finora.app.sms.SmsParseResult.Parsed parsed) parsedRows.add(parsed);
                         }
-                        for (var row : result.results()) {
-                            if (row instanceof lk.finora.app.sms.SmsParseResult.ManualReview review) {
-                                var code = lk.finora.app.data.repo.SmsDiagnosticRepository.Code.from(review);
-                                if (code != null) {
-                                    report.set(code);
-                                    break;
-                                }
-                            }
+                        if (result.diagnostic() != null) {
+                            var review = result.diagnostic();
+                            report.set(lk.finora.app.data.repo.SmsDiagnosticRepository.Code.from(review.result()),
+                                    review.approvedBank());
                         }
                         preview.replace(parsedRows);
                         if (!parsedRows.isEmpty()) previewButton.setVisibility(View.VISIBLE);

@@ -20,7 +20,11 @@ public final class SmsInboxReader {
     private static final Duration MAX_RANGE = Duration.ofDays(31);
 
     public enum Status { COMPLETE, NO_FORMATS, PERMISSION_REQUIRED, INVALID_RANGE, CANCELLED, UNAVAILABLE }
-    public record Scan(Status status, List<SmsParseResult> results) {}
+    public record Scan(Status status, List<SmsParseResult> results, Review diagnostic) {
+        public Scan(Status status, List<SmsParseResult> results) { this(status, results, null); }
+    }
+    public enum BankCode { NSB }
+    public record Review(SmsParseResult.ManualReview result, BankCode approvedBank) {}
 
     interface Source {
         Rows query(String selection, String[] arguments, int limit, CancellationSignal cancellation);
@@ -81,6 +85,7 @@ public final class SmsInboxReader {
             arguments.add(Long.toString(start));
             arguments.add(Long.toString(end));
             List<SmsParseResult> results = new ArrayList<>();
+            Review diagnostic = null;
             try (Rows rows = source.query(selection, arguments.toArray(new String[0]), maxRows, signal)) {
                 if (rows == null) return empty(Status.UNAVAILABLE);
                 for (int visited = 0; visited < maxRows; visited++) {
@@ -95,12 +100,18 @@ public final class SmsInboxReader {
                             && review.reason() == SmsParseResult.Reason.CANCELLED) {
                         return empty(Status.CANCELLED);
                     }
+                    if (diagnostic == null && parsed instanceof SmsParseResult.ManualReview review
+                            && review.reason() != SmsParseResult.Reason.LIMIT_REACHED
+                            && review.reason() != SmsParseResult.Reason.INPUT_TOO_LARGE) {
+                        // D35 approves this mapping for local diagnostics. It is not proof of sender identity.
+                        diagnostic = new Review(review, "NSB".equals(sender) ? BankCode.NSB : null);
+                    }
                     results.add(parsed);
                 }
             }
             if (cancelled.getAsBoolean()) return empty(Status.CANCELLED);
             if (!permitted.getAsBoolean()) return empty(Status.PERMISSION_REQUIRED);
-            return new Scan(Status.COMPLETE, Collections.unmodifiableList(results));
+            return new Scan(Status.COMPLETE, Collections.unmodifiableList(results), diagnostic);
         } catch (OperationCanceledException stop) {
             return empty(Status.CANCELLED);
         } catch (SecurityException denied) {

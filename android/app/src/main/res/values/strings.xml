@@ -370,7 +370,7 @@
     <string name="advice_action_goal">Recorded goal allocations remain LKR %1$s below current targets. Review affordability before allocating more.</string>
     <string name="advice_action_savings">Recorded headroom supports up to LKR %1$s toward the initial savings target. Confirm all essential costs and obligations first.</string>
     <string name="sms_report_problem">Report problem</string>
-    <string name="sms_report_preview">Bank: unknown\nFormat version: unknown\nError code: %1$s\n\nOnly these details will be sent. Your message and financial details stay on this phone.</string>
+    <string name="sms_report_preview">Bank: %1$s\nFormat version: unknown\nError code: %2$s\n\nOnly these details will be sent. Your message and financial details stay on this phone.</string>
     <string name="sms_report_send">Send report</string>
     <string name="sms_report_sent">Report sent.</string>
     <string name="sms_report_failed">Could not confirm delivery. You can try sending the same report again.</string>

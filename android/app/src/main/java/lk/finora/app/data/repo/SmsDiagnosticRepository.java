@@ -1,6 +1,7 @@
 package lk.finora.app.data.repo;
 
 import lk.finora.app.sms.SmsParseResult;
+import lk.finora.app.sms.SmsInboxReader.BankCode;
 import okhttp3.Call;
 import okhttp3.Request;
 import java.util.Map;
@@ -22,16 +23,16 @@ public final class SmsDiagnosticRepository {
 
     private SmsDiagnosticRepository() {}
 
-    public static Call prepare(AccountRepository.ProtectedRequests requests, Code code) {
+    public static Call prepare(AccountRepository.ProtectedRequests requests, Code code, BankCode bank) {
         var url = requests.origin().newBuilder().encodedPath("/api/v1/support/sms-diagnostics").build();
-        return requests.call(new Request.Builder().url(url).post(reportBody(code)).build());
+        return requests.call(new Request.Builder().url(url).post(reportBody(code, bank)).build());
     }
 
-    static okhttp3.RequestBody reportBody(Code code) {
-        return AccountRepository.jsonIncludingNulls(new SenderlessReport(null, null, code));
+    static okhttp3.RequestBody reportBody(Code code, BankCode bank) {
+        return AccountRepository.jsonIncludingNulls(new Report(bank, null, code));
     }
 
-    private record SenderlessReport(String bankCode, Integer formatVersion, Code errorCode) {}
+    private record Report(BankCode bankCode, Integer formatVersion, Code errorCode) {}
 
     public record Group(String bankCode, Integer formatVersion, Code errorCode, long reports) {}
     public record Escalation(long id, String bankCode, Code errorCode, String status) {}
