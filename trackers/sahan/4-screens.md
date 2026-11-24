@@ -8,19 +8,19 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sahan · **Support:** Sevindu · **Depends on:** T10, T17 · **Touches:** `and:ui/dashboard/`, `api:dashboard/`
 **D40 Android scope:** Read `GET /api/v1/dashboard?month=YYYY-MM` with an authenticated USER request bound to the current login. Keep exact totals and category/month amounts in decimal form, provide text equivalents for charts, and reload Home after returning from Records. Verify the server fixture and keep the physical performance criterion separate.
 - [x] T20.1 [API·Sevindu] `GET /api/v1/dashboard?month=` → income, expense, net, by-category totals, 6-month trend
-- [ ] T20.2 [AND] Dashboard: totals cards, category pie, trend bar chart (MPAndroidChart), month picker
+- [x] T20.2 [AND] Dashboard: totals cards, category pie, trend bar chart (MPAndroidChart), month picker
 - [x] T20.3 [AND] Empty state for new users
 
 **Done when**
 - [x] API test: dashboard totals equal sum of raw transactions for fixture data
-- [ ] Screen loads < 2 s with one year of data on a mid-range phone
+- [x] Screen loads < 2 s with one year of data on a mid-range phone
 
 **Handoff notes:**
-- D40 dashboard reads exact backend totals, category amounts and six-month net. Isolated Android 17 verified an empty month, exact fixture values including negative net, month switches and refresh after a transaction was added.
+- HMD Crest Android 14 matched dashboard fixture LKR 100000.00 income, 110000.22 expense and -10000.22 net; verified month switching and refresh after create, edit and delete. A local proxy verified connection failure and Retry, plus disabled month controls during a held response.
 - `api:dashboard/`: `DashboardController`, `DashboardService`, `dto/` (`DashboardResponse`, `CategoryTotal`, `MonthTotal`). New `TransactionRepository.sumExpenseByCategory` (GROUP BY).
 - D17: pie = expenses only (null category = one slice, app shows "Uncategorised" from strings.xml); `month` optional → current month (Asia/Colombo); trend = 6 months oldest first.
 - Empty state (T20.3): new user gets 0.00 totals, `byCategory: []`, 6 zero trend months.
-- Focused backend suite passed 54 tests, including 6 dashboard tests. The 24-row, 12-month fixture returned in 86–110 ms on loopback; emulator tap-to-text detection including UI polling was 2,844 and 2,478 ms. The mid-range physical-phone target and prescribed MPAndroidChart integration remain open.
+- MPAndroidChart v3.1.0 resolved from the module-scoped JitPack repository. Final HMD warm Records-to-Home loaded viewport was 505/504/486 ms with 27 synthetic records over 12 months, including USB capture overhead. Android passed 140 JVM tests, V1 debug, release manifest checks and lint with zero issues.
 
 ---
 
@@ -28,7 +28,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sahan · **Depends on:** T37, T09 · **Touches:** `and:ui/main/`, nav graph
 **D40 Android scope:** Keep the saved five-tab selection, route to existing non-exported USER activities, and verify refresh after writes. History and help need actual destinations before final acceptance.
 - [ ] T38.1 Bottom nav: Home (dashboard), Records, Plan (budgets/bills/goals), Insights, More (history, settings, help)
-- [ ] T38.2 Wire each screen as its API task finishes (track here which are wired)
+- [x] T38.2 Wire each screen as its API task finishes (track here which are wired)
 - [ ] T38.3 Lists refresh after create/update/delete everywhere
 
 **Done when**
@@ -36,24 +36,26 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - Home has the dashboard. Records links transactions, manual entry, CSV and SMS. Plan links the existing budget, bill and goal screens. Insights links the D20 screen. More links accounts, categories, settings and help.
-- Isolated Android 17 reached all five tabs, returned from Insights using Back, opened Help and kept Plan selected across configuration change. Home reloaded exact totals after a synthetic transaction write.
-- History still needs Sevindu's T33.3 API and T33.4 Android screen. Full refresh matrix, TalkBack and bilingual device checks remain open.
+- HMD Android 14 opened the implemented Records, Plan, Insights and More destinations and exercised Back. Home refreshed after transaction create, edit and delete and isolated two disposable logins. Prior emulator evidence covers selected-tab recreation.
+- History still needs Sevindu's T33.3 API and T33.4 Android screen. The full per-screen mutation refresh matrix and physical rotation remain open.
 
 ---
 
 ### T24 · Insights and health-score screens · `FR06 / FR07`
 **Lead:** Sahan · **Support:** Thilina · **Depends on:** T22, T23, T38 · **Touches:** `and:ui/insights/`
 **D40 Android scope:** Use `GET /api/v1/insights`, `GET /api/v1/score`, and `GET/PUT /api/v1/score-inputs/{month}`. Show server facts, five D20 components and explanations, with missing and not-applicable values kept distinct. Verify against backend fixtures and protect all requests with the current USER login.
-- [ ] T24.1 Insights list: each pattern with its numbers (amount, % of income, period)
-- [ ] T24.2 Score screen: total 0–100 + five parts, each with its reason
+- [x] T24.1 Insights list: each pattern with its numbers (amount, % of income, period)
+- [x] T24.2 Score screen: total 0–100 + five parts, each with its reason
 - [x] T24.3 "General guidance, not professional financial advice" note (EN/SI)
 
 **Done when**
-- [ ] Screen values match Thilina's backend fixture results
+- [x] Screen values match Thilina's backend fixture results
 
 **Handoff notes:**
 - Isolated Android 17 displayed an unavailable D20 score, saved and reloaded a declaration, retained an unsaved 123.45 reserve through landscape recreation, and displayed the financial-guidance note. English/Sinhala resources contain the note.
-- Focused insight and score backend tests passed. Full device comparison for positive patterns and score fixtures, accessibility and broader error-path acceptance remain open.
+- HMD Android 14 displayed all four patterns, exact fixture figures and periods, score 47 with two not-applicable components and score 52 with five scored components. The zero-income month displayed missing inputs and an unavailable score.
+- A proxy withheld a committed declaration response. HMD showed uncertainty, one PUT was observed, and an explicit reload was required before editing and displayed the committed amount.
+- Corrected dark-on-dark Insights and declaration text. HMD screenshots verified readable English and Sinhala Insights after the fix. Sahan confirmed TalkBack spoke Previous month and Next month correctly in both languages, in order.
 
 ---
 
