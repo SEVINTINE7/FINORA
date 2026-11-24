@@ -9,14 +9,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T15.1 [AND] Preview list of parsed SMS: edit amount/date/merchant/category before saving; select/deselect
   - D37 scope: an in-memory, USER-session-bound preview for typed inbox/paste results. Edit an exact LKR amount, calendar date, merchant, account and type-compatible optional category; toggle inclusion. D38 adds explicit confirmation before a batch write.
 - [x] T15.2 [AND] Compute the D38 reference-less SHA-256 fingerprint before preview edits; report potential duplicates for review
-- [x] T15.3 [API·Sevindu] `POST /api/v1/transactions/batch` (source=SMS/PASTE); duplicate hash → reported, not saved
+- [ ] T15.3 [API·Sevindu] `POST /api/v1/transactions/batch` (source=SMS/PASTE); duplicate hash → reported, not saved
 - [x] T15.4 [AND] Keep a frozen structured batch in screen/session memory on uncertain outcomes; retry only on explicit confirmation
 
 **Done when**
 - [x] Tests: same SMS imported twice → saved once; manual entry matching an SMS flagged; retry after network loss
 
 **Handoff notes:**
-- D37/D38 allow local Android and delegated T15.3 verification before T10/T14 formal closure. D26 atomically validates the batch and flags possible manual matches without changing existing manual records.
+- D37/D38 allow local Android and delegated T15.3 verification before T10/T14 formal closure. D26 validates the batch and flags possible manual matches. Pre-MD04 MySQL audit reproduced account deletion cascading a batch row already reported SAVED. Account-owner fix and concurrency verification are pending.
 - D38 fingerprints original local date, direction, exact cent amount and normalized merchant for either source. An unresolved equal fingerprint is reported for review; confirmed distinct records can be entered manually.
 - Android 17 isolated emulator: confirmed Paste saved one and reported a manual match. The equivalent inbox row was flagged, two distinct CEFT rows saved, and a deliberately lost response led to no auto-replay. The explicit identical retry saved zero and the original manual row remained.
 - MySQL verification passed 276 tests and the coverage gate, including concurrent duplicate handling, atomic rejection and ownership. Android passed 132 JVM tests, V1 debug and lint (one existing budget-format warning). Release manifest omits READ_SMS.
