@@ -411,4 +411,17 @@
     <string name="support_draft_state">Draft</string>
     <string name="support_active">Active</string>
     <string name="support_retired">Retired</string>
+    <string name="staff_activate">Set up staff access</string>
+    <string name="staff_temporary">Temporary staff password</string>
+    <string name="staff_new_password">New password</string>
+    <string name="staff_activation_done">Password changed. Go back and sign in with your new password.</string>
+    <string name="staff_activation_failed">Could not confirm setup. Check the details or try signing in with your new password.</string>
+    <string name="staff_manage">Manage staff access</string>
+    <string name="staff_create">Create staff account</string>
+    <string name="staff_account_summary">%1$s · %2$s</string>
+    <string name="staff_reissue">Replace temporary password</string>
+    <string name="staff_enable">Enable staff account</string>
+    <string name="staff_disable">Disable staff account</string>
+    <string name="staff_full_name">Full name</string>
+    <string name="staff_secret_once">%1$s\n\nShown once. Share it only through the approved secure channel. It expires in 24 hours.</string>
 </resources>

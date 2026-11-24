@@ -109,6 +109,12 @@ public class UserJourneyTest {
             onView(withText(R.string.faq_title)).check(matches(isDisplayed()));
             onView(withText(R.string.faq_login)).check(matches(isDisplayed()));
             pressBack();
+            clickText(R.string.support_tickets);
+            clickText(R.string.support_create);
+            onView(withText(R.string.support_language)).inRoot(isDialog()).perform(click());
+            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
+            await(By.textContains("· Language · Open"));
+            pressBack();
             clickText(R.string.account_list_title);
             awaitId("records_add");
             clickId(R.id.records_add);

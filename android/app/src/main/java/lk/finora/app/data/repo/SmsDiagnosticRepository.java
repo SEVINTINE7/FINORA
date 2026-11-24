@@ -24,8 +24,11 @@ public final class SmsDiagnosticRepository {
 
     public static Call prepare(AccountRepository.ProtectedRequests requests, Code code) {
         var url = requests.origin().newBuilder().encodedPath("/api/v1/support/sms-diagnostics").build();
-        return requests.call(new Request.Builder().url(url)
-                .post(AccountRepository.jsonIncludingNulls(new SenderlessReport(null, null, code))).build());
+        return requests.call(new Request.Builder().url(url).post(reportBody(code)).build());
+    }
+
+    static okhttp3.RequestBody reportBody(Code code) {
+        return AccountRepository.jsonIncludingNulls(new SenderlessReport(null, null, code));
     }
 
     private record SenderlessReport(String bankCode, Integer formatVersion, Code errorCode) {}

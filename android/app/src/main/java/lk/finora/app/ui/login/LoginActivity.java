@@ -77,6 +77,11 @@ public final class LoginActivity extends SecureActivity {
         languageSelector = LocaleHelper.selector(this, LocaleHelper::apply);
         sheet.addView(languageSelector, ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+        var activate = new android.widget.Button(this);
+        activate.setText(R.string.staff_activate);
+        activate.setOnClickListener(view -> startActivity(new android.content.Intent(this,
+                lk.finora.app.ui.staff.StaffAccessActivity.class)));
+        sheet.addView(activate, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         configureInsets();
         emailFeedback = new FieldFeedback(email, findViewById(R.id.email_field),
                 findViewById(R.id.email_error), null);

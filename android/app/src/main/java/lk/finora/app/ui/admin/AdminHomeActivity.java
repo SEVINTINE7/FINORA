@@ -14,5 +14,13 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
         diagnostics.setOnClickListener(view -> startActivity(new android.content.Intent(this,
                 lk.finora.app.ui.support.DiagnosticQueueActivity.class)));
         layout.addView(diagnostics, 1);
+        var staff = new android.widget.Button(this);
+        staff.setText(R.string.staff_manage);
+        staff.setOnClickListener(view -> {
+            var screen = lk.finora.app.ui.staff.StaffAccessActivity.class;
+            startActivity(new android.content.Intent(this, screen)
+                    .putExtra(lk.finora.app.ui.staff.StaffAccessActivity.ADMINISTRATION, true));
+        });
+        layout.addView(staff);
     }
 }

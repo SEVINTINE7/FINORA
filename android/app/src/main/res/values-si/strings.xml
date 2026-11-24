@@ -411,4 +411,17 @@
     <string name="support_draft_state">කෙටුම්පත</string>
     <string name="support_active">සක්‍රියයි</string>
     <string name="support_retired">භාවිතයෙන් ඉවත් කර ඇත</string>
+    <string name="staff_activate">කාර්ය මණ්ඩල ප්‍රවේශය සකසන්න</string>
+    <string name="staff_temporary">කාර්ය මණ්ඩල තාවකාලික මුරපදය</string>
+    <string name="staff_new_password">නව මුරපදය</string>
+    <string name="staff_activation_done">මුරපදය වෙනස් කරන ලදී. ආපසු ගොස් නව මුරපදයෙන් පිවිසෙන්න.</string>
+    <string name="staff_activation_failed">ප්‍රවේශය සැකසූ බව තහවුරු කළ නොහැක. විස්තර පරීක්ෂා කරන්න හෝ නව මුරපදයෙන් පිවිසීමට උත්සාහ කරන්න.</string>
+    <string name="staff_manage">කාර්ය මණ්ඩල ප්‍රවේශය කළමනාකරණය කරන්න</string>
+    <string name="staff_create">කාර්ය මණ්ඩල ගිණුමක් සාදන්න</string>
+    <string name="staff_account_summary">%1$s · %2$s</string>
+    <string name="staff_reissue">තාවකාලික මුරපදය ප්‍රතිස්ථාපනය කරන්න</string>
+    <string name="staff_enable">කාර්ය මණ්ඩල ගිණුම සක්‍රිය කරන්න</string>
+    <string name="staff_disable">කාර්ය මණ්ඩල ගිණුම අක්‍රිය කරන්න</string>
+    <string name="staff_full_name">සම්පූර්ණ නම</string>
+    <string name="staff_secret_once">%1$s\n\nඑක් වරක් පමණක් පෙන්වයි. අනුමත ආරක්ෂිත මාර්ගයෙන් පමණක් බෙදා ගන්න. පැය 24කින් කල් ඉකුත් වේ.</string>
 </resources>
