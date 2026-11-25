@@ -23,7 +23,9 @@ recorded or contacted. T56 deployment and operational approval remain with Sevin
 4. Set FINORA_STAGE_APPROVED_ORIGIN to the canonical https origin on standard port 443
    with no trailing slash. Set FINORA_STAGE_OWNER_APPROVED and
    FINORA_STAGE_PROVIDERS_AND_FIREBASE_OFF_VERIFIED to yes only after the corresponding
-   approvals and checks. Inject FINORA_STAGE_A_EMAIL, FINORA_STAGE_A_PASSWORD,
+   approvals and checks. Set FINORA_STAGE_SYNTHETIC_FIXTURES_VERIFIED to yes only
+   after verifying both synthetic accounts and the genuine expired-token provenance.
+   Start the process with TLS key logging disabled. Inject FINORA_STAGE_A_EMAIL, FINORA_STAGE_A_PASSWORD,
    FINORA_STAGE_A_ACCOUNT_ID, the equivalent B variables, and FINORA_STAGE_A_EXPIRED_TOKEN
    into a dedicated process through the approved secret mechanism. Keep them out of
    command-line values, committed files and retained evidence.
@@ -52,6 +54,8 @@ test client trusts that certificate only within the test; the staging CLI provid
 no custom certificate or trust-bypass option. Execution 53 passed 6/6 checks, including
 certificate trust and hostname rejection using real loopback TLS. The auth and finance
 contract responses and HTTP redirect/refusal behavior used local mocked fixtures.
+Execution 54 passed those six checks plus two focused refusal checks for TLS key
+logging and missing synthetic-fixture attestation.
 
 ## Long-term synthetic data
 

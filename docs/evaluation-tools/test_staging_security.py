@@ -84,6 +84,24 @@ class ContractTest(unittest.TestCase):
             self.assertEqual(stage.main(), 1)
             transport.assert_not_called()
 
+    def test_key_logging_environment_refuses_before_tls_context_creation(self):
+        with patch.dict(os.environ, {"SSLKEYLOGFILE": "synthetic-key-log"}), \
+                patch.object(stage.ssl, "create_default_context") as create:
+            with self.assertRaisesRegex(stage.CheckFailed, "TLS key logging"):
+                stage.Transport("stage.example.invalid")
+            create.assert_not_called()
+
+    def test_cli_without_fixture_attestation_does_not_create_transport(self):
+        env = {"FINORA_STAGE_APPROVED_ORIGIN": "https://stage.example.invalid",
+               "FINORA_STAGE_OWNER_APPROVED": "yes",
+               "FINORA_STAGE_PROVIDERS_AND_FIREBASE_OFF_VERIFIED": "yes"}
+        with patch.dict(os.environ, env, clear=True), patch("sys.argv", ["staging_security.py"]), \
+                patch.object(stage, "Transport") as transport, patch("builtins.print") as output:
+            self.assertEqual(stage.main(), 1)
+            transport.assert_not_called()
+            output.assert_called_once_with(
+                "FAIL: synthetic accounts and expired-token provenance attestation")
+
     def test_http_policy_refusal_and_explicit_redirect(self):
         with patch.object(stage.http.client, "HTTPConnection") as http:
             connection = http.return_value

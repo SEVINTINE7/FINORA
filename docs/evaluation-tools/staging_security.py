@@ -32,7 +32,9 @@ class Transport:
     def __init__(self, host, port=443, context=None):
         self.host = host
         self.port = port
+        require(not os.environ.get("SSLKEYLOGFILE"), "TLS key logging must be disabled")
         self.context = context if context is not None else ssl.create_default_context()
+        require(self.context.keylog_filename is None, "TLS key logging must be disabled")
         require(self.context.check_hostname and self.context.verify_mode == ssl.CERT_REQUIRED,
                 "TLS verification configuration")
 
@@ -140,6 +142,8 @@ def main():
         require(os.environ.get("FINORA_STAGE_OWNER_APPROVED") == "yes"
                 and os.environ.get("FINORA_STAGE_PROVIDERS_AND_FIREBASE_OFF_VERIFIED") == "yes",
                 "owner approval and server configuration attestation")
+        require(os.environ.get("FINORA_STAGE_SYNTHETIC_FIXTURES_VERIFIED") == "yes",
+                "synthetic accounts and expired-token provenance attestation")
         owners = [(os.environ[f"FINORA_STAGE_{owner}_EMAIL"],
                    os.environ[f"FINORA_STAGE_{owner}_PASSWORD"],
                    int(os.environ[f"FINORA_STAGE_{owner}_ACCOUNT_ID"])) for owner in ("A", "B")]
