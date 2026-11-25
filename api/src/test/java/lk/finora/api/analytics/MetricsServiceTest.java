@@ -300,6 +300,8 @@ class MetricsServiceTest {
         purchase.setType(TransactionType.EXPENSE);
         purchase.setTxnDate(first.plusDays(1));
         purchase.setAmount(new BigDecimal("25.00"));
+        purchase.setCategoryId(SHOPPING.getId());
+        bill("80.00");
         when(transactionRepository.findByUserIdAndTxnDateBetween(USER, first, last))
                 .thenReturn(List.of(currentIncome, purchase));
         when(transactionRepository.findByUserIdAndTxnDateBetween(USER, first.minusDays(2), first.minusDays(1)))
@@ -310,6 +312,11 @@ class MetricsServiceTest {
         assertThat(m.paydaySpend()).isEqualTo(new Metric(new BigDecimal("25.00"), first, last, 1));
         assertThat(m.income()).isEqualTo(new Metric(new BigDecimal("200.00"), first, last, 1));
         assertThat(m.leftOver()).isEqualTo(new Metric(new BigDecimal("175.00"), first, last, 2));
+        assertThat(m.wants()).isEqualTo(new Metric(new BigDecimal("25.00"), first, last, 1));
+        assertThat(m.fixedBills()).isEqualTo(new Metric(new BigDecimal("80.00"), first, last, 1));
+        assertThat(m.wantsRatio()).isEqualTo(new BigDecimal("0.1250"));
+        assertThat(m.fixedBillsRatio()).isEqualTo(new BigDecimal("0.4000"));
+        assertThat(m.savingsRate()).isEqualTo(new BigDecimal("0.8750"));
     }
 
     @Test

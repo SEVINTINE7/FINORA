@@ -1,6 +1,11 @@
 package lk.finora.api.advice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,13 +14,19 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import lk.finora.api.advice.ai.AdviceItem;
 import lk.finora.api.advice.ai.AdviceItem.NumberFact;
 import lk.finora.api.advice.ai.FactKey;
 import lk.finora.api.advice.ai.FactSheet;
+import lk.finora.api.advice.ai.LlmClient;
 import lk.finora.api.advice.rules.RuleAdviceEngine;
+import lk.finora.api.advice.rules.RuleAdviceService;
 import lk.finora.api.advice.verify.AdviceVerifier;
+import lk.finora.api.advice.verify.VerificationSink;
 
 class AdviceVerifierTest {
     private final AdviceVerifier verifier = new AdviceVerifier();
@@ -85,6 +96,44 @@ class AdviceVerifierTest {
                 new NumberFact(n.factKey(), n.value(), "LKR", "2026-10"))) {
             var verdict = verifier.verify(json(List.of(new AdviceItem(canonical().actionId(), canonical().text(), List.of(wrong)))), AdviceTestFixtures.facts());
             assertThat(verdict.reason()).isEqualTo(AdviceVerifier.Reason.WRONG_UNIT_OR_PERIOD);
+        }
+    }
+
+    @Test
+    void invalidSecondActionDiscardsAcceptedPrefixAndReturnsFullCanonicalFallback() {
+        var facts = AdviceTestFixtures.facts();
+        var eligible = RuleAdviceEngine.generate(facts);
+        var deficit = eligible.get(0);
+        var wants = eligible.get(1);
+        var reordered = new AdviceItem(wants.actionId(), wants.text(),
+                List.of(wants.numbers().get(1), wants.numbers().get(0)));
+        String reply = json(List.of(deficit, reordered));
+
+        assertThat(verifier.verify(reply, facts))
+                .isEqualTo(new AdviceVerifier.Verdict(false, AdviceVerifier.Reason.FACT_MISMATCH, List.of()));
+
+        var rules = mock(RuleAdviceService.class);
+        var primary = mock(LlmClient.class);
+        var backup = mock(LlmClient.class);
+        var outcomes = mock(VerificationSink.class);
+        when(rules.facts(42L, facts.month())).thenReturn(facts);
+        when(primary.provider()).thenReturn("GROQ");
+        when(backup.provider()).thenReturn("GEMINI");
+        when(primary.generate(facts, eligible)).thenReturn(LlmClient.Result.received(reply));
+        var pipeline = new AdvicePipelineService(rules, List.of(primary, backup), verifier, outcomes);
+
+        var priorContext = SecurityContextHolder.getContext();
+        var context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(42L, null,
+                AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(context);
+        try {
+            assertThat(pipeline.forCurrentUser(facts.month()))
+                    .isEqualTo(new AdvicePipelineService.Delivery("RULE", false, "FACT_MISMATCH", eligible));
+            verify(outcomes).record(42L, facts.month(), "GROQ", false, AdviceVerifier.Reason.FACT_MISMATCH);
+            verify(backup, never()).generate(any(), any());
+        } finally {
+            SecurityContextHolder.setContext(priorContext);
         }
     }
 
