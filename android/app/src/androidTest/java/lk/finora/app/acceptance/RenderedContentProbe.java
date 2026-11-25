@@ -21,14 +21,20 @@ final class RenderedContentProbe {
     record Sample(long actionNs, long contentReadyNs, long frameCommittedNs, Outcome outcome) {}
 
     private final Predicate<View> usableContent;
+    private final String traceKey;
+    private final boolean recordVsync;
     private final CompletableFuture<Sample> finished = new CompletableFuture<>();
     private volatile long actionNs;
     private ViewTreeObserver observer;
     private ViewTreeObserver.OnPreDrawListener preDraw;
     private Runnable frameCallback;
+    private long vsyncId;
+    private android.view.Choreographer.VsyncCallback vsync;
 
-    RenderedContentProbe(Predicate<View> usableContent) {
+    RenderedContentProbe(Predicate<View> usableContent, String traceKey, boolean recordVsync) {
         this.usableContent = usableContent;
+        this.traceKey = traceKey;
+        this.recordVsync = recordVsync;
     }
 
     /** Invoke on the UI thread at the action boundary, before dispatching the action. */
@@ -36,6 +42,7 @@ final class RenderedContentProbe {
         requireMainThread();
         if (actionNs != 0) throw new IllegalStateException("Attempt already started");
         actionNs = SystemClock.elapsedRealtimeNanos();
+        trace("action");
     }
 
     /** Attach to the actual destination window before its first eligible draw. */
@@ -43,19 +50,32 @@ final class RenderedContentProbe {
         requireMainThread();
         if (actionNs == 0 || observer != null) throw new IllegalStateException("Expected one active attempt");
         var window = destination.getWindow().getDecorView();
-        if (Build.VERSION.SDK_INT < 29 || !window.isHardwareAccelerated()) {
+        if (Build.VERSION.SDK_INT < 29) {
             finished.complete(new Sample(actionNs, 0, 0, Outcome.FAILED));
             return;
         }
         observer = window.getViewTreeObserver();
+        if (recordVsync && Build.VERSION.SDK_INT >= 33) {
+            vsync = data -> {
+                vsyncId = data.getPreferredFrameTimeline().getVsyncId();
+                if (!finished.isDone() && frameCallback == null) {
+                    android.view.Choreographer.getInstance().postVsyncCallback(vsync);
+                }
+            };
+            android.view.Choreographer.getInstance().postVsyncCallback(vsync);
+        }
         preDraw = () -> {
-            if (!finished.isDone() && frameCallback == null && usableContent.test(window)) {
+            if (!finished.isDone() && frameCallback == null && window.isHardwareAccelerated() && usableContent.test(window)) {
                 long ready = SystemClock.elapsedRealtimeNanos();
+                trace("ready");
+                if (vsyncId > 0) trace("vsync-" + vsyncId);
                 frameCallback = () -> {
                     frameCallback = null;
+                    trace("submitted");
                     finished.complete(new Sample(actionNs, ready, SystemClock.elapsedRealtimeNanos(),
                             Outcome.COMMITTED));
                 };
+                observer = window.getViewTreeObserver();
                 observer.registerFrameCommitCallback(frameCallback);
             }
             return true;
@@ -83,12 +103,20 @@ final class RenderedContentProbe {
     }
 
     private void detach() {
+        if (Build.VERSION.SDK_INT >= 33 && vsync != null) {
+            android.view.Choreographer.getInstance().removeVsyncCallback(vsync);
+        }
         if (observer != null && observer.isAlive()) {
             observer.removeOnPreDrawListener(preDraw);
             if (Build.VERSION.SDK_INT >= 29 && frameCallback != null) {
                 observer.unregisterFrameCommitCallback(frameCallback);
             }
         }
+    }
+
+    private void trace(String event) {
+        android.os.Trace.beginSection("T55-" + traceKey + "-" + event);
+        android.os.Trace.endSection();
     }
 
     private static void requireMainThread() {

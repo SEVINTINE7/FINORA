@@ -258,6 +258,80 @@ with sanitized API evidence for confirmation, diagnosis and explicit retry. Benc
 unchanged. See [Execution 40 wire evidence](security-checklist.md#execution-40-android-sms-wire-evidence).
 Performance and formal T55 acceptance remain open.
 
+### Execution 41 emulator timing pilot
+
+App and API production sources match upstream 5d99285077e192c3749a175e67e2b664b90e8e0b.
+The evaluation started at 8cc1f922685f844728774aa9ec7543ca0c1a246c. The unchanged app
+lk.finora.app.acceptance SHA-256 was 61566a20e6c82165d0dd4dfea85021f44d0dd48d39e0ca968736f51774eb62ed.
+The measured pilot instrumentation APK SHA-256 was
+14866289f7b1f51bb137f38f8f25770d198b465b38496601faa9bcdeab906087. The focused frame-token build was
+849e4e2248f29aa13f2d74fc186d1143aff94f5f6325010682508273199b8155. Both used the acceptance runner
+and signer SHA-256 863fd92f2b8a4b4ff071062669525d5f866dbfa6752acfcef0f8eaac46092f6f.
+
+FINORA_T55_Evaluation ran Android 17/API 37 on Windows with Pixel 6 geometry, WHPX, SwiftShader,
+four virtual cores and 4 GB RAM. The run used user/serial 0 on emulator-5580, private ADB port 5039,
+and the D22 reverse to the provider-disabled 127.0.0.1:8080 API. The user and cache setup used
+the regular synthetic profile, November 2026, English labels, and sequential Home, Records,
+Plan and Insights cohorts. Warm trials retained the process, login and application/server caches.
+The fresh-process Home cohort used am force-stop between separate instrumented invocations and
+retained the encrypted session and disk/server caches. Its start was the instrumentation
+activity-launch call, after the runner process had started. It excludes process initialization
+before that boundary. No deep-screen process-cold journey was attempted.
+
+Warm start was captured immediately before UI control dispatch. Readiness was the first pre-draw
+where the required visible content passed. Home required both November owner totals. Records
+required a November 30 transaction row. Plan measured the Budgets route and required Shopping
+and its LKR 5000 limit. Bills and goals were outside that timed route. Insights required a visible
+numeric score, visible pattern-period evidence or explicit empty-pattern text, and no visible
+loading status. The frame-commit callback timestamp used elapsedRealtimeNanos and remains a
+submission diagnostic.
+
+| Route | Cohort | Attempts | Committed | Failed | Timed out | Median ms | Nearest-rank p95 ms | Max ms |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Home | Warm | 10 | 10 | 0 | 0 | 64.489 | 67.045 | 67.045 |
+| Records | Warm | 10 | 10 | 0 | 0 | 253.683 | 361.509 | 361.509 |
+| Plan / Budgets | Warm | 10 | 10 | 0 | 0 | 119.475 | 146.315 | 146.315 |
+| Insights | Warm | 10 | 10 | 0 | 0 | 109.213 | 178.487 | 178.487 |
+| Home | Fresh process, activity launch | 5 | 5 | 0 | 0 | 2122.222 | 2234.028 | 2234.028 |
+
+Each warm route used five separate uncounted warm-ups. With five or ten measurements, p95 equals
+the sample maximum. The first calibration run retained 15 Home rows and one Records warm-up
+failure. Android replaced the observer as the Records window attached. The probe now reacquires
+the live observer at pre-draw. The warm suite, five separate Home starts, and the four-route
+trace-check suite each passed their connected instrumentation invocation after the fix.
+[Raw Android rows](t55-performance/execution41-frames.csv).
+
+The local Perfetto v59.1 processor parsed actual FrameTimeline and app action, ready, vsync, and
+submission markers. Trace metadata reported clock ID 6 (BOOTTIME). For example, the Home action
+slice was 363018703089 ns and elapsedRealtimeNanos was 363018676173 ns, approximately 27 us apart.
+Display validation used only timestamps from the same Perfetto trace. The Home ready token 69545
+matched the acceptance MainActivity surface for PID 7471 and SurfaceFlinger display token 69552.
+The display slice ended at 363080701512 ns and reported On-time Present. Action to present was
+61.998 ms in this separate trace-check observation. Records, Plan and Insights had no matching
+app-surface tuple for their recorded ready token and remain unqualified. The original pilot trace
+ring overwrote its early data and lacked exact ready-token instrumentation. No displayed-frame
+cold estimate or route-level displayed p95 is claimed. [Local reproducible trace query](t55-performance/execution41-display.sql).
+
+The server access log used the Tomcat connector's processing duration in microseconds and omitted
+query strings, headers and bodies. Its observations include setup, warm-up, calibration and trial
+requests. Per-endpoint n/median/p95/max in milliseconds: dashboard 39/27.764/49.628/79.272,
+transactions 17/15.336/48.114/48.114, budgets 16/11.028/18.515/18.515, insights
+16/14.426/131.324/131.324, score 16/17.313/131.996/131.996. Accounts, categories and me
+also have independent rows. The app-client request duration was not instrumented. Server rows
+cannot be paired to specific trials, and multi-request times were not summed.
+[Raw server rows](t55-performance/execution41-server.csv).
+
+Local pilot and qualification trace SHA-256 values are
+4bb46e31bfbc9e28d7e26d6ff22e662f9a5edb98cff249548ca97594f9acdc1f and
+35040faec9faf5ba8fbac42298a890e21ebd34eb2119febbe23e273eadff5476. The traces remain local in
+the evaluation data parent directory. No trace was uploaded.
+
+The two benchmark profiles retained all fixture counts and totals and digest
+14e563da86de67d4f295b6a9f8577d76ec781128b9c91900e6a1b54c96069944. The loader was never invoked.
+Temporary input was removed, the reverse mapping was removed, and the session API, ADB and AVD
+processes stopped. The dedicated AVD and MySQL instance were retained. This pilot leaves T55.2
+open for the approved handset, statistic, T16/T38 and independent review.
+
 ## T55.3 moderator and participant materials (draft for approval)
 
 ### Participant information and consent
