@@ -176,6 +176,44 @@ before gathering measurements. T16 and T38 remain formal dependencies. The retai
    and removal of only the temporary reverse mapping. Sevindu owns the dedicated instance lifecycle and
    any separately approved manual disposal after evidence retention.
 
+### Execution 38 loopback preflight and frame probe
+
+The Android and API production sources matched upstream 5d99285077e192c3749a175e67e2b664b90e8e0b.
+The API ran from c496947e7b00302031661f7c356f4494e03f92d4 on 127.0.0.1:8080 against the retained
+finora_t55_perf MySQL instance. Both existing users logged in. November income/expense were
+60000/40000 LKR (worker) and 25750/11000 LKR (irregular). Both cross-owner goal reads returned
+HTTP 404. Provider calls were disabled with credentials cleared. The JVM HTTP(S) proxy pointed at
+a closed loopback port for external hosts. Host-level process network isolation was not tested.
+The session API was stopped. A fresh database read reproduced all fixture counts and the original
+transaction digest. The loader was not invoked.
+
+The test-only RenderedContentProbe records the action boundary, the first pre-draw pass that satisfies a
+caller-provided screen oracle, and the hardware frame-commit callback using elapsedRealtimeNanos.
+It requires API 29 and hardware acceleration, returns an explicit timeout, and removes its callbacks after
+collection. The callback reports submission to the compositor. Before counting pilot samples, corroborate
+the marker with an actual displayed frame trace. Keep HTTP and server timing separate and correlate only
+sanitized route and timing metadata.
+
+Use November 2026 for all four oracles. For Home, match the owner-specific income/expense cards. For
+Records, require the November transaction list to render a known fixture row for that owner. For Plan,
+follow the Budgets route and require the November Shopping budget and its owner-specific limit. For
+Insights, require the November score or its explicit fixture-defined missing-data state. Tab headings,
+CTA buttons, spinners and network completions are insufficient. These oracles still need to be wired into
+the connected rehearsal, and the cold and warm sample counts are both zero.
+
+Gradle 9.5.0 and Java 17 built both V1 debug acceptance APKs, including androidTest Java
+compilation. The application is lk.finora.app.acceptance and declares READ_SMS. The instrumentation
+is lk.finora.app.acceptance.test, targets the acceptance application, and uses AndroidJUnitRunner.
+APK SHA-256 values are 61566a20e6c82165d0dd4dfea85021f44d0dd48d39e0ca968736f51774eb62ed
+(app) and 07e513f1e39ed74997766efaec642bb4ef9a33e6e2f3193b25626757611f206b
+(instrumentation). The matching signer SHA-256 is
+863fd92f2b8a4b4ff071062669525d5f866dbfa6752acfcef0f8eaac46092f6f.
+
+The installed Android 37.2 Pixel 6 AVD had no assignment to this evaluation in the retained records.
+No emulator was started or modified and no ADB mapping was made. Android journey, screen-level SMS
+capture and performance samples remain unexecuted. T16/T38, independent review, and the separate
+physical-handset profile and consent requirements remain open.
+
 ## T55.3 moderator and participant materials (draft for approval)
 
 ### Participant information and consent
