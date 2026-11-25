@@ -116,7 +116,7 @@ class AdviceVerifierTest {
         var primary = mock(LlmClient.class);
         var backup = mock(LlmClient.class);
         var outcomes = mock(VerificationSink.class);
-        when(rules.facts(42L, facts.month())).thenReturn(facts);
+        when(rules.facts(42L, facts.month(), null)).thenReturn(facts);
         when(primary.provider()).thenReturn("GROQ");
         when(backup.provider()).thenReturn("GEMINI");
         when(primary.generate(facts, eligible)).thenReturn(LlmClient.Result.received(reply));
