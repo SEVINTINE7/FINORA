@@ -53,9 +53,13 @@ public final class EvaluationDataset {
 
     /** Canonical transaction-content digest excludes database IDs, passwords and generated timestamps. */
     public static String transactionDigest() {
+        return transactionDigest(entries());
+    }
+
+    static String transactionDigest(List<Entry> rows) {
         try {
             StringBuilder text = new StringBuilder("FINORA-T55-v1\n");
-            for (Entry e : entries()) text.append(e.profile()).append('|').append(e.date()).append('|')
+            for (Entry e : rows) text.append(e.profile()).append('|').append(e.date()).append('|')
                     .append(e.type()).append('|').append(e.category() == null ? "NULL" : e.category())
                     .append('|').append(e.amount().toPlainString()).append('\n');
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(text.toString().getBytes(StandardCharsets.UTF_8)));

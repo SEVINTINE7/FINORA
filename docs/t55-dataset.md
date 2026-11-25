@@ -67,6 +67,62 @@ Deterministic transaction SHA-256 (canonical profile/date/type/category/amount o
 Generated primary keys, user hashes and default audit timestamps are excluded from this content digest.
 The database round-trip is compared to every blueprint row; hand totals are independent fixed expectations.
 
+## Persistent evaluation variant
+
+Execution 37 populated the dedicated MySQL 8.0.46 schema finora_t55_perf at 127.0.0.1:3317. The
+listener and server variables confirmed loopback binding, UUID d236a029-e8bf-11f1-b816-00155de2fc9b,
+and a new data directory under local application data in Finora-T55-Evaluation/data. The API account
+has schema-scoped migration and runtime grants. The separate loader account has SELECT and INSERT
+on that schema. Sevindu owns lifecycle approval. Thilina operates the evaluation instance and
+retains the local secrets in a Windows user-protected credential file outside the worktree.
+
+For an authorized **empty** evaluation schema:
+
+1. Verify the isolated listener, schema, UUID, data directory and scoped accounts through the local
+   provisioning record. Confirm nothing is using the intended API port and that no personal or
+   production records are present.
+2. Export the independently verified FINORA_T55_DB_PORT, FINORA_T55_DB_UUID and FINORA_T55_DB_DATADIR,
+   preserving the trailing separator reported by MySQL. Inject FINORA_T55_API_DB_PASSWORD,
+   FINORA_T55_LOADER_PASSWORD, FINORA_T55_JWT_SECRET, FINORA_T55_WORKER_PASSWORD and
+   FINORA_T55_IRREGULAR_PASSWORD from local secret storage into the Java process environment.
+   Clear provider credentials and inherited Spring overrides. Keep secrets out of command arguments,
+   transcripts and Git.
+3. Use Java 17 and offline Maven from the API directory. Select PersistentEvaluationDatasetTest and
+   set the system property finora.t55.persist=true to explicitly enable the manual load. The harness
+   preflights the instance before starting the API on an ephemeral IPv4 loopback port. It disables
+   provider construction and refuses non-loopback requests through Java's HTTP proxy selector.
+   The selector covers the Java HTTP transport used by the API, with no host-wide firewall change.
+   Existing Flyway migrations apply normally. The harness uses the normal registration, consent
+   and login routes, and closes the temporary API on exit.
+4. The loader checks the two registered synthetic owners, current consent, empty financial state and
+   shared categories. A MySQL session lock serializes loads through transaction completion. It
+   inserts all financial rows in one explicit JDBC transaction and verifies content, ownership,
+   counts and totals before committing. A repeat refuses any existing financial rows.
+   On failure, inspect the existing environment. Preserve records and avoid resets or retries
+   against any other database.
+
+### Verified result
+
+- The persistent run passed 5 tests with 0 failures, errors or skips, including the two original
+  blueprint/guard tests. The unchanged rollback integration class passed 2 more tests against the
+  separately verified finora_test instance. Maven Surefire reports retain the command results.
+- The harness proved wrong endpoint/catalog/instance and owner refusal, plus missing-reference
+  refusal using a simulated empty category query. It injected an extra financial row within the
+  load transaction, observed the totals assertion refuse the load, and confirmed all eight fixture
+  tables were empty afterward. The next load succeeded and a repeat refused.
+- The normal API registered both accounts and issued normal login sessions. Both users could read
+  their own November dashboard and goal. Requests in both directions for the other user's goal
+  returned HTTP 404. The API was bound to 127.0.0.1:52832 for this run and stopped at test completion.
+- A new MySQL connection measured 826 transactions, 24 budgets, 2 bills, 18 paid markers, 2 goals,
+  18 contributions and 21 score declarations. Both profiles matched the totals above. The stored
+  transaction content reproduced the documented SHA-256 from UTF-8 canonical lines, ordered by
+  blueprint profile and insertion order, with LF separators and a trailing LF.
+- The populated schema is retained for emulator integration. Relaunch the provider-disabled API
+  against this schema on laptop loopback port 8080, verify the approved emulator and acceptance
+  package, then scope adb reverse tcp:8080 tcp:8080 to that emulator serial. Sign in using the
+  isolated harness and existing synthetic users. The loader is unnecessary for that step.
+  Device performance and formal T55 acceptance remain open.
+
 ## Evaluation use and pending acceptance
 
 Supports repeatable backend correctness checks, owner-isolated dashboard/budget/goal queries, month boundaries and
