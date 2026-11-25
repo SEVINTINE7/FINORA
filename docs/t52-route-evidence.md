@@ -130,17 +130,17 @@ A referenced feature test demonstrates the described scenario, not all input var
 | `POST /api/v1/auth/refresh` | Protocol | AuthControllerTest.refreshGivesNewPairAndOldTokenCannotBeReused | expiredRefreshTokenCannotIssueNewTokens; disabledAccountCannotRefresh |
 | `POST /api/v1/auth/register` | Protocol | AuthControllerTest.registerOk | registerDuplicateEmailGives409; registerUnder18Gives400; registerWeakPasswordGives400 |
 | `POST /api/v1/auth/staff/activate` | Protocol | StaffProvisioningControllerTest.activationIsSingleUseAndDisableThenEnableDoesNotResurrectSessions | NEW replacement binding and former credential rejection |
-| `POST /api/v1/bills` | USER | BillControllerTest.createGetUpdateDelete | Body category: gap to reconcile |
+| `POST /api/v1/bills` | USER | BillControllerTest.createGetUpdateDelete | Body category: VERIFIED by BillControllerTest.categoryReferencesAreCallerScopedOnCreateAndUpdate |
 | `POST /api/v1/bills/{id}/paid` | USER | BillControllerTest.paidIsPerMonthAndNextMonthStartsUnpaid | Md05FinancialPrivacyTest.foreignFinancialIdsAreRejectedWithoutChangingEitherUser |
-| `POST /api/v1/budgets` | USER | BudgetControllerTest.createListUpdateDelete | body: BudgetControllerTest.otherUsersCategoryIsRejected (POST evidence; PUT body review open) |
+| `POST /api/v1/budgets` | USER | BudgetControllerTest.createListUpdateDelete | body: BudgetControllerTest.categoryReferencesAreCallerScopedOnCreateAndUpdate (both methods) |
 | `POST /api/v1/categories` | USER | CategoryControllerTest.createGetUpdateDeleteOwn | NOT_APPLICABLE — caller scope |
 | `POST /api/v1/daily-guide` | USER | DailyGuideControllerTest.ownerBillsOnlyPaidExcludedAndNoWrites | NOT_APPLICABLE — caller context; lastIncomeFallbackIgnoresOtherOwner |
 | `POST /api/v1/goals` | USER | GoalControllerTest.createGetUpdateDelete | NOT_APPLICABLE — caller scope |
 | `POST /api/v1/goals/{id}/contributions` | USER | GoalControllerTest.progressAfterAddAndDeleteOfContributions | Md05FinancialPrivacyTest.foreignFinancialIdsAreRejectedWithoutChangingEitherUser |
-| `POST /api/v1/imports/csv/confirm` | USER | CsvImportControllerTest.validFilePreviewsThenSaves | CsvImportControllerTest.confirmRejectsOtherUsersAccountAndSavesNothing; foreign category audit open |
-| `POST /api/v1/imports/csv/preview` | USER | CsvImportControllerTest.validFilePreviewsThenSaves | Owner-scoped name lookup; explicit foreign-name fixture review open |
+| `POST /api/v1/imports/csv/confirm` | USER | CsvImportControllerTest.validFilePreviewsThenSaves | VERIFIED: CsvImportControllerTest.previewScopesNamesAndConfirmRejectsForeignCategoryAtomically |
+| `POST /api/v1/imports/csv/preview` | USER | CsvImportControllerTest.validFilePreviewsThenSaves | VERIFIED: CsvImportControllerTest.previewScopesNamesAndConfirmRejectsForeignCategoryAtomically |
 | `POST /api/v1/me/consent/withdraw` | USER | MeControllerTest.withdrawConsentRevokesRefreshTokens | NOT_APPLICABLE — session owner; stale session checked |
-| `POST /api/v1/simulate` | USER | SimulationControllerTest.ownedGoalProducesCorrectHypotheticalResultWithoutWrites | SimulationControllerTest.anotherUsersGoalReturns404; SimulationServiceTest.inaccessibleCategoryIsNotDisclosed (service); HTTP foreign cut open |
+| `POST /api/v1/simulate` | USER | SimulationControllerTest.ownedGoalProducesCorrectHypotheticalResultWithoutWrites | SimulationControllerTest.anotherUsersGoalReturns404; SimulationControllerTest.categoryCutsRejectForeignAndInactiveReferencesWithoutWrites |
 | `POST /api/v1/staff/reply-catalog` | STAFF | SupportTicketControllerTest.ownerAndAssigneeAreIsolatedAndApprovedReplySurvivesRetirement | Shared catalog; self-review restricted in the same test |
 | `POST /api/v1/staff/reply-catalog/{id}/approve` | STAFF | SupportTicketControllerTest.ownerAndAssigneeAreIsolatedAndApprovedReplySurvivesRetirement | Shared catalog; self-review restricted in the same test |
 | `POST /api/v1/staff/reply-catalog/{id}/retire` | STAFF | SupportTicketControllerTest.ownerAndAssigneeAreIsolatedAndApprovedReplySurvivesRetirement | Shared catalog; self-review restricted in the same test |
@@ -156,8 +156,8 @@ A referenced feature test demonstrates the described scenario, not all input var
 | `PUT /api/v1/admin/categories/{id}` | ADMIN | AdminDependencyControllerTest.renamePreservesSemanticCodeAndReferencesAndCannotAssignItToOtherCategories | Global ADMIN target; owner USER N/A; check non-default/missing target and no mutation |
 | `PUT /api/v1/admin/sms-formats/NSB/revisions/{revision}` | ADMIN | AdminSmsFormatControllerTest.draftEditsInvalidateEvidenceAndApprovalRemainsSeparateFromFixtures | Global ADMIN target; owner USER N/A |
 | `PUT /api/v1/admin/users/{id}/status` | ADMIN | AdminDependencyControllerTest.userManagementRevokesCredentialsAndAuditsWithoutExposingFinance | Global ADMIN target; owner USER N/A |
-| `PUT /api/v1/bills/{id}` | USER | BillControllerTest.createGetUpdateDelete | Body category: gap to reconcile; path: BillControllerTest.otherUsersBillGives404 |
-| `PUT /api/v1/budgets/{id}` | USER | BudgetControllerTest.createListUpdateDelete | BudgetControllerTest.otherUsersBudgetGives404; body: BudgetControllerTest.otherUsersCategoryIsRejected (POST evidence; PUT body review open) |
+| `PUT /api/v1/bills/{id}` | USER | BillControllerTest.createGetUpdateDelete | Body category: VERIFIED by BillControllerTest.categoryReferencesAreCallerScopedOnCreateAndUpdate; path: BillControllerTest.otherUsersBillGives404 |
+| `PUT /api/v1/budgets/{id}` | USER | BudgetControllerTest.createListUpdateDelete | BudgetControllerTest.otherUsersBudgetGives404; body: BudgetControllerTest.categoryReferencesAreCallerScopedOnCreateAndUpdate (both methods) |
 | `PUT /api/v1/categories/{id}` | USER | CategoryControllerTest.createGetUpdateDeleteOwn | CategoryControllerTest.otherUsersCategoryGives404 |
 | `PUT /api/v1/goals/{id}` | USER | GoalControllerTest.createGetUpdateDelete | GoalControllerTest.otherUsersGoalGives404 |
 | `PUT /api/v1/me` | USER | MeControllerTest.putMeChangesNameAndLanguage | NOT_APPLICABLE — session owner |
@@ -185,7 +185,7 @@ A referenced feature test demonstrates the described scenario, not all input var
   successful statuses and applicable state transitions. Do not infer valid positive behavior from
   dispatcher tests.
 
-### Remaining acceptance and review
+### Execution 31 remaining acceptance and review (historical)
 
 Complete a second-pass audit of each allowed body and query variant, including bill category writes,
 budget update category handling, multipart CSV category/account resolution and simulation HTTP
@@ -203,3 +203,35 @@ Java 17 and MySQL 8.0.46 on the verified loopback finora_test instance. Provider
 Targeted runs reported 6/6 and 1/1 methods, each with zero failures, errors or skips.
 Integrated Maven verify reported Tests run: 445, Failures: 0, Errors: 0, Skipped: 0.
 JaCoCo passed. These are local results on the Execution 31 tree. Independent CI remains outstanding.
+
+## Execution 32 independently verified scenarios
+
+Baseline: `59d5bd39883c37968c6e04988b388d740fb5b02e`. The 102 mapping keys and 94-route
+bearer, expiry and restricted-consent probes from Execution 31 still apply. Direct tests below
+extend the fixture and assertion coverage for selected existing mappings.
+
+| Scenario | Disposition | Evidence and expected contract |
+|---|---|---|
+| Bill POST/PUT category references | VERIFIED | `BillControllerTest.categoryReferencesAreCallerScopedOnCreateAndUpdate` accepts an owned and a shared category. Foreign, inactive and missing references return 400 `VALIDATION_ERROR` with the same generic message. Complete bill rows for both owners remain equal. |
+| Budget POST/PUT category references | VERIFIED | `BudgetControllerTest.categoryReferencesAreCallerScopedOnCreateAndUpdate` supplies the same control and rejection pattern. Complete budget rows for both owners remain equal. |
+| CSV preview account and category names | VERIFIED | `CsvImportControllerTest.previewScopesNamesAndConfirmRejectsForeignCategoryAtomically` exercises case-insensitive own and shared lookup, and leaves foreign account/category IDs absent from the result. The row errors echo caller-supplied names only. |
+| CSV confirm account and category references | VERIFIED | Same test tampers with the second row while keeping the first row valid. Foreign category, foreign/missing accounts and the caller's archived account return exact line-level errors. Both users' full transaction rows remain unchanged. The untampered import succeeds. |
+| HTTP simulation cuts | VERIFIED | `SimulationControllerTest.categoryCutsRejectForeignAndInactiveReferencesWithoutWrites` uses same-name categories with independently owned spending. Either owner can simulate with their own data. Foreign, inactive and missing categories all return the generic 404. Both owners' goals and transactions remain unchanged. |
+| Nested contribution ID | VERIFIED | `GoalControllerTest.contributionCannotBeDeletedThroughDifferentGoalOfSameOwner` combines a real contribution with the same user's wrong parent. Both contribution lists retain exactly the same JSON structure and values. The correct parent works, then the deleted ID returns 404. Execution 31 covers foreign owner combinations. |
+| STAFF unassigned queue row and reply list | VERIFIED | `SupportTicketControllerTest.ownerAndAssigneeAreIsolatedAndApprovedReplySurvivesRetirement` asserts the exact queue row keys, null sensitive content before claim, and a strict one-field reply object. Assigned ticket details remain available to the assignee. |
+| STAFF reply revision body reference | VERIFIED | The same test sends a valid active revision, then checks retired and missing IDs yield the same generic 404 without appending a reply. It retains the approved reply after retirement. |
+| STAFF catalog retirement actor scope | CONTRACT_DECISION_REQUIRED | The API contract says STAFF may retire a revision. The D47 architecture decision defers backend policy. Approval expressly requires a different STAFF member. Retirement passes no actor to the service. Ask Sevindu to confirm any STAFF versus a narrower rule, including whether DRAFT retirement is intended. The test keeps the existing approved workflow and adds no narrower actor assumption. |
+| Privileged paginated finance response | NOT_APPLICABLE | Reviewed privileged routes use operational lists, bounded queues, or fixed DTOs. The finance transaction page is USER-only. `EndpointAuthTest.wrongRoleGives403Everywhere` and `FinancialResponsePrivacyTest` exercise privileged denial. Where an allowed privileged list has row objects, the existing allowlists remain applicable. |
+| Privileged user export or export metadata | NOT_APPLICABLE | No ADMIN or STAFF export route exists. Bearer export is USER owner-scoped and restricted export is grant-owner-scoped. Existing denial and grant-consumption tests verify those boundaries. Count aggregates expressly permitted by the operational contracts remain in their allowed DTOs. |
+| Session and consent branches already covered | VERIFIED | Existing `EndpointAuthTest`, `AuthControllerTest`, `MeControllerTest`, `RestrictedConsentAuthorizationTest` and STAFF activation tests retain malformed, expired, disabled, replaced, revoked and restricted credentials, public protocol checks, expiry and consumption. |
+| Full T52 acceptance | DEPENDENCY_BLOCKED | T41 and T46 remain in progress. Independent reviewer verification and CI for the T52 follow-up revision are pending. Green checks on PR #17 apply to its published checkpoint only. |
+
+The table records scenario evidence, not an exhaustive claim over every possible body mutation.
+The published PR #17 was still a draft with both API and Android checks successful at inspection.
+
+### Execution 32 verification
+
+Java 17 and verified loopback MySQL 8.0.46 finora_test. Providers were disabled.
+Focused Maven run: 6 tests, 0 failures, 0 errors, 0 skipped.
+Integrated Maven verify: Tests run: 450, Failures: 0, Errors: 0, Skipped: 0.
+JaCoCo and packaging passed. Independent CI on this follow-up remains pending.

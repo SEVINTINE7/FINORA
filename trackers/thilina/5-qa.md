@@ -25,6 +25,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 - Execution 31 discovered 102 API mappings (94 protected and eight protocol). Seven focused methods passed. Added signed-expiry, foreign query, activation, SMS format and privileged response assertions. [Exact route inventory](../../docs/t52-route-evidence.md) records coverage and remaining request variants. T41/T46 and independent CI acceptance remain open.
 
+- Execution 32 focused methods passed 6/6. Bill and budget category writes, CSV name/ID resolution, HTTP simulation cuts, nested contributions, and support reply/privacy boundaries now have direct evidence. [Scenario dispositions](../../docs/t52-route-evidence.md) retain the open STAFF retirement decision, T41/T46 and independent CI acceptance.
+
 ---
 
 ### T53 · Privacy and security checks · `NFR-SEC`

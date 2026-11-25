@@ -332,4 +332,56 @@ class CsvImportControllerTest extends IntegrationTest {
         mockMvc.perform(multipart(PREVIEW).file(new MockMultipartFile("file", "a.csv", "text/csv", new byte[1])))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void previewScopesNamesAndConfirmRejectsForeignCategoryAtomically() throws Exception {
+        jdbc.update("INSERT INTO categories(user_id,name,kind) VALUES (?, 'Synthetic private category', 'EXPENSE')",
+                userB.getId());
+        var ownPreview = previewJson(userB, HEADER
+                + "2026-11-05,EXPENSE,101.00,synthetic private category,bank b,,\n");
+        assertThat(ownPreview.get("validRows").asInt()).isEqualTo(1);
+        long foreign = ownPreview.get("rows").get(0).get("categoryId").asLong();
+        confirm(userB, confirmBodyFrom(ownPreview)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.saved").value(1));
+
+        var callerPreview = previewJson(userA, HEADER
+                + "2026-11-05,EXPENSE,101.00,Synthetic private category,Bank B,,\n"
+                + "2026-11-06,EXPENSE,102.00,food,cash,,\n");
+        var rejected = callerPreview.get("rows").get(0);
+        assertThat(rejected.get("accountId").isNull()).isTrue();
+        assertThat(rejected.get("categoryId").isNull()).isTrue();
+        assertThat(rejected.get("errors").get(0).asString()).isEqualTo("Account 'Bank B' not found");
+        assertThat(rejected.get("errors").get(1).asString()).isEqualTo("Category 'Synthetic private category' not found");
+        assertThat(callerPreview.get("rows").get(1).get("categoryName").asString()).isEqualTo("Food");
+
+        var cleanPreview = previewJson(userA, HEADER
+                + "2026-11-06,EXPENSE,102.00,Food,Cash,,\n"
+                + "2026-11-07,EXPENSE,103.00,Food,Cash,,\n");
+        var envelope = confirmBodyFrom(cleanPreview);
+        var changedRow = (ObjectNode) envelope.get("rows").get(1);
+        changedRow.put("categoryId", foreign);
+        String scope = "SELECT * FROM transactions WHERE user_id IN (?,?) ORDER BY id";
+        var before = jdbc.queryForList(scope, userA.getId(), userB.getId());
+        confirm(userA, envelope).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Line 3: Category not found"));
+        long food = cleanPreview.get("rows").get(1).get("categoryId").asLong();
+        changedRow.put("categoryId", food);
+        long archived = createAccount(userA, "Synthetic archived account");
+        jdbc.update("UPDATE accounts SET archived=TRUE WHERE id=?", archived);
+        long foreignAccount = ownPreview.get("rows").get(0).get("accountId").asLong();
+        for (long accountId : new long[]{foreignAccount, Long.MAX_VALUE, archived}) {
+            changedRow.put("accountId", accountId);
+            confirm(userA, envelope).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                    .andExpect(jsonPath("$.message").value(accountId == archived
+                            ? "Line 3: This account is archived" : "Line 3: Account not found"));
+        }
+        assertThat(jdbc.queryForList(scope, userA.getId(), userB.getId())).isEqualTo(before);
+        assertThat(countCsvRecords(userA)).isZero();
+        assertThat(countCsvRecords(userB)).isEqualTo(1);
+        confirm(userA, confirmBodyFrom(cleanPreview)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.saved").value(2));
+    }
+
 }
