@@ -1,5 +1,7 @@
 package lk.finora.api.support;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import lk.finora.api.user.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +38,9 @@ class SupportTicketControllerTest extends IntegrationTest {
         read(STAFF, otherStaff).andExpect(jsonPath("$.length()").value(0));
         send(CATALOG, staff, "{\"topic\":\"SIGN_IN\"}").andExpect(status().isNoContent());
         var drafts = read(CATALOG, staff).andReturn().getResponse().getContentAsString();
-        long revision = jsonMapper.readTree(drafts).get(0).get("id").asLong();
+        var draft = jsonMapper.readTree(drafts).get(0);
+        assertThat(draft.propertyNames()).containsExactlyInAnyOrder("id", "topic", "state", "english", "sinhala");
+        long revision = draft.get("id").asLong();
         send(CATALOG + "/" + revision + "/approve", staff, "").andExpect(status().isNotFound());
         send(CATALOG + "/" + revision + "/approve", otherStaff, "").andExpect(status().isNoContent());
         var reply = json(java.util.Map.of("revision", revision, "language", "EN"));
