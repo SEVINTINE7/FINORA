@@ -255,7 +255,7 @@ remain available for the next session.
 
 The dedicated emulator passed the approved three-format NSB screen challenge through paste and inbox,
 with sanitized API evidence for confirmation, diagnosis and explicit retry. Benchmark data remained
-unchanged. See [Execution 40 wire evidence](security-checklist.md#execution-40-android-sms-wire-evidence).
+unchanged. See [Execution 40 wire evidence](t53-android-sms-wire-evidence.md).
 Performance and formal T55 acceptance remain open.
 
 ### Execution 41 emulator timing pilot
@@ -415,6 +415,15 @@ and cache effects were not isolated. No production optimization or equivalent be
 The benchmark profiles retained all canonical fixture counts, totals and SHA-256. The loader was
 never invoked. Temporary input and reverse mapping were removed. The API, private ADB server and
 dedicated emulator stopped. The AVD and database were retained.
+
+#### Publication replay boundary
+
+Execution 43 carries the evaluation history onto the upstream T34/FCM revision. The APK and
+connected evidence above remains tied to its original tested revisions. The publication revision
+uses the same test-only emulator controls. Ordinary Spring tests exclude the capture configuration
+and skip the explicitly enabled persistent load. The opt-in launchers pin the verified evaluation
+database and blank provider and Firebase configuration. Rehearse handset instrumentation and
+owner-approved routes against the combined source before collecting a handset acceptance sample.
 
 ## T55.3 moderator and participant materials (draft for approval)
 

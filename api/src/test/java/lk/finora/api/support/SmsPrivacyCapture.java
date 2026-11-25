@@ -43,9 +43,17 @@ public final class SmsPrivacyCapture {
         if (!target.url().equals(System.getenv("DB_URL")) || !"finora_t55_api".equals(System.getenv("DB_USER"))) {
             throw new IllegalStateException("Unexpected evaluation API data source");
         }
-        new SpringApplicationBuilder(ApiApplication.class, CaptureConfiguration.class).run(
-                "--server.address=127.0.0.1", "--server.port=8080", "--finora.llm.enabled=false",
-                "--finora.llm.groq-api-key=", "--finora.llm.gemini-api-key=");
+        String password = System.getenv("DB_PASS");
+        if (password == null || password.isBlank()) {
+            throw new IllegalStateException("Evaluation API credentials required");
+        }
+        var properties = new org.springframework.core.env.MapPropertySource("t55-sms-capture", java.util.Map.of(
+                "spring.datasource.url", target.url(), "spring.datasource.username", "finora_t55_api",
+                "spring.datasource.password", password, "server.address", "127.0.0.1", "server.port", "8080",
+                "finora.llm.enabled", "false", "finora.llm.groq-api-key", "", "finora.llm.gemini-api-key", "",
+                "finora.firebase.credentials", ""));
+        new SpringApplicationBuilder(ApiApplication.class, CaptureConfiguration.class)
+                .initializers(app -> app.getEnvironment().getPropertySources().addFirst(properties)).run();
     }
 
     @TestConfiguration(proxyBeanMethods = false)

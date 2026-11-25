@@ -103,7 +103,8 @@ class PersistentEvaluationDatasetTest {
                 "server.address", "127.0.0.1", "server.port", "0",
                 "spring.datasource.url", target.url(), "spring.datasource.username", "finora_t55_api",
                 "spring.datasource.password", appPassword, "finora.jwt.secret", jwt,
-                "finora.llm.enabled", "false", "finora.llm.groq-api-key", "", "finora.llm.gemini-api-key", ""));
+                "finora.llm.enabled", "false", "finora.llm.groq-api-key", "", "finora.llm.gemini-api-key", "",
+                "finora.firebase.credentials", ""));
         try (var context = new SpringApplicationBuilder(ApiApplication.class)
                 .initializers(app -> app.getEnvironment().getPropertySources().addFirst(properties)).run()) {
             int port = context.getEnvironment().getRequiredProperty("local.server.port", Integer.class);

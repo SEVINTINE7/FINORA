@@ -28,6 +28,14 @@ class EvaluationDatasetIntegrationTest extends IntegrationTest {
     @Autowired private GoalService goals;
     @Autowired private ScoreService scores;
 
+    @Autowired private org.springframework.context.ApplicationContext context;
+
+    @Test
+    void ordinarySpringContextDoesNotRegisterSmsWireCapture() {
+        assertThat(context.getBeansOfType(SmsPrivacyCapture.CaptureConfiguration.class)).isEmpty();
+        assertThat(context.containsBean("smsWireCapture")).isFalse();
+    }
+
     @AfterTransaction
     void seedLeavesNoPersistentFixtureUsers() {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM users WHERE email IN (?,?)", Integer.class,
