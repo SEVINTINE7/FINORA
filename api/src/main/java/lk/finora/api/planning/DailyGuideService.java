@@ -20,6 +20,9 @@ import lk.finora.api.planning.dto.DailyGuideResponse;
 /** Read-only, owner-scoped T31 calculation against one committed finance snapshot. */
 @Service
 public class DailyGuideService {
+    private static final BigDecimal INDIVIDUAL_MAX = new BigDecimal("9999999999999.99");
+    private static final BigDecimal TRACKED_MAX = BigDecimal.TEN.pow(DailyGuideRequest.TRACKED_BILL_INTEGER_DIGITS)
+            .subtract(new BigDecimal("0.01"));
     private static final ZoneId COLOMBO = ZoneId.of("Asia/Colombo");
     private static final List<String> ASSUMPTIONS = List.of(
             "USER_CONFIRMED_AVAILABLE_FUNDS", "USER_CONFIRMED_UNDEDUCTED_SAVINGS",
@@ -100,7 +103,7 @@ public class DailyGuideService {
         if (request == null) throw ApiException.badRequest("Request required");
         money(request.availableFunds(), true);
         money(request.plannedSavings(), false);
-        money(request.confirmedTrackedUnpaidBills(), false);
+        money(request.confirmedTrackedUnpaidBills(), false, TRACKED_MAX);
         money(request.additionalUnpaidBills(), false);
         LocalDate next = request.nextIncomeDate();
         if (next != null && (next.getYear() < 1000 || next.getYear() > 9999 || next.isAfter(today.plusDays(366)))) {
@@ -109,7 +112,11 @@ public class DailyGuideService {
     }
 
     private static void money(BigDecimal value, boolean signed) {
-        if (value != null && (value.scale() > 2 || value.abs().compareTo(new BigDecimal("9999999999999.99")) > 0
+        money(value, signed, INDIVIDUAL_MAX);
+    }
+
+    private static void money(BigDecimal value, boolean signed, BigDecimal max) {
+        if (value != null && (value.scale() > 2 || value.abs().compareTo(max) > 0
                 || (!signed && value.signum() < 0))) {
             throw ApiException.badRequest("Invalid monetary input");
         }

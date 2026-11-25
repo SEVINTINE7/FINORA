@@ -51,6 +51,34 @@ class DailyGuideControllerTest extends IntegrationTest {
         assertThat(jdbc.queryForList("SELECT * FROM bills WHERE user_id = ? ORDER BY id", owner.getId())).isEqualTo(before);
         assertThat(jdbc.queryForList("SELECT p.* FROM bill_payments p JOIN bills b ON b.id=p.bill_id WHERE b.user_id=? ORDER BY p.id", owner.getId())).isEqualTo(payments);
     }
+    @Test void ownerCanConfirmTheReturnedAggregateAboveAnIndividualBillLimit() throws Exception {
+        User owner = createUser(Role.USER), other = createUser(Role.USER);
+        bill(owner, "Synthetic boundary bill A", "5000000000000.00");
+        bill(owner, "Synthetic boundary bill B", "5000000000000.00");
+        bill(other, "Foreign synthetic bill", "1000.00");
+        var before = jdbc.queryForList("SELECT * FROM bills WHERE user_id IN (?, ?) ORDER BY id",
+                owner.getId(), other.getId());
+        var request = new java.util.HashMap<>(request("0.00"));
+        request.remove("confirmedTrackedUnpaidBills");
+        var quote = send(owner, PATH, request).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("BILL_CONFIRMATION_REQUIRED"))
+                .andExpect(jsonPath("$.trackedUnpaidBillCount").value(2))
+                .andReturn().getResponse().getContentAsString();
+        var exact = jsonMapper.readTree(quote).get("trackedUnpaidBills").decimalValue();
+        assertThat(exact).isEqualByComparingTo("10000000000000.00");
+        var confirmed = send(owner, PATH, request(exact.toPlainString())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SHORTFALL"))
+                .andExpect(jsonPath("$.dailyAllowance").value(0.0))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(jsonMapper.readTree(confirmed).get("shortfall").decimalValue())
+                .isEqualByComparingTo("9999999999150.00");
+        send(owner, PATH, request("9999999999999.99")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("BILLS_CHANGED"));
+        assertThat(jdbc.queryForList("SELECT * FROM bills WHERE user_id IN (?, ?) ORDER BY id",
+                owner.getId(), other.getId())).isEqualTo(before);
+    }
+
+
     @Test void changedBillTotalRequiresReconfirmation() throws Exception {
         User owner = createUser(Role.USER);
         bill(owner,"new unpaid","200.00");
