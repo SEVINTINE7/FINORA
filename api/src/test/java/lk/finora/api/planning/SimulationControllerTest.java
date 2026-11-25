@@ -247,4 +247,55 @@ class SimulationControllerTest extends IntegrationTest {
                         "monthlyReduction", "100.00"))))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void categoryCutsRejectForeignAndInactiveReferencesWithoutWrites() throws Exception {
+        long goal = createGoal(owner);
+        long otherGoal = createGoal(outsider);
+        var previousMonth = java.time.YearMonth.now(java.time.ZoneId.of("Asia/Colombo")).minusMonths(1);
+        for (User user : List.of(owner, outsider)) {
+            jdbc.update("INSERT INTO accounts(user_id,name,type) VALUES (?, 'Synthetic wallet', 'CASH')",
+                    user.getId());
+            jdbc.update("INSERT INTO categories(user_id,name,kind) VALUES (?, 'Synthetic cut', 'EXPENSE')",
+                    user.getId());
+            jdbc.update("""
+                    INSERT INTO transactions(user_id,account_id,category_id,type,amount,txn_date)
+                    SELECT a.user_id,a.id,c.id,'EXPENSE',200,? FROM accounts a
+                    JOIN categories c ON c.user_id=a.user_id
+                    WHERE a.user_id=? AND a.name='Synthetic wallet' AND c.name='Synthetic cut'
+                    """, previousMonth.atDay(1), user.getId());
+        }
+        Long own = jdbc.queryForObject("SELECT id FROM categories WHERE user_id=? AND name='Synthetic cut'",
+                Long.class, owner.getId());
+        Long foreign = jdbc.queryForObject("SELECT id FROM categories WHERE user_id=? AND name='Synthetic cut'",
+                Long.class, outsider.getId());
+        jdbc.update("INSERT INTO categories(user_id,name,kind,active) VALUES (?, 'Synthetic inactive cut', 'EXPENSE', FALSE)",
+                owner.getId());
+        Long inactive = jdbc.queryForObject("SELECT id FROM categories WHERE user_id=? AND name='Synthetic inactive cut'",
+                Long.class, owner.getId());
+        String txScope = "SELECT * FROM transactions WHERE user_id IN (?,?) ORDER BY id";
+        String goalScope = "SELECT * FROM goals WHERE user_id IN (?,?) ORDER BY id";
+        var transactions = jdbc.queryForList(txScope, owner.getId(), outsider.getId());
+        var goals = jdbc.queryForList(goalScope, owner.getId(), outsider.getId());
+
+        send(owner, post("/api/v1/simulate"), scenarioWithCut(goal, own))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.hypotheticalMonthlySavings").value(2100.00));
+        for (long categoryId : new long[]{foreign, inactive, Long.MAX_VALUE}) {
+            send(owner, post("/api/v1/simulate"), scenarioWithCut(goal, categoryId))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                    .andExpect(jsonPath("$.message").value("Category not found"));
+        }
+        send(outsider, post("/api/v1/simulate"), scenarioWithCut(otherGoal, foreign))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.hypotheticalMonthlySavings").value(2100.00));
+        assertThat(jdbc.queryForList(txScope, owner.getId(), outsider.getId())).isEqualTo(transactions);
+        assertThat(jdbc.queryForList(goalScope, owner.getId(), outsider.getId())).isEqualTo(goals);
+    }
+
+    private Map<String, Object> scenarioWithCut(long goal, long category) {
+        var request = new HashMap<>(scenario(goal));
+        request.put("categoryCuts", List.of(Map.of("categoryId", category, "monthlyReduction", "100.00")));
+        return request;
+    }
+
 }

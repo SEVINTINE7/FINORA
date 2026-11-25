@@ -1,5 +1,7 @@
 package lk.finora.api.support;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import lk.finora.api.user.Role;
 import org.junit.jupiter.api.Test;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,7 +61,10 @@ class SmsDiagnosticControllerTest extends IntegrationTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].status").value("OPEN"))
                 .andReturn().getResponse().getContentAsString();
-        long id = jsonMapper.readTree(inbox).get(0).get("id").asLong();
+        var escalation = jsonMapper.readTree(inbox).get(0);
+        assertThat(escalation.propertyNames()).containsExactlyInAnyOrder(
+                "id", "bankCode", "errorCode", "status", "createdAt");
+        long id = escalation.get("id").asLong();
         mockMvc.perform(get(INBOX).header("Authorization", "Bearer " + staff)).andExpect(status().isForbidden());
         for (String state : new String[]{"ACKNOWLEDGED", "CLOSED"}) {
             mockMvc.perform(patch(INBOX + "/" + id).header("Authorization", "Bearer " + admin)

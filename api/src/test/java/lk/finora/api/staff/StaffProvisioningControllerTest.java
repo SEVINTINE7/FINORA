@@ -1,5 +1,7 @@
 package lk.finora.api.staff;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Map;
 import lk.finora.api.support.IntegrationTest;
 import lk.finora.api.user.Role;
@@ -52,6 +54,36 @@ class StaffProvisioningControllerTest extends IntegrationTest {
         mockMvc.perform(get("/api/v1/staff/stats").header("Authorization", "Bearer " + access))
                 .andExpect(status().isUnauthorized());
         send("/api/v1/auth/refresh", Map.of("refreshToken", refresh), null).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void adminReissuesOnlyPendingStaffActivationAndOldCredentialCannotActivate() throws Exception {
+        var admin = tokenFor(createUser(Role.ADMIN));
+        var ordinaryUser = createUser(Role.USER);
+        var activeStaff = createUser(Role.STAFF);
+        var provisioned = jsonMapper.readTree(send(STAFF, Map.of("email", EMAIL, "fullName", "Synthetic staff"), admin)
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString());
+        assertThat(provisioned.propertyNames()).containsExactlyInAnyOrder("id", "temporaryPassword");
+        long id = provisioned.get("id").asLong();
+        for (long notPending : new long[]{ordinaryUser.getId(), activeStaff.getId()}) {
+            send(STAFF + "/" + notPending + "/activation", Map.of(), admin)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+        }
+        var replacement = jsonMapper.readTree(send(STAFF + "/" + id + "/activation", Map.of(), admin)
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "no-store"))
+                .andReturn().getResponse().getContentAsString());
+        assertThat(replacement.propertyNames()).containsExactlyInAnyOrder("id", "temporaryPassword");
+        assertThat(replacement.get("id").asLong()).isEqualTo(id);
+        String password = "Synthetic9replacement";
+        send(ACTIVATION, Map.of("email", EMAIL,
+                "temporaryPassword", provisioned.get("temporaryPassword").asString(), "password", password),
+                null).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+        send(ACTIVATION, Map.of("email", EMAIL,
+                "temporaryPassword", replacement.get("temporaryPassword").asString(), "password", password),
+                null).andExpect(status().isNoContent());
     }
 
     private void setEnabled(String admin, long id, boolean enabled) throws Exception {

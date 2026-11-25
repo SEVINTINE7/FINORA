@@ -5,15 +5,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -44,6 +50,9 @@ class EndpointAuthTest extends IntegrationTest {
     @Autowired
     @Qualifier("requestMappingHandlerMapping")
     private RequestMappingHandlerMapping handlerMapping;
+
+    @Value("${finora.jwt.secret}")
+    private String testJwtSecret;
 
     private User user;
     private User staff;
@@ -81,12 +90,16 @@ class EndpointAuthTest extends IntegrationTest {
 
     /** Every non-public /api/v1 endpoint, one entry per HTTP method. */
     private List<Endpoint> protectedEndpoints() {
+        return apiEndpoints().stream().filter(endpoint -> !endpoint.pattern().startsWith(API + "auth/")).toList();
+    }
+
+    private List<Endpoint> apiEndpoints() {
         List<Endpoint> endpoints = new ArrayList<>();
         for (RequestMappingInfo info : handlerMapping.getHandlerMethods().keySet()) {
             Set<String> patterns = info.getPatternValues();
             Set<RequestMethod> methods = info.getMethodsCondition().getMethods();
             for (String pattern : patterns) {
-                if (!pattern.startsWith(API) || pattern.startsWith(API + "auth/")
+                if (!pattern.startsWith(API)
                         || TEST_ONLY_PREFIXES.stream().anyMatch(pattern::startsWith)) {
                     continue;
                 }
@@ -119,6 +132,11 @@ class EndpointAuthTest extends IntegrationTest {
     @Test
     void discoveryFindsAllControllers() {
         List<Endpoint> endpoints = protectedEndpoints();
+        List<Endpoint> all = apiEndpoints();
+        assertThat(all).doesNotHaveDuplicates();
+        System.out.printf("T52_RUNTIME total=%d protected=%d auth=%d%n",
+                all.size(), endpoints.size(), all.size() - endpoints.size());
+        all.stream().map(Endpoint::toString).sorted().forEach(route -> System.out.println("T52_ROUTE " + route));
         assertThat(endpoints).hasSizeGreaterThanOrEqualTo(MIN_PROTECTED_ENDPOINTS);
         assertThat(endpoints).map(Endpoint::pattern).contains(
                 "/api/v1/accounts", "/api/v1/categories", "/api/v1/transactions", "/api/v1/budgets",
@@ -141,6 +159,27 @@ class EndpointAuthTest extends IntegrationTest {
             var response = mockMvc.perform(request(endpoint.method(), endpoint.url())
                     .header("Authorization", "Bearer not.a.jwt")).andReturn().getResponse();
             expectError(soft, endpoint, "bad token", response, 401, "UNAUTHORIZED");
+        }
+        soft.assertAll();
+    }
+
+    @Test
+    void expiredAccessTokenIsRejectedOnEveryProtectedRoute() throws Exception {
+        var key = Keys.hmacShaKeyFor(testJwtSecret.getBytes(StandardCharsets.UTF_8));
+        var expiration = Date.from(Instant.now().minusSeconds(60));
+        SoftAssertions soft = new SoftAssertions();
+        for (User caller : List.of(user, staff, admin)) {
+            String expired = Jwts.builder()
+                    .subject(caller.getId().toString())
+                    .claim("role", caller.getRole().name())
+                    .expiration(expiration)
+                    .signWith(key)
+                    .compact();
+            for (Endpoint endpoint : protectedEndpoints()) {
+                var response = mockMvc.perform(request(endpoint.method(), endpoint.url())
+                        .header("Authorization", "Bearer " + expired)).andReturn().getResponse();
+                expectError(soft, endpoint, "expired " + caller.getRole(), response, 401, "UNAUTHORIZED");
+            }
         }
         soft.assertAll();
     }

@@ -55,6 +55,29 @@ class AdminSmsFormatControllerTest extends IntegrationTest {
         command(admin, "/3/publish").andExpect(status().isConflict());
     }
 
+    @Test void adminCanReadOnlyUnpublishedDraftAndDeactivatePublishedRevision() throws Exception {
+        var admin = tokenFor(createUser(Role.ADMIN));
+        var user = tokenFor(createUser(Role.USER));
+        String draftPath = REVISIONS + "/2";
+        command(admin, "/2").andExpect(status().isCreated());
+        String expected = jdbc.queryForObject(
+                "SELECT pattern FROM sms_formats WHERE bank_code = 'NSB' AND version = 1", String.class);
+        mockMvc.perform(get(draftPath).header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk())
+                .andExpect(content().json(json(java.util.Map.of("definition", expected)),
+                        org.springframework.test.json.JsonCompareMode.STRICT));
+        command(admin, "/2/validate").andExpect(status().isOk())
+                .andExpect(content().json("{\"samples\":[true,true,true]}",
+                        org.springframework.test.json.JsonCompareMode.STRICT));
+        command(admin, "/2/publish").andExpect(status().isNoContent());
+        mockMvc.perform(get(draftPath).header("Authorization", "Bearer " + admin))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("NOT_FOUND"));
+        command(admin, "/2/activate").andExpect(status().isNoContent());
+        command(admin, "/2/deactivate").andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/v1/sms-formats").header("Authorization", "Bearer " + user))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.templates").isEmpty());
+    }
+
     @Test void changedPublishedDefinitionCannotActivateOrReplaceTheCurrentBundle() throws Exception {
         var admin = tokenFor(createUser(Role.ADMIN));
         var user = tokenFor(createUser(Role.USER));

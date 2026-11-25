@@ -273,4 +273,31 @@ class GoalControllerTest extends IntegrationTest {
 
         send(userA, get("/api/v1/goals/" + idOfA), null).andExpect(jsonPath("$.saved").value(50.00));
     }
+
+    @Test
+    void contributionCannotBeDeletedThroughDifferentGoalOfSameOwner() throws Exception {
+        long first = createGoal(userA, "Synthetic first goal", "1000.00");
+        long second = createGoal(userA, "Synthetic second goal", "2000.00");
+        contribute(userA, first, "100.00");
+        contribute(userA, second, "200.00");
+        long contribution = firstContributionId(userA, first);
+        String firstPath = "/api/v1/goals/" + first + "/contributions";
+        String secondPath = "/api/v1/goals/" + second + "/contributions";
+        var firstBefore = send(userA, get(firstPath), null).andExpect(status().isOk()).andReturn().getResponse();
+        var secondBefore = send(userA, get(secondPath), null).andExpect(status().isOk()).andReturn().getResponse();
+        send(userA, delete(secondPath + "/" + contribution), null).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Contribution not found"));
+        send(userA, get(firstPath), null).andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .json(firstBefore.getContentAsString(), org.springframework.test.json.JsonCompareMode.STRICT));
+        send(userA, get(secondPath), null).andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .json(secondBefore.getContentAsString(), org.springframework.test.json.JsonCompareMode.STRICT));
+        send(userA, delete(firstPath + "/" + contribution), null).andExpect(status().isOk())
+                .andExpect(jsonPath("$.saved").value(0.00));
+        send(userA, delete(firstPath + "/" + contribution), null).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+    }
+
 }

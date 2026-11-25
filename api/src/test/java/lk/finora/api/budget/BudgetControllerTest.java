@@ -214,4 +214,42 @@ class BudgetControllerTest extends IntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Category not found"));
     }
+
+    @Test
+    void categoryReferencesAreCallerScopedOnCreateAndUpdate() throws Exception {
+        jdbc.update("INSERT INTO categories(user_id,name,kind) VALUES (?, 'Synthetic private reference', 'EXPENSE')",
+                userB.getId());
+        Long foreign = jdbc.queryForObject("SELECT id FROM categories WHERE user_id=? AND name='Synthetic private reference'",
+                Long.class, userB.getId());
+        Long shared = food;
+        String path = "/api/v1/budgets";
+        var owned = (java.util.function.Function<Long, Map<String, Object>>) categoryId -> Map.of("categoryId", categoryId, "month", "2026-11", "limitAmount", "15.00");
+        var ownerRecord = send(userB, post(path), owned.apply(foreign)).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.categoryId").value(foreign)).andReturn();
+        var ownRecord = send(userA, post(path), owned.apply(shared)).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.categoryId").value(shared)).andReturn();
+        long id = jsonMapper.readTree(ownRecord.getResponse().getContentAsString()).get("id").asLong();
+        long foreignId = jsonMapper.readTree(ownerRecord.getResponse().getContentAsString()).get("id").asLong();
+        send(userA, put(path + "/" + id), owned.apply(shared)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.categoryId").value(shared));
+
+        jdbc.update("INSERT INTO categories(user_id,name,kind,active) VALUES (?, 'Synthetic inactive reference', 'EXPENSE', FALSE)",
+                userA.getId());
+        Long inactive = jdbc.queryForObject("SELECT id FROM categories WHERE user_id=? AND name='Synthetic inactive reference'",
+                Long.class, userA.getId());
+        String scope = "SELECT * FROM budgets WHERE user_id IN (?,?) ORDER BY id";
+        var before = jdbc.queryForList(scope, userA.getId(), userB.getId());
+        for (Long categoryId : java.util.List.of(foreign, inactive, Long.MAX_VALUE)) {
+            send(userA, post(path), owned.apply(categoryId)).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                    .andExpect(jsonPath("$.message").value("Category not found"));
+            send(userA, put(path + "/" + id), owned.apply(categoryId)).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                    .andExpect(jsonPath("$.message").value("Category not found"));
+        }
+        assertThat(jdbc.queryForList(scope, userA.getId(), userB.getId())).isEqualTo(before);
+        send(userB, get(path + "/" + foreignId), null).andExpect(status().isOk())
+                .andExpect(jsonPath("$.categoryId").value(foreign));
+    }
+
 }

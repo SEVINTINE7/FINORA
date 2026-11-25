@@ -1,5 +1,7 @@
 package lk.finora.api.support;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import lk.finora.api.user.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,19 +32,37 @@ class SupportTicketControllerTest extends IntegrationTest {
         long id = jsonMapper.readTree(created).get("id").asLong();
         read(TICKETS, otherUser).andExpect(jsonPath("$.length()").value(0));
         read(TICKETS + "/" + id + "/replies", otherUser).andExpect(status().isNotFound());
-        read(STAFF, staff).andExpect(jsonPath("$[0].body").isEmpty());
+        var pendingQueue = read(STAFF, staff).andExpect(status().isOk()).andReturn().getResponse();
+        var pending = jsonMapper.readTree(pendingQueue.getContentAsString()).get(0);
+        assertThat(pending.propertyNames()).containsExactlyInAnyOrder("id", "subject", "body", "status", "error_code");
+        assertThat(pending.get("id").asLong()).isEqualTo(id);
+        assertThat(pending.get("status").asString()).isEqualTo("OPEN");
+        for (String field : java.util.List.of("subject", "body", "error_code")) {
+            assertThat(pending.get(field).isNull()).as(field).isTrue();
+        }
         send(STAFF + "/" + id + "/claim", staff, "").andExpect(status().isNoContent());
         send(STAFF + "/" + id + "/claim", otherStaff, "").andExpect(status().isNotFound());
         read(STAFF, otherStaff).andExpect(jsonPath("$.length()").value(0));
         send(CATALOG, staff, "{\"topic\":\"SIGN_IN\"}").andExpect(status().isNoContent());
         var drafts = read(CATALOG, staff).andReturn().getResponse().getContentAsString();
-        long revision = jsonMapper.readTree(drafts).get(0).get("id").asLong();
+        var draft = jsonMapper.readTree(drafts).get(0);
+        assertThat(draft.propertyNames()).containsExactlyInAnyOrder("id", "topic", "state", "english", "sinhala");
+        long revision = draft.get("id").asLong();
         send(CATALOG + "/" + revision + "/approve", staff, "").andExpect(status().isNotFound());
         send(CATALOG + "/" + revision + "/approve", otherStaff, "").andExpect(status().isNoContent());
         var reply = json(java.util.Map.of("revision", revision, "language", "EN"));
         send(STAFF + "/" + id + "/replies", otherStaff, reply).andExpect(status().isNotFound());
         send(STAFF + "/" + id + "/replies", staff, reply).andExpect(status().isNoContent());
         send(CATALOG + "/" + revision + "/retire", staff, "").andExpect(status().isNoContent());
+        for (long unavailable : new long[]{revision, Long.MAX_VALUE}) {
+            send(STAFF + "/" + id + "/replies", staff, json(java.util.Map.of("revision", unavailable, "language", "EN")))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                    .andExpect(jsonPath("$.message").value("Support item unavailable"));
+        }
+        read(TICKETS + "/" + id + "/replies", owner).andExpect(status().isOk())
+                .andExpect(content().json(json(java.util.List.of(java.util.Map.of("body", SupportCopy.SIGN_IN.replyEn))),
+                        org.springframework.test.json.JsonCompareMode.STRICT));
         send(STAFF + "/" + id + "/close", staff, "").andExpect(status().isNoContent());
         read(TICKETS + "/" + id + "/replies", owner)
                 .andExpect(jsonPath("$[0].body").value(SupportCopy.SIGN_IN.replyEn));

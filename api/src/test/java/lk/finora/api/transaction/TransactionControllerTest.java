@@ -171,6 +171,28 @@ class TransactionControllerTest extends IntegrationTest {
         send(userB, get(SUMMARY_NOV), null).andExpect(jsonPath("$.expense").value(0.00));
     }
 
+    @Test
+    void foreignAccountAndCategoryQueryFiltersDoNotReturnForeignRows() throws Exception {
+        String path = "/api/v1/transactions";
+        var category = send(userB, post("/api/v1/categories"),
+                Map.of("name", "Synthetic owner category", "kind", "EXPENSE"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        long categoryB = jsonMapper.readTree(category).get("id").asLong();
+        long transactionB = create(userB, body(accountB, categoryB, "EXPENSE", "101.00", "2026-11-05"));
+        create(userA, body(accountA, food, "EXPENSE", "102.00", "2026-11-05"));
+
+        for (var filter : Map.of("accountId", accountB, "categoryId", categoryB).entrySet()) {
+            send(userB, get(path).param(filter.getKey(), filter.getValue().toString()), null)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.items[0].id").value(transactionB))
+                    .andExpect(jsonPath("$.totalItems").value(1));
+            send(userA, get(path).param(filter.getKey(), filter.getValue().toString()), null)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.items").isEmpty())
+                    .andExpect(jsonPath("$.totalItems").value(0));
+        }
+    }
+
     // ---------- list filters and paging ----------
 
     @Test
