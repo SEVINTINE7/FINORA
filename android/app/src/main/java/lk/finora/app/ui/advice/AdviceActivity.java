@@ -15,6 +15,10 @@ import androidx.lifecycle.ViewModelProvider;
 import java.io.IOException;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Map;
+import lk.finora.app.data.api.GoalDto;
+import lk.finora.app.data.repo.GoalRepository;
 
 import lk.finora.app.R;
 import lk.finora.app.ui.SecureActivity;
@@ -60,6 +64,7 @@ public final class AdviceActivity extends SecureActivity {
             button(R.string.dashboard_next, () -> model.shift(1));
         }
         line(getString(R.string.score_disclaimer), false);
+        renderGoalPicker();
         if (model.work.busy()) line(getString(R.string.records_loading), false);
         if (model.work.error != 0) {
             line(getString(model.work.error), false);
@@ -72,6 +77,13 @@ public final class AdviceActivity extends SecureActivity {
         }
         line(getString(model.result.verified() ? R.string.advice_verified : R.string.advice_rules), true);
         for (var item : model.result.items()) {
+            Integer section = SECTIONS.get(item.actionId());
+            if (section != null) {
+                line(getString(section), true);
+                line(item.text(), false);
+                if (!item.numbers().isEmpty()) line(getString(R.string.advice_section_figures, figures(item)), false);
+                continue;
+            }
             line(adviceText(item), false);
             for (var fact : item.numbers()) {
                 line(getString(R.string.advice_figure, fact.value().toPlainString(), fact.unit(), fact.period()), false);
@@ -98,6 +110,50 @@ public final class AdviceActivity extends SecureActivity {
             model.selected = group.indexOfChild(group.findViewById(id)) + 1;
             save.setEnabled(model.selected > 0);
         });
+    }
+
+    /** D58 coaching sections and their headings; other action ids are the T25 catalogue. */
+    static final Map<String, Integer> SECTIONS = Map.of(
+            "GOAL_PLAN", R.string.advice_section_goal, "CUT_WANTS", R.string.advice_section_wants,
+            "NEEDS_BEHAVIOUR", R.string.advice_section_needs, "SPENDING_PATTERN", R.string.advice_section_pattern,
+            "SALARY_PLAN", R.string.advice_section_salary);
+
+    private void renderGoalPicker() {
+        if (model.goals == null || model.goals.isEmpty()) return;
+        line(getString(R.string.advice_goal_prompt), true);
+        var options = new RadioGroup(this);
+        RadioButton none = goalOption(options, getString(R.string.advice_goal_none), model.goalId == null);
+        none.setOnClickListener(view -> model.selectGoal(null));
+        for (GoalDto goal : model.goals) {
+            RadioButton option = goalOption(options, goal.name(), Long.valueOf(goal.id()).equals(model.goalId));
+            option.setOnClickListener(view -> model.selectGoal(goal.id()));
+        }
+        page.addView(options);
+    }
+
+    private RadioButton goalOption(RadioGroup group, String text, boolean checked) {
+        var radio = new RadioButton(this);
+        radio.setId(View.generateViewId());
+        radio.setText(text);
+        radio.setTextColor(getColor(R.color.finora_ink));
+        radio.setEnabled(!model.work.busy());
+        group.addView(radio);
+        if (checked) group.check(radio.getId());
+        return radio;
+    }
+
+    private String figures(MonthlyRepository.Item item) {
+        StringBuilder out = new StringBuilder();
+        for (var fact : item.numbers()) {
+            if (out.length() > 0) out.append(" · ");
+            String value = fact.value().stripTrailingZeros().toPlainString();
+            out.append(switch (fact.unit()) {
+                case "PERCENT" -> getString(R.string.advice_unit_percent, value);
+                case "MONTHS" -> getString(R.string.advice_unit_months, value);
+                default -> getString(R.string.advice_unit_lkr, fact.value().toPlainString());
+            });
+        }
+        return out.toString();
     }
 
     private String adviceText(MonthlyRepository.Item item) {
@@ -145,21 +201,49 @@ public final class AdviceActivity extends SecureActivity {
     }
 
     public static final class Model extends ViewModel {
-        final Work work = new Work(() -> { result = null; selected = 0; reconcile = false; });
+        final Work work = new Work(() -> { result = null; selected = 0; reconcile = false; goals = null; goalId = null; });
         private final MonthlyRepository repository = work.requests == null ? null : new MonthlyRepository(work.requests);
         YearMonth month = YearMonth.now(ZoneId.of("Asia/Colombo"));
+        private final GoalRepository goalRepository = work.requests == null ? null : new GoalRepository(work.requests);
         Advice result;
         int selected;
         boolean reconcile;
+        /** Active goals for the picker (names stay on the phone; only the id is sent). Null until loaded. */
+        List<GoalDto> goals;
+        Long goalId;
 
         void load() {
             if (!work.isCurrent() || work.busy()) return;
+            if (goals == null) {
+                work.run(goalRepository::list, GoalRepository::rows, rows -> {
+                    goals = rows.stream().filter(g -> "ACTIVE".equals(g.status())).toList();
+                    // Default to the goal with the nearest target date; goals without a date come last.
+                    goalId = goals.stream().min(java.util.Comparator.comparing(
+                            (GoalDto g) -> g.targetDate() == null ? "9999-12-31" : g.targetDate()))
+                            .map(GoalDto::id).orElse(null);
+                    loadAdvice();
+                }, false);
+                return;
+            }
+            loadAdvice();
+        }
+
+        void selectGoal(Long id) {
+            if (work.busy() || reconcile || java.util.Objects.equals(id, goalId)) return;
+            goalId = id;
+            selected = 0;
+            loadAdvice();
+        }
+
+        private void loadAdvice() {
+            if (!work.isCurrent() || work.busy()) return;
             result = null;
             YearMonth forMonth = month;
-            work.run(() -> repository.advice(forMonth), response -> {
+            Long forGoal = goalId;
+            work.run(() -> repository.advice(forMonth, forGoal), response -> {
                 Advice data = AccountRepository.read(response, Advice.class);
                 if (!forMonth.toString().equals(data.month()) || data.items() == null
-                        || data.items().size() > 6 || data.rating() != null && !validRating(data.rating())
+                        || data.items().size() > 12 || data.rating() != null && !validRating(data.rating())
                         || data.items().isEmpty() && (data.id() != null || data.rating() != null)
                         || !data.items().isEmpty() && (data.id() == null || data.id() <= 0)
                         || !(data.verified() && "AI".equals(data.source())
@@ -183,7 +267,7 @@ public final class AdviceActivity extends SecureActivity {
             if (next.getYear() < 1000 || next.isAfter(YearMonth.now(ZoneId.of("Asia/Colombo")))) return;
             selected = 0;
             month = next;
-            load();
+            loadAdvice();
         }
 
         void rate() {

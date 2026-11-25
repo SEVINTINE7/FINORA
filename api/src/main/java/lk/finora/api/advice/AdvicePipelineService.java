@@ -31,6 +31,11 @@ public class AdvicePipelineService {
     }
 
     public Delivery forCurrentUser(String month) {
+        return forCurrentUser(month, null);
+    }
+
+    /** goalId must already be verified as the current user's goal. */
+    public Delivery forCurrentUser(String month, Long goalId) {
         Long userId;
         try {
             userId = CurrentUser.id();
@@ -38,7 +43,7 @@ public class AdvicePipelineService {
             throw new ApiException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED, "Authentication required");
         }
         if (CurrentUser.role() != Role.USER) throw new ApiException("FORBIDDEN", HttpStatus.FORBIDDEN, "Access denied");
-        var facts = rules.facts(userId, month);
+        var facts = rules.facts(userId, month, goalId);
         List<AdviceItem> eligible = RuleAdviceEngine.generate(facts);
         if (eligible.isEmpty()) return new Delivery("RULE", false, "NO_ELIGIBLE_ACTIONS", eligible);
         for (LlmClient provider : providers) {

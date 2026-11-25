@@ -185,8 +185,11 @@ class AdviceDeliveryControllerTest extends IntegrationTest {
         assertThat(delivered.path("rating").isNull()).isTrue();
         assertThat(delivered.path("verified").asBoolean()).isFalse();
         var items = delivered.path("items");
-        assertThat(items.size()).isEqualTo(1);
-        var item = items.get(0);
+        // D58: uncategorised spending gives the pattern and salary-plan sections plus the T25 deficit action.
+        assertThat(items.size()).isEqualTo(3);
+        assertThat(items.get(0).path("actionId").asString()).isEqualTo("SPENDING_PATTERN");
+        assertThat(items.get(1).path("actionId").asString()).isEqualTo("SALARY_PLAN");
+        var item = items.get(2);
         assertThat(item.propertyNames()).containsExactlyInAnyOrder("actionId", "text", "numbers");
         assertThat(item.path("actionId").asString()).isEqualTo("REVIEW_SPENDING_DEFICIT");
         assertThat(item.path("text").asString()).isEqualTo(

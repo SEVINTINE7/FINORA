@@ -72,7 +72,7 @@ class LiveProviderAcceptanceIT {
         return switch (verdict.reason()) {
             case ACCEPTED -> "schema=PASS claim=PASS numerical=PASS";
             case MALFORMED_JSON, INVALID_SHAPE -> "schema=FAIL claim=UNESTABLISHED numerical=UNESTABLISHED";
-            case UNKNOWN_ACTION, DUPLICATE_ACTION, UNSUPPORTED_CLAIM ->
+            case UNKNOWN_ACTION, DUPLICATE_ACTION, UNSUPPORTED_CLAIM, MISSING_SECTION, UNSAFE_TEXT ->
                     "schema=UNESTABLISHED claim=FAIL numerical=UNESTABLISHED";
             case FACT_MISMATCH, WRONG_UNIT_OR_PERIOD, TEXT_NUMBER_MISMATCH ->
                     "schema=UNESTABLISHED claim=UNESTABLISHED numerical=FAIL";

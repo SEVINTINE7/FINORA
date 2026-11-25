@@ -16,6 +16,8 @@ public final class MonthlyRepository {
 
     public MonthlyRepository(ProtectedRequests requests) { this.requests = requests; }
 
+    static final long ADVICE_TIMEOUT_SECONDS = 65;
+
     private HttpUrl.Builder path(String path) {
         return requests.origin().newBuilder().addPathSegments("api/v1").addPathSegment(path);
     }
@@ -25,9 +27,17 @@ public final class MonthlyRepository {
                 .addQueryParameter("from", from.toString()).addQueryParameter("to", to.toString()).build()).build());
     }
 
-    public Call advice(YearMonth month) {
-        return requests.call(new Request.Builder().url(path("advice").addQueryParameter("month", month.toString())
-                .addQueryParameter("mode", BuildConfig.ADVICE_MODE).build()).build());
+    public Call advice(YearMonth month) { return advice(month, null); }
+
+    /** D58: goalId is the user's selected focus goal, or null for advice without a goal plan. */
+    public Call advice(YearMonth month, Long goalId) {
+        HttpUrl.Builder url = path("advice").addQueryParameter("month", month.toString())
+                .addQueryParameter("mode", BuildConfig.ADVICE_MODE);
+        if (goalId != null) url.addQueryParameter("goalId", Long.toString(goalId));
+        Call call = requests.call(new Request.Builder().url(url.build()).build());
+        // First delivery may try two providers (each up to 2 x 15 s) before the rule fallback (D58).
+        call.timeout().timeout(ADVICE_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+        return call;
     }
 
     public Call rate(long id, int value) {

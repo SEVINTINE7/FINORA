@@ -47,11 +47,14 @@ class FactSheetPrivacyTest extends IntegrationTest {
         var user = seedPrivateLedger();
         var facts = rules.facts(user.getId(), "2026-11");
         var actions = RuleAdviceEngine.generate(facts);
-        assertThat(actions).extracting(item -> item.actionId()).containsExactly("REVIEW_SPENDING_DEFICIT");
+        assertThat(actions).extracting(item -> item.actionId()).filteredOn(RuleAdviceEngine.ACTIONS::contains)
+                .containsExactly("REVIEW_SPENDING_DEFICIT");
+        // The custom category name (with injected text) is grouped as "Other want" before any slot label.
+        assertThat(facts.slotLabels()).containsEntry("TOP_WANT_1", "Other want");
 
         var expectedFacts = jsonMapper.readTree(json(facts));
-        assertThat(expectedFacts.propertyNames()).containsExactlyInAnyOrder("month", "facts", "categoryLabels");
-        assertThat(expectedFacts.path("facts").propertyNames()).containsExactlyInAnyOrder(
+        assertThat(expectedFacts.propertyNames()).containsExactlyInAnyOrder("month", "facts", "categoryLabels", "slotLabels");
+        assertThat(expectedFacts.path("facts").propertyNames()).contains(
                 "INCOME", "CONSUMPTION", "NEEDS", "WANTS", "WANTS_REFERENCE", "SAVINGS_ALLOCATED",
                 "SUPPORTED_SAVINGS", "SAVINGS_TARGET", "SAVINGS_SHORTFALL", "AVAILABLE_HEADROOM",
                 "SPENDING_DEFICIT");
@@ -141,7 +144,7 @@ class FactSheetPrivacyTest extends IntegrationTest {
                 }
                 assertThat(system).contains("Transport contract");
                 var payload = jsonMapper.readTree(userText);
-                assertThat(payload.propertyNames()).containsExactlyInAnyOrder("facts", "eligibleActions");
+                assertThat(payload.propertyNames()).containsExactlyInAnyOrder("facts", "factGuide", "eligibleActions");
                 assertThat(payload.path("facts")).isEqualTo(expectedFacts);
                 assertThat(payload.path("eligibleActions")).isEqualTo(expectedActions);
                 assertThat(captured.get()).doesNotContain("PRIVATE ACCOUNT", "PRIVATE MERCHANT", "private@example.com",

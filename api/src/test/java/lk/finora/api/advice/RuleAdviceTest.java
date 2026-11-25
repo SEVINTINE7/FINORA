@@ -136,7 +136,8 @@ class RuleAdviceTest {
         FactSheet f = fixture("50000", "48000", "1000", "5000", "43000", "0", "0", "0", "0", null);
         JsonMapper mapper = JsonMapper.builder().build();
         var tree = mapper.readTree(mapper.writeValueAsString(f));
-        assertThat(tree.propertyNames()).containsExactlyInAnyOrder("month", "facts", "categoryLabels");
+        assertThat(tree.propertyNames()).containsExactlyInAnyOrder("month", "facts", "categoryLabels", "slotLabels");
+        assertThat(f.slotLabels()).isEmpty();
         assertThat(AiPrompt.user(f, RuleAdviceEngine.generate(f), mapper))
                 .contains("SAVE_WITHIN_AVAILABLE_HEADROOM").doesNotContain("merchant", "accountId", "email", "fullName");
     }

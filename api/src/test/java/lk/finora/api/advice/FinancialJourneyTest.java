@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
+import lk.finora.api.advice.rules.RuleAdviceEngine;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
@@ -150,11 +151,12 @@ class FinancialJourneyTest extends IntegrationTest {
         if (affordable == null) assertThat(facts.facts()).doesNotContainKey(FactKey.AFFORDABLE_SAVINGS);
         else assertThat(facts.facts().get(FactKey.AFFORDABLE_SAVINGS)).isEqualByComparingTo(affordable);
         var eligible = rules.forMonth(l.user().id(), MONTH);
-        assertThat(eligible.stream().map(a -> a.actionId()).toList())
+        // D58 coaching sections come first; the approved T25 catalogue is unchanged.
+        assertThat(eligible.stream().map(a -> a.actionId()).filter(RuleAdviceEngine.ACTIONS::contains).toList())
                 .containsExactlyElementsOf(actions == null ? List.of() : List.of(actions.split("\\|")));
         for (var item : eligible) for (var number : item.numbers()) {
             assertThat(number.value()).isEqualByComparingTo(facts.facts().get(number.factKey()));
-            assertThat(number.unit()).isEqualTo("LKR"); assertThat(number.period()).isEqualTo(MONTH);
+            assertThat(number.unit()).isEqualTo(number.factKey().unit()); assertThat(number.period()).isEqualTo(MONTH);
         }
         LlmClient provider = mock(LlmClient.class); when(provider.provider()).thenReturn("GROQ");
         when(provider.generate(any(), any())).thenReturn(LlmClient.Result.failed(LlmClient.Failure.TIMEOUT));
@@ -173,7 +175,7 @@ class FinancialJourneyTest extends IntegrationTest {
                 "limitAmount", "40000"), 201).get("id").asLong();
         assertThat(send(l.user(), "GET", "/api/v1/budgets/" + budget, null, 200).get("state").asString()).isEqualTo("NEAR");
         var before = rules.forMonth(l.user().id(), MONTH);
-        assertThat(before).isEmpty(); // Debt/reserve unknown: no allocation advice; wants exactly 40%.
+        assertThat(catalogue(before)).isEmpty(); // Debt/reserve unknown: no allocation advice; wants exactly 40%.
         for (var insight : send(l.user(), "GET", "/api/v1/insights?month=" + MONTH, null, 200))
             assertThat(insight.get("type").asString()).isNotEqualTo("HIGH_WANTS");
         long extra = transaction(l, "EXPENSE", "0.01", l.wants());
@@ -185,7 +187,7 @@ class FinancialJourneyTest extends IntegrationTest {
             if (insight.get("type").asString().equals("HIGH_WANTS")) highWants = true;
         assertThat(highWants).isTrue();
         var eligible = rules.forMonth(l.user().id(), MONTH);
-        assertThat(eligible).extracting(a -> a.actionId()).containsExactly("REVIEW_SPENDING_DEFICIT", "REVIEW_HIGH_WANTS");
+        assertThat(catalogue(eligible)).containsExactly("REVIEW_SPENDING_DEFICIT", "REVIEW_HIGH_WANTS");
         LlmClient provider = mock(LlmClient.class); when(provider.provider()).thenReturn("GROQ");
         when(provider.generate(any(), any())).thenReturn(LlmClient.Result.received(json(eligible)
                 .replace("Review optional spending.", "Guaranteed wealth from cutting essential food.")));
@@ -194,7 +196,7 @@ class FinancialJourneyTest extends IntegrationTest {
         assertThat(rejected.verified()).isFalse(); assertThat(rejected.reason()).isEqualTo("UNSUPPORTED_CLAIM");
         assertThat(rejected.advice()).isEqualTo(eligible);
         send(l.user(), "DELETE", "/api/v1/transactions/" + extra, null, 204);
-        assertThat(rules.forMonth(l.user().id(), MONTH)).isEmpty();
+        assertThat(catalogue(rules.forMonth(l.user().id(), MONTH))).isEmpty();
         for (var insight : send(l.user(), "GET", "/api/v1/insights?month=" + MONTH, null, 200))
             assertThat(insight.get("type").asString()).isNotEqualTo("HIGH_WANTS");
         send(l.user(), "POST", "/api/v1/transactions", Map.of("accountId", l.account(), "type", "EXPENSE",
@@ -213,8 +215,7 @@ class FinancialJourneyTest extends IntegrationTest {
         assertThat(send(session, "GET", route, null, 200).path("state").asString()).isEqualTo("NEAR");
         var facts = rules.facts(session.id(), MONTH);
         var advice = rules.forMonth(session.id(), MONTH);
-        assertThat(advice).extracting(item -> item.actionId())
-                .containsExactly("REVIEW_SPENDING_DEFICIT", "REVIEW_HIGH_WANTS");
+        assertThat(catalogue(advice)).containsExactly("REVIEW_SPENDING_DEFICIT", "REVIEW_HIGH_WANTS");
         assertThat(facts.facts().get(FactKey.SPENDING_DEFICIT)).isEqualByComparingTo("1000.00");
 
         send(session, "PUT", route, Map.of("categoryId", ledger.wants(), "month", MONTH,
@@ -229,7 +230,7 @@ class FinancialJourneyTest extends IntegrationTest {
             assertThat(item.numbers()).isNotEmpty();
             for (var number : item.numbers()) {
                 assertThat(number.value()).isEqualByComparingTo(facts.facts().get(number.factKey()));
-                assertThat(number.unit()).isEqualTo("LKR");
+                assertThat(number.unit()).isEqualTo(number.factKey().unit());
                 assertThat(number.period()).isEqualTo(MONTH);
             }
         }
@@ -272,5 +273,9 @@ class FinancialJourneyTest extends IntegrationTest {
         verify(provider, never()).generate(any(), any());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM advice_verification_events WHERE user_id=?", Integer.class, other.id())).isZero();
         assertThat(json(empty)).doesNotContain("PRIVATE_JOURNEY", "15000", "50000");
+    }
+
+    private static List<String> catalogue(List<lk.finora.api.advice.ai.AdviceItem> items) {
+        return items.stream().map(lk.finora.api.advice.ai.AdviceItem::actionId).filter(RuleAdviceEngine.ACTIONS::contains).toList();
     }
 }

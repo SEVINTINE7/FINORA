@@ -56,7 +56,7 @@ erDiagram
 | `insights` | V4 | Detected patterns with their facts (JSON) | index (user, month) |
 | `health_scores` | V4 | Monthly score 0–100 + parts (JSON) | unique (user, month); 0 ≤ total ≤ 100 |
 | `score_inputs` | V7 | D20 user declarations: nullable emergency reserve/date and no-applicable-debt/goals flags; UTC confirmation time | unique (user, month); user deletion cascades; nonnegative reserve/date pair in month |
-| `advice` | V4 | RULE / AI advice, mode BETA / V1 (D03), `verified` flag | index (user, month) |
+| `advice` | V4, V11, V24 | RULE / AI advice, mode BETA / V1 (D03), `verified` flag; V24 `focus_goal_id` (no FK) and stored `focus_key` = COALESCE(focus_goal_id, 0) (D58) | index (user, month); unique (user, month, focus_key, monthly_delivery) |
 | `advice_ratings` | V4 | 1–5 rating | unique (advice, user); 1 ≤ rating ≤ 5 |
 | `device_tokens` | V5 | FCM tokens (T34.1: max 10 per user) | `token` unique |
 | `alert_events` | V23 | T34 alert events: type, ref_id, period, sent_at; no amounts or text | unique (user_id, type, ref_id, period); cascade on user delete |

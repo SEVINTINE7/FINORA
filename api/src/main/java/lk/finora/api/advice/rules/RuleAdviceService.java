@@ -17,12 +17,22 @@ import lk.finora.api.score.ScoreService;
 public class RuleAdviceService {
     private final MetricsService metrics;
     private final ScoreService scores;
-    public RuleAdviceService(MetricsService metrics, ScoreService scores) { this.metrics = metrics; this.scores = scores; }
+    private final CoachingQueries coaching;
+    public RuleAdviceService(MetricsService metrics, ScoreService scores, CoachingQueries coaching) {
+        this.metrics = metrics; this.scores = scores; this.coaching = coaching;
+    }
 
     @Transactional(readOnly = true)
     public FactSheet facts(Long userId, String month) {
+        return facts(userId, month, null);
+    }
+
+    /** D58: goalId is the caller's own focus goal (ownership checked by the caller) or null. */
+    @Transactional(readOnly = true)
+    public FactSheet facts(Long userId, String month, Long goalId) {
         var score = scores.forMonth(userId, month); // validates the month before parsing below
-        return FactSheetFactory.from(metrics.forMonth(userId, YearMonth.parse(month)), score);
+        YearMonth period = YearMonth.parse(month);
+        return FactSheetFactory.from(metrics.forMonth(userId, period), score, coaching.load(userId, period, goalId));
     }
 
     @Transactional(readOnly = true)

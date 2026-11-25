@@ -22,8 +22,9 @@ public class AdviceDeliveryController {
     public AdviceDeliveryController(AdviceDeliveryService service) { this.service = service; }
 
     @GetMapping
-    public AdviceDeliveryRepository.Delivered get(@RequestParam String month, @RequestParam String mode) {
-        return service.get(month, mode);
+    public AdviceDeliveryRepository.Delivered get(@RequestParam String month, @RequestParam String mode,
+                                                  @RequestParam(required = false) Long goalId) {
+        return service.get(month, mode, goalId);
     }
 
     @PostMapping("/{id}/rating")

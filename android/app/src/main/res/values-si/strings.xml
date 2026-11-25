@@ -368,6 +368,17 @@
     <string name="advice_action_reserve">හදිසි අවස්ථා සඳහා වෙන් කළ බව ඔබ සඳහන් කළ මුදල රු. %1$sකි. ඊළඟ ඉලක්කය රු. %2$sකි. අත්‍යවශ්‍ය වියදම් සහ නියමිත ගෙවීම්වලින් පසු ටිකෙන් ටික මුදල් වෙන් කරන්න.</string>
     <string name="advice_action_goal">ඉලක්ක සඳහා වාර්තා කළ වෙන් කිරීම් වත්මන් ඉලක්කවලට වඩා රු. %1$sකින් අඩුය. වැඩි මුදලක් වෙන් කිරීමට පෙර එය දැරිය හැකිදැයි පරීක්ෂා කරන්න.</string>
     <string name="advice_action_savings">වාර්තා අනුව මුල් ඉතිරිකිරීමේ ඉලක්කය සඳහා රු. %1$sක් දක්වා වෙන් කළ හැක. පළමුව සියලු අත්‍යවශ්‍ය වියදම් සහ ගෙවීම් තහවුරු කරන්න.</string>
+    <string name="advice_goal_prompt">උපදෙස් සැලසුම් කළ යුතු ඉලක්කය</string>
+    <string name="advice_goal_none">ඉලක්කයක් නැත (සාමාන්‍ය උපදෙස්)</string>
+    <string name="advice_section_goal">ඔබේ ඉලක්කය සඳහා සැලැස්ම</string>
+    <string name="advice_section_wants">අත්‍යවශ්‍ය නොවන වියදම් අඩු කළ හැකි තැන්</string>
+    <string name="advice_section_needs">ඔබේ අත්‍යවශ්‍ය වියදම්</string>
+    <string name="advice_section_pattern">ඔබේ මුදල් වැය වන කාලය</string>
+    <string name="advice_section_salary">මෙම මාසයේ වැටුප භාවිත කරන ආකාරය</string>
+    <string name="advice_section_figures">අගයන්: %1$s</string>
+    <string name="advice_unit_lkr">රු. %1$s</string>
+    <string name="advice_unit_percent">%1$s%%</string>
+    <string name="advice_unit_months">මාස %1$s</string>
     <string name="sms_report_problem">ගැටලුව වාර්තා කරන්න</string>
     <string name="sms_report_preview">බැංකුව: %1$s\nආකෘති අනුවාදය: නොදනී\nදෝෂ කේතය: %2$s\n\nමෙම වාර්තාව සමඟ යවනු ලබන්නේ මෙම තොරතුරු පමණි. ඔබේ මුල් SMS පණිවිඩය සහ මූල්‍ය තොරතුරු මෙම වාර්තාවට ඇතුළත් නොවේ.</string>
     <string name="sms_report_send">වාර්තාව යවන්න</string>

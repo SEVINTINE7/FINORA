@@ -30,7 +30,8 @@ abstract class JsonHttpLlmClient implements LlmClient {
             "Return only a JSON array matching the supplied response schema.",
             "Return only a JSON object with an advice array matching the supplied item schema.") + """
             Transport contract: return a JSON object with only an advice property containing the advice array.
-            Copy eligible text and numeric provenance exactly; you may only select and order eligible actions.
+            Copy eligible text and numeric provenance exactly for catalogue actions; write coaching sections in
+            your own words under the number rules.
             """;
     protected final JsonMapper mapper;
     protected final String model;

@@ -368,6 +368,17 @@
     <string name="advice_action_reserve">Declared emergency reserves are LKR %1$s. The next reserve milestone is LKR %2$s. Build gradually after essentials and due payments.</string>
     <string name="advice_action_goal">Recorded goal allocations remain LKR %1$s below current targets. Review affordability before allocating more.</string>
     <string name="advice_action_savings">Recorded headroom supports up to LKR %1$s toward the initial savings target. Confirm all essential costs and obligations first.</string>
+    <string name="advice_goal_prompt">Plan advice for</string>
+    <string name="advice_goal_none">No goal (general advice)</string>
+    <string name="advice_section_goal">Plan for your goal</string>
+    <string name="advice_section_wants">Where to cut wants</string>
+    <string name="advice_section_needs">Your needs spending</string>
+    <string name="advice_section_pattern">When your money goes</string>
+    <string name="advice_section_salary">How to use your salary this month</string>
+    <string name="advice_section_figures">Figures: %1$s</string>
+    <string name="advice_unit_lkr">LKR %1$s</string>
+    <string name="advice_unit_percent">%1$s%%</string>
+    <string name="advice_unit_months">%1$s months</string>
     <string name="sms_report_problem">Report problem</string>
     <string name="sms_report_preview">Bank: %1$s\nFormat version: unknown\nError code: %2$s\n\nOnly these details will be sent in this report. Your original SMS and financial details will not be included.</string>
     <string name="sms_report_send">Send report</string>
