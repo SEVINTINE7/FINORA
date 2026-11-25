@@ -1,0 +1,5 @@
+"sample","pid","token","layer_name","surface_status","display_frame_token","display_status","action_ns","ready_ns","submitted_ns","display_end_ns","qualified_ms"
+"T55-HOME-trace-check-1",4614,9550,"TX - VRI-lk.finora.app.acceptance/lk.finora.app.ui.main.MainActivity#129","On-time Present",9557,"On-time Present",142628126912,142689928119,142702611585,142709965624,81.839000
+"T55-RECORDS-trace-check-1",4614,9804,"TX - VRI-lk.finora.app.acceptance/lk.finora.app.ui.transactions.TransactionActivity#139","Late Present",9906,"On-time Present",142743697166,143088975415,143144593882,143159257667,415.561000
+"T55-PLAN-trace-check-1",4614,10658,"TX - VRI-lk.finora.app.acceptance/lk.finora.app.ui.budgets.BudgetListActivity#151","On-time Present",10688,"Unspecified Present",143897020179,144069711331,144088356323,144107388930,"[NULL]"
+"T55-INSIGHTS-trace-check-1",4614,11756,"TX - VRI-lk.finora.app.acceptance/lk.finora.app.ui.insights.InsightsActivity#164","Late Present",11778,"Late Present",145108369754,145351194633,145407808476,145518713034,410.343000

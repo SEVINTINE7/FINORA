@@ -29,6 +29,18 @@ public final class EvaluationDatasetSeeder {
         String irregularEmail = "finora-t55-v1-irregular@example.invalid";
         if (jdbc.queryForObject("SELECT COUNT(*) FROM users WHERE email IN (?,?)", Integer.class,
                 workerEmail, irregularEmail) != 0) throw new IllegalStateException("Synthetic fixture identities already exist; seed refused");
+        Map<String, Long> categories = resolveCategories();
+        Map<String, Long> users = new LinkedHashMap<>();
+        for (String profile : EvaluationDataset.PROFILES) {
+            String email = profile.equals("worker") ? workerEmail : irregularEmail;
+            jdbc.update("INSERT INTO users(email,password_hash,full_name,role) VALUES (?,'test-only-not-a-login-hash',?,'USER')",
+                    email, "SYNTHETIC T55 " + profile);
+            users.put(profile, jdbc.queryForObject("SELECT id FROM users WHERE email=?", Long.class, email));
+        }
+        return insertFinancialRows(users, categories);
+    }
+
+    Map<String, Long> resolveCategories() {
         // Resolve all reference data before the first write; never create/replace shared categories.
         Map<String, Long> categories = new LinkedHashMap<>();
         for (var entry : EvaluationDataset.entries()) if (entry.category() != null) {
@@ -37,14 +49,14 @@ public final class EvaluationDatasetSeeder {
                     "SELECT id FROM categories WHERE user_id IS NULL AND active=TRUE AND kind=? AND name=?",
                     Long.class, entry.type(), entry.category()));
         }
-        Map<String, Long> users = new LinkedHashMap<>(), accounts = new LinkedHashMap<>(), goals = new LinkedHashMap<>();
+        return categories;
+    }
+
+    Loaded insertFinancialRows(Map<String, Long> users, Map<String, Long> categories) {
+        Map<String, Long> accounts = new LinkedHashMap<>(), goals = new LinkedHashMap<>();
         for (String profile : EvaluationDataset.PROFILES) {
             boolean worker = profile.equals("worker");
-            String email = worker ? workerEmail : irregularEmail;
-            jdbc.update("INSERT INTO users(email,password_hash,full_name,role) VALUES (?,'test-only-not-a-login-hash',?,'USER')",
-                    email, "SYNTHETIC T55 " + profile);
-            long user = jdbc.queryForObject("SELECT id FROM users WHERE email=?", Long.class, email);
-            users.put(profile, user);
+            long user = users.get(profile);
             jdbc.update("INSERT INTO accounts(user_id,name,type,opening_balance) VALUES (?,'SYNTHETIC wallet','CASH',0)", user);
             long account = jdbc.queryForObject("SELECT id FROM accounts WHERE user_id=?", Long.class, user);
             accounts.put(profile, account);
