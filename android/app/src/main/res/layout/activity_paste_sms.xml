@@ -47,5 +47,12 @@
             android:layout_height="wrap_content"
             android:text="@string/sms_transaction_preview"
             android:visibility="gone" />
+        <Button
+            android:id="@+id/sms_diagnostic_report"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sms_report_problem"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

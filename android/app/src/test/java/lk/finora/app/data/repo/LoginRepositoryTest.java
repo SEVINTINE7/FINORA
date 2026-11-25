@@ -77,6 +77,29 @@ public class LoginRepositoryTest {
     }
 
     @Test
+    public void withdrawnLoginKeepsGrantOutOfTokenStoreAndUsesRestrictedHeader() throws Exception {
+        String grant = "R".repeat(43);
+        server.enqueue(new MockResponse().setBody("""
+                {"restrictedToken":"%s","expiresIn":300,"consentVersion":"1.0","language":"EN"}
+                """.formatted(grant)));
+        var attempt = new Attempt();
+        var repository = new LoginRepository(client, (access, refresh) -> writes.incrementAndGet());
+        assertEquals(Result.CONSENT_REQUIRED, login(repository, attempt));
+        assertEquals(0, writes.get());
+        assertEquals(grant, attempt.takeConsentGrant());
+        assertEquals(null, attempt.takeConsentGrant());
+        server.takeRequest(2, TimeUnit.SECONDS);
+        server.enqueue(new MockResponse().setResponseCode(204));
+        var recovery = ApiClient.consentRecovery(server.url("/").toString());
+        var request = new lk.finora.app.data.api.AuthApi.ConsentAcceptance("1.0", true);
+        assertEquals(204, recovery.acceptConsent("Consent " + grant, request).execute().code());
+        var sent = server.takeRequest(2, TimeUnit.SECONDS);
+        assertNotNull(sent);
+        assertEquals("/api/v1/auth/consent/accept", sent.getPath());
+        assertEquals("Consent " + grant, sent.getHeader("Authorization"));
+    }
+
+    @Test
     public void failedTokenWriteDoesNotReportSuccess() {
         server.enqueue(new MockResponse().setBody(SESSION));
         LoginRepository repository = new LoginRepository(client, (access, refresh) -> {

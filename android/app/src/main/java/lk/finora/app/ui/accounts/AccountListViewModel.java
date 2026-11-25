@@ -39,7 +39,7 @@ public final class AccountListViewModel extends ViewModel {
 
     public static final class Work {
         public final MutableLiveData<Integer> changes = new MutableLiveData<>(0);
-        public final ProtectedRequests requests = ProtectedRequests.currentUser();
+        public final ProtectedRequests requests;
         private final Handler main = new Handler(Looper.getMainLooper());
         private final Runnable clear;
         private final Runnable sessionListener = () -> main.post(this::checkSession);
@@ -49,6 +49,11 @@ public final class AccountListViewModel extends ViewModel {
         public boolean ambiguousCreate;
 
         public Work(Runnable clear) {
+            this(ProtectedRequests.currentUser(), clear);
+        }
+
+        public Work(ProtectedRequests requests, Runnable clear) {
+            this.requests = requests;
             this.clear = clear;
             if (requests != null) requests.addListener(sessionListener);
         }

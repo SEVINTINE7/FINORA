@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.time.LocalDate;
@@ -24,11 +23,12 @@ import java.util.List;
 import java.util.Objects;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.TransactionRepository.Filters;
 import lk.finora.app.data.repo.TransactionRepository.Row;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
-public final class TransactionActivity extends AppCompatActivity {
+public final class TransactionActivity extends SecureActivity {
     private TransactionViewModel model;
     private LinearLayout rows;
     private TextView status;
@@ -236,8 +236,8 @@ public final class TransactionActivity extends AppCompatActivity {
     }
 
     private AlertDialog dialog(int title, LinearLayout fields, int action) {
-        return new AlertDialog.Builder(this).setTitle(title).setView(scroll(fields))
-                .setNegativeButton(android.R.string.cancel, null).setPositiveButton(action, null).show();
+        return showSecure(new AlertDialog.Builder(this).setTitle(title).setView(scroll(fields))
+                .setNegativeButton(android.R.string.cancel, null).setPositiveButton(action, null).create());
     }
 
     private ScrollView scroll(View content) {

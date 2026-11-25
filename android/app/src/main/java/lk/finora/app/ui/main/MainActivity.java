@@ -2,13 +2,9 @@ package lk.finora.app.ui.main;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -16,9 +12,6 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
@@ -31,6 +24,7 @@ import lk.finora.app.ui.categories.CategoryListActivity;
 import lk.finora.app.ui.dashboard.DashboardPanel;
 import lk.finora.app.ui.dashboard.DashboardViewModel;
 import lk.finora.app.ui.goals.GoalListActivity;
+import lk.finora.app.ui.help.FaqActivity;
 import lk.finora.app.ui.history.HistoryActivity;
 import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.insights.InsightsActivity;
@@ -41,52 +35,30 @@ import lk.finora.app.ui.transactions.TransactionFormActivity;
 
 public final class MainActivity extends ProtectedHomeActivity {
     private static final String DESTINATION = "destination";
-    private static final String RETURN_FOCUS = "returnFocus";
-    private static final String ROUTE_RETURNED = "routeReturned";
-    private static final long TALKBACK_WINDOW_SETTLE_MS = 500;
     private static final int[] LABELS = {R.string.home_tab, R.string.records_tab,
             R.string.plan_tab, R.string.insights_tab, R.string.more_tab};
     private int destination;
-    private int returnFocus;
-    private boolean routeReturned;
     private DashboardViewModel dashboard;
-    private Button historyAction;
-    private Button adviceAction;
-    private Runnable pendingFocusRestore;
-    private final ActivityResultLauncher<Intent> historyOrAdvice =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                routeReturned = true;
-                restoreRouteFocus();
-            });
-
     @Override protected String requiredRole() { return "USER"; }
     @Override protected int titleResource() { return R.string.home_user; }
     @Override protected boolean showPlaceholder() { return false; }
 
     @Override
     protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {
-        if (state != null) {
-            returnFocus = state.getInt(RETURN_FOCUS);
-            routeReturned = state.getBoolean(ROUTE_RETURNED);
-        }
         LinearLayout moreActions = new LinearLayout(this);
         moreActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
         addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
         addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
-        historyAction = addFocusableRoute(moreActions, R.string.history_title, HistoryActivity.class);
-        Button help = new Button(this);
-        help.setText(R.string.finance_help);
-        help.setOnClickListener(view -> new AlertDialog.Builder(this)
-                .setTitle(R.string.finance_help).setMessage(R.string.finance_help_text)
-                .setPositiveButton(android.R.string.ok, null).show());
-        moreActions.addView(help, new LinearLayout.LayoutParams(-1, -2));
+        addFocusableRoute(moreActions, R.string.history_title, HistoryActivity.class);
+        addFocusableRoute(moreActions, R.string.finance_help, FaqActivity.class);
+        addFocusableRoute(moreActions, R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class);
         LinearLayout recordActions = new LinearLayout(this);
         recordActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
         addMoreAction(recordActions, R.string.transaction_open_manual, TransactionFormActivity.class);
         addMoreAction(recordActions, R.string.sms_csv_import, CsvImportActivity.class);
-        addMoreAction(recordActions, R.string.sms_access_title, SmsAccessActivity.class);
+        addFocusableRoute(recordActions, R.string.sms_access_title, SmsAccessActivity.class);
         LinearLayout planActions = new LinearLayout(this);
         planActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(planActions, R.string.budget_list_title, BudgetListActivity.class);
@@ -95,7 +67,7 @@ public final class MainActivity extends ProtectedHomeActivity {
         LinearLayout insightActions = new LinearLayout(this);
         insightActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(insightActions, R.string.insight_open, InsightsActivity.class);
-        adviceAction = addFocusableRoute(insightActions, R.string.advice_title, AdviceActivity.class);
+        addFocusableRoute(insightActions, R.string.advice_title, AdviceActivity.class);
 
         dashboard = new ViewModelProvider(this).get(DashboardViewModel.class);
         ScrollView home = new DashboardPanel(this, dashboard).view();
@@ -160,66 +132,16 @@ public final class MainActivity extends ProtectedHomeActivity {
         actions.addView(button, new LinearLayout.LayoutParams(-1, -2));
     }
 
-    private Button addFocusableRoute(LinearLayout actions, int label, Class<?> screen) {
+    private void addFocusableRoute(LinearLayout actions, int label, Class<?> screen) {
         Button button = new Button(this);
         button.setText(label);
-        button.setOnClickListener(view -> {
-            returnFocus = label;
-            historyOrAdvice.launch(new Intent(this, screen));
-        });
+        bindFocusReturningRoute(button, label, screen);
         actions.addView(button, new LinearLayout.LayoutParams(-1, -2));
-        return button;
-    }
-
-    @Override public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) restoreRouteFocus();
-        else cancelRouteFocus();
-    }
-
-    @Override public boolean dispatchTouchEvent(MotionEvent event) {
-        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) cancelRouteFocus();
-        return super.dispatchTouchEvent(event);
-    }
-
-    @Override public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_DOWN) cancelRouteFocus();
-        return super.dispatchKeyEvent(event);
-    }
-
-    private void cancelRouteFocus() {
-        if (pendingFocusRestore != null) {
-            getWindow().getDecorView().removeCallbacks(pendingFocusRestore);
-            pendingFocusRestore = null;
-        }
-    }
-
-    // Restore the button the user came from after TalkBack processes the returned window.
-    // An intervening touch, key or window change cancels the restore.
-    private void restoreRouteFocus() {
-        if (!routeReturned || !hasWindowFocus() || isFinishing()) return;
-        Button route = returnFocus == R.string.history_title ? historyAction
-                : returnFocus == R.string.advice_title ? adviceAction : null;
-        routeReturned = false;
-        returnFocus = 0;
-        AccessibilityManager accessibility = getSystemService(AccessibilityManager.class);
-        if (route != null && route.isShown() && accessibility != null && accessibility.isTouchExplorationEnabled()) {
-            pendingFocusRestore = () -> {
-                pendingFocusRestore = null;
-                if (!hasWindowFocus() || !route.isShown()) return;
-                route.requestRectangleOnScreen(new Rect(0, 0, route.getWidth(), route.getHeight()), true);
-                route.setFocusableInTouchMode(true);
-                route.requestFocus();
-            };
-            getWindow().getDecorView().postDelayed(pendingFocusRestore, TALKBACK_WINDOW_SETTLE_MS);
-        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
         state.putInt(DESTINATION, destination);
-        state.putInt(RETURN_FOCUS, returnFocus);
-        state.putBoolean(ROUTE_RETURNED, routeReturned);
         super.onSaveInstanceState(state);
     }
 }

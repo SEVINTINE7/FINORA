@@ -8,11 +8,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.RegisterRepository.Result;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.common.StateView;
@@ -23,7 +23,7 @@ import lk.finora.app.util.RegisterInput;
  * Sign-up (T07.4): email, name, password, language, over-18 and consent ticks. Submit stays disabled until
  * both boxes are ticked. On success the user goes back to sign-in with the email filled in.
  */
-public final class RegisterActivity extends AppCompatActivity {
+public final class RegisterActivity extends SecureActivity {
     public static final String EXTRA_EMAIL = "lk.finora.app.registered_email";
     private static final String[] LANGUAGES = {"EN", "SI"};
 

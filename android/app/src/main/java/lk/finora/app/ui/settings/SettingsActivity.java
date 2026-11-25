@@ -4,13 +4,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Button;
+import android.widget.EditText;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -20,12 +23,21 @@ import lk.finora.app.ui.auth.SessionNavigation;
 
 /**
  * Account settings for a USER (T07.5): language (applies at once, saved via PUT /me), withdraw consent,
- * and the entry to data deletion (T36, not built yet).
+ * and the entries to data download and deletion.
  */
-public final class SettingsActivity extends AppCompatActivity {
+public final class SettingsActivity extends SecureActivity {
     private SettingsViewModel model;
     private HomeViewModel session;
     private Session entry;
+    private AlertDialog sensitiveDialog;
+    private final androidx.activity.result.ActivityResultLauncher<String> exportTarget =
+            registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+                if (model == null || !model.awaitingExportDestination) return;
+                model.awaitingExportDestination = false;
+                if (uri != null && AccountListActivity.verify(this, model.work)) {
+                    model.exportData(getContentResolver(), uri);
+                }
+            });
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -47,9 +59,17 @@ public final class SettingsActivity extends AppCompatActivity {
         ((FrameLayout) findViewById(R.id.settings_language))
                 .addView(ProfileLanguageButton.create(this, entry, session::signingOut));
         findViewById(R.id.settings_withdraw).setOnClickListener(view -> confirmWithdraw());
-        findViewById(R.id.settings_delete).setOnClickListener(view -> new AlertDialog.Builder(this)
-                .setMessage(R.string.settings_delete_unavailable)
-                .setPositiveButton(android.R.string.ok, null).show());
+        var export = new Button(this);
+        export.setText(R.string.settings_export_data);
+        export.setOnClickListener(view -> {
+            if (!AccountListActivity.verify(this, model.work) || model.work.busy()
+                    || model.awaitingExportDestination) return;
+            model.awaitingExportDestination = true;
+            exportTarget.launch("finora-export-" + java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo")) + ".json");
+        });
+        var content = (android.widget.LinearLayout) findViewById(R.id.settings_content);
+        content.addView(export, content.indexOfChild(findViewById(R.id.settings_delete)));
+        findViewById(R.id.settings_delete).setOnClickListener(view -> confirmDeletion());
         session.signedOut().observe(this, failed -> {
             if (failed != null) SessionNavigation.openLogin(this, failed);
         });
@@ -58,21 +78,59 @@ public final class SettingsActivity extends AppCompatActivity {
 
     @Override protected void onResume() {
         super.onResume();
-        if (!model.withdrawn && !session.signingOut()) AccountListActivity.verify(this, model.work);
+        if (model != null && !model.withdrawn && !model.deleted && !session.signingOut()) {
+            AccountListActivity.verify(this, model.work);
+        }
+    }
+
+    private void confirmDeletion() {
+        if (!AccountListActivity.verify(this, model.work) || model.work.busy()) return;
+        sensitiveDialog = showSecure(new AlertDialog.Builder(this).setTitle(R.string.settings_delete)
+                .setMessage(R.string.settings_delete_confirm)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> promptDeletionPassword()).create());
+    }
+
+    private void promptDeletionPassword() {
+        if (!AccountListActivity.verify(this, model.work)) return;
+        var password = new EditText(this);
+        password.setHint(R.string.password);
+        password.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        password.setSaveEnabled(false);
+        password.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
+        sensitiveDialog = showSecure(new AlertDialog.Builder(this).setTitle(R.string.settings_delete)
+                .setView(password).setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.settings_delete_action, null).create());
+        sensitiveDialog.setOnDismissListener(ignored -> password.setText(""));
+        sensitiveDialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
+            String value = password.getText().toString();
+            if (value.isBlank() || value.length() > 72) {
+                password.setError(getString(R.string.records_invalid));
+                return;
+            }
+            model.deleteData(value);
+            sensitiveDialog.dismiss();
+        });
+    }
+
+    @Override protected void onStop() {
+        if (sensitiveDialog != null) sensitiveDialog.dismiss();
+        super.onStop();
     }
 
     private void confirmWithdraw() {
         if (!AccountListActivity.verify(this, model.work) || model.work.busy()) return;
-        new AlertDialog.Builder(this)
+        showSecure(new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_withdraw)
                 .setMessage(R.string.settings_withdraw_confirm)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.settings_withdraw_action, (dialog, which) -> model.withdrawConsent())
-                .show();
+                .create());
     }
 
     private void render() {
-        if (model.withdrawn || session.signingOut()) {
+        if (model.withdrawn || model.deleted || session.signingOut()) {
             // Consent is gone and the server revoked the refresh tokens: end the local session too (D15)
             findViewById(R.id.settings_content).setVisibility(View.INVISIBLE);
             session.logout(entry);
@@ -81,8 +139,10 @@ public final class SettingsActivity extends AppCompatActivity {
         if (!AccountListActivity.verify(this, model.work)) return;
         boolean busy = model.work.busy();
         findViewById(R.id.settings_withdraw).setEnabled(!busy);
+        findViewById(R.id.settings_delete).setEnabled(!busy);
         TextView status = findViewById(R.id.records_status);
-        int message = busy ? R.string.records_loading : model.work.error;
+        int message = busy ? R.string.records_loading : model.work.error != 0 ? model.work.error
+                : model.exported ? R.string.settings_export_saved : 0;
         status.setText(message == 0 ? "" : getString(message));
     }
 }

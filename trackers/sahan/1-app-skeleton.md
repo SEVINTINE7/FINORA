@@ -1,6 +1,8 @@
 # Sahan 1 — App skeleton, role routing, languages (T37, T08, T39)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
+**MD01 — 20/23 verified.** T37 is done. T08 remains in review. T39 is in progress pending profile-write correction and broader localization and device evidence. Linked T09 still requires Sevindu’s independent-review handoff. [Development handoff](../../docs/md05-delivery-handoff.md).
+
 ---
 
 ### T37 · Mobile app skeleton · `ALL`
@@ -47,24 +49,25 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Independent review corrections add USER navigation placeholders, bind protected calls before dispatch, and retain the latest logout revocation credential on storage failure. Both APKs built, 34 unit tests passed, and lint reported zero issues.
 - Corrected build `0de509e` passed the targeted HMD recheck for all five USER tabs, role guards, refresh, restoration, online and offline logout, and Back protection.
 - Sahan relayed Sevindu's verbal approval of the D07 refresh policy and confirmation of T08.5. Live login responses included role and language.
-- Sahan reported an independent source re-review with a conditional GO for `0de509e`. The policy condition is resolved. Exact-revision CI and independent final approval remain pending.
+- Sahan reported an independent source re-review with a conditional GO for `0de509e`. The policy condition is resolved. [Android and backend CI passed](https://github.com/SEVINTINE7/FINORA/actions/runs/44994510901) on delivered revision `ed8d5c1`. Independent final approval remains pending.
 
 ---
 
 ### T39 · Sinhala and English support · `FR01`
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `res:values*/strings.xml`, `and:util/LocaleHelper.java`
 - [x] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
-- [x] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
+- [ ] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
 - [x] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
-- [x] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
+- [ ] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
 
 **Done when**
 - [x] Every screen checked in both languages on a device; TalkBack reads main buttons
 
 **Handoff notes:**
+- Sahan approved 28 exact registration, Settings and shared Records pairs on 2026-11-25. The [pinned inventory](../../docs/t39-pending-translation-review.md) separates 61 pending planning pairs. T39.4 remains open.
 - All 32 original EN/SI resource pairs are unchanged, all 37 current pairs match, and the Java/layout review found no user-facing literals. USER locale changes require profile confirmation. Guest, ADMIN and STAFF choices remain local.
 - Both V1 APKs built after the stable login identity correction, 39 unit tests passed, and lint reported no issues.
-- HMD Crest 5G (Android 14) verified both languages on Login and the USER, ADMIN and STAFF homes. Sinhala samples, including all five USER tabs, showed no clipping at the tested settings.
+- The HMD Sinhala rendering samples and the isolated Android 17 bilingual text-fit matrix across 31 activities support T39.3. The [audit evidence](../../docs/sahan-final-audit.md) records the completed Android 14 D50 handset walkthrough and Sahan’s separate bilingual ADMIN TalkBack confirmation.
 - Sahan confirmed the spoken TalkBack labels for Sign in, Show password and Language, and approved all 37 Sinhala resource pairs as native-speaker reviewer on 2026-11-22.
 - Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart.
 - Sahan reported a technical GO from independent source re-review of `92f2dd3`, including the stable login identity correction. Independent human final approval remains pending. The separate MD04 [64-pair](../../docs/md04-sinhala-native-speaker-approval.md) and [23-pair](../../docs/md04-history-advice-native-speaker-approval.md) approvals are recorded at their reviewed revisions.

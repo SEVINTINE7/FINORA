@@ -1,0 +1,1334 @@
+package lk.finora.app.acceptance;
+
+import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.Rect;
+import android.os.Build;
+import android.os.Process;
+import android.os.SystemClock;
+import android.os.UserManager;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import androidx.test.runner.lifecycle.Stage;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.BySelector;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.Until;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import lk.finora.app.BuildConfig;
+import lk.finora.app.R;
+import lk.finora.app.data.local.TokenStore;
+import lk.finora.app.ui.login.LoginActivity;
+import lk.finora.app.ui.main.MainActivity;
+import lk.finora.app.ui.register.RegisterActivity;
+import lk.finora.app.util.LocaleHelper;
+import org.hamcrest.Matcher;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
+@RunWith(AndroidJUnit4.class)
+public class UserJourneyTest {
+    private static final long UI_TIMEOUT_MS = 12_000;
+    private static final String MERCHANT = "Synthetic UI purchase";
+    private static final String DRAFTER = "support-drafter@example.test";
+    private static final String REVIEWER = "support-reviewer@example.test";
+    private static final String SUPPORT_FIXTURE_PASSWORD = "Synthetic9-support-suite";
+    private Context app;
+    private UiDevice device;
+    private TokenStore sessions;
+    private boolean keepAccessibilityFixture;
+
+    @Before public void requireIsolatedTarget() throws Exception {
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var arguments = InstrumentationRegistry.getArguments();
+        app = instrumentation.getTargetContext();
+        assertTrue(BuildConfig.DEBUG);
+        assertEquals("http://127.0.0.1:8080/", BuildConfig.API_BASE_URL);
+        boolean emulator = "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE);
+        if ("true".equals(arguments.getString("finoraIsolatedHandset"))) {
+            assertEquals("Handset mode requires the separate acceptance package",
+                    "lk.finora.app.acceptance", app.getPackageName());
+            long serial = app.getSystemService(UserManager.class).getSerialNumberForUser(Process.myUserHandle());
+            assertTrue("Handset mode requires a known Android user serial", serial > 0);
+            assertEquals("Wrong Android test profile", Long.toString(serial),
+                    arguments.getString("finoraTestUserSerial"));
+        } else {
+            assertEquals("An explicit isolated-emulator opt-in is required", "true",
+                    arguments.getString("finoraIsolatedEmulator"));
+            assertTrue("Emulator mode requires emulator hardware", emulator);
+        }
+        device = UiDevice.getInstance(instrumentation);
+        assertEquals("Revoke READ_SMS on this isolated emulator before running this suite",
+                PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+        sessions = TokenStore.open(app);
+        clearSession();
+        instrumentation.runOnMainSync(() -> LocaleHelper.apply("EN"));
+    }
+
+    @After public void clearSession() throws Exception {
+        if (keepAccessibilityFixture) return;
+        if (sessions != null) {
+            var current = sessions.session();
+            if (current != null) assertTrue(sessions.clear(current));
+        }
+    }
+
+    @Test public void stageHandsetAccessibilityFixture() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Opt-in handset fixture only",
+                "true".equals(arguments.getString("finoraIsolatedHandset"))
+                        && "true".equals(arguments.getString("finoraStageAccessibility")));
+        var screen = ActivityScenario.launch(LoginActivity.class);
+        try {
+            if ("STAFF".equals(arguments.getString("finoraStageRole"))) {
+                signInStaff(DRAFTER, SUPPORT_FIXTURE_PASSWORD);
+                openCatalog();
+                awaitButton(R.string.support_approve);
+                clickText(R.string.support_approve);
+                confirm();
+                await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                        + app.getString(R.string.support_active)));
+                pressBack();
+                awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+                signOut();
+                signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
+            } else {
+                signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            }
+            keepAccessibilityFixture = true;
+        } finally {
+            screen.close();
+        }
+    }
+
+    @Test public void verifyFaqTextLayoutAtLargeScale() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated layout probe only",
+                ("true".equals(arguments.getString("finoraIsolatedHandset")) || "true".equals(arguments.getString("finoraIsolatedEmulator")))
+                        && "true".equals(arguments.getString("finoraCheckFaqLayout")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale", "1.3"));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            checkFaqLayout(scale);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+            sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            checkFaqLayout(scale);
+        }
+    }
+
+    @Test public void bilingualUserRoutesFitText() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated layout walkthrough only",
+                isTextFitTarget(arguments) && "true".equals(arguments.getString("finoraCheckUserTextFit")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
+        var problems = new java.util.ArrayList<String>();
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
+            checkScreenText(LoginActivity.class, "en", scale, problems);
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            checkUserRoutes("en", scale, problems);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+            sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            checkUserRoutes("si", scale, problems);
+            signOut();
+            checkScreenText(LoginActivity.class, "si", scale, problems);
+        }
+        assertTrue(String.join("\n", problems), problems.isEmpty());
+    }
+
+    @Test public void bilingualRoleRoutesFitText() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated layout role fixtures only",
+                isTextFitTarget(arguments) && "true".equals(arguments.getString("finoraCheckRoleTextFit")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
+        var problems = new java.util.ArrayList<String>();
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            checkRoleRoutes(true, "en", scale, problems);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            checkRoleRoutes(true, "si", scale, problems);
+            signOut();
+            signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
+            checkRoleRoutes(false, "si", scale, problems);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_english));
+            checkRoleRoutes(false, "en", scale, problems);
+        }
+        assertTrue(String.join("\n", problems), problems.isEmpty());
+    }
+
+    private static boolean isTextFitTarget(android.os.Bundle arguments) {
+        return "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                || ("true".equals(arguments.getString("finoraIsolatedHandset"))
+                        && "true".equals(arguments.getString("finoraT39Handset")));
+    }
+
+    @Test public void bilingualRegistrationTextFits() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated emulator registration text check only",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraCheckRegistrationTextFit")));
+        float scale = Float.parseFloat(arguments.getString("finoraExpectedFontScale"));
+        var problems = new java.util.ArrayList<String>();
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            for (String language : new String[]{"en", "si"}) {
+                chooseTestLanguage(language);
+                awaitActivity(LoginActivity.class);
+                clickId(R.id.create_account);
+                checkScreenText(RegisterActivity.class, language, scale, problems);
+                pressBack();
+                awaitActivity(LoginActivity.class);
+            }
+        }
+        assertTrue(String.join("\n", problems), problems.isEmpty());
+    }
+
+    @Test public void stageAdminTalkBackFocus() {
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Explicit isolated listener session only",
+                isTextFitTarget(arguments) && "true".equals(arguments.getString("finoraAdminListener")));
+        var automation = instrumentation.getUiAutomation(
+                android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+        var manager = app.getSystemService(android.view.accessibility.AccessibilityManager.class);
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        while (!manager.isTouchExplorationEnabled() && SystemClock.elapsedRealtime() < deadline) {
+            SystemClock.sleep(100);
+        }
+        assertTrue("TalkBack touch exploration must be enabled", manager.isTouchExplorationEnabled());
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            chooseTestLanguage("en");
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            for (String language : new String[]{"en", "si"}) {
+                chooseTestLanguage(language);
+                awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+                var config = new android.content.res.Configuration(app.getResources().getConfiguration());
+                config.setLocale(java.util.Locale.forLanguageTag(language));
+                var localized = app.createConfigurationContext(config);
+                SystemClock.sleep(2_500);
+                automation = instrumentation.getUiAutomation(
+                        android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+                for (int id : new int[]{R.string.admin_manage_users, R.string.admin_default_categories,
+                        R.string.staff_manage, R.string.sms_diagnostic_admin}) {
+                    String label = localized.getString(id);
+                    var root = automation.getRootInActiveWindow();
+                    assertNotNull(root);
+                    assertEquals(app.getPackageName(), root.getPackageName().toString());
+                    var node = root.findAccessibilityNodeInfosByText(label).stream()
+                            .filter(item -> item.isVisibleToUser() && item.isClickable() && item.getText() != null
+                                    && label.equalsIgnoreCase(item.getText().toString()))
+                            .findFirst().orElseThrow();
+                    if (node.isAccessibilityFocused()) {
+                        node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS);
+                        node.refresh();
+                    }
+                    node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
+                    assertTrue(node.refresh());
+                    assertTrue(node.isAccessibilityFocused());
+                    android.util.Log.i("FinoraTextFitTest", "Listener focus " + language + ": " + label);
+                    SystemClock.sleep(4_500);
+                }
+            }
+        }
+    }
+
+    private void chooseTestLanguage(String language) {
+        var config = new android.content.res.Configuration(app.getResources().getConfiguration());
+        config.setLocale(java.util.Locale.ENGLISH);
+        String english = app.createConfigurationContext(config).getString(R.string.language_selector);
+        config.setLocale(java.util.Locale.forLanguageTag("si"));
+        var sinhala = app.createConfigurationContext(config);
+        onView(anyOf(withText(english), withText(sinhala.getString(R.string.language_selector))))
+                .perform(reveal(), activateControl());
+        dialogChoice(sinhala.getString("en".equals(language) ? R.string.language_english : R.string.language_sinhala));
+    }
+
+    private void checkRoleRoutes(boolean admin, String language, float scale, java.util.List<String> problems) {
+        var home = admin ? lk.finora.app.ui.admin.AdminHomeActivity.class
+                : lk.finora.app.ui.staff.StaffHomeActivity.class;
+        var diagnostics = lk.finora.app.ui.support.DiagnosticQueueActivity.class;
+        checkScreenText(home, language, scale, problems);
+        if (admin) {
+            for (int label : new int[]{R.string.admin_manage_users, R.string.admin_default_categories,
+                    R.string.staff_manage}) {
+                clickText(label);
+                checkScreenText(label == R.string.staff_manage ? lk.finora.app.ui.staff.StaffAccessActivity.class
+                        : lk.finora.app.ui.admin.AdminDirectoryActivity.class, language, scale, problems);
+                pressBack();
+                awaitActivity(home);
+            }
+        } else {
+            clickText(R.string.support_tickets);
+            checkScreenText(lk.finora.app.ui.support.SupportActivity.class, language, scale, problems);
+            pressBack();
+            awaitActivity(home);
+        }
+        clickText(admin ? R.string.sms_diagnostic_admin : R.string.sms_diagnostic_queue);
+        checkScreenText(diagnostics, language, scale, problems);
+        if (admin) {
+            clickText(R.string.sms_format_sample_check);
+            checkScreenText(lk.finora.app.ui.support.FormatSampleActivity.class, language, scale, problems);
+            pressBack();
+            awaitActivity(diagnostics);
+        }
+        pressBack();
+        awaitActivity(home);
+    }
+
+    private void checkUserRoutes(String language, float scale, java.util.List<String> problems) {
+        tab(R.string.home_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        tab(R.string.records_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.transaction_title, lk.finora.app.ui.transactions.TransactionActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.transaction_open_manual, lk.finora.app.ui.transactions.TransactionFormActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.sms_csv_import, lk.finora.app.ui.importer.CsvImportActivity.class,
+                null, language, scale, problems);
+        clickText(R.string.sms_access_title);
+        checkScreenText(lk.finora.app.ui.sms.SmsAccessActivity.class, language, scale, problems);
+        clickId(R.id.sms_paste_entry_action);
+        checkScreenText(lk.finora.app.ui.sms.PasteSmsActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+        pressBack();
+        awaitActivity(MainActivity.class);
+
+        tab(R.string.plan_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.budget_list_title, lk.finora.app.ui.budgets.BudgetListActivity.class,
+                lk.finora.app.ui.budgets.BudgetFormActivity.class, language, scale, problems);
+        checkRoute(R.string.bill_list_title, lk.finora.app.ui.bills.BillListActivity.class,
+                lk.finora.app.ui.bills.BillFormActivity.class, language, scale, problems);
+        checkRoute(R.string.goal_list_title, lk.finora.app.ui.goals.GoalListActivity.class,
+                lk.finora.app.ui.goals.GoalFormActivity.class, language, scale, problems);
+        clickText(R.string.goal_list_title);
+        awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+        if ("en".equals(language)) {
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.goals.GoalFormActivity.class);
+            enter(R.id.form_name, "Synthetic text-fit goal");
+            enter(R.id.goal_target, "25000.00");
+            clickId(R.id.records_save);
+            awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+        }
+        awaitText("Synthetic text-fit goal");
+        clickId(R.id.goal_open);
+        checkScreenText(lk.finora.app.ui.goals.GoalDetailActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+        pressBack();
+        awaitActivity(MainActivity.class);
+
+        tab(R.string.insights_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.insight_open, lk.finora.app.ui.insights.InsightsActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.advice_title, lk.finora.app.ui.advice.AdviceActivity.class,
+                null, language, scale, problems);
+
+        tab(R.string.more_tab);
+        checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.account_list_title, lk.finora.app.ui.accounts.AccountListActivity.class,
+                lk.finora.app.ui.accounts.AccountFormActivity.class, language, scale, problems);
+        checkRoute(R.string.category_list_title, lk.finora.app.ui.categories.CategoryListActivity.class,
+                lk.finora.app.ui.categories.CategoryFormActivity.class, language, scale, problems);
+        checkRoute(R.string.settings_title, lk.finora.app.ui.settings.SettingsActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.history_title, lk.finora.app.ui.history.HistoryActivity.class,
+                null, language, scale, problems);
+        checkRoute(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class,
+                null, language, scale, problems);
+    }
+
+    private void checkRoute(int label, Class<? extends android.app.Activity> screen,
+            Class<? extends android.app.Activity> form, String language, float scale,
+            java.util.List<String> problems) {
+        clickText(label);
+        checkScreenText(screen, language, scale, problems);
+        if (form != null) {
+            clickId(R.id.records_add);
+            checkScreenText(form, language, scale, problems);
+            pressBack();
+            awaitActivity(screen);
+        }
+        pressBack();
+        awaitActivity(MainActivity.class);
+    }
+
+    private static void checkScreenText(Class<? extends android.app.Activity> screen, String language,
+            float scale, java.util.List<String> problems) {
+        awaitActivity(screen);
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var localeReady = new AtomicBoolean();
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        do {
+            instrumentation.runOnMainSync(() -> localeReady.set(
+                    ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                            .stream().anyMatch(activity -> screen.isInstance(activity)
+                                    && language.equals(activity.getResources().getConfiguration()
+                                            .getLocales().get(0).getLanguage()))));
+            if (localeReady.get()) break;
+            SystemClock.sleep(100);
+        } while (SystemClock.elapsedRealtime() < deadline);
+        assertTrue("Expected " + screen.getSimpleName() + " in " + language, localeReady.get());
+        instrumentation.waitForIdleSync();
+        instrumentation.runOnMainSync(() -> {
+            var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                    .stream().filter(screen::isInstance).findFirst().orElseThrow();
+            var config = activity.getResources().getConfiguration();
+            assertEquals(language, config.getLocales().get(0).getLanguage());
+            assertEquals(scale, config.fontScale, 0.01f);
+            String context = screen.getSimpleName() + "/" + language + "/" + scale;
+            assertTrue("No visible text checked on " + context,
+                    checkVisibleText(activity.findViewById(android.R.id.content), context, problems) > 0);
+            android.util.Log.i("FinoraTextFitTest", "Checked " + context);
+        });
+    }
+
+    private static int checkVisibleText(View view, String context, java.util.List<String> problems) {
+        if (!view.isShown()) return 0;
+        int count = 0;
+        if (view instanceof TextView text && !(text instanceof EditText) && text.length() > 0) {
+            var layout = text.getLayout();
+            if (layout != null && text.getWidth() > 0 && text.getHeight() > 0) {
+                count++;
+                String label = context + ": " + text.getText();
+                if (layout.getHeight() > text.getHeight() - text.getCompoundPaddingTop()
+                        - text.getCompoundPaddingBottom() + 1) {
+                    problems.add("Text height exceeded on " + label);
+                }
+                for (int line = 0; line < layout.getLineCount(); line++) {
+                    if (layout.getEllipsisCount(line) != 0 || layout.getLineMax(line) > layout.getWidth() + 1f) {
+                        problems.add("Text width exceeded on " + label);
+                        break;
+                    }
+                }
+            }
+        }
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                count += checkVisibleText(group.getChildAt(i), context, problems);
+            }
+        }
+        return count;
+    }
+
+    private void checkFaqLayout(float scale) {
+        tab(R.string.more_tab);
+        clickText(R.string.finance_help);
+        awaitActivity(lk.finora.app.ui.help.FaqActivity.class);
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        instrumentation.runOnMainSync(() -> {
+            var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                    .stream().filter(lk.finora.app.ui.help.FaqActivity.class::isInstance).findFirst().orElseThrow();
+            assertEquals(scale, activity.getResources().getConfiguration().fontScale, 0.01f);
+            var content = (android.view.ViewGroup) activity.findViewById(android.R.id.content);
+            var scroll = (ScrollView) content.getChildAt(0);
+            var labels = (android.view.ViewGroup) scroll.getChildAt(0);
+            assertEquals(9, labels.getChildCount());
+            for (int index = 0; index < labels.getChildCount(); index++) {
+                var label = (android.widget.TextView) labels.getChildAt(index);
+                assertEquals(index == 0 || index % 2 == 1, androidx.core.view.ViewCompat.isAccessibilityHeading(label));
+                var layout = label.getLayout();
+                assertNotNull(layout);
+                assertTrue(layout.getHeight() <= label.getHeight() - label.getCompoundPaddingTop()
+                        - label.getCompoundPaddingBottom());
+                for (int line = 0; line < layout.getLineCount(); line++) {
+                    assertEquals(0, layout.getEllipsisCount(line));
+                    assertTrue("FAQ label " + index + ", line " + line + " exceeds its text width",
+                            layout.getLineMax(line) <= layout.getWidth() + 1f);
+                }
+            }
+        });
+        pressBack();
+        awaitActivity(MainActivity.class);
+    }
+
+    @Test public void moreRoutesRestoreAccessibilityFocus() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Requires TalkBack on the isolated device",
+                "true".equals(arguments.getString("finoraCheckBackFocus")));
+        var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+        sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.more_tab);
+            checkBackFocus(R.string.finance_help, lk.finora.app.ui.help.FaqActivity.class, MainActivity.class);
+            checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
+            clickText(R.string.language_selector);
+            dialogChoice(app.getString(R.string.language_sinhala));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            tab(R.string.more_tab);
+            checkBackFocus(R.string.finance_help, lk.finora.app.ui.help.FaqActivity.class, MainActivity.class);
+            checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
+        }
+    }
+
+    @Test public void staffSupportRestoresAccessibilityFocus() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Requires TalkBack and isolated STAFF fixtures",
+                "true".equals(arguments.getString("finoraCheckBackFocus"))
+                        && "true".equals(arguments.getString("finoraSupportFixtures")));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
+            checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class,
+                    lk.finora.app.ui.staff.StaffHomeActivity.class);
+        }
+    }
+
+    private void checkBackFocus(int label, Class<? extends android.app.Activity> screen,
+                               Class<? extends android.app.Activity> origin) {
+        var automation = InstrumentationRegistry.getInstrumentation().getUiAutomation(
+                android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
+        var manager = app.getSystemService(android.view.accessibility.AccessibilityManager.class);
+        long serviceDeadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        while (!manager.isTouchExplorationEnabled() && SystemClock.elapsedRealtime() < serviceDeadline) {
+            SystemClock.sleep(100);
+        }
+        assertTrue("Touch exploration must be enabled", manager.isTouchExplorationEnabled());
+        String expected = app.getString(label);
+        var root = automation.getRootInActiveWindow();
+        assertNotNull(root);
+        var button = root.findAccessibilityNodeInfosByText(expected).stream()
+                .filter(node -> node.isClickable() && node.getText() != null
+                        && expected.equalsIgnoreCase(node.getText().toString()))
+                .findFirst().orElseThrow();
+        button.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
+        assertTrue(button.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK));
+        awaitActivity(screen);
+        long now = SystemClock.uptimeMillis();
+        for (int action : new int[]{android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.ACTION_UP}) {
+            assertTrue(automation.injectInputEvent(
+                    new android.view.KeyEvent(now, now, action, android.view.KeyEvent.KEYCODE_BACK, 0), true));
+        }
+        awaitActivity(origin);
+        long deadline = SystemClock.elapsedRealtime() + 3000;
+        CharSequence actual = null;
+        do {
+            var focused = automation.findFocus(android.view.accessibility.AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
+            if (focused != null && app.getPackageName().contentEquals(focused.getPackageName())) {
+                actual = focused.getText() != null ? focused.getText() : focused.getContentDescription();
+                if (actual != null && expected.equalsIgnoreCase(actual.toString())) return;
+            }
+            SystemClock.sleep(100);
+        } while (SystemClock.elapsedRealtime() < deadline);
+        fail("Expected restored focus " + expected + ", observed " + actual);
+    }
+
+    @Test public void adminListsCreatesAndDisablesStaff() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(arguments.getString("finoraAdminFixture")));
+        String adminEmail = "delivery-admin@example.test";
+        String adminPassword = "Synthetic9-delivery-admin";
+        String staffEmail = "staff-" + UUID.randomUUID() + "@example.test";
+        String fullName = "Synthetic provisioning staff";
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInAdmin(adminEmail, adminPassword);
+            clickText(R.string.staff_manage);
+            awaitButton(R.string.staff_create);
+            clickText(R.string.staff_create);
+            typeFixture(onView(withHint(R.string.email)).inRoot(isDialog()), staffEmail);
+            typeFixture(onView(withHint(R.string.staff_full_name)).inRoot(isDialog()), fullName);
+            confirm();
+            awaitText(app.getString(R.string.staff_temporary));
+            var temporary = new java.util.concurrent.atomic.AtomicReference<String>();
+            onView(withId(android.R.id.message)).inRoot(isDialog()).check((view, failure) -> {
+                if (failure != null) throw failure;
+                String message = ((android.widget.TextView) view).getText().toString();
+                int newline = message.indexOf('\n');
+                assertTrue("Missing temporary fixture credential", newline == 32);
+                temporary.set(message.substring(0, newline));
+            });
+            confirm();
+            awaitText(app.getString(R.string.staff_account_summary, fullName, staffEmail));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            signOut();
+
+            clickText(R.string.staff_activate);
+            awaitActivity(lk.finora.app.ui.staff.StaffAccessActivity.class);
+            typeFixture(onView(withHint(R.string.email)), staffEmail);
+            typeFixture(onView(withHint(R.string.staff_temporary)), temporary.getAndSet(null));
+            typeFixture(onView(withHint(R.string.staff_new_password)), "Synthetic9-replacement");
+            clickText(R.string.staff_activate);
+            awaitText(app.getString(R.string.staff_activation_done));
+            pressBack();
+            awaitActivity(LoginActivity.class);
+
+            signInAdmin(adminEmail, adminPassword);
+            clickText(R.string.staff_manage);
+            awaitButton(R.string.staff_disable);
+            clickText(R.string.staff_disable);
+            onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(staffEmail)));
+            confirm();
+            awaitButton(R.string.staff_enable);
+        }
+    }
+
+    private static void typeFixture(androidx.test.espresso.ViewInteraction field, String value) {
+        field.perform(reveal(), new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isAssignableFrom(EditText.class); }
+            @Override public String getDescription() { return "enter disposable fixture input"; }
+            @Override public void perform(UiController controller, View view) { ((EditText) view).setText(value); }
+        });
+    }
+
+    private static void signInAdmin(String email, String password) {
+        enter(R.id.email, email);
+        enter(R.id.password, password);
+        clickId(R.id.sign_in);
+        awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+    }
+
+    @Test public void adminDashboardOpensWorkingUserAndCategoryManagement() {
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        String email = "t51-" + identity + "@example.test";
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            signOut();
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.admin_manage_users);
+            typeFixture(onView(withHint(R.string.admin_user_search)), email);
+            clickText(R.string.admin_search);
+            awaitButton(R.string.admin_disable_user);
+            clickText(R.string.admin_disable_user);
+            confirm();
+            awaitButton(R.string.admin_enable_user);
+            clickText(R.string.admin_enable_user);
+            confirm();
+            awaitButton(R.string.admin_disable_user);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            clickText(R.string.admin_default_categories);
+            awaitButton(R.string.records_add);
+            clickText(R.string.records_add);
+            String name = "Synthetic default " + identity.substring(0, 8);
+            String sinhala = "පරීක්ෂණ " + identity.substring(0, 8);
+            typeFixture(onView(withHint(R.string.admin_category_name_en)).inRoot(isDialog()), name);
+            typeFixture(onView(withHint(R.string.admin_category_name_si)).inRoot(isDialog()), sinhala);
+            confirm();
+            String row = name + " · " + sinhala + " · " + app.getString(R.string.support_active);
+            awaitText(row);
+            onView(withContentDescription(app.getString(R.string.records_edit) + ". " + row))
+                    .perform(reveal(), activateControl());
+            typeFixture(onView(withHint(R.string.admin_category_name_en)).inRoot(isDialog()), name + " edited");
+            confirm();
+            row = name + " edited · " + sinhala + " · " + app.getString(R.string.support_active);
+            awaitText(row);
+            onView(withContentDescription(app.getString(R.string.records_remove) + ". " + row))
+                    .perform(reveal(), activateControl());
+            confirm();
+            assertTrue(device.wait(Until.gone(By.text(row)), UI_TIMEOUT_MS));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            clickText(R.string.sms_diagnostic_admin);
+            awaitButton(R.string.sms_format_sample_check);
+            clickText(R.string.sms_format_sample_check);
+            typeFixture(onView(withHint(R.string.sms_format_synthetic_sample)), "Synthetic unmatched text");
+            clickText(R.string.sms_format_sample_check);
+            awaitText(app.getString(R.string.sms_format_sample_result,
+                    app.getString(R.string.sms_format_approved_match), app.getString(R.string.sms_format_sample_unmatched)));
+        }
+    }
+
+    @Test public void userExportsThroughSystemPickerAndConfirmsAccountDeletion() {
+        org.junit.Assume.assumeTrue("Creates a synthetic export on the isolated emulator",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraDataRightsFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.more_tab);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            clickText(R.string.settings_export_data);
+            var save = device.wait(Until.findObject(By.text(java.util.regex.Pattern.compile("Save",
+                    java.util.regex.Pattern.CASE_INSENSITIVE))), UI_TIMEOUT_MS);
+            assertNotNull("System document picker did not offer Save", save);
+            save.click();
+            awaitText(app.getString(R.string.settings_export_saved));
+            clickText(R.string.settings_delete);
+            confirm();
+            typeFixture(onView(withHint(R.string.password)).inRoot(isDialog()), "Test-" + identity + "-9");
+            confirm();
+            awaitActivity(LoginActivity.class);
+        }
+    }
+
+    @Test public void adminCanDiscardAnUnpublishedNsbDraft() {
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.sms_diagnostic_admin);
+            awaitButton(R.string.sms_format_draft);
+            clickText(R.string.sms_format_draft);
+            typeFixture(onView(withHint(R.string.sms_format_revision_number)).inRoot(isDialog()), "999");
+            confirm();
+            String draft = app.getString(R.string.sms_format_revision, 999, app.getString(R.string.support_draft_state));
+            awaitText(draft);
+            onView(withContentDescription(app.getString(R.string.records_remove) + ". " + draft))
+                    .perform(reveal(), activateControl());
+            confirm();
+            assertTrue("Draft still visible after discard", device.wait(Until.gone(By.text(draft)), UI_TIMEOUT_MS));
+            awaitText(app.getString(R.string.sms_format_revision, 1, app.getString(R.string.support_active)));
+        }
+    }
+
+    @Test public void withdrawnUserMustExplicitlyRestoreConsentBeforeFreshSignIn() {
+        org.junit.Assume.assumeTrue("Requires an isolated consent fixture",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraConsentFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.more_tab);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            clickText(R.string.settings_withdraw);
+            onView(withText(R.string.settings_withdraw_action)).inRoot(isDialog()).perform(activateControl());
+            awaitActivity(LoginActivity.class);
+            enter(R.id.email, "t51-" + identity + "@example.test");
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitText(app.getString(R.string.consent_recover_title));
+            onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal())
+                    .check(matches(not(isEnabled())));
+            onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(activateControl());
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("SI"));
+            var configuration = new android.content.res.Configuration(app.getResources().getConfiguration());
+            configuration.setLocale(java.util.Locale.forLanguageTag("si"));
+            var sinhala = app.createConfigurationContext(configuration);
+            awaitText(sinhala.getString(R.string.sign_in));
+            enter(R.id.email, "t51-" + identity + "@example.test");
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitText(sinhala.getString(R.string.consent_recover_title));
+            onView(withText(R.string.consent_recover_title)).inRoot(isDialog()).check(unclippedConsentLabel());
+            onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal())
+                    .check(matches(not(isEnabled())));
+            onView(withText(R.string.register_consent)).inRoot(isDialog()).perform(reveal(), activateControl());
+            onView(withText(R.string.consent_continue)).inRoot(isDialog()).perform(reveal(), activateControl());
+            awaitText(sinhala.getString(R.string.consent_restored));
+            onView(withText(R.string.consent_restored)).perform(reveal()).check(unclippedConsentLabel());
+            awaitActivity(LoginActivity.class);
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitActivity(lk.finora.app.ui.main.MainActivity.class);
+            tab(R.string.more_tab);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            clickText(R.string.settings_delete);
+            onView(withId(android.R.id.message)).inRoot(isDialog())
+                    .check(matches(withText(R.string.settings_delete_confirm))).check(unclippedConsentLabel());
+            onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(activateControl());
+        }
+    }
+
+    private static androidx.test.espresso.ViewAssertion unclippedConsentLabel() {
+        return (view, failure) -> {
+            if (failure != null) throw failure;
+            assertTrue(isDisplayed().matches(view));
+            var label = (android.widget.TextView) view;
+            var layout = label.getLayout();
+            assertNotNull(layout);
+            assertTrue(layout.getHeight() <= label.getHeight() - label.getCompoundPaddingTop()
+                    - label.getCompoundPaddingBottom());
+            for (int line = 0; line < layout.getLineCount(); line++) {
+                assertEquals(0, layout.getEllipsisCount(line));
+                assertTrue(layout.getLineMax(line) <= layout.getWidth() + 1f);
+            }
+        };
+    }
+
+    @Test public void adminEditsValidatesPublishesActivatesAndRollsBackNsbDraft() {
+        org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.sms_diagnostic_admin);
+            awaitButton(R.string.sms_format_draft);
+            clickText(R.string.sms_format_draft);
+            typeFixture(onView(withHint(R.string.sms_format_revision_number)).inRoot(isDialog()), "991");
+            confirm();
+            String draft = app.getString(R.string.sms_format_revision, 991, app.getString(R.string.support_draft_state));
+            awaitText(draft);
+            formatRevisionAction(R.string.records_edit, draft);
+            awaitActivity(lk.finora.app.ui.support.FormatSampleActivity.class);
+            assertTrue("Draft could not be loaded", device.wait(
+                    Until.hasObject(By.text(java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(
+                            app.getString(R.string.records_save)), java.util.regex.Pattern.CASE_INSENSITIVE))
+                            .enabled(true)), UI_TIMEOUT_MS));
+            clickText(R.string.records_save);
+            awaitText(draft);
+            formatRevisionAction(R.string.sms_format_validate_approved, draft);
+            confirm();
+            awaitText(app.getString(R.string.sms_format_fixture_result, 3, app.getString(R.string.sms_format_sample_matched)));
+            formatRevisionAction(R.string.sms_format_publish, draft);
+            confirm();
+            String published = app.getString(R.string.sms_format_revision, 991, app.getString(R.string.sms_format_published));
+            awaitText(published);
+            formatRevisionAction(R.string.sms_format_activate, published);
+            confirm();
+            String active = app.getString(R.string.sms_format_revision, 991, app.getString(R.string.support_active));
+            awaitText(active);
+            String prior = app.getString(R.string.sms_format_revision, 1, app.getString(R.string.sms_format_published));
+            formatRevisionAction(R.string.sms_format_activate, prior);
+            confirm();
+            awaitText(app.getString(R.string.sms_format_revision, 1, app.getString(R.string.support_active)));
+        }
+    }
+
+    private void formatRevisionAction(int label, String revision) {
+        onView(withContentDescription(app.getString(label) + ". " + revision)).perform(reveal(), activateControl());
+    }
+
+    @Test public void registrationRequiresBothConsentCheckboxesInEachLanguage() {
+        try (var screen = ActivityScenario.launch(RegisterActivity.class)) {
+            checkConsentGate();
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("SI"));
+            var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+            sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(sinhala).getString(R.string.register_consent_heading));
+            checkConsentGate();
+        }
+    }
+
+    private static void checkConsentGate() {
+        for (int field : new int[]{R.id.register_email, R.id.register_name, R.id.register_password,
+                R.id.register_language, R.id.register_consent_heading, R.id.register_over18, R.id.register_consent}) {
+            onView(withId(field)).perform(reveal()).check(matches(isDisplayed()));
+        }
+        onView(withText(R.string.register_consent_text)).perform(reveal()).check(matches(isDisplayed()));
+        onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));
+        clickId(R.id.register_over18);
+        onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));
+        clickId(R.id.register_consent);
+        onView(withId(R.id.register_submit)).check(matches(isEnabled()));
+        clickId(R.id.register_over18);
+        onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));
+        clickId(R.id.register_consent);
+    }
+
+    @Test public void loginAndLanguageDialogUseSecureWindows() {
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            screen.onActivity(activity -> assertTrue((activity.getWindow().getAttributes().flags
+                    & WindowManager.LayoutParams.FLAG_SECURE) != 0));
+            onView(allOf(withText(R.string.language_selector), isClickable())).perform(activateControl());
+            onView(withText(R.string.language_english)).inRoot(isDialog()).check((view, failure) -> {
+                if (failure != null) throw failure;
+                var params = (WindowManager.LayoutParams) view.getRootView().getLayoutParams();
+                assertTrue((params.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0);
+            });
+        }
+    }
+
+    @Test public void registerLoginAndManageFinancialRecordsWithSmsDenied() {
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.more_tab);
+            clickText(R.string.finance_help);
+            onView(withText(R.string.faq_title)).check(matches(isDisplayed()));
+            onView(withText(R.string.faq_login)).check(matches(isDisplayed()));
+            pressBack();
+            awaitActivity(MainActivity.class);
+            clickText(R.string.account_list_title);
+            awaitId("records_add");
+            clickId(R.id.records_add);
+            enter(R.id.form_name, "Synthetic wallet");
+            enter(R.id.account_balance, "0.00");
+            clickId(R.id.records_save);
+            awaitActivity(lk.finora.app.ui.accounts.AccountListActivity.class);
+            awaitText("Synthetic wallet");
+            pressBack();
+            awaitActivity(MainActivity.class);
+
+            tab(R.string.records_tab);
+            clickText(R.string.transaction_open_manual);
+            awaitId("form_account");
+            select(R.id.form_account, "Synthetic wallet");
+            select(R.id.form_type, app.getString(R.string.category_expense));
+            select(R.id.form_category, "Food");
+            enter(R.id.form_amount, "12.34");
+            enter(R.id.form_merchant, MERCHANT);
+            clickId(R.id.form_date);
+            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+            clickId(R.id.form_save);
+            awaitText(app.getString(R.string.records_tab));
+            tab(R.string.home_tab);
+            awaitText("Expenses: LKR 12.34");
+
+            tab(R.string.plan_tab);
+            clickText(R.string.budget_list_title);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetListActivity.class);
+            awaitText(app.getString(R.string.records_empty));
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+            select(R.id.form_kind, "Food");
+            enter(R.id.budget_limit, "100.00");
+            clickId(R.id.records_save);
+            awaitText(app.getString(R.string.budget_left, "12.34", "100.00", "87.66"));
+            pressBack();
+            awaitActivity(MainActivity.class);
+
+            tab(R.string.records_tab);
+            clickText(R.string.transaction_title);
+            String edit = app.getString(R.string.records_edit_named, "");
+            await(By.descContains(MERCHANT));
+            onView(allOf(withContentDescription(startsWith(edit)),
+                    withContentDescription(containsString(MERCHANT)))).perform(activateControl());
+            awaitActivity(lk.finora.app.ui.transactions.TransactionFormActivity.class);
+            awaitId("form_amount");
+            enter(R.id.form_amount, "15.17");
+            clickId(R.id.form_save);
+            await(By.textContains("15.17"));
+            String remove = app.getString(R.string.records_remove_named, "");
+            onView(allOf(withContentDescription(startsWith(remove)),
+                    withContentDescription(containsString(MERCHANT)))).perform(activateControl());
+            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+            awaitText(app.getString(R.string.records_empty));
+            pressBack();
+            awaitActivity(MainActivity.class);
+            clickText(R.string.sms_access_title);
+            onView(withText(R.string.sms_manual_entry)).check(matches(isDisplayed()));
+            clickText(R.string.sms_no_thanks);
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            awaitText(app.getString(R.string.records_tab));
+        }
+    }
+
+    @Test public void smsRefusalKeepsEveryFallbackReachable() {
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+            onView(withText(R.string.sms_access_explanation)).perform(reveal()).check(matches(isDisplayed()));
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+
+            clickId(R.id.sms_paste_entry_action);
+            awaitActivity(lk.finora.app.ui.sms.PasteSmsActivity.class);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_csv_import_action);
+            awaitActivity(lk.finora.app.ui.importer.CsvImportActivity.class);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_manual_entry_action);
+            awaitActivity(lk.finora.app.ui.transactions.TransactionFormActivity.class);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_no_thanks_action);
+            awaitActivity(MainActivity.class);
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+        }
+    }
+
+    @Test public void smsRuntimeDenialThenGrantUpdatesScanAvailability() {
+        var arguments = InstrumentationRegistry.getArguments();
+        // Android kills the app on permission revocation. Run this method alone on a disposable AVD.
+        org.junit.Assume.assumeTrue("Permission changes require a standalone disposable-emulator run",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraSmsPermissionMutation")));
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+
+            clickId(R.id.sms_allow);
+            clickSmsPermissionChoice("deny");
+            awaitText(app.getString(R.string.sms_access_denied));
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            assertFalse(device.hasObject(By.res(app.getPackageName(), "sms_scan")));
+
+            clickId(R.id.sms_allow);
+            clickSmsPermissionChoice("allow");
+            awaitText(app.getString(R.string.sms_access_granted));
+            assertEquals(PackageManager.PERMISSION_GRANTED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            onView(withId(R.id.sms_scan)).perform(reveal()).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test public void smsPermanentDenialRecoversThroughAppSettings() {
+        var arguments = InstrumentationRegistry.getArguments();
+        org.junit.Assume.assumeTrue("Permission changes require a standalone disposable-emulator run",
+                "true".equals(arguments.getString("finoraIsolatedEmulator"))
+                        && "true".equals(arguments.getString("finoraSmsPermissionMutation")));
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+            for (int attempt = 0; attempt < 2; attempt++) {
+                clickId(R.id.sms_allow);
+                clickSmsPermissionChoice("deny(?:_and_dont_ask_again)?");
+                awaitText(app.getString(attempt == 0 ? R.string.sms_access_denied : R.string.sms_permission_settings));
+            }
+            assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            clickId(R.id.sms_settings);
+            clickSystemText("Permissions");
+            clickSystemText("SMS");
+            clickSystemText("Allow");
+
+            for (int back = 0; back < 3; back++) device.pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+            awaitText(app.getString(R.string.sms_access_granted));
+            assertEquals(PackageManager.PERMISSION_GRANTED, app.checkSelfPermission(Manifest.permission.READ_SMS));
+            onView(withId(R.id.sms_scan)).perform(reveal()).check(matches(isDisplayed()));
+        }
+    }
+
+    private void clickSystemText(String text) {
+        var control = device.wait(Until.findObject(By.text(text)), UI_TIMEOUT_MS);
+        assertNotNull("Expected Android Settings control: " + text, control);
+        control.click();
+    }
+
+    private void clickSmsPermissionChoice(String choice) {
+        var selector = By.res(java.util.regex.Pattern.compile(
+                "(?:com\\.android|com\\.google\\.android)\\.permissioncontroller:id/permission_"
+                        + choice + "_button"));
+        var button = device.wait(Until.findObject(selector), UI_TIMEOUT_MS);
+        assertNotNull("Expected SMS permission dialog choice: " + choice, button);
+        button.click();
+    }
+
+    @Test public void diagnosticRequiresConfirmationAfterCancel() {
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            if ("SI".equals(InstrumentationRegistry.getArguments().getString("finoraDiagnosticLocale"))) {
+                clickText(R.string.language_selector);
+                dialogChoice(app.getString(R.string.language_sinhala));
+                var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
+                sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
+                awaitText(app.createConfigurationContext(sinhala).getString(R.string.records_tab));
+            }
+            tab(R.string.records_tab);
+            clickText(R.string.sms_access_title);
+            clickText(R.string.sms_paste);
+            awaitId("sms_paste_action");
+            var instrumentation = InstrumentationRegistry.getInstrumentation();
+            instrumentation.runOnMainSync(() -> app.getSystemService(ClipboardManager.class)
+                    .setPrimaryClip(ClipData.newPlainText("Test message", "Synthetic diagnostic fixture")));
+            try {
+                onView(withId(R.id.sms_paste_action)).perform(reveal(), activateControl());
+                awaitText(app.getString(R.string.sms_report_problem));
+                onView(withId(R.id.sms_diagnostic_report)).perform(reveal(), activateControl());
+                onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(
+                        app.getString(R.string.sms_report_preview, app.getString(R.string.sms_diagnostic_unknown),
+                                "FORMAT_UNRECOGNIZED"))));
+                onView(withId(android.R.id.message)).inRoot(isDialog()).check((view, failure) -> {
+                    if (failure != null) throw failure;
+                    var message = (android.widget.TextView) view;
+                    var layout = message.getLayout();
+                    assertNotNull(layout);
+                    assertTrue(layout.getHeight() <= message.getHeight() - message.getCompoundPaddingTop()
+                            - message.getCompoundPaddingBottom());
+                    for (int line = 0; line < layout.getLineCount(); line++) {
+                        assertEquals(0, layout.getEllipsisCount(line));
+                        assertTrue(layout.getLineMax(line) <= layout.getWidth() + 1f);
+                    }
+                });
+                onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(activateControl());
+                onView(withId(R.id.sms_diagnostic_report)).check(matches(isEnabled()));
+                onView(withId(R.id.sms_diagnostic_report)).perform(reveal(), activateControl());
+                onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+                awaitText(app.getString(R.string.sms_report_sent));
+            } finally {
+                instrumentation.runOnMainSync(() -> {
+                    var clipboard = app.getSystemService(ClipboardManager.class);
+                    if (Build.VERSION.SDK_INT >= 28) clipboard.clearPrimaryClip();
+                    else clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
+                });
+            }
+            pressBack();
+            awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
+        }
+    }
+
+    @Test public void approvedBilingualReplySurvivesCatalogRetirement() {
+        org.junit.Assume.assumeTrue("Requires the isolated acceptance database with two disposable staff accounts",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraSupportFixtures")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        String englishReply = "Check your connection and try signing in again.";
+        String sinhalaReply = "ඔබේ අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කර නැවත පිවිසීමට උත්සාහ කරන්න.";
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            tab(R.string.more_tab);
+            clickText(R.string.support_tickets);
+            awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
+            awaitButton(R.string.support_create);
+            onView(withText(R.string.support_catalog)).check(doesNotExist());
+            clickText(R.string.support_create);
+            dialogChoice(app.getString(R.string.support_sign_in));
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.sms_diagnostic_open)));
+            pressBack();
+            awaitActivity(MainActivity.class);
+            signOut();
+
+            signInStaff(DRAFTER, SUPPORT_FIXTURE_PASSWORD);
+            openCatalog();
+            clickText(R.string.support_draft);
+            dialogChoice(app.getString(R.string.support_sign_in));
+            confirm();
+            awaitButton(R.string.support_approve);
+            clickText(R.string.support_approve);
+            confirm();
+            awaitText(app.getString(R.string.records_missing));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+            signOut();
+
+            signInStaff(REVIEWER, SUPPORT_FIXTURE_PASSWORD);
+            openCatalog();
+            clickText(R.string.support_approve);
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_active)));
+            clickText(R.string.support_tickets);
+            awaitButton(R.string.support_claim);
+            clickText(R.string.support_claim);
+            confirm();
+            awaitButton(R.string.support_reply);
+            sendReply(englishReply);
+            sendReply(sinhalaReply);
+            clickText(R.string.support_catalog);
+            awaitButton(R.string.support_retire);
+            clickText(R.string.support_retire);
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_retired)));
+            clickText(R.string.support_draft);
+            dialogChoice(app.getString(R.string.support_sign_in));
+            confirm();
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_draft_state)));
+            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                    + app.getString(R.string.support_retired)));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+            signOut();
+
+            enter(R.id.email, "t51-" + identity + "@example.test");
+            enter(R.id.password, "Test-" + identity + "-9");
+            clickId(R.id.sign_in);
+            awaitActivity(MainActivity.class);
+            tab(R.string.more_tab);
+            clickText(R.string.support_tickets);
+            awaitButton(R.string.support_replies);
+            clickText(R.string.support_replies);
+            awaitText(englishReply);
+            awaitText(sinhalaReply);
+        }
+    }
+
+    private void openCatalog() {
+        clickText(R.string.support_tickets);
+        awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
+        awaitButton(R.string.support_catalog);
+        clickText(R.string.support_catalog);
+        awaitButton(R.string.support_draft);
+    }
+
+    private void sendReply(String text) {
+        clickText(R.string.support_reply);
+        dialogChoice(app.getString(R.string.support_sign_in));
+        dialogChoice(text);
+        onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(text)));
+        confirm();
+        awaitText(app.getString(R.string.sms_diagnostic_updated));
+    }
+
+    private void signInStaff(String email, String password) {
+        enter(R.id.email, email);
+        enter(R.id.password, password);
+        clickId(R.id.sign_in);
+        awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
+    }
+
+    private void signOut() {
+        clickText(R.string.sign_out);
+        awaitActivity(LoginActivity.class);
+    }
+
+    private static void confirm() {
+        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+    }
+
+    private static void dialogChoice(String label) {
+        onView(isAssignableFrom(android.widget.ListView.class)).inRoot(isDialog()).perform(new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isAssignableFrom(android.widget.ListView.class); }
+            @Override public String getDescription() { return "select the visible dialog option"; }
+            @Override public void perform(UiController controller, View view) {
+                var list = (android.widget.ListView) view;
+                for (int index = 0; index < list.getCount(); index++) {
+                    if (label.equals(String.valueOf(list.getItemAtPosition(index)))) {
+                        list.performItemClick(list.getChildAt(index - list.getFirstVisiblePosition()), index,
+                                list.getItemIdAtPosition(index));
+                        controller.loopMainThreadUntilIdle();
+                        return;
+                    }
+                }
+                fail("Expected dialog option is unavailable");
+            }
+        });
+    }
+
+    private void signInNewUser(String identity) {
+        onView(withId(R.id.create_account)).perform(reveal(), activateControl());
+        awaitActivity(RegisterActivity.class);
+        enter(R.id.register_email, "t51-" + identity + "@example.test");
+        enter(R.id.register_name, "Synthetic UI user");
+        enter(R.id.register_password, "Test-" + identity + "-9");
+        onView(withId(R.id.register_over18)).perform(reveal(), activateControl()).check(matches(isChecked()));
+        onView(withId(R.id.register_consent)).perform(reveal(), activateControl()).check(matches(isChecked()));
+        onView(withId(R.id.register_submit)).perform(reveal(), activateControl());
+        awaitActivity(LoginActivity.class);
+        onView(withId(R.id.email)).check(matches(withText("t51-" + identity + "@example.test")));
+        enter(R.id.password, "Test-" + identity + "-9");
+        clickId(R.id.sign_in);
+        awaitText(app.getString(R.string.more_tab));
+    }
+
+    private void awaitId(String id) { await(By.res(app.getPackageName(), id)); }
+
+    private static void awaitActivity(Class<? extends android.app.Activity> expected) {
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var resumed = new AtomicBoolean();
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        do {
+            instrumentation.runOnMainSync(() -> resumed.set(ActivityLifecycleMonitorRegistry.getInstance()
+                    .getActivitiesInStage(Stage.RESUMED).stream()
+                    .anyMatch(activity -> expected.isInstance(activity) && activity.hasWindowFocus())));
+            if (resumed.get()) return;
+            SystemClock.sleep(100);
+        } while (SystemClock.elapsedRealtime() < deadline);
+        fail("Expected resumed activity: " + expected.getSimpleName());
+    }
+
+    private void awaitText(String text) { await(By.text(text)); }
+    private void awaitButton(int label) {
+        await(By.text(java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(app.getString(label)),
+                java.util.regex.Pattern.CASE_INSENSITIVE | java.util.regex.Pattern.UNICODE_CASE)));
+    }
+    private void await(BySelector selector) {
+        assertTrue("Expected FINORA screen state did not appear", device.wait(Until.hasObject(selector), UI_TIMEOUT_MS));
+    }
+
+    private static void tab(int label) {
+        onView(allOf(withText(label), isAssignableFrom(RadioButton.class))).perform(activateControl());
+    }
+
+    private static void clickText(int label) {
+        onView(allOf(withText(label), isClickable())).perform(reveal(), activateControl());
+    }
+
+    private static void clickId(int id) {
+        onView(withId(id)).perform(reveal(), activateControl());
+    }
+
+    private static ViewAction activateControl() {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() {
+                return allOf(isEnabled(), isClickable());
+            }
+            @Override public String getDescription() { return "activate the view's click action"; }
+            @Override public void perform(UiController controller, View view) {
+                view.performClick();
+            }
+        };
+    }
+
+    private static void select(int id, String label) {
+        onView(withId(id)).perform(reveal(), new ViewAction() {
+            @Override public Matcher<View> getConstraints() {
+                return allOf(isAssignableFrom(android.widget.Spinner.class), isEnabled());
+            }
+            @Override public String getDescription() { return "select the synthetic fixture choice"; }
+            @Override public void perform(UiController controller, View view) {
+                var spinner = (android.widget.Spinner) view;
+                long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+                do {
+                    for (int i = 0; i < spinner.getCount(); i++) {
+                        if (label.equals(String.valueOf(spinner.getItemAtPosition(i)))) {
+                            spinner.setSelection(i);
+                            controller.loopMainThreadUntilIdle();
+                            return;
+                        }
+                    }
+                    controller.loopMainThreadForAtLeast(50);
+                } while (SystemClock.elapsedRealtime() < deadline);
+                fail("Expected synthetic fixture choice is unavailable");
+            }
+        });
+    }
+
+    private static void enter(int id, String value) {
+        typeFixture(onView(withId(id)), value);
+    }
+
+    private static ViewAction reveal() {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isAssignableFrom(View.class); }
+            @Override public String getDescription() { return "show the form control"; }
+            @Override public void perform(UiController controller, View view) {
+                if (isDisplayingAtLeast(90).matches(view)) return;
+                for (var parent = view.getParent(); parent != null; parent = parent.getParent()) {
+                    if (parent instanceof ScrollView scroll) {
+                        Rect bounds = new Rect(0, 0, view.getWidth(), view.getHeight());
+                        scroll.offsetDescendantRectToMyCoords(view, bounds);
+                        scroll.scrollTo(scroll.getScrollX(), bounds.centerY() - scroll.getHeight() / 2);
+                        controller.loopMainThreadUntilIdle();
+                        break;
+                    }
+                }
+                assertTrue("The form control could not be brought into view", isDisplayed().matches(view));
+            }
+        };
+    }
+}

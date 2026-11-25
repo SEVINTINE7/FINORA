@@ -2,6 +2,9 @@ package lk.finora.app.data.api;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Header;
+import retrofit2.http.Streaming;
+import okhttp3.ResponseBody;
 import retrofit2.http.POST;
 
 public interface AuthApi {
@@ -16,6 +19,19 @@ public interface AuthApi {
 
     @POST("/api/v1/auth/logout")
     Call<Void> logout(@Body RefreshRequest request);
+
+    @POST("/api/v1/auth/consent/accept")
+    Call<Void> acceptConsent(@Header("Authorization") String grant, @Body ConsentAcceptance request);
+
+    @Streaming
+    @POST("/api/v1/auth/consent/export")
+    Call<ResponseBody> exportConsentData(@Header("Authorization") String grant);
+
+    @POST("/api/v1/auth/consent/delete")
+    Call<Void> deleteConsentData(@Header("Authorization") String grant, @Body Deletion request);
+
+    record ConsentAcceptance(String consentVersion, boolean accepted) {}
+    record Deletion(String password) {}
 
     final class RefreshRequest {
         private final String refreshToken;
@@ -41,6 +57,8 @@ public interface AuthApi {
         public long expiresIn;
         public String role;
         public String language;
+        public String restrictedToken;
+        public String consentVersion;
     }
 
     final class RegisterRequest {

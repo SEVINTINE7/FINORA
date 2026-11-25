@@ -5,14 +5,14 @@ import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
-public final class CategoryListActivity extends AppCompatActivity {
+public final class CategoryListActivity extends SecureActivity {
     private CategoryListViewModel model;
 
     @Override protected void onCreate(Bundle state) {
