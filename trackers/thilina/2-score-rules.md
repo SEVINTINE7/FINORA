@@ -41,3 +41,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - `RuleAdviceTest` 11 + `FactSheetPrivacyTest` 1 = 12 passing tests (0 failures/errors/skips), Java 17 and isolated `finora_test`; evidence `api/target/t25-t26-tests.log`.
 - Every numeric token has tested exact provenance; saving suggestions use min(shortfall, recorded leftover) and are blocked for unknown/unmarked obligations. No inferred reserves or added goal allocations.
 - T30 now delivers canonical rule fallback or verified advice through its [Sahan tracker entry](../sahan/4-screens.md). Budget-specific coverage and Thilina's review remain open.
+- Execution 33 verified fixed-ledger advice and numeric provenance across a budget-limit-only NEAR-to-OVER change. Independent T25 acceptance remains open.

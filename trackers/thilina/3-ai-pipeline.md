@@ -22,6 +22,8 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 
 ---
 
+Execution 33 verified provider-disabled V1 delivered payload keys, decimal provenance and nullable IDs/ratings, plus matching Android DTO decoding. T26 review and dependency gates remain open.
+
 ### T27 · Server-only Groq integration · `FR09`
 **Lead:** Thilina · **Support:** Sevindu · **Depends on:** T04, T26 · **Touches:** `api:advice/ai/`
 - [x] T27.1 `LlmClient` and HTTPS Groq JSON-mode adapter; existing key property, explicit model, disabled by default; timeout 15 s

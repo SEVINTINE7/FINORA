@@ -62,3 +62,14 @@ does not replace comprehensive scanning. git diff --check passed. No live calls 
 ## MD05 artifact checks
 
 The unsigned V1 release APK was inspected for backup and transfer rules, cleartext blocking, absence of READ_SMS, common credential signatures, and app-owned calls to Android logging or HTTP body logging. The Android 17 emulator checked FLAG_SECURE on the login activity and its language dialog. The remaining device lifecycle, screenshot, Recents and sanitized runtime-log checks are tracked under T40.
+
+## Execution 33 evidence status
+
+- Local provider runtime and application log privacy: verified for both adapters on loopback.
+- Android structured SMS batch: verified at the repository wire boundary. End-to-end synthetic
+  paste and inbox capture remains open.
+- Differential secret scan: verified for the recorded commits and source paths.
+- Dependencies: complementary OSV matches recorded. The OWASP report remains blocked.
+- Deployed HTTPS, external provider runtime evidence and independent acceptance remain open.
+
+See [Execution 33 security evidence](t53-local-security-evidence.md#execution-33-security-and-advice-verification).

@@ -203,6 +203,39 @@ class FinancialJourneyTest extends IntegrationTest {
     }
 
     @Test
+    void budgetLimitAloneDoesNotChangeCanonicalAdviceOrNumericProvenance() throws Exception {
+        var ledger = ledger();
+        populate(ledger, "100000", "60000", "41000", "0");
+        var session = ledger.user();
+        var budget = send(session, "POST", "/api/v1/budgets", Map.of("categoryId", ledger.wants(),
+                "month", MONTH, "limitAmount", "50000.00"), 201);
+        String route = "/api/v1/budgets/" + budget.path("id").asLong();
+        assertThat(send(session, "GET", route, null, 200).path("state").asString()).isEqualTo("NEAR");
+        var facts = rules.facts(session.id(), MONTH);
+        var advice = rules.forMonth(session.id(), MONTH);
+        assertThat(advice).extracting(item -> item.actionId())
+                .containsExactly("REVIEW_SPENDING_DEFICIT", "REVIEW_HIGH_WANTS");
+        assertThat(facts.facts().get(FactKey.SPENDING_DEFICIT)).isEqualByComparingTo("1000.00");
+
+        send(session, "PUT", route, Map.of("categoryId", ledger.wants(), "month", MONTH,
+                "limitAmount", "40000.00"), 200);
+        var after = send(session, "GET", route, null, 200);
+        assertThat(after.path("state").asString()).isEqualTo("OVER");
+        money(after.path("used"), "41000.00");
+        assertThat(rules.facts(session.id(), MONTH)).isEqualTo(facts);
+        var adviceAfter = rules.forMonth(session.id(), MONTH);
+        assertThat(adviceAfter).isEqualTo(advice);
+        for (var item : adviceAfter) {
+            assertThat(item.numbers()).isNotEmpty();
+            for (var number : item.numbers()) {
+                assertThat(number.value()).isEqualByComparingTo(facts.facts().get(number.factKey()));
+                assertThat(number.unit()).isEqualTo("LKR");
+                assertThat(number.period()).isEqualTo(MONTH);
+            }
+        }
+    }
+
+    @Test
     void billAndGoalUpdatesChangeScoreWithoutManufacturingExpenseOrLeakingToOtherUser() throws Exception {
         Ledger l = ledger(); populate(l, "100000", "60000", "30000", "5000");
         long loanCategory = jdbc.queryForObject("SELECT id FROM categories WHERE user_id IS NULL AND name='Loan payment'", Long.class);
