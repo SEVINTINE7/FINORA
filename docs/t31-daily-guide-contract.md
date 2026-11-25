@@ -85,3 +85,17 @@ no D39 write paths are modified. Tests cover bill/payment row preservation, not 
 This supersedes the pending local execution statement above.
 Formal dependency closure, contract approval, Android integration,
 live-device acceptance and independent review remain pending.
+
+## Execution 49 cross-month check
+
+A mock-based service test verifies the explicit date override without consulting recorded
+income, includes unpaid occurrences in the current and next months through income day,
+excludes paid and later bills, and applies declared arrears and savings once. The focused
+Java 17 planning run passed 29/29 with zero failures, errors or skips. Main contains the
+backend endpoint. No Android route or screen invokes it yet.
+
+Contract gap: a sum of multiple individually valid bills can exceed the 13-integer-digit
+limit on confirmedTrackedUnpaidBills. That amount can be displayed but cannot be confirmed
+through the current request DTO. The published input limit and exact confirmation behavior
+are unchanged. A wider aggregate or a different confirmation representation requires a
+recorded contract decision. Persistent income-date and Android acceptance gates remain open.
