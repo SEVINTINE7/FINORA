@@ -59,6 +59,10 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ---
 
 ### T55 · SMS, usability and performance checks · `NFR-SMS / NFR-USE / NFR-PERF`
+**Lead:** Thilina · **Support:** Sahan · **Depends on:** T16, T38 · **Touches:** `docs/evaluation.md`, `docs/t55-dataset.md`, `api-test:support/EvaluationDataset*`
+Independent dataset preparation explicitly authorized 2026-11-22: pure 12-month blueprint, guarded test-only seed,
+four deterministic validation tests and contribution evidence. No production seed/startup hook or device-results claim.
+- [ ] T55.1 SMS field accuracy from T16 ≥ 90%
 **Lead:** Thilina · **Support:** Sahan · **Depends on:** T16, T38 · **Touches:** `docs/evaluation.md`
 - [x] T55.1 SMS field accuracy from T16 ≥ 90%
 - [ ] T55.2 Seed one year of data; measure main screens < 2 s on a mid-range phone
@@ -69,4 +73,10 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] `docs/evaluation.md` contains real measured numbers
 
 **Handoff notes:**
+- 2026-11-24 reconciliation: PR #12 retains the 826-transaction fixture, guarded rollback-only seeding and historical 4/4 focused and 261/261 full verification. Dataset and contribution evidence remain in docs. Real measurements remain open.
+- 2026-11-22 audit: T16/T38 remain todo; no device timing, SMS accuracy, SUS participants or ratings measurements available. T55 remains todo. Beta comparison wording also needs reconciliation with D03 V1-only scope before evaluation; no measurements invented.
+- Later 2026-11-22: built two-user synthetic Dec 2025–Nov 2026 dataset: 826 transactions, 24 budgets, 2 bills/18 paid markers, 2 goals/18 contributions and 21 declarations; existing V6 categories only. Loopback finora_test transaction guard, identity-collision refusal, no existing-row updates/deletes; actual rollback checked.
+- Focused 4/4 passed after correcting two hand-oracle arithmetic errors (initial 3 assertion failures). Database projection/totals, budget/goal consistency, ownership/control rows and refusal-before-write verified. Fresh full-suite/coverage evidence follows; no real bank/SMS/performance results collected.
+- Contribution audit: representative GitHub commits map to ThilinaW-LK; one consistent configured author email (not disclosed), 25 authored commits across start-of-audit refs / 20 on upstream main. Pending fork branches and graph timing differ from authorship; no history or attribution rewritten. Evidence: docs/thilina-contribution-evidence.md.
+- PRs #10/#11 open with API/Android CI success and no submitted reviews when checked. T30/T31/T32/T52–T55 owners, approvals and integration blockers are listed in docs/t55-dataset.md. T55 remains in-progress; full subtask/acceptance boxes stay unchecked.
 - T55.1 reuses the [T16 result](../sahan/3-sms-quality.md#t16--sms-parser-regression-tests--nfr-sms): 12/12 fields (100.0%) on the three approved D35 NSB fixtures. T20 measured the HMD dashboard at 505/504/486 ms with synthetic data over 12 months. T55.2 still needs the full main-screen timing scope. SUS and the D03-compatible evaluation decision remain open, as do formal T16/T38 prerequisite closure and Thilina’s evaluation review.
