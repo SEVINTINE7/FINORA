@@ -214,6 +214,43 @@ No emulator was started or modified and no ADB mapping was made. Android journey
 capture and performance samples remain unexecuted. T16/T38, independent review, and the separate
 physical-handset profile and consent requirements remain open.
 
+### Execution 39 dedicated emulator journeys
+
+The Android and API production baseline remained upstream 5d99285077e192c3749a175e67e2b664b90e8e0b.
+The starting evaluation checkpoint was 38d95ca3077f3a8e246255bd402a4cd2a5b4648c.
+The dedicated FINORA_T55_Evaluation AVD used a Pixel 6 profile, Android 17 Google APIs 16 KB
+x86_64 image android-37.2 (device API 37), WHPX, SwiftShader, four virtual cores, 4096 MB RAM,
+1080 x 2400 at density 420, and a 6 GB data partition. It ran without a snapshot at emulator-5580,
+with a private ADB server on 5039 and Android user/serial 0. No FINORA packages or reverse mappings
+were present before installation. READ_SMS remained ungranted.
+
+Installed APK SHA-256 read-back was 61566a20e6c82165d0dd4dfea85021f44d0dd48d39e0ca968736f51774eb62ed
+for lk.finora.app.acceptance and 43a3b2d2c4292f4f0cbb23548dc8ad8a1a7f544cdca08b8d299773ea7ef0ffc9
+for lk.finora.app.acceptance.test. Both used signer SHA-256
+863fd92f2b8a4b4ff071062669525d5f866dbfa6752acfcef0f8eaac46092f6f, and the installed runner was
+AndroidJUnitRunner targeting lk.finora.app.acceptance. The provider-disabled loopback API used the
+retained finora_t55_perf schema with its existing Java HTTP(S) restriction. Process-level egress
+isolation was not independently verified.
+
+EvaluationJourneysTest passed one connected test with 18 visible-state assertions across both users.
+The November Home values were LKR 60000.00/40000.00 and 25750.00/11000.00 (income/expenses).
+Both users displayed a November Records row, a Shopping budget, their named bill and goal,
+their expected contribution row, a numeric score and the rule-based guidance label.
+Normal sign-out and replacement sign-in were exercised. The row presence and advice label checks
+do not establish every financial value or advice item. Two earlier harness attempts failed,
+first on the radio click return value and then on a retained session. Both harness issues were fixed.
+
+A separate connected test passed paste-diagnostic cancel, preview and confirm on a newly registered
+disposable user. It used an unrecognized synthetic input. Approved NSB import paste and inbox wire
+capture, field allowlists and retry capture remain unverified. There were no qualified cold or warm
+performance observations. Displayed-frame corroboration and HTTP/server timing correlation remain open.
+
+A fresh read-back after the journeys preserved 826 transactions, all other canonical fixture counts,
+both profile totals, and transaction digest 14e563da86de67d4f295b6a9f8577d76ec781128b9c91900e6a1b54c96069944.
+The loader was not invoked. The session reverse mapping and private input file were removed.
+The API, private ADB server and dedicated emulator stopped. The dedicated AVD and MySQL instance
+remain available for the next session.
+
 ## T55.3 moderator and participant materials (draft for approval)
 
 ### Participant information and consent
