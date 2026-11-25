@@ -5,8 +5,7 @@ import java.time.Instant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lk.finora.api.auth.RefreshToken;
-import lk.finora.api.auth.RefreshTokenRepository;
+import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.common.error.ApiException;
 import lk.finora.api.user.dto.MeResponse;
 import lk.finora.api.user.dto.UpdateMeRequest;
@@ -17,13 +16,15 @@ public class MeService {
 
     private final UserRepository userRepository;
     private final ConsentRepository consentRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final ConsentRecoveryService recovery;
+    private final FinanceWriteLock owners;
 
     public MeService(UserRepository userRepository, ConsentRepository consentRepository,
-            RefreshTokenRepository refreshTokenRepository) {
+            ConsentRecoveryService recovery, FinanceWriteLock owners) {
         this.userRepository = userRepository;
         this.consentRepository = consentRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
+        this.recovery = recovery;
+        this.owners = owners;
     }
 
     @Transactional(readOnly = true)
@@ -46,18 +47,15 @@ public class MeService {
      */
     @Transactional
     public void withdrawConsent(Long userId) {
+        owners.acquire(userId);
         Instant now = Instant.now();
 
         Consent consent = consentRepository.findFirstByUserIdAndWithdrawnAtIsNullOrderByAcceptedAtDesc(userId)
                 .orElse(null);
         if (consent != null) {
             consent.setWithdrawnAt(now);
-            consentRepository.save(consent);
-        }
-
-        for (RefreshToken token : refreshTokenRepository.findByUserIdAndRevokedAtIsNull(userId)) {
-            token.setRevokedAt(now);
-            refreshTokenRepository.save(token);
+            consentRepository.saveAndFlush(consent);
+            recovery.invalidateNormalSessions(userId);
         }
     }
 

@@ -23,4 +23,15 @@ public final class MeRepository {
     static HttpUrl withdrawUrl(HttpUrl origin) {
         return origin.newBuilder().addPathSegments("api/v1/me/consent/withdraw").build();
     }
+
+    public Call exportData() {
+        return requests.call(new Request.Builder().url(requests.origin().newBuilder()
+                .addPathSegments("api/v1/me/export").build()).get().build());
+    }
+
+    public Call deleteData(String password) {
+        return requests.call(new Request.Builder().url(requests.origin().newBuilder()
+                .addPathSegments("api/v1/me").build())
+                .delete(AccountRepository.json(java.util.Map.of("password", password))).build());
+    }
 }

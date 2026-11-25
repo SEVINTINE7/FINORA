@@ -12,15 +12,15 @@ import android.widget.TextView;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.CsvImportRepository.Row;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
-public final class CsvImportActivity extends AppCompatActivity {
+public final class CsvImportActivity extends SecureActivity {
     private CsvImportViewModel model;
     private Button choose;
     private Button refresh;
@@ -88,12 +88,12 @@ public final class CsvImportActivity extends AppCompatActivity {
         if (!verify() || model.busy() || model.needsPreview || model.selectedCount() == 0) return;
         var reviewed = model.preview;
         var selected = model.reviewedLines();
-        new AlertDialog.Builder(this)
+        showSecure(new AlertDialog.Builder(this)
                 .setMessage(getString(R.string.csv_confirm_message, selected.size()))
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.csv_confirm_action, (dialog, action) -> {
                     if (verify()) model.confirm(reviewed, selected);
-                }).show();
+                }).create());
     }
 
     private void render() {

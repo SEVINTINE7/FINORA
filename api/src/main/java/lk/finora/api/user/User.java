@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 /** A row in the users table. created_at / updated_at are filled by MySQL, so they are not mapped. */
 @Entity
 @Table(name = "users")
+@org.hibernate.annotations.DynamicUpdate
 public class User {
 
     @Id
@@ -39,6 +40,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Language language = Language.EN;
+
+    @Column(name = "staff_session_generation", nullable = false)
+    private long staffSessionGeneration;
+
+    public long getStaffSessionGeneration() { return staffSessionGeneration; }
 
     public Long getId() {
         return id;

@@ -73,7 +73,10 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
 | GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion}` (`consentVersion` = `null` after withdrawal, D15) | T07 |
 | PUT | `/api/v1/me` | USER | `{fullName, language: "EN"\|"SI"}` | `200` same as GET · 400 `VALIDATION_ERROR` | T07 |
-| POST | `/api/v1/me/consent/withdraw` | USER | — | `204`; sets `withdrawn_at`, revokes all the user's refresh tokens (logged out on every device once the access token expires) | T07 |
+| POST | `/api/v1/me/consent/withdraw` | USER | — | `204`; sets `withdrawn_at` and revokes all normal access and refresh credentials | T07 |
+| POST | `/api/v1/auth/consent/accept` | Consent grant | `{consentVersion,accepted:true}` | `204`; consumes the grant and records current-version consent. Fresh password sign-in is required. | T07/D54 |
+| POST | `/api/v1/auth/consent/export` | Consent grant | — | `200`; consumes the grant and returns the same owned schema-1 attachment as T35. | T35/D54 |
+| POST | `/api/v1/auth/consent/delete` | Consent grant | `{password}` | `204`; consumes the grant and performs password-confirmed T36 deletion. | T36/D54 |
 | GET | `/api/v1/accounts` | USER | — | `200 [{id, name, type, openingBalance, archived}]` (own only, incl. archived) | T09 |
 | GET | `/api/v1/accounts/{id}` | USER | — | `200 {id, name, type, openingBalance, archived}` · 404 (missing or another user's) | T09 |
 | POST | `/api/v1/accounts` | USER | `{name, type: "BANK"\|"CASH"\|"CARD"\|"WALLET", openingBalance: "15000.00"}` | `201` account · 400 · 409 `CONFLICT` (name taken) | T09 |
@@ -115,6 +118,7 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | DELETE | `/api/v1/goals/{id}/contributions/{cid}` | USER | — | `200` goal with new progress · 404 | T19 |
 | GET | `/api/v1/dashboard?month=YYYY-MM` | USER | `month` optional (default: current month in Asia/Colombo) | `200 {month, income, expense, net, byCategory: [{categoryId, name, nameSi, total}], trend: [{month, income, expense, net}]}` · 400 | T20 |
 | GET | `/api/v1/insights?month=YYYY-MM` | USER | `month` required | `200 [{id, type, month, from, to, facts{...numbers}}]` (empty list = no patterns) · 400 | T22 |
+| POST | `/api/v1/daily-guide` | USER | nullable declared funds, savings, date and bill confirmation; see [T31 candidate contract](t31-daily-guide-contract.md) | `200` deterministic daily guide or unavailable status; 400 invalid inputs; read-only | T31 |
 
 **Insights (T22, D10, D19):** recalculated on every GET (old rows for that month replaced). Types and facts:
 `HIGH_WANTS` wants > 40% of income `{wants, wantsCount, income, wantsRatio, threshold}` · `HIGH_FIXED_BILLS` bills > 50% of income `{fixedBills, billCount, income, fixedBillsRatio, threshold}` · `PAYDAY_SPENDING` payday spend > 30% of expense `{paydaySpend, paydayCount, expense, paydayShare, threshold}` · `WEEKEND_SPENDING` weekend-day average > 1.5 × weekday average `{weekendSpend, weekendCount, weekendDays, weekendDailyAverage, weekdaySpend, weekdayDays, weekdayDailyAverage, threshold}`. Exactly at a threshold = no insight; no income = no income-based insights. The app builds the text from `type` + `facts`.
@@ -129,6 +133,20 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 
 **Tokens (D07):** access token = JWT HS256 signed with `JWT_SECRET`, claims `sub` = user id, `role`; valid 30 min. Refresh token = random string valid 14 days, single use; the server stores only its SHA-256 hash. Password rule (D09): 8–72 chars, at least one letter and one digit.
 
+
+## ADMIN account and default-category management (T42, T44)
+
+All endpoints in this section are ADMIN-only.
+
+- `GET /api/v1/admin/users?q=` searches USER email or name by literal substring. The optional query accepts up to 120 characters. Return at most 100 rows, newest ID first, with only `id,email,name,status,created_at`.
+- `PUT /api/v1/admin/users/{id}/status` accepts `{status,reason}`. Status is `ACTIVE` or `DISABLED`. Reason is one of `SECURITY`, `POLICY`, `SUPPORT`, `RESTORED`. A transition returns 204 and logs a bounded audit event. Repeating the same status returns 204 without a duplicate audit event. A STAFF, ADMIN or missing target returns 404. Disabling revokes refresh tokens and invalidates existing access tokens across re-enable.
+- `GET /api/v1/admin/categories` lists only default categories, including deactivated entries. Each row has `id,name,nameSi,kind,active,semanticCode`. The read-only semantic code is `SAVINGS` or `LOAN_PAYMENT` on the two original seeded expense defaults, and null otherwise. `POST` accepts `{name,nameSi,kind}` and returns 201. `PUT /{id}` accepts `{name,nameSi}` and returns 200. Both names are required and are unique per kind among defaults. Conflicts return 409. Existing category kind, ownership and semantic code are immutable. POST and PUT reject extra request fields, including `semanticCode`.
+- `DELETE /api/v1/admin/categories/{id}` returns 204. A semantic default or a default with recorded uses is deactivated without deleting references. An unused ordinary default is removed. Non-default and missing targets return 404.
+
+## Account export and deletion (T35, T36)
+
+- `GET /api/v1/me/export` is USER-only and returns JSON, `Cache-Control: no-store` and attachment filename `finora-export-YYYY-MM-DD.json` using the Asia/Colombo date. The schema-1 response has `profile` and an allowlisted `data` collection of owned records. Child payment, contribution and support reply rows are joined through their owned parents. Security credentials, push tokens, deduplication hashes and internal audit data are excluded. Date-only fields use YYYY-MM-DD and preserve the stored calendar day regardless of the API host timezone. The snapshot is read in one transaction without server-side temporary files.
+- `DELETE /api/v1/me` is USER-only and requires `{password}`. A wrong password returns 400 `INVALID_CREDENTIALS` without retrying authentication. A successful request returns 204 after deletion and token/device cascade. The deletion event has no actor ID, target ID or reason. Existing USER status audit events lose that target ID. Backup retention remains D21.
 
 ## SMS format distribution (T45.3)
 
@@ -154,6 +172,40 @@ Request `{"items":[{"dedupHash":"<64 lowercase SHA-256 hex>","transaction":{"acc
 Validates the complete batch, including duplicates, before saving. A semantically invalid item returns standard 400 BAD_REQUEST with a one-based `Item N: ...` message and saves nothing. Invalid JSON or envelope has the standard 400 response; 401/403 follow the normal role rules. Accounts must belong to the caller and be active; categories must be visible to that user. Dates use MySQL's supported range (1000–9999). Amounts are exact LKR decimals.
 
 Each result corresponds to its one-based request index. `DUPLICATE` is an existing or repeated fingerprint for the same user; the item is unsaved and requires review under D38. `SAVED` can include IDs in `possibleManualMatch` for the caller's preserved MANUAL rows matching account, date, type and amount. Retry only after user confirmation with the same frozen request. The unique key applies while the matching transaction exists.
+
+## Staff queue statistics (T46.1)
+
+`GET /api/v1/staff/stats` is STAFF-only and returns `200 {myOpenTickets,unassignedTickets}`. Both fields are nonnegative counts of tickets in OPEN or IN_PROGRESS state. The first count is limited to the authenticated assignee, and the second includes only tickets with no assignee. The response contains no ticket contents, user identifiers or financial fields.
+
+## SMS diagnostics (T49)
+
+`POST /api/v1/support/sms-diagnostics` is USER-only and takes exactly `{bankCode,formatVersion,errorCode}`. Unknown bank or version is explicitly JSON null. Only D35's NSB v1 is recognized. A version requires a bank. Android reports parser failures with a null version and previews that as unknown. The paste path sends a null bank, and the inbox path can report the allowlisted NSB sender classification without inferring a version. The four error codes are defined by D47. Success returns 204, including repeat submissions by the same user for the same tuple during a UTC day. Raw messages, amounts, account information and additional keys are rejected by the shape and value allowlist. `GET /api/v1/staff/sms-diagnostics` returns aggregate rows `{bankCode,errorCode,formatVersion,reports}` for STAFF only, without user identifiers.
+
+STAFF can flag a known group with `POST /api/v1/staff/sms-diagnostics/escalations` and `{bankCode,errorCode}`. It returns 204 and deduplicates existing open or acknowledged escalations. ADMIN can read active flags with `GET /api/v1/admin/sms-diagnostics/escalations`, returning up to 100 rows with `{id,bankCode,errorCode,status,createdAt}`. ADMIN can transition a flag with `PATCH /api/v1/admin/sms-diagnostics/escalations/{id}` and `{status}`. The sequence is OPEN → ACKNOWLEDGED → CLOSED. Stale transitions return 409. Neither endpoint carries free text or customer data.
+
+## Support requests and saved replies (T47/T48)
+
+USER `POST /api/v1/support/tickets` accepts one of four canonical subject/body pairs for sign-in, navigation, SMS permission or language. Optional `error_code` is null or the matching topic code, respectively `SIGN_IN_FAILED`, `NAVIGATION_HELP`, `SMS_PERMISSION_DENIED`, or `LANGUAGE_UPDATE_FAILED`. The ticket owner and assigned STAFF can see the code. It is hidden in the claim queue. Returns 201 with an ID. D52 also permits the server to discard one trailing identifier-only line before persistence. Its exact prefix must be a newline followed by `Account number: ` or `Card number: `, followed by 8–19 or 13–19 ASCII digits respectively, with optional single spaces or hyphens between digits. The Android form sends the canonical body and does not solicit identifiers. Free text, attachments, credentials, SMS text, extra fields and malformed identifier lines are rejected. SMS troubleshooting metadata goes through the separate T49 channel. USER can list only their own tickets and read their stored replies at `GET /api/v1/support/tickets/{id}/replies`.
+
+STAFF lists the queue with `GET /api/v1/staff/tickets`. Unassigned rows disclose only the ID and status. `POST /api/v1/staff/tickets/{id}/claim` takes an OPEN unassigned ticket to IN_PROGRESS in one update. Only the assignee can close via `POST …/{id}/close` or reply via `POST …/{id}/replies` with `{revision,language}`. The server renders an approved revision and stores the exact sent text. The reply is preserved if its source revision is retired.
+
+STAFF `GET /api/v1/staff/reply-catalog` returns draft, active and retired versions available for review. `POST` with `{topic}` creates a draft using server-owned bilingual sentence blocks. A different STAFF member approves a draft via `POST …/{id}/approve`. STAFF can retire a revision via `POST …/{id}/retire`. A database unique key permits one active revision per topic. No user-provided text or interpolation is accepted. Separate native-speaker approval remains a release gate.
+
+## Staff provisioning (T43)
+
+ADMIN can list or create STAFF at `/api/v1/admin/staff`. Creation accepts `{email,fullName}` and returns 201 with `{id,temporaryPassword}` and `Cache-Control: no-store`. The role is fixed to STAFF. A pending account has no active sign-in. The temporary password itself is a single-use password-change credential, valid for 24 hours and accepted only at `POST /api/v1/auth/staff/activate` with `{email,temporaryPassword,password}`. A successful activation returns 204 without tokens. Sign in again with the new password.
+
+ADMIN can replace a pending temporary password at `POST /api/v1/admin/staff/{id}/activation`, which invalidates the previous temporary password. ADMIN can disable or re-enable activated STAFF at `PATCH /api/v1/admin/staff/{id}` with `{enabled}`. Each transition advances a server-side session generation, so prior access and refresh credentials remain invalid after re-enable. No endpoint promotes a user to ADMIN.
+
+ADMIN can activate or disable the hash-pinned D35 NSB bundle via `PATCH /api/v1/admin/sms-formats/NSB/1` with `{active}`. Activation verifies the approved content under a row lock. It returns 204 and preserves D36 distribution behavior. Draft format authoring and rollback remain outside this endpoint.
+
+ADMIN `GET /api/v1/admin/stats` returns `{activeUsers,disabledUsers,staff,openTickets,activeFormats}`. Counts include USER accounts by status, all STAFF accounts, OPEN and IN_PROGRESS tickets, and active bank bundles. No customer data or financial fields are returned.
+
+ADMIN `GET /api/v1/admin/sms-formats/NSB/revisions` lists `{version,published,active}` for the last 100 deployment revisions. `POST …/revisions/{revision}` drafts a byte-identical copy of the approved NSB bundle and returns 201. `DELETE …/revisions/{revision}` discards an unpublished inactive draft and returns 204, or 404 for a missing or protected revision. `POST …/{revision}/publish` validates the pinned content and publishes the draft permanently. `POST …/{revision}/activate` atomically switches to any published version, including an older one, and `POST …/{revision}/deactivate` disables that revision. Each transition returns 204. Deployment revision numbers do not change the template versions on the D36 wire. ADMIN can GET an unpublished draft by revision for `{definition}` and PUT `{definition}` to replace it with a bounded schema-1 JSON string. PUT returns 204 and clears previous sample evidence. `POST …/{revision}/validate` runs the server-owned D35 synthetic corpus and returns `{samples:[boolean,boolean,boolean]}` in POS debit, outward CEFT, inward CEFT order. No raw sample is accepted by the API. Publication, activation and rollback require the approved definition digest and current candidate-bound fixture evidence. Revision 1 rechecks the fixtures before activation. Existing published revisions can be revalidated without editing their definitions. New production parsing rules still require separate approval.
+
+## Restricted consent recovery (D15/D54)
+
+Password sign-in for a withdrawn active USER returns `200` with `{restrictedToken,consentVersion,expiresIn,language}` and `Cache-Control: no-store`. It issues neither a normal access token nor a refresh token. Send `Authorization: Consent <token>` on the three dedicated endpoints only. The grant is stored server-side as a digest, expires in 300 seconds, and a new password sign-in replaces the earlier grant. Each successful action consumes its grant atomically. Financial APIs deny restricted grants and old normal sessions. Wrong versions and unconfirmed acceptance return 400. Export or deletion does not restore consent. Fresh password sign-in is required after restoration. Other login response shapes are unchanged.
 
 ## D41 monthly history and V1 advice
 

@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.text.DecimalFormatSymbols;
@@ -27,11 +26,12 @@ import java.util.Map;
 import java.util.Objects;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.transactions.TransactionFormValidator.Draft;
 import lk.finora.app.ui.transactions.TransactionFormValidator.Field;
 
-public final class TransactionFormActivity extends AppCompatActivity {
+public final class TransactionFormActivity extends SecureActivity {
     static final String ID = "transaction_id";
     private TransactionFormViewModel model;
     private Spinner account;
@@ -218,12 +218,12 @@ public final class TransactionFormActivity extends AppCompatActivity {
     private void pickDate() {
         if (!verify() || model.work.busy()) return;
         LocalDate initial = selectedDate.isEmpty() ? LocalDate.now() : LocalDate.parse(selectedDate);
-        new DatePickerDialog(this, (picker, year, month, day) -> {
+        showSecure(new DatePickerDialog(this, (picker, year, month, day) -> {
             if (!verify() || model.work.busy()) return;
             selectedDate = LocalDate.of(year, month + 1, day).toString();
             showDate();
             captureDraft();
-        }, initial.getYear(), initial.getMonthValue() - 1, initial.getDayOfMonth()).show();
+        }, initial.getYear(), initial.getMonthValue() - 1, initial.getDayOfMonth()));
     }
 
     private void showDate() {
@@ -237,11 +237,11 @@ public final class TransactionFormActivity extends AppCompatActivity {
                 getResources().getConfiguration().getLocales().get(0)).getDecimalSeparator();
         if (model.retry.uncertain) {
             if (!model.retry.reviewed) return;
-            new AlertDialog.Builder(this).setMessage(R.string.transaction_confirm_resubmit)
+            showSecure(new AlertDialog.Builder(this).setMessage(R.string.transaction_confirm_resubmit)
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(R.string.transaction_submit_again, (dialog, which) -> {
                         if (verify()) model.submit(decimal, true);
-                    }).show();
+                    }).create());
         } else {
             model.submit(decimal, false);
         }

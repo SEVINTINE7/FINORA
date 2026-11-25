@@ -1,0 +1,98 @@
+# FINORA delivery handoff through MD05
+
+Post-audit technical acceptance is **81/84**. MD01–MD04 account for 66/68 and MD05 for 15/16. T40.1 remains the sole open MD05 criterion and is deferred to T56 under D56. The criterion audit records T13 physical permission acceptance and the completed T39 handset criterion. Other tasks retain their original ownership, formal approvals and prerequisite order.
+
+## Completed physical listening pass
+
+On 2026-11-25, Sahan confirmed every listed label in both languages during one isolated D50 HMD Crest session. The table preserves the exact scope of his confirmation.
+
+| Stage | Confirm audible in English and Sinhala |
+| --- | --- |
+| USER FAQ | Help / උදව්, Frequently asked questions / නිතර අසන ප්‍රශ්න, first sign-in question, then Help / උදව් after Back |
+| USER Support | Support requests / සහාය ඉල්ලීම්, In progress / කටයුතු සිදු වෙමින් පවතී, View replies / පිළිතුරු බලන්න, then the Support entry after Back |
+| STAFF Support | Assigned ticket status, Send a saved reply / සුරැකි පිළිතුරක් යවන්න, both language choices, selected preview and confirmation, then the Support entry after Back |
+| Privacy feedback | Retry / නැවත උත්සාහ කරන්න and Please sign in again / කරුණාකර නැවත පිවිසෙන්න |
+
+Use retained focus, layout, Recents and session evidence. Android reports accessibility audio activity without its words. Its public playback capture API does not capture accessibility audio usage. Avoid using audio activity, text-to-speech logs or UI node text as proof of audibility. [Android playback capture](https://developer.android.com/reference/android/media/AudioPlaybackCaptureConfiguration)
+
+## D56 development closure and deployment gate
+
+Sevindu confirmed through Sahan on 2026-11-25 that authorized isolated development and testing continue over HTTP with synthetic fixtures. Sevindu supplies the domain, stock-Android-trusted certificate and reachable approved test service during T56 hosting and deployment. D51 and D23 remain in force. Release cleartext and TLS bypasses remain prohibited.
+
+The T40.1 checkbox stays open. Sahan verifies authenticated V1 Release behavior during T56, using the actual APK and synthetic credentials over the approved HTTPS origin. Record the exact source revision and APK SHA-256, standard hostname and chain validation, and the original session and privacy results. Independent review and the separate T56 phone health check and restore drill remain required.
+
+| Scope | Verified | Remaining disposition |
+| --- | ---: | --- |
+| MD01 | 21/23 | T08 remains in review. T39 physical acceptance is verified. Profile-write correction and planning translation approval remain open. |
+| MD02 | 16/16 | T13 is in review after the HMD permission outcome checks. T11/T14 retain formal prerequisites. |
+| MD03 | 9/9 | T15/T16 retain formal T10/T14 prerequisites as applicable. |
+| MD04 | 20/20 | Formal prerequisites and independent reviews; D55 and planning integration remain separate. |
+| MD05 | 15/16 | T40.1 deferred to deployment; formal prerequisites and independent reviews remain. |
+| Total | 81/84 | Two open T39 requirements and one deployment deferral. |
+| Original delegated MD05 scope | 22/22 | T41 4/4, T43 4/4, T45 6/6, T46 3/3, T47 5/5. Formal reviews remain. |
+| T07 | 6/7 | In progress pending the profile-write correction. |
+
+### Resume from this checkpoint
+
+See the [Sahan responsibility and INDEX readiness matrix](sahan-responsibility-matrix.md) for the final cross-team responsibility inventory and formal blockers.
+
+Use draft PR #16 and the tip of `sahan/md05-integration-review`. Read the decision, INDEX and retained evidence before starting a separately authorized audit. The implementation and physical-evidence baseline is `cd184e61f22fdc1cc24801e74ba5c6d34bc1692b`. This development closure records its disposition. Keep the PR draft until the required independent reviews and merge authorization are provided.
+
+## Formal reviews and owner handoff
+
+At each row, an independent human should review the linked evidence and exact implementation revision, record approval or specific defects, and have the owner apply the INDEX transition in dependency order. Technical checkmarks alone are insufficient.
+
+| Track | Owners and prerequisite order | Evidence and remaining action |
+| --- | --- | --- |
+| Foundation and MD01 | Sevindu: T01 and T09. Sahan: T08, T39. T40/T41/T46 wait on T08. T10/T38/T44 wait on T09. | T01 records decisions and local setup. T08 has physical role-routing and lifecycle evidence. T39 has locale, TalkBack and source review evidence. T09 has physical account/category acceptance. Record exact-revision independent approval, including T08 and T09 in review. T39 remains in progress. [Android foundation](../trackers/sahan/1-app-skeleton.md) · [Records](../trackers/sevindu/3-records.md) |
+| MD02 and MD03 | Sevindu: T10, T12 and T45.3. Sahan: T11, T13, T14, T15, T16. T11/T12/T15 need T10. T14 needs T13 and T45.3. T15/T16 need T14. | Exact-cent CRUD, CSV, SMS permissions, parser and batch evidence are retained. D28–D36 early-start records preserve the formal gates. Independently approve T13 in review, then inspect T14/T15/T16 using their synthetic and physical evidence. [Entry and SMS](../trackers/sahan/2-entry-sms.md) · [SMS quality](../trackers/sahan/3-sms-quality.md) |
+| MD04 and analytics | Sevindu: T17–T19, T33. Thilina: T21, T23, T25–T29. Sahan: T20, T24, T30, T38. T09 → T38; T10/T17 → T20; T23/T38 → T24; T23 → T33; T25/T29/T38 → T30. | MD04 is 20/20 and delegated T33 is 5/5. Owner decisions, upstream planning acceptance and independent review remain. T25/T26 precede live T27/T28 validation, and T29 feeds T30. Live provider checks need approved models, credentials and a call budget. [MD04 evidence](md04-authorized-closure.md) · [AI tracker](../trackers/thilina/3-ai-pipeline.md) |
+| MD05 | Sahan: T40, T48, T49, T51. Sevindu: T41, T43, T45, T46, T47, T56. Thilina: T52, T53. T43 follows T41; T46 follows T08/T43; T47 follows T46; T48 follows T46/T47; T49 follows T46/T45; T51 follows T38. | T40 physical acceptance is complete. Authenticated release HTTPS remains open under D51/D56/T56. T47 has verified bounded redaction under D52 and awaits formal dependency closure and independent review. Thilina retains T52's full role/ownership/privacy matrix and CI and T53's deployment/provider and security evidence. [MD05 evidence](md05-implementation-checkpoint.md) · [Admin and STAFF](../trackers/sevindu/6-admin-staff.md) · [QA](../trackers/thilina/5-qa.md) |
+| Other relevant delegated prerequisites | Sevindu: T07, T35 and T36. Sahan: T07.4 and T07.5. | Registration evidence covers both consent gates. Settings now opens the T36 flow. HMD instrumentation verified both consent gates, withdrawal, D15 re-consent and fresh sign-in. Settings switched to Sinhala and saved it. T07 is in progress pending the profile-write correction. The D54 labels in the MD05 inventory are approved. Registration consent copy outside that inventory remains separate. [Consent tracker](../trackers/sevindu/2-auth.md) |
+
+The [consolidated native-speaker inventory](md05-sinhala-review.md) includes 106 app pairs and four saved replies. It preserves the 70 app pairs and four replies at `a9c54667a0f71b8b646fa8405405cfcd06819e00` and the 29 separately pinned dependency-screen pairs, and adds seven D54 pairs. Sahan approved these exact 106 pairs and four replies on 2026-11-25 after the three corrections at `80d5c200bb1464f6de80742e5363f6d6b72f4f95`. The earlier 183 approvals retain their scope. Publishing STAFF replies still requires second-STAFF approval.
+
+### Operator sequence used for the listening pass
+
+1. Check the HMD serial, D50 package and existing test profile before installing. Record the starting profile, font scale and enabled accessibility services. Reuse the loopback-only disposable API and the opt-in in-process USER and STAFF fixture, then activate TalkBack once in the test profile.
+2. Use package-filtered UIAutomator nodes to find Help, Support and the active controls. Move accessibility focus before each listener observation. Navigate the FAQ first, return via Back, then open a synthetic ticket and its reply list. Run the English and Sinhala pass without toggling TalkBack.
+3. Use the disposable assigned STAFF fixture and approved saved-reply catalog. Open Support, focus ticket status, open the saved reply chooser and focus its two language choices and confirmation preview. Cancel the preview when finished. Use Back to return to the originating Support control.
+4. Stage Retry with the temporary route removed, restore the route and then focus the recovery view. For the expiry message, expire only the synthetic refresh row before a cold launch. Use the listener to confirm the actual wording in both languages. Sign out, restore the recorded settings, remove only the temporary route and verify the starting Android profile.
+
+### ADMIN implementation handoff
+
+- **T41.3 / T42 / T44, Sevindu.** ADMIN USER search and status changes, bilingual default categories and both dashboard links now have targeted MySQL and Android evidence. Review the status audit and credential revocation, V19 default-name isolation and handling of in-use defaults. The INDEX prerequisites and independent approval remain open.
+- **T45.1, T45.2 and T45.5, Sevindu with Sahan.** D54 covers persisted NSB drafts and approved fixture validation. Isolated Android 17 verified draft edit/save, validation, publication, activation and rollback. MySQL verified concurrent activation and evidence invalidation. Review D36 compatibility and the approval boundary before future bank additions.
+- **T35 / T36 / T07.5, Sevindu with Sahan.** Review the export data allowlist and file-picker flow, password-confirmed deletion under the D39 lock, anonymous audit and old-token rejection. T35 now has MySQL fixtures for all 18 exported families, with owner isolation, unauthorized rejection, stable calendar dates and no fixture markers in logs. Two focused tests passed. T36's formal dependency on T35 and independent review remain open. T07 physical consent acceptance passed. Handset picker and deletion verification exercised the normal Settings route; restricted export and deletion retain backend evidence.
+
+### Consolidated handset session
+
+The 2026-11-25 sessions verified physical consent and audible TalkBack. The authorized isolated profile, D50 package, synthetic API and USER/STAFF fixtures were used. The D54 acceptance APK and instrumentation APK build as `lk.finora.app.acceptance` and `lk.finora.app.acceptance.test` with matching signing certificates. The listening pass used one TalkBack activation and reused prior consent, focus, large-text, Recents and session evidence. The physical consent checks below are retained for reference.
+
+1. In both languages, open registration and confirm submission stays disabled with either the age or consent checkbox alone. With both checked, register the first disposable account and verify that the current consent version is returned by GET /api/v1/me.
+2. In Settings, switch to Sinhala and verify that the screen changes immediately and that GET /api/v1/me returns the new language without changing the name. Reopen the app and verify the saved locale.
+3. Withdraw consent, verify old access and refresh credentials are rejected, then sign in with the synthetic password. Inspect the restricted dialog in English and Sinhala. Verify acceptance is disabled without an explicit check, cancel once, then sign in again and accept the current consent. Verify the user stays at sign-in until a fresh password sign-in succeeds. Exercise the export chooser with a separate single-use grant. Record only sanitized results.
+4. On the second disposable account, stage the withdrawn state and open Delete my data from restricted sign-in. Reauthenticate to obtain a new grant before retrying an uncertain outcome. Verify cancel leaves the account intact, an incorrect password leaves the account intact, and explicit confirmation with the correct password returns to sign-in. Verify old credentials are rejected using the isolated API.
+5. Retain only sanitized results, restore the test profile settings, and remove only temporary connectivity mappings.
+
+### Draft integration review
+
+The initial read-only simulation found a content conflict with Thilina's PR #13 where both branches appended to the API contract. MD05 sections now precede History and Advice. A second read-only simulation with PR #13 at `d59e94f` passed without a conflict and retained both sections. PR #14 also edits that contract, and PRs #10–#12 edit the QA tracker. Those PRs and #15 simulated cleanly when checked individually. None changes a migration file. At integration, preserve PR #13’s complete T32 read-only simulator table and its candidate-contract link in a dedicated T32 section after History and Advice. Preserve the MD05 ADMIN, support, export and deletion contracts alongside it. Keep the original owners’ QA scope.
+
+D54 implements the approved T45 authoring contract and D15 restricted recovery. The server allows bounded candidate edits and gates publication and activation on the exact approved D35 digest plus current server-owned synthetic fixture evidence. New production definitions still require owner approval. For D15, review the user-row lock, refresh generation, single-use restricted headers and export/deletion behavior. Authenticated release HTTPS under D51/T56 remains separate.
+### D55 financial semantics handoff
+
+T44 provides immutable `SAVINGS` and `LOAN_PAYMENT` codes on the original default rows. Before release, Thilina should replace display-name matching in T21 and both T23 loan queries. Run an integrated rename-and-deactivate regression with a same-name decoy and exact LKR fixtures. Verify savings and consumption, both debt bill and transaction paths, health components, history reconstruction and rule/AI facts while holding inputs and reporting periods constant. Have Sevindu verify migration provenance on deployment data and jointly review repair needs for any already-stored snapshots. The downstream defect remains open.
+
+### Planning Android readiness
+
+T31.3 and T32.2 are Sahan-supported Android work. T31 PR #14 (`109a151`) provides backend evidence and a proposed daily-guide contract. T32 PR #13 (`d59e94f`) provides a backend-verified simulator contract whose financial policy awaits team review. Neither backend is on the review base. T31 still needs T17/T18/T19 and T32 needs T19, or the lead-approved scoped early start recorded by the workflow.
+
+Once the contracts and sequencing are approved, T31 should show server assumptions, missing-input states, changed bill totals requiring confirmation again, and the server’s zero/warning result. T32 should show a bilingual Simulation label, explicit baseline, signed change and separate category cuts, plus nullable result dates and distinct completed/no-capacity states. Both screens must discard stale session responses and render the exact server results, with tests against the approved APIs.
+### Tracker delivery reconciliation
+
+The five original trackers contain 21/23, 16/16, 9/9, 20/20 and 15/16 checked. The remaining items are T39.2, T39.4 and T40.1. The 22/22 original delegated count covers T41, T43, T45, T46 and T47. Other verified support items include T07 6/7, T09.4/5, T10.4, T12.5, T33 5/5, T35 4/4 and T36 5/5. T17.3, T18.4 and T19.3 have implemented flows and emulator evidence, but retain their task-specific physical checks. T55.1 reuses the T16 measurement while broader evaluation remains open.
+
+Draft PR #16 carries the reconciled trackers. At base `b70c36a03cc805a1f48393fcce94db4263fe72c4`, main still carries 0/16 on the original MD05 tracker. The existing implementation and acceptance evidence remain scoped to the review branch until an authorized merge.
+
+Review-ready requires the owners to agree on the exact revision and review scope, and the PR author to remove draft status when that review is authorized. Merge requires exact-revision independent approvals, formal prerequisite resolution or an explicitly authorized exception, passing CI, and explicit merge authorization. Sevindu retains lead approval and backend, admin and deployment ownership. Thilina retains the D55 consumer, planning, analytics, AI and QA reviews. Sahan supplies Android and physical evidence. Owner approval of scope or linguistic approval does not replace independent review.

@@ -18,12 +18,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.main.MainActivity" android:exported="false" />
+        <activity android:name=".ui.help.FaqActivity" android:exported="false" />
+        <activity android:name=".ui.support.DiagnosticQueueActivity" android:exported="false" />
+        <activity android:name=".ui.support.SupportActivity" android:exported="false" />
+        <activity android:name=".ui.staff.StaffAccessActivity" android:exported="false" />
         <activity android:name=".ui.insights.InsightsActivity" android:exported="false" />
         <activity android:name=".ui.history.HistoryActivity" android:exported="false" />
         <activity android:name=".ui.advice.AdviceActivity" android:exported="false" />
         <activity android:name=".ui.register.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminHomeActivity" android:exported="false" />
+        <activity android:name=".ui.admin.AdminDirectoryActivity" android:exported="false" />
+        <activity android:name=".ui.support.FormatSampleActivity" android:exported="false" />
         <activity android:name=".ui.staff.StaffHomeActivity" android:exported="false" />
         <activity android:name=".ui.sms.SmsAccessActivity" android:exported="false" />
         <activity android:name=".ui.sms.PasteSmsActivity" android:exported="false" />

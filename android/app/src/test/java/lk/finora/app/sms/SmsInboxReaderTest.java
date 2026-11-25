@@ -71,6 +71,22 @@ public class SmsInboxReaderTest {
         assertTrue(rows.closed);
     }
 
+    @Test public void failedApprovedInboxRowCarriesOnlyLocalBankAttributionAndReason() throws IOException {
+        SmsParser nsb;
+        try (var input = java.nio.file.Files.newInputStream(
+                java.nio.file.Path.of("src/main/assets/sms/bank_formats.json"))) {
+            nsb = SmsTemplateLoader.load(input);
+        }
+        var rows = new SyntheticRows() {
+            @Override public String sender() { return "NSB"; }
+            @Override public String body() { return "Synthetic invalid content"; }
+        };
+        var reader = new SmsInboxReader(nsb, (s, args, limit, cancel) -> rows, () -> true);
+        var scan = reader.read(START, END, 1, null, () -> false);
+        assertEquals(SmsInboxReader.BankCode.NSB, scan.diagnostic().approvedBank());
+        assertEquals(SmsParseResult.Reason.UNKNOWN_FORMAT, scan.diagnostic().result().reason());
+    }
+
     private static SmsParser parser() throws IOException {
         try (var in = SmsInboxReaderTest.class.getResourceAsStream("/sms/fictional_formats.json")) {
             return SmsTemplateLoader.load(in);

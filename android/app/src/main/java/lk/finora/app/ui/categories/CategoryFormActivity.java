@@ -4,14 +4,14 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
-public final class CategoryFormActivity extends AppCompatActivity {
+public final class CategoryFormActivity extends SecureActivity {
     private CategoryFormViewModel model;
     private boolean filled;
     private EditText name;
