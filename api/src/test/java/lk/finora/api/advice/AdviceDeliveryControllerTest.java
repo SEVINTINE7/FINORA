@@ -21,6 +21,7 @@ import lk.finora.api.user.Role;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class AdviceDeliveryControllerTest extends IntegrationTest {
@@ -172,10 +173,36 @@ class AdviceDeliveryControllerTest extends IntegrationTest {
                 VALUES (?,?,'INCOME',100.00,'2026-11-02'), (?,?,'EXPENSE',150.23,'2026-11-03')
                 """, owner.getId(), account, owner.getId(), account);
         String monthly = "/api/v1/advice?month=2026-11&mode=V1";
+        jdbc.update("UPDATE transactions SET merchant=?, note=? WHERE user_id=? AND type='EXPENSE'",
+                "fixture-private-merchant", "fixture-private-note", owner.getId());
         var first = mockMvc.perform(get(monthly).header("Authorization", auth)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.source").value("RULE")).andExpect(jsonPath("$.items[0].numbers").isArray())
                 .andReturn();
-        long id = jsonMapper.readTree(first.getResponse().getContentAsString()).path("id").longValue();
+        String deliveredJson = first.getResponse().getContentAsString();
+        var delivered = jsonMapper.readTree(deliveredJson);
+        assertThat(delivered.propertyNames()).containsExactlyInAnyOrder("month", "id", "source", "verified", "items", "rating");
+        assertThat(delivered.path("month").asString()).isEqualTo("2026-11");
+        assertThat(delivered.path("rating").isNull()).isTrue();
+        assertThat(delivered.path("verified").asBoolean()).isFalse();
+        var items = delivered.path("items");
+        assertThat(items.size()).isEqualTo(1);
+        var item = items.get(0);
+        assertThat(item.propertyNames()).containsExactlyInAnyOrder("actionId", "text", "numbers");
+        assertThat(item.path("actionId").asString()).isEqualTo("REVIEW_SPENDING_DEFICIT");
+        assertThat(item.path("text").asString()).isEqualTo(
+                "Recorded spending exceeds recorded income by LKR 50.23. Review the shortfall while protecting essential costs.");
+        assertThat(item.path("numbers").size()).isEqualTo(1);
+        var number = item.path("numbers").get(0);
+        assertThat(number.propertyNames()).containsExactlyInAnyOrder("factKey", "value", "unit", "period");
+        assertThat(number.path("factKey").asString()).isEqualTo("SPENDING_DEFICIT");
+        assertThat(number.path("value").isNumber()).isTrue();
+        assertThat(number.path("value").decimalValue()).isEqualByComparingTo("50.23");
+        assertThat(number.path("unit").asString()).isEqualTo("LKR");
+        assertThat(number.path("period").asString()).isEqualTo("2026-11");
+        assertThat(deliveredJson).doesNotContain("fixture-private-merchant", "fixture-private-note", "Advice wallet",
+                owner.getEmail(), owner.getFullName(), auth);
+        long id = delivered.path("id").longValue();
+        assertThat(id).isPositive();
         String rating = "/api/v1/advice/" + id + "/rating";
         mockMvc.perform(post(rating).header("Authorization", foreign).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"rating\":5}")).andExpect(status().isNotFound());
@@ -187,7 +214,12 @@ class AdviceDeliveryControllerTest extends IntegrationTest {
                 .content("{\"rating\":1}")).andExpect(status().isConflict());
         mockMvc.perform(get(monthly).header("Authorization", auth)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id)).andExpect(jsonPath("$.rating").value(5));
-        mockMvc.perform(get(monthly).header("Authorization", foreign)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.items").isEmpty()).andExpect(jsonPath("$.id").isEmpty());
+        var empty = mockMvc.perform(get(monthly).header("Authorization", foreign)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.items").isEmpty()).andReturn();
+        var emptyAdvice = jsonMapper.readTree(empty.getResponse().getContentAsString());
+        assertThat(emptyAdvice.propertyNames()).containsExactlyInAnyOrder("month", "id", "source", "verified", "items", "rating");
+        assertThat(emptyAdvice.path("source").asString()).isEqualTo("RULE");
+        assertThat(emptyAdvice.path("id").isNull()).isTrue();
+        assertThat(emptyAdvice.path("rating").isNull()).isTrue();
     }
 }
