@@ -465,4 +465,18 @@
     <string name="consent_restored">ඔබේ එකඟතාව නැවත සටහන් කර ඇත. නැවත පිවිසෙන්න.</string>
     <string name="consent_deleted">ඔබේ ගිණුම මකා දමා ඇත.</string>
     <string name="consent_retry">ප්‍රතිඵලය තහවුරු කළ නොහැක. නැවත උත්සාහ කිරීමට පෙර යළි පිවිසෙන්න.</string>
+    <!-- T34.5 alerts: fixed texts, never amounts or names (shown on the lock screen) -->
+    <string name="alert_channel_name">අයවැය, බිල්පත් සහ ඉලක්ක දැනුම්දීම්</string>
+    <string name="alert_channel_description">අයවැයක් සීමාවට ආසන්න වූ විට හෝ ඉක්මවූ විට, බිල්පතක් ළඟදීම ගෙවිය යුතු විට හෝ ඉලක්ක දිනයක් ළං වූ විට සිහිකැඳවීම්.</string>
+    <string name="alert_budget_near">අයවැයක් සීමාවට ආසන්නයි.</string>
+    <string name="alert_budget_over">අයවැයක් සීමාව ඉක්මවා ඇත.</string>
+    <string name="alert_bill_due">බිල්පතක් දින 2කින් ගෙවිය යුතුය.</string>
+    <string name="alert_goal_near">ඉතිරි කිරීමේ ඉලක්ක දිනයක් ළං වෙමින් පවතී.</string>
+    <string name="settings_alerts">දැනුම්දීම්</string>
+    <string name="settings_alerts_info">දැනුම්දීම්වල කිසිවිටෙක මුදල් ප්‍රමාණ නොපෙන්වයි. ඔබට අවශ්‍ය නැති ඒවා අක්‍රිය කරන්න.</string>
+    <string name="settings_alert_budget">අයවැය සීමාවට ආසන්න හෝ ඉක්මවූ විට</string>
+    <string name="settings_alert_bill">බිල්පත දින 2කින් ගෙවිය යුතු විට</string>
+    <string name="settings_alert_goal">ඉතිරි කිරීමේ ඉලක්ක දිනය දින 7ක් ඇතුළත</string>
+    <string name="settings_notifications_allow">දැනුම්දීම්වලට ඉඩ දෙන්න</string>
+    <string name="settings_notifications_off">FINORA සඳහා දැනුම්දීම් අක්‍රියයි. අනෙක් සියල්ල තවමත් ක්‍රියා කරයි.</string>
 </resources>

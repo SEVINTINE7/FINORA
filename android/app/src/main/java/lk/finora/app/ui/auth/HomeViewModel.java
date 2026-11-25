@@ -36,6 +36,7 @@ public final class HomeViewModel extends ViewModel {
                 return;
             }
             TokenStore.LogoutResult result = store.clearAccount(expected);
+            lk.finora.app.notifications.PushRegistration.forget();  // T34.5: no alerts after sign-out
             signedOut.postValue(result.storageFailure != null);
             if (result.invalidated != null) {
                 SessionClient.get(store).sessions().revoke(result.invalidated.refresh);

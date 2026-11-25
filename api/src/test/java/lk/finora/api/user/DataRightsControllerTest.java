@@ -98,13 +98,15 @@ class DataRightsControllerTest extends IntegrationTest {
                 Map.entry("healthScores", "month"), Map.entry("scoreInputs", "month"),
                 Map.entry("history", "month"), Map.entry("advice", "month"),
                 Map.entry("ratings", "rating"), Map.entry("tickets", "subject"),
-                Map.entry("ticketReplies", "body"), Map.entry("smsDiagnostics", "report_day"));
+                Map.entry("ticketReplies", "body"), Map.entry("smsDiagnostics", "report_day"),
+                Map.entry("alertEvents", "period"));
         var values = Map.ofEntries(
                 Map.entry("consents", "2026-01"), Map.entry("budgets", "2026-01"),
                 Map.entry("billPayments", "2026-01"), Map.entry("goalContributions", "2026-01-15"),
                 Map.entry("healthScores", "2026-01"), Map.entry("scoreInputs", "2026-01"),
                 Map.entry("history", "2026-01"), Map.entry("advice", "2026-01"),
-                Map.entry("ratings", "3"), Map.entry("smsDiagnostics", "2026-01-15"));
+                Map.entry("ratings", "3"), Map.entry("smsDiagnostics", "2026-01-15"),
+                Map.entry("alertEvents", "2026-01"));
         assertEquals(fields.size(), data.size());
         fields.forEach((family, field) -> {
             var rows = data.path(family);
@@ -162,6 +164,7 @@ class DataRightsControllerTest extends IntegrationTest {
                 INSERT INTO sms_diagnostic_reports (user_id, bank_code, format_version, error_code, report_day)
                 VALUES (?, 'NSB', 1, 'UNKNOWN_FORMAT', ?)
                 """, user, day);
+        jdbc.update("INSERT INTO alert_events (user_id, type, ref_id, period) VALUES (?, 'BILL_DUE', 1, ?)", user, month);
     }
 
     private org.springframework.test.web.servlet.ResultActions deleteAs(String access, String password) throws Exception {

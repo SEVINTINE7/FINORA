@@ -48,3 +48,6 @@ finora:
   llm:
     groq-api-key: ${GROQ_API_KEY:}
     gemini-api-key: ${GEMINI_API_KEY:}
+  # T34: path to the Firebase service-account JSON; empty = alerts are recorded but not pushed (D57)
+  firebase:
+    credentials: ${FIREBASE_CREDENTIALS:}

@@ -31,6 +31,69 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/finora_space_l" />
 
+        <!-- T34.5 alerts: per-type switches saved via PUT /api/v1/me/alerts -->
+        <TextView
+            android:id="@+id/settings_alerts_heading"
+            style="@style/FinoraText.Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/settings_alerts" />
+
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/settings_alerts_info" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/settings_alert_budget"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:enabled="false"
+            android:text="@string/settings_alert_budget" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/settings_alert_bill"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:enabled="false"
+            android:text="@string/settings_alert_bill" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/settings_alert_goal"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:minHeight="48dp"
+            android:enabled="false"
+            android:text="@string/settings_alert_goal" />
+
+        <TextView
+            android:id="@+id/settings_notifications_status"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:accessibilityLiveRegion="polite"
+            android:text="@string/settings_notifications_off"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/settings_notifications_allow"
+            style="@style/FinoraButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_l"
+            android:text="@string/settings_notifications_allow"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/settings_privacy_heading"
             style="@style/FinoraText.Label"

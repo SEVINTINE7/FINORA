@@ -32,6 +32,7 @@ erDiagram
     users ||--o{ advice : gets
     advice ||--o{ advice_ratings : rated
     users ||--o{ device_tokens : registers
+    users ||--o{ alert_events : "is alerted"
     users ||--o{ support_tickets : opens
     support_tickets ||--o{ ticket_replies : has
     users |o--o{ audit_events : "actor (SET NULL)"
@@ -41,7 +42,7 @@ erDiagram
 
 | Table | Migration | Purpose | Key constraints |
 |---|---|---|---|
-| `users` | V1 | Accounts for USER / ADMIN / STAFF | `email` unique; role, status, language enums |
+| `users` | V1 | Accounts for USER / ADMIN / STAFF; V23 adds `alert_budget`, `alert_bill`, `alert_goal` (default TRUE) | `email` unique; role, status, language enums |
 | `consents` | V1 | Over-18 + consent version, withdrawal time | FK user cascade |
 | `refresh_tokens` | V1 | SHA-256 hashes of refresh tokens (D07) | `token_hash` unique |
 | `accounts` | V2 | Bank / cash / card / wallet | unique (user, name) |
@@ -57,7 +58,8 @@ erDiagram
 | `score_inputs` | V7 | D20 user declarations: nullable emergency reserve/date and no-applicable-debt/goals flags; UTC confirmation time | unique (user, month); user deletion cascades; nonnegative reserve/date pair in month |
 | `advice` | V4 | RULE / AI advice, mode BETA / V1 (D03), `verified` flag | index (user, month) |
 | `advice_ratings` | V4 | 1–5 rating | unique (advice, user); 1 ≤ rating ≤ 5 |
-| `device_tokens` | V5 | FCM tokens | `token` unique |
+| `device_tokens` | V5 | FCM tokens (T34.1: max 10 per user) | `token` unique |
+| `alert_events` | V23 | T34 alert events: type, ref_id, period, sent_at; no amounts or text | unique (user_id, type, ref_id, period); cascade on user delete |
 | `sms_formats` | V5 | Versioned bank SMS templates (D04) — no real SMS | unique (bank_code, version) |
 | `support_tickets` | V5 | User help requests, optional staff assignee | staff FK set null |
 | `ticket_replies` | V5 | Replies on tickets | author FK set null |

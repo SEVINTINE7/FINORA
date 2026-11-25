@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lk.finora.api.security.CurrentUser;
+import lk.finora.api.user.dto.AlertSettings;
 import lk.finora.api.user.dto.MeResponse;
 import lk.finora.api.user.dto.UpdateMeRequest;
 
@@ -33,6 +34,11 @@ public class MeController {
     @PutMapping
     public MeResponse updateMe(@Valid @RequestBody UpdateMeRequest request) {
         return meService.updateMe(CurrentUser.id(), request);
+    }
+
+    @PutMapping("/alerts")
+    public MeResponse updateAlerts(@Valid @RequestBody AlertSettings request) {
+        return meService.updateAlerts(CurrentUser.id(), request);
     }
 
     @PostMapping("/consent/withdraw")

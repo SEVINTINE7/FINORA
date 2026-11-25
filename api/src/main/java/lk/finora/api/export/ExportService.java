@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExportService {
     // Each query identifies its owner, including child rows without a direct user_id.
     private static final Map<String, String> DATA = Map.ofEntries(
+            Map.entry("alertEvents", "SELECT type, period, created_at, sent_at FROM alert_events WHERE user_id = ? ORDER BY id"),
             Map.entry("consents", "SELECT version, over18, accepted_at, withdrawn_at FROM consents WHERE user_id = ? ORDER BY id"),
             Map.entry("accounts", "SELECT id, name, type, opening_balance, archived, created_at FROM accounts WHERE user_id = ? ORDER BY id"),
             Map.entry("categories", "SELECT id, name, name_si, kind, need_or_want, active, created_at FROM categories WHERE user_id = ? ORDER BY id"),
@@ -56,7 +57,8 @@ public class ExportService {
     @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Snapshot read(long id) {
         var profiles = jdbc.queryForList("""
-                SELECT id, email, full_name, language, created_at, updated_at FROM users WHERE id = ? AND role = 'USER'
+                SELECT id, email, full_name, language, alert_budget, alert_bill, alert_goal, created_at, updated_at
+                FROM users WHERE id = ? AND role = 'USER'
                 """, id);
         if (profiles.isEmpty()) throw ApiException.notFound("User not found");
         Map<String, List<Map<String, Object>>> data = new LinkedHashMap<>();

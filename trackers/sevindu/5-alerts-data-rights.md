@@ -6,16 +6,21 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T34 · Budget, bill and goal alerts · `FR13 (Should)`
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T17, T18, T19, T37 · **Touches:** `api:notification/`, `and:notifications/`
-- [ ] T34.1 [API] `POST/DELETE /api/v1/devices` register/remove FCM token
-- [ ] T34.2 [API] Daily job creates events: budget NEAR/OVER, bill due in 2 days, goal date near; one alert per event (no duplicates)
-- [ ] T34.3 [API] Send via FCM (Firebase Admin SDK, key from env); lock-screen text has no amounts
-- [ ] T34.4 [API] User opt-out per alert type in `/me`
-- [ ] T34.5 [AND·Sahan] FCM setup, notification channel, Android 13+ permission request, opt-out toggles
+- [x] T34.1 [API] `POST/DELETE /api/v1/devices` register/remove FCM token
+- [x] T34.2 [API] Daily job creates events: budget NEAR/OVER, bill due in 2 days, goal date near; one alert per event (no duplicates)
+- [x] T34.3 [API] Send via FCM (Firebase Admin SDK, key from env); lock-screen text has no amounts
+- [x] T34.4 [API] User opt-out per alert type in `/me`
+- [x] T34.5 [AND·Sahan] FCM setup, notification channel, Android 13+ permission request, opt-out toggles
 
 **Done when**
-- [ ] Tests: job run twice sends once; opted-out user gets nothing; permission refused → app still works
+- [x] Tests: job run twice sends once; opted-out user gets nothing; permission refused → app still works
 
-**Handoff notes:** —
+**Handoff notes:**
+- D57: goal alert = target date ≤ 7 days; no Firebase yet → `NoopPushSender` until `FIREBASE_CREDENTIALS` (service-account path); Android FCM from gradle props `finoraFcm*` (unset = push off). V23 adds `alert_events` (unique user/type/ref/period) + `users.alert_*`.
+- `api:notification/`: `DeviceController/Service` (`POST`/`DELETE /devices`, token in body, max 10/user, foreign → 404), `AlertService` (daily 08:00 Colombo, 15-min retry ≤24h, invalid tokens dropped), `FcmPushSender` (data-only `{type}`, no text/amounts). `PUT /me/alerts`; `/me` returns `alerts`. Export adds alert flags + `alertEvents`.
+- `and:notifications/` (channel, `FinoraMessagingService`, `PushRegistration`, token deleted on sign-out), Settings alert switches + Android 13+ permission button, EN/SI strings (Sinhala awaits native review, T39.4).
+- Verified 2026-11-25: API `mvnw verify` 464/464, JaCoCo met (AlertService 63/63, DeviceService 24/24); Android unit 150/150; emulator (D57) `alertSwitchesSaveAndRefusedNotificationsKeepTheAppWorking` + 4 regression tests pass.
+- Open: real FCM delivery and lock-screen check need a Firebase project (T56 server env + gradle props); then run one push on a device.
 
 ---
 

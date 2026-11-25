@@ -69,6 +69,9 @@ public final class MainActivity extends ProtectedHomeActivity {
         addMoreAction(insightActions, R.string.insight_open, InsightsActivity.class);
         addFocusableRoute(insightActions, R.string.advice_title, AdviceActivity.class);
 
+        // T34.5: alert channel + push token (no-op until Firebase is configured, D57)
+        lk.finora.app.notifications.AlertNotifications.createChannel(this);
+        lk.finora.app.notifications.PushRegistration.register(getApplicationContext());
         dashboard = new ViewModelProvider(this).get(DashboardViewModel.class);
         ScrollView home = new DashboardPanel(this, dashboard).view();
         layout.addView(home, 1, new LinearLayout.LayoutParams(-1, 0, 1));

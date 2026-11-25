@@ -241,4 +241,42 @@ class MeControllerTest extends IntegrationTest {
         return mockMvc.perform(post("/api/v1/auth/consent/" + action).header("Authorization", "Consent " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(json(body)));
     }
+
+    // ---------- T34.4 alert opt-outs ----------
+
+    @Test
+    void alertsStartOnAndCanBeTurnedOffPerType() throws Exception {
+        mockMvc.perform(get("/api/v1/me").header("Authorization", bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.alerts.budget").value(true))
+                .andExpect(jsonPath("$.alerts.bill").value(true))
+                .andExpect(jsonPath("$.alerts.goal").value(true));
+
+        mockMvc.perform(put("/api/v1/me/alerts").header("Authorization", bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("budget", false, "bill", true, "goal", false))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.alerts.budget").value(false))
+                .andExpect(jsonPath("$.alerts.bill").value(true))
+                .andExpect(jsonPath("$.alerts.goal").value(false))
+                .andExpect(jsonPath("$.language").value("EN"));
+
+        entityManager.flush();
+        Map<String, Object> row = jdbc.queryForMap(
+                "SELECT alert_budget, alert_bill, alert_goal FROM users WHERE email = ?", EMAIL);
+        assertThat(row).containsEntry("alert_budget", false).containsEntry("alert_bill", true)
+                .containsEntry("alert_goal", false);
+    }
+
+    @Test
+    void alertSettingsNeedAllThreeFlags() throws Exception {
+        mockMvc.perform(put("/api/v1/me/alerts").header("Authorization", bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("budget", false))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+        mockMvc.perform(put("/api/v1/me/alerts").contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("budget", false, "bill", false, "goal", false))))
+                .andExpect(status().isUnauthorized());
+    }
 }

@@ -465,4 +465,18 @@
     <string name="consent_restored">Consent restored. Sign in again.</string>
     <string name="consent_deleted">Your account was deleted.</string>
     <string name="consent_retry">Could not confirm the result. Sign in again before trying again.</string>
+    <!-- T34.5 alerts: fixed texts, never amounts or names (shown on the lock screen) -->
+    <string name="alert_channel_name">Budget, bill and goal alerts</string>
+    <string name="alert_channel_description">Reminders when a budget is near or over its limit, a bill is due soon or a goal date is close.</string>
+    <string name="alert_budget_near">A budget is close to its limit.</string>
+    <string name="alert_budget_over">A budget is over its limit.</string>
+    <string name="alert_bill_due">A bill is due in 2 days.</string>
+    <string name="alert_goal_near">A savings goal date is coming up.</string>
+    <string name="settings_alerts">Alerts</string>
+    <string name="settings_alerts_info">Alerts never show amounts. Turn off the ones you do not want.</string>
+    <string name="settings_alert_budget">Budget near or over its limit</string>
+    <string name="settings_alert_bill">Bill due in 2 days</string>
+    <string name="settings_alert_goal">Savings goal date within 7 days</string>
+    <string name="settings_notifications_allow">Allow notifications</string>
+    <string name="settings_notifications_off">Notifications are off for FINORA. Everything else still works.</string>
 </resources>

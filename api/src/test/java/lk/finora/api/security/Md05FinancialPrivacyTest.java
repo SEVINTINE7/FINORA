@@ -159,7 +159,7 @@ class Md05FinancialPrivacyTest extends IntegrationTest {
                 "budgets", "bills", "billPayments", "goals",
                 "goalContributions", "insights", "healthScores",
                 "scoreInputs", "history", "advice", "ratings",
-                "tickets", "ticketReplies", "smsDiagnostics");
+                "tickets", "ticketReplies", "smsDiagnostics", "alertEvents");
 
         assertOwnedRow(data, "accounts", fixture.account());
         assertOwnedRow(data, "categories", fixture.category());
@@ -184,6 +184,7 @@ class Md05FinancialPrivacyTest extends IntegrationTest {
         assertThat(result.get("profile").propertyNames())
                 .containsExactlyInAnyOrder(
                         "id", "email", "full_name", "language",
+                        "alert_budget", "alert_bill", "alert_goal",
                         "created_at", "updated_at");
     }
 

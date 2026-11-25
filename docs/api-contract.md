@@ -71,8 +71,11 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/auth/login` | Public | `{email, password}` | `200 {accessToken, refreshToken, expiresIn: 1800, role, language}` · 401 `INVALID_CREDENTIALS` · 403 `ACCOUNT_DISABLED` | T05 |
 | POST | `/api/v1/auth/refresh` | Public | `{refreshToken}` | `200` same as login (new pair; old refresh token revoked) · 401 `INVALID_REFRESH_TOKEN` | T05 |
 | POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
-| GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion}` (`consentVersion` = `null` after withdrawal, D15) | T07 |
+| GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion, alerts: {budget, bill, goal}}` (`consentVersion` = `null` after withdrawal, D15; `alerts` all `true` by default, T34) | T07/T34 |
 | PUT | `/api/v1/me` | USER | `{fullName, language: "EN"\|"SI"}` | `200` same as GET · 400 `VALIDATION_ERROR` | T07 |
+| PUT | `/api/v1/me/alerts` | USER | `{budget, bill, goal}` (all three booleans required) | `200` same as GET · 400 `VALIDATION_ERROR`. A type turned off gets no new events and unsent ones are not pushed. | T34.4 |
+| POST | `/api/v1/devices` | USER | `{token}` (FCM token, 1–255 chars `[A-Za-z0-9:_-]`) | `204`; repeat = no change. A token registered to another account moves to the caller. At most 10 tokens per user (oldest dropped). · 400 `VALIDATION_ERROR` | T34.1 |
+| DELETE | `/api/v1/devices` | USER | `{token}` (in the body, so it never appears in URLs or access logs) | `204` · 404 `NOT_FOUND` for an unknown or another user's token | T34.1 |
 | POST | `/api/v1/me/consent/withdraw` | USER | — | `204`; sets `withdrawn_at` and revokes all normal access and refresh credentials | T07 |
 | POST | `/api/v1/auth/consent/accept` | Consent grant | `{consentVersion,accepted:true}` | `204`; consumes the grant and records current-version consent. Fresh password sign-in is required. | T07/D54 |
 | POST | `/api/v1/auth/consent/export` | Consent grant | — | `200`; consumes the grant and returns the same owned schema-1 attachment as T35. | T35/D54 |
@@ -219,3 +222,11 @@ Password sign-in for a withdrawn active USER returns `200` with `{restrictedToke
 | Method | Path | Role | Inputs | Result | Task |
 |---|---|---|---|---|---|
 | POST | `/api/v1/simulate` | USER | owned goal ID, explicit monthly savings baseline, signed change and category cuts; see [T32 candidate contract](t32-simulator-contract.md) | `200` hypothetical result or unavailable status; `400` invalid inputs; `404` missing or foreign goal; read-only | T32 |
+
+## Alerts (T34, D57)
+
+- A daily job at 08:00 Asia/Colombo records events for ACTIVE USER accounts with current consent and at least one device: budget `BUDGET_NEAR` / `BUDGET_OVER` for the current month (same 80% rule as T17.2), `BILL_DUE` for an unpaid bill due in exactly 2 days (T18 due-date rule) and `GOAL_DATE_NEAR` for an ACTIVE goal whose target date is today to 7 days away.
+- Each event is unique on (user, type, budget/bill/goal id, period), so repeated runs never send it twice. Undelivered events are retried every 15 minutes for 24 hours.
+- The FCM message is data-only `{type}`. It holds no amounts, names, merchants or text; the app shows a fixed message per type in the user's language.
+- Push needs `FIREBASE_CREDENTIALS` (path to the service-account JSON). Without it events are recorded but nothing is pushed.
+- The T35 export adds `profile.alert_budget/alert_bill/alert_goal` and the `alertEvents` family (`type, period, created_at, sent_at`). Push tokens stay excluded.

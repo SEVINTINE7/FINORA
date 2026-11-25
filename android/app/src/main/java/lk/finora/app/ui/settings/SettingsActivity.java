@@ -6,6 +6,10 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.CompoundButton;
+import androidx.appcompat.widget.SwitchCompat;
+import lk.finora.app.data.repo.AlertRepository;
+import lk.finora.app.notifications.AlertNotifications;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -30,6 +34,9 @@ public final class SettingsActivity extends SecureActivity {
     private HomeViewModel session;
     private Session entry;
     private AlertDialog sensitiveDialog;
+    private boolean renderingAlerts;
+    private final androidx.activity.result.ActivityResultLauncher<String> notificationPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> renderNotifications());
     private final androidx.activity.result.ActivityResultLauncher<String> exportTarget =
             registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"), uri -> {
                 if (model == null || !model.awaitingExportDestination) return;
@@ -58,6 +65,7 @@ public final class SettingsActivity extends SecureActivity {
         }
         ((FrameLayout) findViewById(R.id.settings_language))
                 .addView(ProfileLanguageButton.create(this, entry, session::signingOut));
+        bindAlerts();
         findViewById(R.id.settings_withdraw).setOnClickListener(view -> confirmWithdraw());
         var export = new Button(this);
         export.setText(R.string.settings_export_data);
@@ -74,12 +82,73 @@ public final class SettingsActivity extends SecureActivity {
             if (failed != null) SessionNavigation.openLogin(this, failed);
         });
         model.work.changes.observe(this, ignored -> render());
+        model.alertWork.changes.observe(this, ignored -> render());
+    }
+
+    /** T34.5: three alert switches and the Android 13+ notification permission. */
+    private void bindAlerts() {
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.settings_alerts_heading), true);
+        CompoundButton.OnCheckedChangeListener changed = (button, checked) -> {
+            if (renderingAlerts || model.alertSettings == null) return;
+            model.saveAlerts(new AlertRepository.Settings(isOn(R.id.settings_alert_budget),
+                    isOn(R.id.settings_alert_bill), isOn(R.id.settings_alert_goal)));
+        };
+        for (int id : new int[]{R.id.settings_alert_budget, R.id.settings_alert_bill, R.id.settings_alert_goal}) {
+            ((SwitchCompat) findViewById(id)).setOnCheckedChangeListener(changed);
+        }
+        findViewById(R.id.settings_notifications_allow).setOnClickListener(view -> allowNotifications());
+        AlertNotifications.createChannel(this);
+        model.loadAlerts();
+    }
+
+    private boolean isOn(int id) {
+        return ((SwitchCompat) findViewById(id)).isChecked();
+    }
+
+    private void allowNotifications() {
+        String permission = android.Manifest.permission.POST_NOTIFICATIONS;
+        if (android.os.Build.VERSION.SDK_INT >= 33 && checkSelfPermission(permission)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED
+                && (!model.askedNotifications || shouldShowRequestPermissionRationale(permission))) {
+            model.askedNotifications = true;
+            notificationPermission.launch(permission);
+            return;
+        }
+        // Refused for good, or switched off in Android settings: only the system screen can turn it back on
+        startActivity(new android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName()));
+    }
+
+    private void renderAlerts() {
+        AlertRepository.Settings settings = model.alertSettings;
+        boolean enabled = settings != null && !model.alertWork.busy();
+        renderingAlerts = true;
+        int[] ids = {R.id.settings_alert_budget, R.id.settings_alert_bill, R.id.settings_alert_goal};
+        boolean[] values = settings == null ? new boolean[3]
+                : new boolean[]{settings.budget, settings.bill, settings.goal};
+        for (int i = 0; i < ids.length; i++) {
+            SwitchCompat toggle = findViewById(ids[i]);
+            if (!model.alertWork.busy()) toggle.setChecked(values[i]);
+            toggle.setEnabled(enabled);
+        }
+        renderingAlerts = false;
+        renderNotifications();
+    }
+
+    private void renderNotifications() {
+        int visibility = AlertNotifications.allowed(this) ? View.GONE : View.VISIBLE;
+        findViewById(R.id.settings_notifications_status).setVisibility(visibility);
+        findViewById(R.id.settings_notifications_allow).setVisibility(visibility);
     }
 
     @Override protected void onResume() {
         super.onResume();
         if (model != null && !model.withdrawn && !model.deleted && !session.signingOut()) {
             AccountListActivity.verify(this, model.work);
+            if (findViewById(R.id.settings_notifications_allow) != null) {
+                renderNotifications();
+                model.loadAlerts();
+            }
         }
     }
 
@@ -140,8 +209,10 @@ public final class SettingsActivity extends SecureActivity {
         boolean busy = model.work.busy();
         findViewById(R.id.settings_withdraw).setEnabled(!busy);
         findViewById(R.id.settings_delete).setEnabled(!busy);
+        renderAlerts();
         TextView status = findViewById(R.id.records_status);
         int message = busy ? R.string.records_loading : model.work.error != 0 ? model.work.error
+                : model.alertWork.error != 0 ? model.alertWork.error
                 : model.exported ? R.string.settings_export_saved : 0;
         status.setText(message == 0 ? "" : getString(message));
     }

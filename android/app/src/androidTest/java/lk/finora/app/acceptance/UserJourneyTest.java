@@ -266,6 +266,68 @@ public class UserJourneyTest {
         }
     }
 
+    /** T34.5: alert switches load and save through /me; refusing notifications keeps the app working. */
+    @Test public void alertSwitchesSaveAndRefusedNotificationsKeepTheAppWorking() {
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.more_tab);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            for (int id : new int[]{R.id.settings_alert_budget, R.id.settings_alert_bill, R.id.settings_alert_goal}) {
+                awaitEnabled(id);
+                onView(withId(id)).check(matches(isChecked()));
+            }
+            clickId(R.id.settings_alert_bill);
+            awaitEnabled(R.id.settings_alert_bill);
+            onView(withId(R.id.settings_alert_bill)).check(matches(not(isChecked())));
+
+            // A fresh screen reads the saved values back from the server
+            pressBack();
+            awaitActivity(MainActivity.class);
+            clickText(R.string.settings_title);
+            awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+            awaitEnabled(R.id.settings_alert_bill);
+            onView(withId(R.id.settings_alert_budget)).check(matches(isChecked()));
+            onView(withId(R.id.settings_alert_bill)).check(matches(not(isChecked())));
+            onView(withId(R.id.settings_alert_goal)).check(matches(isChecked()));
+
+            if (Build.VERSION.SDK_INT >= 33) {
+                assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS));
+                onView(withId(R.id.settings_notifications_status)).perform(reveal()).check(matches(isDisplayed()));
+                clickId(R.id.settings_notifications_allow);
+                clickSmsPermissionChoice("deny");
+                awaitActivity(lk.finora.app.ui.settings.SettingsActivity.class);
+                assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS));
+                onView(withId(R.id.settings_notifications_status)).perform(reveal()).check(matches(isDisplayed()));
+            }
+
+            // Still fully usable after the refusal: switches save and other screens open
+            awaitEnabled(R.id.settings_alert_goal);
+            clickId(R.id.settings_alert_goal);
+            awaitEnabled(R.id.settings_alert_goal);
+            onView(withId(R.id.settings_alert_goal)).check(matches(not(isChecked())));
+            pressBack();
+            awaitActivity(MainActivity.class);
+            tab(R.string.plan_tab);
+            clickText(R.string.budget_list_title);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetListActivity.class);
+            awaitText(app.getString(R.string.records_empty));
+        }
+    }
+
+    private static void awaitEnabled(int id) {
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        while (true) {
+            try {
+                onView(withId(id)).perform(reveal()).check(matches(isEnabled()));
+                return;
+            } catch (RuntimeException | AssertionError notYet) {
+                if (SystemClock.elapsedRealtime() > deadline) throw notYet;
+                SystemClock.sleep(200);
+            }
+        }
+    }
+
     /** Opt-in: leaves a signed-in USER with one budget, bill and goal for a human TalkBack listen (D57). */
     @Test public void stagePlanningTalkBackFixture() {
         org.junit.Assume.assumeTrue("Opt-in planning fixture only",

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.common.error.ApiException;
+import lk.finora.api.user.dto.AlertSettings;
 import lk.finora.api.user.dto.MeResponse;
 import lk.finora.api.user.dto.UpdateMeRequest;
 
@@ -41,6 +42,17 @@ public class MeService {
         return toResponse(user);
     }
 
+    /** T34.4: turns each alert type on or off. Turned-off types get no new alert events. */
+    @Transactional
+    public MeResponse updateAlerts(Long userId, AlertSettings request) {
+        User user = findUser(userId);
+        user.setAlertBudget(request.budget());
+        user.setAlertBill(request.bill());
+        user.setAlertGoal(request.goal());
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
     /**
      * Marks the active consent as withdrawn and logs the user out on every device by revoking all
      * refresh tokens. Calling it again when nothing is active does nothing.
@@ -69,6 +81,7 @@ public class MeService {
                 .findFirstByUserIdAndWithdrawnAtIsNullOrderByAcceptedAtDesc(user.getId())
                 .map(Consent::getVersion)
                 .orElse(null);
-        return new MeResponse(user.getEmail(), user.getFullName(), user.getLanguage().name(), consentVersion);
+        return new MeResponse(user.getEmail(), user.getFullName(), user.getLanguage().name(), consentVersion,
+                new AlertSettings(user.isAlertBudget(), user.isAlertBill(), user.isAlertGoal()));
     }
 }

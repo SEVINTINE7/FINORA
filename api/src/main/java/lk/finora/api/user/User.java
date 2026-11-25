@@ -44,7 +44,24 @@ public class User {
     @Column(name = "staff_session_generation", nullable = false)
     private long staffSessionGeneration;
 
+    // T34: per-type alert opt-outs (true = send this type)
+    @Column(name = "alert_budget", nullable = false)
+    private boolean alertBudget = true;
+
+    @Column(name = "alert_bill", nullable = false)
+    private boolean alertBill = true;
+
+    @Column(name = "alert_goal", nullable = false)
+    private boolean alertGoal = true;
+
     public long getStaffSessionGeneration() { return staffSessionGeneration; }
+
+    public boolean isAlertBudget() { return alertBudget; }
+    public void setAlertBudget(boolean alertBudget) { this.alertBudget = alertBudget; }
+    public boolean isAlertBill() { return alertBill; }
+    public void setAlertBill(boolean alertBill) { this.alertBill = alertBill; }
+    public boolean isAlertGoal() { return alertGoal; }
+    public void setAlertGoal(boolean alertGoal) { this.alertGoal = alertGoal; }
 
     public Long getId() {
         return id;
