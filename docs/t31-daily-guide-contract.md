@@ -116,3 +116,11 @@ confirmation field. There is no Android daily-guide consumer on the checked main
 If a wider aggregate confirmation is approved, align the DTO and service validations
 for that field only, preserve exact decimals and equality, and test both sides of the
 old boundary and the Android decimal round trip. This change does not alter the API.
+
+## Isolated aggregate-confirmation candidate
+
+Execution 69 combines the service evidence from PR #23 with the proposed correction in PR #28. The
+candidate accepts the exact server-quoted tracked bill aggregate with up to 23 integer and two
+fractional digits. Other money fields retain their individual limits. A one-cent mismatch still
+returns BILLS_CHANGED. The income-date override remains request-scoped. The aggregate-specific
+limit and the Android integration remain subject to review and adoption.
