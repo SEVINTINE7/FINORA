@@ -99,3 +99,20 @@ limit on confirmedTrackedUnpaidBills. That amount can be displayed but cannot be
 through the current request DTO. The published input limit and exact confirmation behavior
 are unchanged. A wider aggregate or a different confirmation representation requires a
 recorded contract decision. Persistent income-date and Android acceptance gates remain open.
+
+## Execution 50 confirmation-range reproduction
+
+Two eligible unpaid bills at LKR 5,000,000,000,000.00 each are individually valid.
+The response is BILL_CONFIRMATION_REQUIRED with two bills and the exact JSON number
+10000000000000.00 in trackedUnpaidBills. The Jakarta request validator accepts
+9999999999999.99 and rejects the exact quoted total on confirmedTrackedUnpaidBills
+under its 13-integer-digit, two-decimal, nonnegative contract. The service also applies
+the same maximum. DailyGuideServiceTest passed 2/2 on Java 17.
+
+The other submitted amounts are separate user declarations with the same magnitude
+limit; only availableFunds may be negative. Derived spendableFunds and shortfall can
+also aggregate beyond that magnitude but are not round-tripped into a mandatory
+confirmation field. There is no Android daily-guide consumer on the checked main.
+If a wider aggregate confirmation is approved, align the DTO and service validations
+for that field only, preserve exact decimals and equality, and test both sides of the
+old boundary and the Android decimal round trip. This change does not alter the API.
