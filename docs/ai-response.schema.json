@@ -1,25 +1,70 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "FINORA T26 advice response",
+  "title": "FINORA T26/D58 advice response",
   "type": "array",
-  "maxItems": 6,
+  "maxItems": 12,
   "items": {
     "type": "object",
     "additionalProperties": false,
-    "required": ["actionId", "text", "numbers"],
+    "required": [
+      "actionId",
+      "text",
+      "numbers"
+    ],
     "properties": {
-      "actionId": {"enum": ["REVIEW_SPENDING_DEFICIT", "REVIEW_HIGH_WANTS", "REVIEW_UNMARKED_LOAN_BILLS", "BUILD_EMERGENCY_BUFFER", "REVIEW_GOAL_PROGRESS", "SAVE_WITHIN_AVAILABLE_HEADROOM"]},
-      "text": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "actionId": {
+        "enum": [
+          "GOAL_PLAN",
+          "CUT_WANTS",
+          "NEEDS_BEHAVIOUR",
+          "SPENDING_PATTERN",
+          "SALARY_PLAN",
+          "REVIEW_SPENDING_DEFICIT",
+          "REVIEW_HIGH_WANTS",
+          "REVIEW_UNMARKED_LOAN_BILLS",
+          "BUILD_EMERGENCY_BUFFER",
+          "REVIEW_GOAL_PROGRESS",
+          "SAVE_WITHIN_AVAILABLE_HEADROOM"
+        ]
+      },
+      "text": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1200
+      },
       "numbers": {
-        "type": "array", "maxItems": 2,
+        "type": "array",
+        "maxItems": 20,
         "items": {
-          "type": "object", "additionalProperties": false,
-          "required": ["factKey", "value", "unit", "period"],
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "factKey",
+            "value",
+            "unit",
+            "period"
+          ],
           "properties": {
-            "factKey": {"enum": ["SPENDING_DEFICIT", "WANTS", "WANTS_REFERENCE", "UNMARKED_LOAN_BILLS", "EMERGENCY_RESERVE", "EMERGENCY_NEXT_TARGET", "GOAL_REMAINING", "AFFORDABLE_SAVINGS"]},
-            "value": {"type": "number", "minimum": 0},
-            "unit": {"const": "LKR"},
-            "period": {"type": "string", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"}
+            "factKey": {
+              "type": "string",
+              "pattern": "^[A-Z0-9_]+$",
+              "description": "A FactKey present in the supplied FactSheet (see FactKey.java)"
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "unit": {
+              "enum": [
+                "LKR",
+                "PERCENT",
+                "MONTHS"
+              ]
+            },
+            "period": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+            }
           }
         }
       }

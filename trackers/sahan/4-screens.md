@@ -72,6 +72,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T30.3 [AND] D03/D40 V1-only advice screen uses the server's verified result or rule fallback
 - [x] T30.4 [AND] `v1` flavor: one advice card with its supporting numbers + rating
 - [x] T30.5 [AND] Mode taken from `BuildConfig.ADVICE_MODE`, never from user input
+- [x] T30.6 [API+AND] D58 optional `goalId`: goal picker (default nearest target date), section headings EN/SI, up to 12 items, 65 s advice timeout; delivery frozen per focus goal (V24)
 
 **Done when**
 - [x] Tests: duplicate rating → 409; V1 falls back to RULE when check fails
@@ -83,3 +84,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Isolated Android and HMD Android 14 matched LKR 50.23 in English and Sinhala. A dropped 201 reconciled rating 5 with GET and a single POST on both devices. Live-provider evidence remains open.
 - MySQL V12 coordinates first delivery across instances without holding a database lock during provider calls. HMD retained the saved rating after the upgrade and Sahan confirmed its Sinhala TalkBack label.
 - D44 authorizes live-provider verification with approved configuration. Both credentials, approved model IDs and a numeric call budget are absent. English and Sinhala HMD rating announcements and return focus passed.
+- 2026-11-25 D58: emulator showed verified Groq coaching (all five sections) for 2026-10 with the goal picker. Sinhala TalkBack for the new headings and a physical-device check are still open.

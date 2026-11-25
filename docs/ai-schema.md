@@ -1,4 +1,4 @@
-# FINORA AI boundary (T25/T26)
+# FINORA AI boundary (T25/T26, D58)
 
 Backend-only catalogue and continuation were approved by Thilina on 2026-11-22. No new financial thresholds:
 D10 supplies the wants reference; D20 supplies savings target and reserve milestones. D03 is V1 only.
@@ -32,6 +32,28 @@ server-generated rule actions. User-provided labels/notes/instructions are not i
 The provider schema constrains the response. The T29 verifier checks strict fields, eligible action IDs,
 periods, units, text and numeric provenance before delivery. Provider failure, invalid data or failed
 verification falls back to canonical rules.
+
+## D58 goal coaching (2026-11-25, pending Thilina review)
+
+Five coaching sections come before the catalogue actions, each only when its facts exist:
+
+| Section | Facts (all server-calculated) |
+|---|---|
+| GOAL_PLAN | user-selected focus goal (`goalId`): target, saved, remaining, months left, monthly amount needed, three-month pace, months at pace and with the salary plan |
+| CUT_WANTS | top three want categories: this month, prior three-month average, suggested cut = max(25%, excess over average) capped at 50%, whole rupees; total cut; wants % of income |
+| NEEDS_BEHAVIOUR | needs % of income; top two need categories and their average. Needs are never suggested for cuts |
+| SPENDING_PATTERN | spending in days 1–10, 11–20 and 21–end; % in the first ten days |
+| SALARY_PLAN | needs (all non-want consumption), wants limit = min(wants − cuts, 40% of income), weekly wants, goal transfer = min(monthly needed, income − needs − wants limit), buffer |
+
+`FactSheet` adds `slotLabels` (`TOP_WANT_1..3`, `TOP_NEED_1..2`) restricted to built-in English category names;
+custom categories are grouped as "Other want"/"Other need". Goal names stay on the server. Units are `LKR`,
+`PERCENT` or `MONTHS` (whole numbers). The prompt adds a fixed `factGuide` glossary.
+
+The LLM may word coaching sections freely. The verifier requires every eligible section exactly once, rejects
+investments, borrowing, guarantees, links and cuts to need categories, and requires the numbers in the text
+(thousands separators allowed) to equal, in order, the listed facts with the right key, unit and period. Accepted
+sections keep the provider wording with server-built number objects. Catalogue actions keep the exact-text policy below.
+Delivery is frozen per user, month and focus goal (V24). Coaching wording is English; app headings are EN/SI.
 
 ## Preparatory T27–T29 integration (pending team acceptance)
 

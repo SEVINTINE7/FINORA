@@ -31,6 +31,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T25.1 Approved catalogue: REVIEW_SPENDING_DEFICIT, REVIEW_HIGH_WANTS, REVIEW_UNMARKED_LOAN_BILLS, BUILD_EMERGENCY_BUFFER, REVIEW_GOAL_PROGRESS, SAVE_WITHIN_AVAILABLE_HEADROOM; conditions use D10/D20 only (see docs/ai-schema.md)
 - [x] T25.2 Every text number has an exact factKey/value/LKR/period reference; extra allocations bounded by leftover after existing savings and suppressed for unknown/unmarked debt
 - [x] T25.3 Shared `AdviceItem {actionId,text,numbers[]}` schema for rules and verified AI. The server-only RuleAdviceService feeds T30 V1 delivery.
+- [x] T25.4 D58 rule-built coaching sections (GOAL_PLAN, CUT_WANTS, NEEDS_BEHAVIOUR, SPENDING_PATTERN, SALARY_PLAN) before the unchanged catalogue; `CoachingQueries` aggregates by built-in label
 
 **Done when**
 - [ ] Tests across budget, savings and debt scenarios; every number traceable to a fact
@@ -42,3 +43,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Every numeric token has tested exact provenance; saving suggestions use min(shortfall, recorded leftover) and are blocked for unknown/unmarked obligations. No inferred reserves or added goal allocations.
 - T30 now delivers canonical rule fallback or verified advice through its [Sahan tracker entry](../sahan/4-screens.md). Budget-specific coverage and Thilina's review remain open.
 - Execution 33 verified fixed-ledger advice and numeric provenance across a budget-limit-only NEAR-to-OVER change. Independent T25 acceptance remains open.
+- 2026-11-25 D58 (Sevindu): coaching sections and policy numbers in `docs/ai-schema.md`; `CoachingAdviceTest` hand-checks every fact. Catalogue tests now filter to T25 actions. Thilina to review the cut/split formulas.

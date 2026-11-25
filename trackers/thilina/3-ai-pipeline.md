@@ -10,6 +10,7 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 - [x] T26.2 Strict response JSON schema: list of `{actionId,text,numbers[{factKey,value,unit,period}]}`, no extra fields, at most six eligible catalogue actions
 - [x] T26.3 Fixed system prompt + serialized whitelist/eligible actions in `AiPrompt`; documented safety and missing-data contract
 - [x] T26.4 Adversarial fixtures include actual database merchants/notes, email/instruction category names and cross-user source isolation
+- [x] T26.5 D58: coaching FactKeys with units LKR/PERCENT/MONTHS, `slotLabels` limited to built-in names (custom → Other want/need), `factGuide` glossary in the prompt, schema up to 12 items
 
 **Done when**
 - [x] Test: FactSheet serialisation never contains fields outside the whitelist
@@ -19,6 +20,7 @@ Rules and workflow: see `CLAUDE.md` (rules 2 and 3 apply to every task here). St
 - Privacy fixture proves actual transaction merchant/note/account/category injection and user details never enter serialized facts or prompts; other-user facts isolated.
 - 12 advice/privacy tests passed on Java 17 + isolated `finora_test`; evidence `api/target/t25-t26-tests.log`. Schema/prompt are constraints, not a substitute for T29 verification.
 - Next: review the feature PR; implement mocked providers and verification before any generated text can be delivered. No provider calls, keys, prompts or replies logged; T50 was not repeated.
+- 2026-11-25 D58: FactSheet gained `slotLabels`; privacy fixtures confirm the injected custom category, goal name and merchants never reach the payload.
 
 ---
 
@@ -60,6 +62,7 @@ Execution 33 verified provider-disabled V1 delivered payload keys, decimal prove
 - [x] T29.1 Provisional exact eligible text/number matching: LKR lossless to 2 decimals, no tolerance; return trusted canonical advice only
 - [x] T29.2 Reject malformed/duplicate/extra fields, ineligible or duplicate actions, unsupported claims, wrong units/periods and fabricated values
 - [x] T29.3 V8 owner-scoped verification events save verified flag and bounded reason; no raw text
+- [x] T29.4 D58 free-wording check for coaching sections: every number matches a fact in order (key/unit/period), all eligible sections present (`MISSING_SECTION`), unsafe phrasing rejected (`UNSAFE_TEXT`)
 
 **Done when**
 - [x] Mocked verifier tests reject unsupported claims, fabricated values, wrong month/unit and extra precision; valid eligible replies pass
@@ -68,3 +71,4 @@ Execution 33 verified provider-disabled V1 delivered payload keys, decimal prove
 - 2026-11-22: Verifier tests 19/19 PASS. V8 migration validated. Final number-verification policy and real-world pass rate pending.
 - Final PR run: 51 focused / 253 full tests passed; provisional exact-claim policy documented in docs/ai-schema.md. No tolerance, semantic verification or real pass rate approved; T29 stays in-progress pending team policy acceptance.
 - T30 uses the existing verifier and preserves canonical fallback. Thilina's independent review covers the privacy allowlist, exact claims and live provider behavior under D44.
+- 2026-11-25 D58: live Groq `openai/gpt-oss-120b` verified coaching for 2026-10 and 2026-11 on the synthetic account; one HTTP 400 fell back to rules; Gemini `gemini-3.8-flash` returned 503 each time. Unsafe-phrase list needs Thilina review.

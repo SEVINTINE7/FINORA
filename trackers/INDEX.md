@@ -72,6 +72,8 @@ MD04 delivery retains 20/20 technical checks and 5/5 for delegated T33 separatel
 
 T53 verification update (2026-11-22): remains **in-progress**. Final upstream-compatible offline Java 17 + isolated finora_test Maven verify passed 206/206 tests (0 failures/errors/skips, exit 0); service coverage 668/677 lines (98.67%), JaCoCo gate passed. Earlier branch-only result was 151/151. Deployed TLS, device/provider captures, comprehensive scans and acceptance remain open; details in the T53 handoff. No other task statuses changed.
 
+D58 advice update (2026-11-25): goal-coaching sections with checked free wording and a user-selected focus goal changed T25 (T25.4), T26 (T26.5), T29 (T29.4) and T30 (T30.6). Statuses are unchanged: T25/T26 stay in review and T29/T30 in progress until Thilina reviews the D58 formulas and unsafe-phrase list.
+
 - **Sevindu:** T08, T15, T20, T27, T49, T52, T53 — look for subtasks tagged `[…·Sevindu]`
 - **Sahan:** T01, T07, T09, T10, T12, T17, T18, T19, T31, T32, T33, T34, T35, T36, T45, T46, T47, T55, T57 — look for subtasks tagged `[…·Sahan]`
 - **Thilina:** T01, T16, T24, T30, T50, T51, T57 — look for subtasks tagged `[…·Thilina]`
