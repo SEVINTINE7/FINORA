@@ -22,6 +22,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - New tests: ScoreCalculatorTest 26 and ScoreControllerTest 12 passed; combined analytics/insight/schema verification: 84 run, 0 failures/errors/skips, Java 17 + isolated MySQL `finora_test` only; evidence `api/target/t23-d20-verification.log` and Surefire reports.
 - Dates/limitations: only contributions through month end and plans created by month end qualify; current bill/goal edits may change historical results; reserve date remains as declared, not inferred month-end. Numeric facts carry no names/merchants.
 - Final UTC DTO check: 38 scoring tests passed (`api/target/t23-final-check.log`). Next: feature-branch PR review (stacked on T21 PR #5); keep T23 in-progress until dependency/human acceptance. User separately authorized backend T25/T26 continuation; T50 was not repeated.
+- Execution 29 carries the D55 loan classification and historical regression from 94e8335; no score policy or migration changes. Team review and dependency closure remain open.
 
 ---
 

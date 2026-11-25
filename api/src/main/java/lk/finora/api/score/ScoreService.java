@@ -102,13 +102,13 @@ public class ScoreService {
                 FROM bills b JOIN categories c ON c.id=b.category_id
                 LEFT JOIN bill_payments p ON p.bill_id=b.id AND p.month=?
                 WHERE b.user_id=? AND b.active=TRUE AND b.created_at < ?
-                  AND c.user_id IS NULL AND c.kind='EXPENSE' AND c.name='Loan payment'
+                  AND c.user_id IS NULL AND c.kind='EXPENSE' AND c.semantic_code='LOAN_PAYMENT'
                 """, (rs, n) -> new BigDecimal[] {rs.getBigDecimal(1), rs.getBigDecimal(2)},
                 period.toString(), userId, cutoff);
         Integer loanTransactions = jdbc.queryForObject("""
                 SELECT COUNT(*) FROM transactions t JOIN categories c ON c.id=t.category_id
                 WHERE t.user_id=? AND t.type='EXPENSE' AND t.txn_date BETWEEN ? AND ?
-                  AND c.user_id IS NULL AND c.kind='EXPENSE' AND c.name='Loan payment'
+                  AND c.user_id IS NULL AND c.kind='EXPENSE' AND c.semantic_code='LOAN_PAYMENT'
                 """, Integer.class, userId, period.atDay(1), period.atEndOfMonth());
         List<BigDecimal[]> goals = jdbc.query("""
                 SELECT g.target_amount, COALESCE(SUM(c.amount),0)

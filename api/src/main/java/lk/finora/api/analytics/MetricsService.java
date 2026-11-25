@@ -32,8 +32,8 @@ import lk.finora.api.transaction.TransactionType;
 @Service
 public class MetricsService {
 
-    // Name of the default expense category that means "money put aside" (V6 seed)
-    static final String SAVINGS_CATEGORY = "Savings";
+    // D55: immutable identity of the seeded savings category.
+    static final String SAVINGS_CATEGORY = "SAVINGS";
     // D10: payday window = the income day and the next 2 days
     static final int PAYDAY_EXTRA_DAYS = 2;
 
@@ -176,7 +176,7 @@ public class MetricsService {
 
     private boolean isSavingsCategory(Category category) {
         return category.isDefault() && category.getKind() == CategoryKind.EXPENSE
-                && SAVINGS_CATEGORY.equals(category.getName());
+                && SAVINGS_CATEGORY.equals(category.getSemanticCode());
     }
 
     // Loads only the categories these records use (also archived ones, so old records still count)

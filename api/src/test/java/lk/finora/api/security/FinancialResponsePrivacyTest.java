@@ -99,7 +99,7 @@ class FinancialResponsePrivacyTest extends IntegrationTest {
     }
 
     private String path(Endpoint e) {
-        return e.pattern().replace("{month}", MONTH).replace("{contributionId}", String.valueOf(contributionId))
+        return e.pattern().replace("{month}", MONTH).replace("{contributionId}", String.valueOf(contributionId)).replace("{cid}", String.valueOf(contributionId))
                 .replace("{id}", String.valueOf(ids.getOrDefault(e.root(), 1L)));
     }
 
@@ -128,6 +128,7 @@ class FinancialResponsePrivacyTest extends IntegrationTest {
 
     private void assertPrivateDenial(Endpoint e, String token) throws Exception {
         String path = path(e);
+        assertThat(path).as("Resolved endpoint path").doesNotContain("{", "}");
         var response = mockMvc.perform(request(e.method(), path).param("month", MONTH)
                 .param("from", "2026-11-01").param("to", "2026-11-30")
                 .header("Authorization", "Bearer " + token).contentType(MediaType.APPLICATION_JSON)

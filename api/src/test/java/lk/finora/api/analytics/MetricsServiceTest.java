@@ -42,6 +42,10 @@ class MetricsServiceTest {
     private static final Category FOOD = category(20L, "Food", CategoryKind.EXPENSE, NeedOrWant.NEED);
     private static final Category SHOPPING = category(21L, "Shopping", CategoryKind.EXPENSE, NeedOrWant.WANT);
     private static final Category SAVINGS = category(22L, "Savings", CategoryKind.EXPENSE, null);
+
+    static {
+        ReflectionTestUtils.setField(SAVINGS, "semanticCode", "SAVINGS");
+    }
     private static final Category RENT = category(23L, "Rent", CategoryKind.EXPENSE, NeedOrWant.NEED);
 
     private TransactionRepository transactionRepository;

@@ -21,6 +21,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - D49 MySQL checks cover STAFF revocation, ticket ownership and claim contention, diagnostic roles and ADMIN format mutation. The full matrix and independent review remain open.
 - V18 adds ADMIN count schema and role tests, STAFF/USER format mutation denial and approved rollback. Android loopback capture retained only the exact-match verdict for diagnostic metadata.
 - D53 adds targeted ADMIN user-management and default-category checks, USER export/deletion isolation and old-token rejection. Complete T52's full per-endpoint matrix and review on the final revision.
+- Execution 29 preserves upstream denials and reconciles concrete contribution IDs, MD05 ownership and restricted consent tests. See [route coverage](../../docs/t52-route-evidence.md). Positive endpoint matrix and independent CI remain open.
 
 ---
 
@@ -41,6 +42,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - JaCoCo service gate PASS: 602/610 lines (98.69%); report api/target/site/jacoco/index.html. Limited tracked-content secret patterns found no matches; gitleaks/dependency-check not on PATH, so comprehensive scans remain unchecked.
 - Recovered pipeline commits 72ec247/ed33c41 match fork branch; static inspection confirms mock-only tests, strict provisional verifier, bounded audit metadata and rule fallback. PRs #5/#6/#7 confirmed merged; no new PR/push, no live calls or policy changes.
 - Final PR compatibility: preserved 8d38725, merged origin/main a0b5dfb; offline verify 206/206 passed, zero failures/errors/skips, exit 0; service lines 668/677 (98.67%), gate passed (api/target/final-t53-verify.log). Pipeline PR #8 open; next: reviewer acceptance, T14 capture, deployed TLS/proxy/log review and comprehensive scans. T53 remains in-progress.
+- Execution 29 preserves the [classified local scan](../../docs/t53-local-security-evidence.md). Dependency reports remain blocked by feed TLS; D56 deployed HTTPS and runtime captures remain open.
 
 ---
 
@@ -57,6 +59,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - 2026-11-24 reconciliation: PR #11 retains FinancialJourneyTest and six financial fixture oracles. Historical focused 8/8 and verify 265/265. Mocked evidence only. Live acceptance remains open.
 - 2026-11-22 audit: recovered T27-T29 branch contains mocked client/verifier/fallback tests; historical 253-test result is branch-specific and was not rerun here. Real LLM pass-rate testing remains unauthorized; T29 acceptance blocks T54 completion. Do not report mocked results as real pass rates.
 - D44 now authorizes a bounded synthetic live check for T30 once approved models, isolated credentials and a numeric call budget are available. The T54 pass-rate evaluation and its T29 prerequisite remain open.
+- Execution 29 carries the [guarded evaluation](../../docs/t54-provider-evaluation.md): 6/6 oracles, one observed Gemini HTTP 503, canonical fallback, global stop and nine unexecuted candidates. Billing and live acceptance remain open.
 
 ---
 
@@ -64,8 +67,6 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Thilina · **Support:** Sahan · **Depends on:** T16, T38 · **Touches:** `docs/evaluation.md`, `docs/t55-dataset.md`, `api-test:support/EvaluationDataset*`
 Independent dataset preparation explicitly authorized 2026-11-22: pure 12-month blueprint, guarded test-only seed,
 four deterministic validation tests and contribution evidence. No production seed/startup hook or device-results claim.
-- [ ] T55.1 SMS field accuracy from T16 ≥ 90%
-**Lead:** Thilina · **Support:** Sahan · **Depends on:** T16, T38 · **Touches:** `docs/evaluation.md`
 - [x] T55.1 SMS field accuracy from T16 ≥ 90%
 - [ ] T55.2 Seed one year of data; measure main screens < 2 s on a mid-range phone
 - [ ] T55.3 SUS questionnaire with trial users; target ≥ 70
@@ -82,3 +83,4 @@ four deterministic validation tests and contribution evidence. No production see
 - Contribution audit: representative GitHub commits map to ThilinaW-LK; one consistent configured author email (not disclosed), 25 authored commits across start-of-audit refs / 20 on upstream main. Pending fork branches and graph timing differ from authorship; no history or attribution rewritten. Evidence: docs/thilina-contribution-evidence.md.
 - PRs #10/#11 open with API/Android CI success and no submitted reviews when checked. T30/T31/T32/T52–T55 owners, approvals and integration blockers are listed in docs/t55-dataset.md. T55 remains in-progress; full subtask/acceptance boxes stay unchecked.
 - T55.1 reuses the [T16 result](../sahan/3-sms-quality.md#t16--sms-parser-regression-tests--nfr-sms): 12/12 fields (100.0%) on the three approved D35 NSB fixtures. T20 measured the HMD dashboard at 505/504/486 ms with synthetic data over 12 months. T55.2 still needs the full main-screen timing scope. SUS and the D03-compatible evaluation decision remain open, as do formal T16/T38 prerequisite closure and Thilina’s evaluation review.
+- Execution 29 preserves [Execution 27 evidence and draft protocols](../../docs/evaluation.md): 19/19 V1 JVM tests, 12/12 D35 synthetic fields and 6/6 negative routes. Independent T55.1 review and T16/T38 remain open. Timing, usability and comparison remain unexecuted.

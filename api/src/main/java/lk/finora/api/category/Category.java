@@ -43,6 +43,14 @@ public class Category {
     @Column(nullable = false)
     private boolean active = true;
 
+    // D55: database-assigned immutable financial identity; never written by JPA.
+    @Column(name = "semantic_code", length = 16, insertable = false, updatable = false)
+    private String semanticCode;
+
+    public String getSemanticCode() {
+        return semanticCode;
+    }
+
     public boolean isDefault() {
         return userId == null;
     }
