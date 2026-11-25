@@ -11,7 +11,6 @@ import android.widget.TextView;
 import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.InsightsRepository.Declaration;
 import lk.finora.app.data.repo.InsightsRepository.Insight;
 import lk.finora.app.data.repo.InsightsRepository.Part;
@@ -32,7 +32,7 @@ import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 import lk.finora.app.ui.insights.InsightsViewModel.DeclarationDraft;
 
-public final class InsightsActivity extends AppCompatActivity {
+public final class InsightsActivity extends SecureActivity {
     private InsightsViewModel model;
     private LinearLayout results;
     private TextView month;
@@ -238,7 +238,7 @@ public final class InsightsActivity extends AppCompatActivity {
             editor = null;
             currentDraft = null;
         });
-        editor.show();
+        showSecure(editor);
         editor.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
             try {
                 Declaration value = parse(reserve.getText().toString(), date.getText().toString(), model.month,

@@ -9,19 +9,19 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.BudgetDto;
 import lk.finora.app.data.api.CategoryDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
 /** Monthly budgets with progress bars (T17.3). */
-public final class BudgetListActivity extends AppCompatActivity {
+public final class BudgetListActivity extends SecureActivity {
     static final String MONTH = "budget_month";
     static final String TAKEN = "budget_taken_categories";
     private BudgetListViewModel model;

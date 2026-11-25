@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,11 +19,12 @@ import java.time.format.FormatStyle;
 import java.util.Locale;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
 /** Savings goals with progress bars (T19.3). Tapping a goal opens its contributions. */
-public final class GoalListActivity extends AppCompatActivity {
+public final class GoalListActivity extends SecureActivity {
     private GoalListViewModel model;
 
     @Override protected void onCreate(Bundle state) {

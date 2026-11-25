@@ -1,9 +1,12 @@
 package lk.finora.app.sms;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -30,10 +33,27 @@ public class NsbSmsParserTest {
     }
 
     @Test public void extractsOnlyTransactionFieldsForInboxAndPaste() {
+        assertApprovedSamples();
+    }
+
+    private void assertApprovedSamples() {
         assertEquals(Set.of("NSB"), parser.approvedSenderIds());
         assertBoth(0, "1250.75", 21, Direction.DEBIT, "TEST SUPERMARKET");
         assertBoth(1, "4500.25", 21, Direction.DEBIT, null);
         assertBoth(2, "750.50", 22, Direction.CREDIT, null);
+    }
+
+    @Test public void seededDeploymentDefinitionParsesAllApprovedSyntheticFixtures() throws IOException {
+        String seed = Files.readString(Path.of("../../api/src/main/resources/db/migration",
+                "V9__seed_approved_nsb_sms_formats.sql"));
+        int start = seed.indexOf("'{");
+        int end = seed.lastIndexOf("}'");
+        assertTrue("Expected the approved JSON literal in V9", start >= 0 && end > start);
+        try (var input = new ByteArrayInputStream(seed.substring(start + 1, end + 1)
+                .getBytes(StandardCharsets.UTF_8))) {
+            parser = SmsTemplateLoader.load(input);
+        }
+        assertApprovedSamples();
     }
 
     @Test public void checksExactSenderAndKnownFormat() {

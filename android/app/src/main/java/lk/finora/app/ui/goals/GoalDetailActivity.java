@@ -10,18 +10,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.math.BigDecimal;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
 /** One goal: progress, add a contribution, contribution history with remove, edit/cancel/resume/delete. */
-public final class GoalDetailActivity extends AppCompatActivity {
+public final class GoalDetailActivity extends SecureActivity {
     private GoalDetailViewModel model;
     private EditText amount;
     private EditText date;
@@ -85,8 +85,8 @@ public final class GoalDetailActivity extends AppCompatActivity {
         if (goal == null || model.work.busy()) return;
         if (!GoalRules.canEditAsIs(goal.targetDate(), GoalRules.today())) {
             // D16 refuses any edit while the stored target date is not in the future
-            new AlertDialog.Builder(this).setMessage(R.string.goal_date_passed)
-                    .setPositiveButton(android.R.string.ok, null).show();
+            showSecure(new AlertDialog.Builder(this).setMessage(R.string.goal_date_passed)
+                    .setPositiveButton(android.R.string.ok, null).create());
             return;
         }
         boolean cancel = !"CANCELLED".equals(goal.status());
@@ -94,10 +94,10 @@ public final class GoalDetailActivity extends AppCompatActivity {
             model.setCancelled(false);
             return;
         }
-        new AlertDialog.Builder(this).setMessage(R.string.goal_cancel_message)
+        showSecure(new AlertDialog.Builder(this).setMessage(R.string.goal_cancel_message)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.goal_cancel, (dialog, which) -> model.setCancelled(true))
-                .show();
+                .create());
     }
 
     private void render() {

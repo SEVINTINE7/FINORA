@@ -62,6 +62,22 @@ class SchemaMigrationTest {
     }
 
     @Test
+    void defaultCategorySemanticsAreUniqueAndRestrictedToDefaultExpenses() {
+        assertThat(jdbc.queryForList("SELECT semantic_code FROM categories WHERE semantic_code IS NOT NULL ORDER BY id",
+                String.class)).containsExactly("LOAN_PAYMENT", "SAVINGS");
+        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+                INSERT INTO categories (name,kind,semantic_code) VALUES ('Synthetic duplicate','EXPENSE','SAVINGS')
+                """));
+        assertCheckViolated("ck_categories_semantic_scope", () -> jdbc.update("""
+                INSERT INTO categories (name,kind,semantic_code) VALUES ('Synthetic invalid','EXPENSE','UNKNOWN')
+                """));
+        long user = insertUser(uniqueEmail());
+        assertCheckViolated("ck_categories_semantic_scope", () -> jdbc.update("""
+                UPDATE categories SET user_id = ? WHERE semantic_code = 'SAVINGS'
+                """, user));
+    }
+
+    @Test
     void duplicateEmailRejected() {
         String email = uniqueEmail();
         insertUser(email);

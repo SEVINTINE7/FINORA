@@ -6,7 +6,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.math.BigDecimal;
@@ -15,12 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.CategoryDto;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
 /** Add or edit a budget for one expense category and month (T17.3). */
-public final class BudgetFormActivity extends AppCompatActivity {
+public final class BudgetFormActivity extends SecureActivity {
     private BudgetFormViewModel model;
     private boolean filled;
     private Spinner category;

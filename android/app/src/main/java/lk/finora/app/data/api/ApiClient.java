@@ -62,6 +62,21 @@ public final class ApiClient {
         auth = retrofit(origin, calls);
     }
 
+    public static AuthApi consentRecovery(String baseUrl) {
+        var origin = HttpUrl.get(baseUrl);
+        var client = baseClient().retryOnConnectionFailure(false).addInterceptor(chain -> {
+            Request request = chain.request();
+            if (!request.url().encodedPath().startsWith("/api/v1/auth/consent/")) {
+                throw new IOException("Invalid consent recovery path");
+            }
+            RequestBody body = request.body();
+            if (body != null) request = request.newBuilder().method(request.method(), new OneShotBody(body)).build();
+            return chain.proceed(request);
+        }).build();
+        return new Retrofit.Builder().baseUrl(origin).callFactory(client)
+                .addConverterFactory(GsonConverterFactory.create()).build().create(AuthApi.class);
+    }
+
     public SessionAuthenticator sessions() {
         return sessions;
     }

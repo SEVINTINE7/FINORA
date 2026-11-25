@@ -43,7 +43,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - MySQL users: `finora_app` (DML only), `finora_migrate` (Flyway DDL via `SPRING_FLYWAY_USER`), `finora_backup` (read-only). Port 80 opens only during certbot runs.
 - Verified locally: `bash -n` on all scripts; backup of `finora_test` → AES256 (`cipher 9`), wrong passphrase rejected, 21 tables + "Dump completed" after decrypt, 31-day file expired / 29-day kept. Restore drill NOT run (needs a DB it may drop).
 - T56.5: signing via `FINORA_KEYSTORE_*` env vars in `android/app/build.gradle`; throwaway keystore → both release APKs pass `apksigner verify`. Real keystore not created yet. Debug build + unit tests unchanged.
-- Left (needs a server + domain): run `server-setup.sh`, restore drill (fill table in deploy.md), phone HTTPS check, then tick T56.1–T56.5.
+- D56 (Sahan relaying Sevindu): domain and stock-Android-trusted HTTPS will be provided during T56. Run the server setup, restore drill and phone HTTPS check. Record T40.1 authenticated V1 Release evidence with Sahan before closing it. Isolated HTTP evidence is development-only.
 
 ---
 
@@ -57,4 +57,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Done when**
 - [ ] `docs/acceptance.md` filled with real results/screenshots
 
-**Handoff notes:** —
+**Handoff notes:** [MD01–MD05 review evidence](../../docs/md05-delivery-handoff.md) is available on draft PR #16. End-to-end acceptance under T57 remains open, including planning integration, deployment verification and owner reconciliation of the historical beta wording with D03.
