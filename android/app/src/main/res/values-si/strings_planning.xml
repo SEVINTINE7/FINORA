@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="planning_guide">දෛනික වියදම් මාර්ගෝපදේශය</string>
+    <string name="planning_simulator">ඉලක්ක අනුකරණය</string>
+    <string name="planning_guide_intro">අඩු කිරීම්වලට පෙර වැය කළ හැකි මුදල යොදන්න. සැලසුම් කළ ඉතිරි කිරීම් හෝ අමතර නොගෙවූ බිල් නැත්නම් බිංදුව ඇතුළත් කරන්න.</string>
+    <string name="planning_funds">ලබා ගත හැකි මුදල ඇතුළත් කරන්න (රු.)</string>
+    <string name="planning_savings">සැලසුම් කළ ඉතිරිය ඇතුළත් කරන්න (රු.)</string>
+    <string name="planning_arrears">අමතර නොගෙවූ බිල් ඇතුළත් කරන්න (රු.)</string>
+    <string name="planning_income_date">ඊළඟ ආදායම් දිනය (අත්‍යවශ්‍ය නැත, YYYY-MM-DD)</string>
+    <string name="planning_assumptions">ගණනයේ උපකල්පන</string>
+    <string name="planning_guide_assumptions">වැය කළ හැකි මුදල ඔබේ ඇස්තමේන්තුවයි. තවමත් අඩු කළ යුතු ඉතිරි කිරීම් සහ පැරණි හෝ ලියා නොමැති බිල් පමණක් ඇතුළත් කරන්න. ගෙවූ බවට ලකුණු බැංකු තහවුරු නොවේ. වත්මන් හිඟ බිල් සහ ඊළඟ ආදායම් දිනය දක්වා ගෙවිය යුතු බිල් ගණනයට ඇතුළත් වේ. අද ඇතුළත් වන අතර ආදායම් දිනය ඇතුළත් නොවේ. දෛනික මුදල ශතයට පහළට වට කරයි. ඇස්තමේන්තු කළ ආදායම් දිනය සහතික නොවේ.</string>
+    <string name="planning_simulation_intro">මාසික ඉතිරි කිරීමේ මූලික මුදල මුලින් ඇතුළත් කරන්න. ධන හෝ ඍණ වෙනසට පහත කාණ්ඩ අඩු කිරීම් ඇතුළත් නොකරන්න. උපකල්පිත පළමු දායකත්වය ඊළඟ මාසය අවසානයේය. මෙම ඇස්තමේන්තුව දත්ත සුරකින්නේ හෝ දිනයක් සහතික කරන්නේ නැත.</string>
+    <string name="planning_goal">ඉතිරි කිරීමේ ඉලක්කය</string>
+    <string name="planning_baseline">මාසික ඉතිරි කිරීමේ මූලික මුදල (රු.)</string>
+    <string name="planning_adjustment">මාසික වෙනස (රු., ධන හෝ ඍණ)</string>
+    <string name="planning_add_cut">කාණ්ඩ අඩු කිරීමක් එක් කරන්න</string>
+    <string name="planning_remove_cut">කාණ්ඩ අඩු කිරීම ඉවත් කරන්න</string>
+    <string name="planning_category">වියදම් කාණ්ඩය</string>
+    <string name="planning_reduction">මාසික අඩු කිරීම (රු.)</string>
+    <string name="planning_calculate">ගණනය කරන්න</string>
+    <string name="planning_confirm_bills">ලියා ඇති බිල් තහවුරු කරන්න</string>
+    <string name="planning_confirm_message">ලියා ඇති නොගෙවූ බිල් සඳහා රු. %1$s තහවුරු කරන්න. පැරණි හෝ ලියා නොමැති බිල් වෙනම ඇතුළත් කරන්න.</string>
+    <string name="planning_invalid_date">YYYY-MM-DD ආකෘතියෙන් වලංගු දිනයක් යොදන්න.</string>
+    <string name="planning_invalid_amount">දශම ස්ථාන දෙකක් දක්වා වලංගු රුපියල් මුදලක් ඇතුළත් කරන්න.</string>
+    <string name="planning_invalid_cut">ධන අඩු කිරීමක් යොදා එක් කාණ්ඩයක් එක් වරක් පමණක් තෝරන්න.</string>
+    <string name="planning_no_goals">අනුකරණයක් සඳහා ඉතිරි කිරීමේ ඉලක්කයක් සාදන්න.</string>
+    <string name="planning_date_entered">ඇතුළත් කළ ආදායම් දිනය: %1$s</string>
+    <string name="planning_date_inferred">අවසන් වරට සටහන් කළ ආදායම අනුව ඇස්තමේන්තු කළ දිනය: %1$s</string>
+    <string name="planning_tracked">ලියා ඇති නොගෙවූ බිල්: රු. %1$s (%2$d)</string>
+    <string name="planning_allowance">දෛනික දීමනාව: දින %2$d සඳහා දිනකට රු. %1$s</string>
+    <string name="planning_shortfall">හිඟය: රු. %1$s</string>
+    <string name="planning_zero">වැය කළ හැකි දීමනාවක් ඉතිරි වී නැත.</string>
+    <string name="planning_overcommitted">සැලසුම් කළ බැඳීම් ලබා ගත හැකි මුදල ඉක්මවයි.</string>
+    <string name="planning_date_missing">ඊළඟ ආදායම් දිනය ඇතුළත් කරන්න. සටහන් කළ ආදායම් දිනයක් නැත.</string>
+    <string name="planning_income_today">ආදායම අද ලැබීමට නියමිතය. දෛනික දීමනාව ගණනය කළ නොහැක.</string>
+    <string name="planning_income_passed">ඇස්තමේන්තු කළ හෝ ඇතුළත් කළ දිනය පසු වී ඇත. ඉදිරි දිනයක් යොදන්න.</string>
+    <string name="planning_bills_changed">ලියා ඇති බිල් වෙනස් වී ඇත. අලුත් මුදල පරීක්ෂා කර තහවුරු කරන්න.</string>
+    <string name="planning_estimate">ඇස්තමේන්තුව</string>
+    <string name="planning_completed">මෙම ඉලක්කය සඳහා මුදල් දැනටමත් සපයා ඇත.</string>
+    <string name="planning_no_capacity">මෙම අගයන් අනුව මාසික ඉතිරියක් නැත.</string>
+    <string name="planning_horizon">ඇස්තමේන්තුව අනුකරණයේ කාල සීමාව ඉක්මවයි.</string>
+    <string name="planning_monthly">උපකල්පිත මාසික ඉතිරිය: රු. %1$s</string>
+    <string name="planning_remaining">ඉලක්කයට ඉතිරි මුදල: රු. %1$s</string>
+    <string name="planning_finish">ඇස්තමේන්තු කළ අවසානය: %1$s (මාස %2$d)</string>
+    <string name="planning_reference">කාණ්ඩ වියදම් සලකා බැලූ මාසය: %1$s</string>
+</resources>
