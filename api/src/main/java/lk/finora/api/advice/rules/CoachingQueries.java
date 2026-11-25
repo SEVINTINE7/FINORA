@@ -32,7 +32,12 @@ public class CoachingQueries {
                 SELECT x.label, x.kind,
                        SUM(CASE WHEN x.txn_date BETWEEN ? AND ? THEN x.amount ELSE 0 END) AS spend,
                        SUM(CASE WHEN x.txn_date BETWEEN ? AND ? THEN x.amount ELSE 0 END) AS prior
-                FROM (SELECT CASE WHEN c.user_id IS NULL THEN c.name
+                FROM (SELECT CASE
+                                  WHEN c.user_id IS NULL AND c.need_or_want = 'WANT'
+                                       AND BINARY c.name IN ('Food delivery','Shopping','Entertainment') THEN c.name
+                                  WHEN c.user_id IS NULL AND c.need_or_want = 'NEED'
+                                       AND BINARY c.name IN ('Food','Transport','Rent','Utilities','Mobile/Internet',
+                                                            'Health','Education','Loan payment') THEN c.name
                                   WHEN c.need_or_want = 'WANT' THEN 'Other want' ELSE 'Other need' END AS label,
                              c.need_or_want AS kind, t.txn_date, t.amount
                       FROM transactions t JOIN categories c ON c.id = t.category_id

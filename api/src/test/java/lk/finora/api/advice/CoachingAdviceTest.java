@@ -103,6 +103,18 @@ class CoachingAdviceTest extends IntegrationTest {
         assertThat(rules.facts(createUser(Role.USER).getId(), MONTH, s.goal()).facts()).doesNotContainKey(FactKey.FOCUS_GOAL_TARGET);
     }
 
+    @Test
+    void renamedSharedCategoryIsGroupedWithoutForwardingItsLabel() {
+        var s = seed();
+        jdbc.update("UPDATE categories SET name='Synthetic private label' WHERE user_id IS NULL AND name='Shopping'");
+        var facts = rules.facts(s.user().getId(), MONTH, s.goal());
+        assertThat(facts.slotLabels()).containsEntry("TOP_WANT_1", "Other want");
+        fact(facts, FactKey.TOP_WANT_1_SPEND, "32000");
+        fact(facts, FactKey.TOP_WANT_1_AVERAGE, "10000");
+        assertThat(AiPrompt.user(facts, RuleAdviceEngine.generate(facts), jsonMapper))
+                .doesNotContain("Synthetic private label");
+    }
+
     private List<Map<String, Object>> reply(FactSheet f) {
         List<Map<String, Object>> items = new ArrayList<>();
         for (AdviceItem item : RuleAdviceEngine.generate(f)) {
@@ -164,6 +176,18 @@ class CoachingAdviceTest extends IntegrationTest {
         items = reply(f);
         items.removeIf(item -> "SALARY_PLAN".equals(item.get("actionId")));
         assertThat(check(f, items).reason()).isEqualTo(Reason.MISSING_SECTION);
+    }
+
+    @Test
+    void foreignZeroAndDeletedFocusGoalsAreRejectedBeforeAdviceLookup() throws Exception {
+        var s = seed();
+        String owner = "Bearer " + tokenFor(s.user());
+        String other = "Bearer " + tokenFor(createUser(Role.USER));
+        String base = "/api/v1/advice?month=" + MONTH + "&mode=V1&goalId=";
+        mockMvc.perform(get(base + s.goal()).header("Authorization", other)).andExpect(status().isNotFound());
+        mockMvc.perform(get(base + "0").header("Authorization", owner)).andExpect(status().isNotFound());
+        jdbc.update("DELETE FROM goals WHERE id=? AND user_id=?", s.goal(), s.user().getId());
+        mockMvc.perform(get(base + s.goal()).header("Authorization", owner)).andExpect(status().isNotFound());
     }
 
     @Test

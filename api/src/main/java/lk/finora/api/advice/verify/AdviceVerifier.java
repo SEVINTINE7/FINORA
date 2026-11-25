@@ -1,6 +1,7 @@
 package lk.finora.api.advice.verify;
 
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +37,7 @@ public final class AdviceVerifier {
             .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
     private static final Pattern NUMBER = Pattern.compile("[0-9]+(?:\\.[0-9]+)?");
     /** Free-text numbers may use thousands separators: 9,625 or 54,900.00. */
-    private static final Pattern FREE_NUMBER = Pattern.compile("[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?");
+    private static final Pattern FREE_NUMBER = Pattern.compile("[-\u2212+]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?)");
     private static final int MAX_SECTION_TEXT = 1200;
     /** Products, borrowing, guarantees, links and cuts to essential (need) categories are never allowed. */
     private static final Pattern UNSAFE = Pattern.compile("(?i)guarantee|risk[- ]free|crypto|stock|shares|invest|"
@@ -110,9 +111,11 @@ public final class AdviceVerifier {
     private static Object section(String id, String text, JsonNode numbers, FactSheet facts) {
         if (text.isBlank() || text.length() > MAX_SECTION_TEXT || text.chars().anyMatch(ch -> ch < 0x20))
             return Reason.INVALID_SHAPE;
-        if (UNSAFE.matcher(text).find()) return Reason.UNSAFE_TEXT;
-        List<BigDecimal> tokens = FREE_NUMBER.matcher(text).results()
-                .map(r -> new BigDecimal(r.group().replace(",", ""))).toList();
+        String normalized = Normalizer.normalize(text, Normalizer.Form.NFKC);
+        String phraseText = normalized.replaceAll("[\\p{Z}\\p{Pd}]+", " ");
+        if (UNSAFE.matcher(phraseText).find()) return Reason.UNSAFE_TEXT;
+        List<BigDecimal> tokens = FREE_NUMBER.matcher(normalized).results()
+                .map(r -> new BigDecimal(r.group().replace(",", "").replace('−', '-'))).toList();
         if (tokens.size() != numbers.size()) return Reason.TEXT_NUMBER_MISMATCH;
         List<AdviceItem.NumberFact> trusted = new ArrayList<>();
         for (int j = 0; j < numbers.size(); j++) {
