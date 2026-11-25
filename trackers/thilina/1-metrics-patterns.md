@@ -19,6 +19,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Regression evidence: 2 new tests failed before correction; after correction MetricsServiceTest (12), PatternRulesTest (13), InsightControllerTest (10): 35 run, 0 failures/errors/skips, Java 17, isolated MySQL 8 `finora_test` only.
 - Evidence: `api/target/t21-regression-before.log`, `api/target/t21-t22-review.log` and Surefire reports (ignored build output). T50 was not rerun.
 - Next: review the feature-branch fixes in the upstream PR; status returned to review for the new correction, not falsely marked accepted. Backend dependencies' existing API contracts were preserved.
+- Execution 29 carries the D55 semantic code consumer from 94e8335. Focused D55 verification covered the rename/deactivation and history regressions. Final review and dependency closure remain open. Confirm whether derived ratios require standalone provenance.
 
 ---
 
