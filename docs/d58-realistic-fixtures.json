@@ -1,0 +1,117 @@
+{
+  "synthetic": true,
+  "month": "2026-11",
+  "currency": "LKR",
+  "discretionaryCategory": "Shopping",
+  "cases": [
+    {
+      "profile": "worker",
+      "description": "Entry-level worker",
+      "goal": "Emergency fund",
+      "income": 75000,
+      "needs": {
+        "Rent": 22000,
+        "Food": 12000,
+        "Transport": 6000
+      },
+      "wants": 20000,
+      "target": 150000,
+      "saved": 45000,
+      "months": 6,
+      "cap": 15000,
+      "remaining": 105000,
+      "required": 17500,
+      "transfer": 17500,
+      "buffer": 2500,
+      "finish": 6
+    },
+    {
+      "profile": "irregular",
+      "description": "Young adult with a savings shortfall",
+      "goal": "Laptop for study",
+      "income": 52000,
+      "needs": {
+        "Rent": 19000,
+        "Food": 14000,
+        "Transport": 6000
+      },
+      "wants": 12000,
+      "target": 120000,
+      "saved": 30000,
+      "months": 6,
+      "cap": 9000,
+      "remaining": 90000,
+      "required": 15000,
+      "transfer": 4000,
+      "buffer": 0,
+      "finish": 23
+    },
+    {
+      "profile": "freelance",
+      "description": "Irregular-income freelancer",
+      "goal": "Education fund",
+      "income": 68000,
+      "priorIncome": [
+        52000,
+        81000
+      ],
+      "needs": {
+        "Rent": 21000,
+        "Food": 15000,
+        "Transport": 6000
+      },
+      "wants": 16000,
+      "target": 120000,
+      "saved": 30000,
+      "months": 9,
+      "cap": 12000,
+      "remaining": 90000,
+      "required": 10000,
+      "transfer": 10000,
+      "buffer": 4000,
+      "finish": 9
+    },
+    {
+      "profile": "student",
+      "description": "Student with family support and a current cash shortfall",
+      "goal": "Emergency reserve",
+      "income": 36000,
+      "needs": {
+        "Rent": 16000,
+        "Food": 11000,
+        "Transport": 4000
+      },
+      "wants": 8000,
+      "target": 75000,
+      "saved": 15000,
+      "months": 12,
+      "cap": 6000,
+      "remaining": 60000,
+      "required": 5000,
+      "transfer": 0,
+      "buffer": 0,
+      "finish": null
+    },
+    {
+      "profile": "professional",
+      "description": "Young professional with a completed goal",
+      "goal": "Completed rental deposit",
+      "income": 90000,
+      "needs": {
+        "Rent": 30000,
+        "Food": 14000,
+        "Transport": 8000
+      },
+      "wants": 16000,
+      "target": 90000,
+      "saved": 90000,
+      "months": 6,
+      "cap": 12000,
+      "remaining": 0,
+      "required": null,
+      "transfer": null,
+      "buffer": null,
+      "finish": null
+    }
+  ]
+}
