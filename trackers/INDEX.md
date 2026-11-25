@@ -22,9 +22,9 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T14 | Local bank SMS parsing | Sahan | — | T13, T45.3 (can start with bundled formats) | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T15 | Transaction preview and deduplication | Sahan | Sevindu | T14, T10 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | in-progress |
 | T16 | SMS parser regression tests | Sahan | Thilina | T14 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | in-progress |
-| T17 | Monthly budgets | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
-| T18 | Monthly bills | Sevindu | Sahan | T17 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
-| T19 | Savings goals | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
+| T17 | Monthly budgets | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | review |
+| T18 | Monthly bills | Sevindu | Sahan | T17 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | review |
+| T19 | Savings goals | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | review |
 | T20 | Dashboard and charts | Sahan | Sevindu | T10, T17 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
 | T21 | Deterministic spending metrics | Thilina | — | T10, T17, T18 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | review |
 | T22 | Spending-pattern detection | Thilina | — | T21 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |

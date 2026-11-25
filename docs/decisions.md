@@ -112,3 +112,8 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
   - D56 confirms the sequencing in D51. T40.1 authenticated release HTTPS verification is deferred to deployment and remains unchecked under its original criteria. Sevindu supplies the T56 endpoint and trust configuration. Sahan verifies the actual release APK against it and records sanitized evidence for independent review.
   - D23 remains in force. Production releases require a trusted HTTPS origin and normal Android certificate and hostname validation. Release cleartext, TLS bypasses and insecure production configurations remain prohibited.
   - This is development closure, with MD05 15/16 and overall 83/84 verified. Task ownership, formal dependencies, independent review and merge authorization remain in force.
+
+- **D57 T17.3/T18.4/T19.3 emulator device check and T34 inputs** — On 2026-11-25 Sevindu approved the isolated Android Studio emulator (Pixel 10 Pro XL AVD, Android 17) in place of a physical handset for the T17.3, T18.4 and T19.3 device checks only.
+  - Evidence: `UserJourneyTest#planningScreensBudgetsBillsGoals` (EN/SI, add/edit, stale-form 409, paid toggle, contributions, rotation, accessibility labels) passed on synthetic accounts, plus Sevindu's human TalkBack listen of all three screens ("all three screens OK"). Emulator settings were restored afterwards.
+  - T34: the goal alert fires when an active goal's target date is 7 days away or less. No Firebase project exists yet, so the API ships a no-op push sender until `FIREBASE_CREDENTIALS` is set, and `google-services.json` stays out of Git. T34.5 (Android) is in scope for this delivery.
+  - Independent review and ownership rules remain in force.

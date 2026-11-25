@@ -266,6 +266,204 @@ public class UserJourneyTest {
         }
     }
 
+    /** Opt-in: leaves a signed-in USER with one budget, bill and goal for a human TalkBack listen (D57). */
+    @Test public void stagePlanningTalkBackFixture() {
+        org.junit.Assume.assumeTrue("Opt-in planning fixture only",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraStagePlanning")));
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            tab(R.string.plan_tab);
+            clickText(R.string.budget_list_title);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetListActivity.class);
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+            select(R.id.form_kind, "Food");
+            enter(R.id.budget_limit, "100.00");
+            clickId(R.id.records_save);
+            awaitText(app.getString(R.string.budget_state_ok));
+            pressBack();
+            awaitActivity(MainActivity.class);
+            clickText(R.string.bill_list_title);
+            awaitActivity(lk.finora.app.ui.bills.BillListActivity.class);
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
+            enter(R.id.form_name, "Synthetic rent");
+            enter(R.id.bill_amount, "5000.00");
+            enter(R.id.bill_due_day, "31");
+            clickId(R.id.records_save);
+            awaitText(app.getString(R.string.bill_unpaid));
+            pressBack();
+            awaitActivity(MainActivity.class);
+            clickText(R.string.goal_list_title);
+            awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.goals.GoalFormActivity.class);
+            enter(R.id.form_name, "Synthetic laptop");
+            enter(R.id.goal_target, "1000.00");
+            enter(R.id.goal_target_date,
+                    java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo")).plusDays(60).toString());
+            clickId(R.id.records_save);
+            awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+            onView(withContentDescription(app.getString(R.string.goal_open_named, "Synthetic laptop")))
+                    .perform(activateControl());
+            awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
+            enter(R.id.contribution_amount, "250.00");
+            clickId(R.id.contribution_add);
+            await(By.descContains("LKR 250.00"));
+            keepAccessibilityFixture = true;
+        }
+    }
+
+    /**
+     * T17.3 / T18.4 / T19.3 emulator acceptance (D57): list and form flows, 409 on a stale budget form,
+     * rotation keeps typed values, TalkBack labels in the accessibility tree, Sinhala rendering.
+     */
+    @Test public void planningScreensBudgetsBillsGoals() throws Exception {
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        var colombo = java.time.ZoneId.of("Asia/Colombo");
+        String month = java.time.YearMonth.now(colombo).toString();
+        try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+
+            // T17.3 budgets: add, progress label, rotation keeps the typed limit, edit
+            tab(R.string.plan_tab);
+            clickText(R.string.budget_list_title);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetListActivity.class);
+            awaitText(app.getString(R.string.records_empty));
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+            select(R.id.form_kind, "Food");
+            enter(R.id.budget_limit, "100.00");
+            device.setOrientationLeft();
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+            onView(withId(R.id.budget_limit)).check(matches(withText("100.00")));
+            device.setOrientationNatural();
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+            clickId(R.id.records_save);
+            String left = app.getString(R.string.budget_left, "0.00", "100.00", "100.00");
+            awaitText(left);
+            awaitText(app.getString(R.string.budget_state_ok));
+            await(By.desc("Food. " + left));
+            onView(withContentDescription(app.getString(R.string.records_edit_named, "Food")))
+                    .perform(activateControl());
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+            onView(withId(R.id.budget_limit)).check(matches(withText("100.00")));
+            enter(R.id.budget_limit, "250.00");
+            clickId(R.id.records_save);
+            awaitText(app.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            device.setOrientationLeft();
+            awaitActivity(lk.finora.app.ui.budgets.BudgetListActivity.class);
+            awaitShown(app.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            device.setOrientationNatural();
+            pressBack();
+            awaitActivity(MainActivity.class);
+        }
+
+        // T17.3 409: a form opened before Food was taken (another device) gets the duplicate message
+        try (var ignored = ActivityScenario.launch(new android.content.Intent(app,
+                lk.finora.app.ui.budgets.BudgetFormActivity.class)
+                .putExtra("budget_month", month).putExtra("budget_taken_categories", new long[0]))) {
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+            select(R.id.form_kind, "Food");
+            enter(R.id.budget_limit, "300.00");
+            clickId(R.id.records_save);
+            awaitText(app.getString(R.string.budget_duplicate));
+            awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
+        }
+
+        // T18.4 bills: due day 31 shows the month's last day, paid toggle updates the summary and status
+        String due = java.time.YearMonth.now(colombo).atEndOfMonth().format(java.time.format.DateTimeFormatter
+                .ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(java.util.Locale.getDefault()));
+        try (var ignored = ActivityScenario.launch(lk.finora.app.ui.bills.BillListActivity.class)) {
+            awaitText(app.getString(R.string.records_empty));
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
+            enter(R.id.form_name, "Synthetic rent");
+            enter(R.id.bill_amount, "5000.00");
+            enter(R.id.bill_due_day, "31");
+            device.setOrientationLeft();
+            awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
+            onView(withId(R.id.form_name)).check(matches(withText("Synthetic rent")));
+            onView(withId(R.id.bill_due_day)).check(matches(withText("31")));
+            device.setOrientationNatural();
+            awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
+            clickId(R.id.records_save);
+            awaitText(app.getString(R.string.bill_details, "5000.00", due));
+            awaitText(app.getString(R.string.bill_unpaid));
+            awaitText(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
+            String paidLabel = app.getString(R.string.bill_paid_named, "Synthetic rent");
+            onView(withContentDescription(paidLabel)).perform(activateControl());
+            awaitText(app.getString(R.string.bill_summary, "5000.00", "5000.00", "0.00"));
+            awaitText(app.getString(R.string.bill_paid));
+            onView(withContentDescription(paidLabel)).check(matches(isChecked()));
+            onView(withContentDescription(paidLabel)).perform(activateControl());
+            awaitText(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
+            onView(withContentDescription(paidLabel)).check(matches(not(isChecked())));
+            await(By.desc(app.getString(R.string.records_edit_named, "Synthetic rent")));
+        }
+
+        // T19.3 goals: list → detail, add/remove contributions, progress, rotation on detail
+        String target = java.time.LocalDate.now(colombo).plusDays(60).toString();
+        try (var ignored = ActivityScenario.launch(lk.finora.app.ui.goals.GoalListActivity.class)) {
+            awaitText(app.getString(R.string.records_empty));
+            clickId(R.id.records_add);
+            awaitActivity(lk.finora.app.ui.goals.GoalFormActivity.class);
+            enter(R.id.form_name, "Synthetic laptop");
+            enter(R.id.goal_target, "1000.00");
+            enter(R.id.goal_target_date, target);
+            clickId(R.id.records_save);
+            awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+            await(By.textContains(app.getString(R.string.goal_progress_text, "0.00", "1000.00", "1000.00", 0)));
+            onView(withContentDescription(app.getString(R.string.goal_open_named, "Synthetic laptop")))
+                    .perform(activateControl());
+            awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
+            awaitText(app.getString(R.string.goal_no_contributions));
+            enter(R.id.contribution_amount, "250.00");
+            clickId(R.id.contribution_add);
+            await(By.textContains(app.getString(R.string.goal_progress_text, "250.00", "1000.00", "750.00", 25)));
+            enter(R.id.contribution_amount, "100.00");
+            clickId(R.id.contribution_add);
+            await(By.textContains(app.getString(R.string.goal_progress_text, "350.00", "1000.00", "650.00", 35)));
+            device.setOrientationLeft();
+            awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
+            await(By.textContains(app.getString(R.string.goal_progress_text, "350.00", "1000.00", "650.00", 35)));
+            device.setOrientationNatural();
+            awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
+            String remove = app.getString(R.string.records_remove_named, "");
+            await(By.descContains("LKR 250.00"));
+            onView(allOf(withContentDescription(startsWith(remove)),
+                    withContentDescription(containsString("LKR 250.00")))).perform(reveal(), activateControl());
+            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+            await(By.textContains(app.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
+            await(By.textContains(app.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
+        }
+
+        // Sinhala: switch while the budget list is open (as the Settings picker does), then the other lists
+        var configuration = new android.content.res.Configuration(app.getResources().getConfiguration());
+        configuration.setLocale(java.util.Locale.forLanguageTag("si"));
+        var si = app.createConfigurationContext(configuration);
+        try (var ignored = ActivityScenario.launch(lk.finora.app.ui.budgets.BudgetListActivity.class)) {
+            awaitText(app.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("SI"));
+            awaitText(si.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            awaitText(si.getString(R.string.budget_state_ok));
+        }
+        try (var ignored = ActivityScenario.launch(lk.finora.app.ui.bills.BillListActivity.class)) {
+            awaitText(si.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
+            awaitText(si.getString(R.string.bill_unpaid));
+            await(By.desc(si.getString(R.string.bill_paid_named, "Synthetic rent")));
+        }
+        try (var ignored = ActivityScenario.launch(lk.finora.app.ui.goals.GoalListActivity.class)) {
+            await(By.textContains(si.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
+            await(By.desc(si.getString(R.string.goal_open_named, "Synthetic laptop")));
+        } finally {
+            device.setOrientationNatural();
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("EN"));
+        }
+    }
+
     private void chooseTestLanguage(String language) {
         var config = new android.content.res.Configuration(app.getResources().getConfiguration());
         config.setLocale(java.util.Locale.ENGLISH);
@@ -1252,6 +1450,19 @@ public class UserJourneyTest {
     }
 
     private void awaitText(String text) { await(By.text(text)); }
+    /** Waits for a text view, scrolling it into view first (landscape lists can push rows below the fold). */
+    private static void awaitShown(String text) {
+        long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+        while (true) {
+            try {
+                onView(withText(text)).perform(reveal()).check(matches(isDisplayed()));
+                return;
+            } catch (RuntimeException | AssertionError missing) {
+                if (SystemClock.elapsedRealtime() > deadline) throw missing;
+                SystemClock.sleep(200);
+            }
+        }
+    }
     private void awaitButton(int label) {
         await(By.text(java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(app.getString(label)),
                 java.util.regex.Pattern.CASE_INSENSITIVE | java.util.regex.Pattern.UNICODE_CASE)));

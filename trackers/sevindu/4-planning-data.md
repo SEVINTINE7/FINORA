@@ -8,7 +8,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T10 · **Touches:** `api:budget/`, `and:ui/budgets/`
 - [x] T17.1 [API] CRUD `/api/v1/budgets` per category per month (`YYYY-MM`)
 - [x] T17.2 [API] `GET /api/v1/budgets?month=` returns limit, used, remaining, state `OK|NEAR(≥80%)|OVER`
-- [ ] T17.3 [AND·Sahan] Budget list with progress bars + add/edit
+- [x] T17.3 [AND·Sahan] Budget list with progress bars + add/edit
   - MD04 emulator forms verified list refresh after create/edit/delete and exact usage after transaction edits. The T17-specific physical-device checklist remains open.
 
 **Done when**
@@ -16,6 +16,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - API done (T17.1–T17.2). T17.3 code done by Sevindu: `and:ui/budgets/` (list + form + ViewModels), `data/api/BudgetDto`, `data/repo/BudgetRepository`, Plan tab → Budgets in `MainActivity`; device check (EN/SI, TalkBack, 409, rotation) still open.
+- 2026-11-25 emulator acceptance (D57), Pixel 10 Pro XL AVD Android 17, `finora_test` V22, synthetic accounts: `UserJourneyTest#planningScreensBudgetsBillsGoals` 1/1 pass twice (EN + SI, rotation, TalkBack labels in tree; 409 via a stale form → duplicate message). Sevindu heard TalkBack on Budgets: OK. Landscape rows can sit below the fold (scroll), not a defect.
 - `api:budget/`: `Budget`, repo, `BudgetService`, `BudgetController`, `dto/`. Spent amount from new `TransactionRepository.sumExpenseForCategory`.
 - Budgets only on EXPENSE categories (default or own); another user's category → 400. One budget per category + month → 409 `CONFLICT`.
 - `remaining` goes negative when over. used == limit is `NEAR` (OVER only when used > limit). 80% check uses multiplication, no division/rounding.
@@ -29,7 +30,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T18.1 [API] CRUD `/api/v1/bills` (amount, due_day, category)
 - [x] T18.2 [API] Mark paid/unpaid per month; due_day 31 in short months = last day
 - [x] T18.3 [API] Monthly bill total exposed for budgets/planning (T31)
-- [ ] T18.4 [AND·Sahan] Bills list with paid toggle and next due date
+- [x] T18.4 [AND·Sahan] Bills list with paid toggle and next due date
   - MD04 emulator forms verified list refresh, the paid toggle and dependent Insights and History refresh. The T18-specific physical-device checklist remains open.
 
 **Done when**
@@ -37,6 +38,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - API done (T18.1–T18.3). T18.4 code by Sevindu: `and:ui/bills/` (list + form + ViewModels), `data/api/BillDto`, `data/repo/BillRepository`, Plan tab → Bills. Month switcher, summary line, paid checkbox (409 = already paid → reload), status Paid / Not paid / Overdue (due date before today, Asia/Colombo). Device check (EN/SI, TalkBack, rotation) still open.
+- 2026-11-25 emulator acceptance (D57), Pixel 10 Pro XL AVD Android 17, `finora_test` V22, synthetic accounts: `UserJourneyTest#planningScreensBudgetsBillsGoals` 1/1 pass twice (EN + SI, rotation, TalkBack labels in tree; due day 31 → month end, paid toggle on/off updates summary). Sevindu heard TalkBack on Bills incl. checkbox state: OK.
 - `api:bill/`: `Bill`, `BillPayment` (row = paid for that month; none = unpaid), repos, `BillService`, `BillController`, `dto/`.
 - Paid: `POST /bills/{id}/paid?month=` (twice → 409), unpaid: `DELETE` same URL (idempotent 204). Category optional, must be EXPENSE.
 - **For T21/T31:** `BillService.monthlyTotal(userId)` (BigDecimal, scale 2) and static `BillService.dueDate(bill, yearMonth)`. Endpoint `GET /bills/summary?month=` gives total/paid/unpaid.
@@ -49,7 +51,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T10 · **Touches:** `api:goal/`, `and:ui/goals/`
 - [x] T19.1 [API] CRUD `/api/v1/goals` (target > 0, target date in future)
 - [x] T19.2 [API] Contributions add/delete; progress = sum(contributions) / target, capped display at 100%
-- [ ] T19.3 [AND·Sahan] Goals list + detail with contributions
+- [x] T19.3 [AND·Sahan] Goals list + detail with contributions
   - MD04 emulator forms verified list/detail refresh, goal lifecycle and contribution changes. T19-specific device acceptance remains open.
 
 **Done when**
@@ -62,6 +64,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - **For T23/T31/T32:** `GoalService.saved(goal)` (scale 2) and static `GoalService.progressPercent(saved, target)` (rounded down, max 100).
 - Tests: `GoalControllerTest` (9); suite 105/105. `docs/api-contract.md` updated.
 - 2026-11-25 re-verified on MySQL `finora_test` (V22): Budget/Bill/GoalControllerTest 27/27 pass; Android `testV1DebugUnitTest` 146/146. T17.3/T18.4/T19.3 still need the physical-device check.
+- 2026-11-25 emulator acceptance (D57), Pixel 10 Pro XL AVD Android 17, `finora_test` V22, synthetic accounts: `UserJourneyTest#planningScreensBudgetsBillsGoals` 1/1 pass twice (EN + SI, rotation, TalkBack labels in tree; add/remove contributions 25%→35%→10%). Sevindu heard TalkBack on Goals list/detail: OK. Opt-in fixture: `stagePlanningTalkBackFixture`.
 
 ---
 
