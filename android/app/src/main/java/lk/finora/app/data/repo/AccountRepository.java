@@ -43,22 +43,28 @@ public final class AccountRepository {
     public static final class ProtectedRequests {
         private final TokenStore store;
         private final Object login;
+        private final String role;
 
-        private ProtectedRequests(TokenStore store, Object login) {
+        private ProtectedRequests(TokenStore store, Object login, String role) {
             this.store = store;
             this.login = login;
+            this.role = role;
         }
 
-        public static ProtectedRequests currentUser() {
+        public static ProtectedRequests currentUser() { return currentRole("USER"); }
+        public static ProtectedRequests currentStaff() { return currentRole("STAFF"); }
+        public static ProtectedRequests currentAdmin() { return currentRole("ADMIN"); }
+
+        private static ProtectedRequests currentRole(String role) {
             TokenStore store = TokenStore.current();
             Session session = store == null ? null : store.verifiedSession();
-            return session != null && "USER".equals(session.role)
-                    ? new ProtectedRequests(store, session.loginIdentity()) : null;
+            return session != null && role.equals(session.role)
+                    ? new ProtectedRequests(store, session.loginIdentity(), role) : null;
         }
 
         public boolean isCurrent() {
             Session current = store.verifiedSession();
-            return current != null && current.loginIdentity() == login && "USER".equals(current.role);
+            return current != null && current.loginIdentity() == login && role.equals(current.role);
         }
 
         public void addListener(Runnable listener) { store.addSessionListener(listener); }
@@ -77,9 +83,18 @@ public final class AccountRepository {
     }
 
     private static final Gson GSON = new Gson();
+    private static final Gson EXPLICIT_NULLS = new com.google.gson.GsonBuilder().serializeNulls().create();
 
     static RequestBody json(Object dto) {
-        RequestBody body = RequestBody.create(GSON.toJson(dto), MediaType.get("application/json"));
+        return jsonBody(GSON.toJson(dto));
+    }
+
+    static RequestBody jsonIncludingNulls(Object dto) {
+        return jsonBody(EXPLICIT_NULLS.toJson(dto));
+    }
+
+    private static RequestBody jsonBody(String payload) {
+        RequestBody body = RequestBody.create(payload, MediaType.get("application/json"));
         return new RequestBody() {
             @Override public boolean isOneShot() { return true; }
             @Override public MediaType contentType() { return body.contentType(); }

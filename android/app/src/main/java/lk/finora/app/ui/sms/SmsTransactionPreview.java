@@ -5,7 +5,6 @@ import android.os.CancellationSignal;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.AccountDto;
 import lk.finora.app.data.api.CategoryDto;
 import lk.finora.app.data.local.TokenStore;
@@ -231,9 +231,7 @@ final class SmsTransactionPreview {
                 selectedDate[0] = LocalDate.of(year, month + 1, selection);
                 date.setText(activity.getString(R.string.sms_preview_date, selectedDate[0].toString()));
             }, day.getYear(), day.getMonthValue() - 1, day.getDayOfMonth());
-            var window = datePicker.getWindow();
-            if (window != null) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE);
-            datePicker.show();
+            SecureActivity.showSecure(datePicker);
         });
         form.addView(date);
         var merchant = editText(form, R.string.transaction_merchant, fields.merchant(),
@@ -330,9 +328,7 @@ final class SmsTransactionPreview {
     private void display(AlertDialog next) {
         if (dialog != null) dialog.dismiss();
         dialog = next;
-        var window = next.getWindow();
-        if (window != null) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE);
-        next.show();
+        SecureActivity.showSecure(next);
     }
 
     boolean hasPending() { return !pending.items().isEmpty(); }

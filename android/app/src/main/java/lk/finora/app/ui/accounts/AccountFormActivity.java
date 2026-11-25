@@ -17,9 +17,10 @@ import java.math.BigDecimal;
 import java.util.function.Consumer;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 
-public final class AccountFormActivity extends AppCompatActivity {
+public final class AccountFormActivity extends SecureActivity {
     private AccountFormViewModel model;
     private boolean filled;
     private EditText name;
@@ -112,7 +113,7 @@ public final class AccountFormActivity extends AppCompatActivity {
     public static void reconcile(AppCompatActivity activity, Work work,
             Class<? extends AppCompatActivity> list) {
         if (!AccountListActivity.verify(activity, work)) return;
-        new AlertDialog.Builder(activity).setMessage(R.string.records_uncertain)
+        showSecure(new AlertDialog.Builder(activity).setMessage(R.string.records_uncertain)
                 .setNeutralButton(R.string.records_open_list, (dialog, which) ->
                     activity.startActivity(new Intent(activity, list)))
                 .setNegativeButton(android.R.string.cancel, null)
@@ -120,7 +121,7 @@ public final class AccountFormActivity extends AppCompatActivity {
                     work.ambiguousCreate = false;
                     work.error = 0;
                     work.changed();
-                }).show();
+                }).create());
     }
 
     public static Spinner spinner(AppCompatActivity activity, int id, int... labels) {

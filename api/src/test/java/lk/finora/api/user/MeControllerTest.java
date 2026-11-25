@@ -135,17 +135,110 @@ class MeControllerTest extends IntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("INVALID_REFRESH_TOKEN"));
 
-        // The app sees consentVersion = null and asks to re-consent or delete data (D15)
         mockMvc.perform(get("/api/v1/me").header("Authorization", bearer()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.consentVersion").doesNotExist());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void withdrawTwiceIsStillOk() throws Exception {
+    void withdrawnSessionCannotRepeatAuthenticatedWithdrawal() throws Exception {
         mockMvc.perform(post("/api/v1/me/consent/withdraw").header("Authorization", bearer()))
                 .andExpect(status().isNoContent());
         mockMvc.perform(post("/api/v1/me/consent/withdraw").header("Authorization", bearer()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void recoveryIsRestrictedSingleUseAndRequiresFreshLogin() throws Exception {
+        mockMvc.perform(post("/api/v1/me/consent/withdraw").header("Authorization", bearer()))
                 .andExpect(status().isNoContent());
+        String first = recoveryToken();
+        mockMvc.perform(get("/api/v1/accounts").header("Authorization", "Bearer " + first))
+                .andExpect(status().isUnauthorized());
+        recover("export", first, Map.of()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.profile.email").value(EMAIL));
+        recover("export", first, Map.of()).andExpect(status().isUnauthorized());
+        String replaced = recoveryToken();
+        String current = recoveryToken();
+        recover("accept", replaced, Map.of("accepted", true, "consentVersion", "1.0"))
+                .andExpect(status().isUnauthorized());
+        recover("accept", current, Map.of("accepted", false, "consentVersion", "1.0"))
+                .andExpect(status().isBadRequest());
+        recover("accept", current, Map.of("accepted", true, "consentVersion", "0.1"))
+                .andExpect(status().isBadRequest());
+        recover("accept", current, Map.of("accepted", true, "consentVersion", "1.0"))
+                .andExpect(status().isNoContent());
+        recover("accept", current, Map.of("accepted", true, "consentVersion", "1.0"))
+                .andExpect(status().isUnauthorized());
+        entityManager.flush();
+        entityManager.clear();
+        mockMvc.perform(get("/api/v1/me").header("Authorization", bearer()))
+                .andExpect(status().isUnauthorized());
+        var login = postJson("/api/v1/auth/login", Map.of("email", EMAIL, "password", PASSWORD))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.refreshToken").isString())
+                .andExpect(jsonPath("$.restrictedToken").doesNotExist()).andReturn();
+        String access = jsonMapper.readTree(login.getResponse().getContentAsString()).get("accessToken").asString();
+        mockMvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + access))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.consentVersion").value("1.0"));
+    }
+
+    @Test
+    void expiredGrantIsRejectedAndRestrictedDeletionRetainsPasswordCheck() throws Exception {
+        mockMvc.perform(post("/api/v1/me/consent/withdraw").header("Authorization", bearer()))
+                .andExpect(status().isNoContent());
+        String expired = recoveryToken();
+        jdbc.update("UPDATE consent_recovery_grants SET expires_at = TIMESTAMP '2000-01-01 00:00:00'");
+        recover("accept", expired, Map.of("accepted", true, "consentVersion", "1.0"))
+                .andExpect(status().isUnauthorized());
+        String current = recoveryToken();
+        recover("delete", current, Map.of("password", "wrong-password")).andExpect(status().isBadRequest());
+        String replacement = recoveryToken();
+        recover("delete", replacement, Map.of("password", PASSWORD)).andExpect(status().isNoContent());
+        recover("export", replacement, Map.of()).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional(
+            propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
+    void competingAcceptanceConsumesOneGrantAndRecordsOneConsent() throws Exception {
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            mockMvc.perform(post("/api/v1/me/consent/withdraw").header("Authorization", bearer()))
+                    .andExpect(status().isNoContent());
+            String grant = recoveryToken();
+            var ready = new java.util.concurrent.CountDownLatch(2);
+            var start = new java.util.concurrent.CountDownLatch(1);
+            java.util.concurrent.Callable<Integer> accept = () -> {
+                ready.countDown();
+                assertThat(start.await(10, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+                return recover("accept", grant, Map.of("accepted", true, "consentVersion", "1.0"))
+                        .andReturn().getResponse().getStatus();
+            };
+            var first = pool.submit(accept);
+            var second = pool.submit(accept);
+            assertThat(ready.await(10, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            start.countDown();
+            assertThat(java.util.List.of(first.get(15, java.util.concurrent.TimeUnit.SECONDS),
+                    second.get(15, java.util.concurrent.TimeUnit.SECONDS))).containsExactlyInAnyOrder(204, 401);
+            assertThat(jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM consents c JOIN users u ON u.id = c.user_id
+                    WHERE u.email = ? AND c.withdrawn_at IS NULL
+                    """, Integer.class, EMAIL)).isEqualTo(1);
+        } finally {
+            pool.shutdownNow();
+            jdbc.update("DELETE FROM users WHERE email = ?", EMAIL);
+        }
+    }
+
+    private String recoveryToken() throws Exception {
+        var result = postJson("/api/v1/auth/login", Map.of("email", EMAIL, "password", PASSWORD))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(jsonPath("$.refreshToken").doesNotExist())
+                .andExpect(jsonPath("$.consentVersion").value("1.0")).andReturn();
+        return jsonMapper.readTree(result.getResponse().getContentAsString()).get("restrictedToken").asString();
+    }
+
+    private ResultActions recover(String action, String token, Map<String, Object> body) throws Exception {
+        return mockMvc.perform(post("/api/v1/auth/consent/" + action).header("Authorization", "Consent " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(json(body)));
     }
 }

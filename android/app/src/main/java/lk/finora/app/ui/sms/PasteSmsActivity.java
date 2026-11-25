@@ -3,19 +3,20 @@ package lk.finora.app.ui.sms;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.os.Bundle;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 
 import java.io.IOException;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
+import lk.finora.app.data.repo.SmsDiagnosticRepository.Code;
+import lk.finora.app.sms.SmsParseResult;
 
-public final class PasteSmsActivity extends AppCompatActivity {
+public final class PasteSmsActivity extends SecureActivity {
     private final SmsLocalTask task = new SmsLocalTask();
     private final Runnable sessionChanged = () -> runOnUiThread(this::verifySession);
     private TokenStore store;
@@ -24,6 +25,7 @@ public final class PasteSmsActivity extends AppCompatActivity {
     private Button paste;
     private Button previewButton;
     private SmsTransactionPreview preview;
+    private SmsReportAction report;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -34,7 +36,6 @@ public final class PasteSmsActivity extends AppCompatActivity {
             return;
         }
         loginIdentity = session.loginIdentity();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
         setContentView(R.layout.activity_paste_sms);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_paste_title), true);
@@ -45,6 +46,7 @@ public final class PasteSmsActivity extends AppCompatActivity {
         previewButton.setOnClickListener(view -> { if (verifySession()) preview.open(); });
         if (preview.hasPending()) previewButton.setVisibility(android.view.View.VISIBLE);
         paste.setOnClickListener(view -> paste());
+        report = new SmsReportAction(this, findViewById(R.id.sms_diagnostic_report), this::verifySession, result::setText);
     }
 
     @Override protected void onStart() {
@@ -85,6 +87,7 @@ public final class PasteSmsActivity extends AppCompatActivity {
             return;
         }
         preview.clear();
+        if (report != null) report.reset();
         previewButton.setVisibility(android.view.View.GONE);
         var clipboard = getSystemService(ClipboardManager.class);
         CharSequence message;
@@ -116,17 +119,19 @@ public final class PasteSmsActivity extends AppCompatActivity {
                 var parser = SmsLocalResults.load(this, store, loginIdentity, signal, cancelled);
                 if (parser.approvedSenderIds().isEmpty()) {
                     return new PasteResult(getString(R.string.sms_no_formats) + "\n"
-                            + getString(R.string.sms_needs_review), null);
+                            + getString(R.string.sms_needs_review), null, Code.FORMAT_UNAVAILABLE);
                 }
                 var parsed = SmsPasteInput.parse(parser, raw, cancelled);
                 return new PasteResult(SmsLocalResults.text(this, parsed),
-                        parsed instanceof lk.finora.app.sms.SmsParseResult.Parsed value ? value : null);
+                        parsed instanceof SmsParseResult.Parsed value ? value : null,
+                        parsed instanceof SmsParseResult.ManualReview review ? Code.from(review) : null);
             } catch (IOException invalidBundle) {
-                return new PasteResult(getString(R.string.sms_scan_failed), null);
+                return new PasteResult(getString(R.string.sms_scan_failed), null, null);
             }
         }, text -> {
             if (!verifySession()) return;
             result.setText(text.label());
+            report.set(text.code());
             if (text.parsed() != null) {
                 preview.replace(java.util.List.of(text.parsed()));
                 previewButton.setVisibility(android.view.View.VISIBLE);
@@ -139,11 +144,12 @@ public final class PasteSmsActivity extends AppCompatActivity {
         });
     }
 
-    private record PasteResult(String label, lk.finora.app.sms.SmsParseResult.Parsed parsed) {}
+    private record PasteResult(String label, SmsParseResult.Parsed parsed, Code code) {}
 
     private void clear() { clear(false); }
 
     private void clear(boolean changingConfiguration) {
+        if (report != null) report.reset();
         if (preview != null) preview.stop(changingConfiguration);
         if (previewButton != null) previewButton.setVisibility(android.view.View.GONE);
         task.cancel();

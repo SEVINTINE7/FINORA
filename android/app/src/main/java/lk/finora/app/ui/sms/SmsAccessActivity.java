@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -24,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
 import lk.finora.app.sms.SmsInboxReader;
@@ -31,7 +31,7 @@ import lk.finora.app.sms.SmsInboxReader.Status;
 import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.transactions.TransactionFormActivity;
 
-public final class SmsAccessActivity extends AppCompatActivity {
+public final class SmsAccessActivity extends SecureActivity {
     private static final String PERMISSION = Manifest.permission.READ_SMS;
     private static final String REQUESTED = "read_sms_requested";
     private final ActivityResultLauncher<String> permissionRequest = registerForActivityResult(
@@ -49,6 +49,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
     private TextView scanResult;
     private Button previewButton;
     private SmsTransactionPreview preview;
+    private SmsReportAction report;
     private final SmsLocalTask scanTask = new SmsLocalTask();
 
     @Override
@@ -64,7 +65,6 @@ public final class SmsAccessActivity extends AppCompatActivity {
         declared = declaresReadSms();
         preferences = getSharedPreferences("sms_access", MODE_PRIVATE);
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_sms_access);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_title), true);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_alternatives_title), true);
@@ -73,6 +73,8 @@ public final class SmsAccessActivity extends AppCompatActivity {
         status = findViewById(R.id.sms_status);
         scan = findViewById(R.id.sms_scan);
         scanResult = findViewById(R.id.sms_scan_result);
+        report = new SmsReportAction(this, findViewById(R.id.sms_diagnostic_report),
+                () -> verifySession() && canScan(), scanResult::setText);
         preview = new SmsTransactionPreview(this, store, entryIdentity, "SMS");
         previewButton = findViewById(R.id.sms_scan_preview);
         previewButton.setOnClickListener(view -> { if (verifySession() && canScan()) preview.open(); });
@@ -185,6 +187,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
             return;
         }
         preview.clear();
+        report.reset();
         previewButton.setVisibility(View.GONE);
         scan.setEnabled(false);
         scanResult.setText(R.string.records_loading);
@@ -202,7 +205,10 @@ public final class SmsAccessActivity extends AppCompatActivity {
             if (!canScan()) { renderPermission(); return; }
             scan.setEnabled(true);
             switch (result.status()) {
-                case NO_FORMATS -> scanResult.setText(R.string.sms_no_formats);
+                case NO_FORMATS -> {
+                    scanResult.setText(R.string.sms_no_formats);
+                    report.set(lk.finora.app.data.repo.SmsDiagnosticRepository.Code.FORMAT_UNAVAILABLE);
+                }
                 case COMPLETE -> {
                     if (result.results().isEmpty()) {
                         scanResult.setText(R.string.sms_no_matching_messages);
@@ -216,6 +222,11 @@ public final class SmsAccessActivity extends AppCompatActivity {
                         var parsedRows = new java.util.ArrayList<lk.finora.app.sms.SmsParseResult.Parsed>();
                         for (var row : result.results()) {
                             if (row instanceof lk.finora.app.sms.SmsParseResult.Parsed parsed) parsedRows.add(parsed);
+                        }
+                        if (result.diagnostic() != null) {
+                            var review = result.diagnostic();
+                            report.set(lk.finora.app.data.repo.SmsDiagnosticRepository.Code.from(review.result()),
+                                    review.approvedBank());
                         }
                         preview.replace(parsedRows);
                         if (!parsedRows.isEmpty()) previewButton.setVisibility(View.VISIBLE);
@@ -234,6 +245,7 @@ public final class SmsAccessActivity extends AppCompatActivity {
     private void clearScan() { clearScan(false); }
 
     private void clearScan(boolean changingConfiguration) {
+        if (report != null) report.reset();
         if (preview != null) preview.stop(changingConfiguration);
         if (previewButton != null) previewButton.setVisibility(View.GONE);
         scanTask.cancel();

@@ -66,6 +66,10 @@ Logs: `journalctl -u finora-api -f`
 
 ## 3. HTTPS health check from a phone (Done when)
 
+D56 confirms that HTTP is limited to authorized isolated development and testing. During T56 deployment, Sevindu supplies the approved HTTPS origin, a hostname-matching certificate chain trusted by stock Android, and a reachable synthetic test service. The original T56 health and restore checks and T40.1 authenticated release verification remain required.
+
+After the phone health check, Sahan verifies the actual V1 Release APK against the configured HTTPS origin with standard Android TLS validation and synthetic credentials. Retain the release revision, APK SHA-256, successful authentication and original session/privacy evidence in the handoff. Keep production cleartext disabled and certificate and hostname validation enabled.
+
 On a phone using mobile data (not the server's network), open `https://<domain>/actuator/health`.
 Expected: padlock shown, body `{"status":"UP"}` (it may also list `groups`). Also check `http://<domain>/` does **not** load (port 80 is closed).
 
@@ -125,3 +129,7 @@ If `FINORA_KEYSTORE_FILE` is set but another value is missing (or the API URL is
 ### History recovery activation (D43)
 
 Set `FINORA_HISTORY_ACTIVATION_INSTANT` to the approved production activation timestamp in ISO-8601 UTC on first activation. The scheduler persists the first full Asia/Colombo month at or after that instant. Subsequent starts use the stored cutoff, and a conflicting configured cutoff stops the recovery pass. With neither a configured activation nor a stored cutoff, only the ordinary D27 jobs run. Review any gaps in the reported ranges outside the automatic six-closed-month window before arranging owner-directed recovery. The worker schedules missing older snapshots separately from D27's previous-month and dirty work.
+
+### First ADMIN provisioning (D49)
+
+On a new deployment, set `FINORA_BOOTSTRAP_ADMIN_EMAIL` and `FINORA_BOOTSTRAP_ADMIN_PASSWORD` through the deployment secret store before starting the service. Use an authorized address and a unique high-entropy password of at least 16 characters and at most 72 UTF-8 bytes. When both variables are absent the bootstrap is inactive. The application creates one ADMIN only if none exists, including when multiple instances start together. It never resets an existing password. Remove the bootstrap variables once the administrator can sign in. Share subsequent STAFF activation credentials only through the approved secure channel.

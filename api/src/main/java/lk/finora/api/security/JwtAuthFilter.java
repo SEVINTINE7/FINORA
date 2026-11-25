@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.finora.api.common.error.ErrorCodes;
 import lk.finora.api.common.error.ErrorResponse;
+import lk.finora.api.user.ConsentRecoveryService;
 import lk.finora.api.user.User;
 import lk.finora.api.user.UserRepository;
 import lk.finora.api.user.UserStatus;
@@ -34,11 +35,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final JsonMapper jsonMapper;
+    private final ConsentRecoveryService consent;
 
-    public JwtAuthFilter(JwtService jwtService, UserRepository userRepository, JsonMapper jsonMapper) {
+    public JwtAuthFilter(JwtService jwtService, UserRepository userRepository, JsonMapper jsonMapper, ConsentRecoveryService consent) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.jsonMapper = jsonMapper;
+        this.consent = consent;
     }
 
     @Override
@@ -71,7 +74,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                if (user != null) {
+                Long claimGeneration = claims.get("staffGeneration", Long.class);
+                long generation = claimGeneration == null ? 0 : claimGeneration;
+                if (user != null && user.getRole().name().equals(role)
+                        && ("USER".equals(role) ? consent.validNormalSession(userId, generation)
+                                : user.getStaffSessionGeneration() == generation)) {
                     // The principal is the user id; read it with CurrentUser.id() or @AuthenticationPrincipal Long userId
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             userId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));

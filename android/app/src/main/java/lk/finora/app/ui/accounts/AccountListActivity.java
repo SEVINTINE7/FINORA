@@ -11,9 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 
-public final class AccountListActivity extends AppCompatActivity {
+public final class AccountListActivity extends SecureActivity {
     public static final String ITEM_ID = "record_id";
     private AccountListViewModel model;
 
@@ -70,10 +71,10 @@ public final class AccountListActivity extends AppCompatActivity {
 
     public static void confirm(AppCompatActivity activity, Work work, @StringRes int message, Runnable action) {
         if (!verify(activity, work) || work.busy()) return;
-        new AlertDialog.Builder(activity).setMessage(message)
+        showSecure(new AlertDialog.Builder(activity).setMessage(message)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.records_remove, (dialog, which) -> {
                     if (verify(activity, work)) action.run();
-                }).show();
+                }).create());
     }
 }

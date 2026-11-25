@@ -53,7 +53,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
   - MD04 emulator forms verified list/detail refresh, goal lifecycle and contribution changes. T19-specific device acceptance remains open.
 
 **Done when**
-- [x] Tests: progress after edit/delete of contributions, invalid targets, no double counting
+- [ ] Tests: progress after edit/delete of contributions, invalid targets, no double counting
 
 **Handoff notes:**
 - API done (T19.1–T19.2). T19.3 code by Sevindu: `and:ui/goals/` (list → detail with add/remove contributions, edit/cancel/resume/delete; form), `GoalDto`, `GoalRepository`, Plan tab → Savings goals. Edit sends `cancelled: true` to keep a cancelled goal cancelled. **API gap:** D16's future-date check blocks any PUT (even cancel) once the target date passes; app asks the user to change/clear the date first. Dates typed as YYYY-MM-DD (no picker yet).
