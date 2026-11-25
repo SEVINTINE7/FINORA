@@ -28,6 +28,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] Tests: rounding, zero change, impossible goal
 
 **Handoff notes:**
+- 2026-11-22 update: T32 backend implemented in ff03255; PR #13 open. 30 focused tests and 287 full backend tests passed; JaCoCo gate passed. Financial policy is proposed in docs/t32-simulator-contract.md. Team review and Android integration pending; overall T32 remains in-progress.
 - 2026-11-22 audit: existing codex/t32-goal-simulator-api branch has no commits beyond its ecee49d base and no simulator implementation. T19 remains in-progress; baseline monthly savings, category-cut semantics and finish-date rounding require team approval before expanding/coding POST /api/v1/simulate. T32 remains todo.
 
 Review evidence: T31 draft PR #14 retains 0a1f4e5. The integration run on 2026-11-24 passed all 23 daily-guide tests within 129 focused backend tests on isolated finora_test. Contract approval, persistent-date policy and MD05 review gates remain open.

@@ -213,3 +213,9 @@ Password sign-in for a withdrawn active USER returns `200` with `{restrictedToke
 - D43 adds nullable `reconstructedAt` to each History row. A non-null ISO-8601 UTC timestamp identifies recovery from the committed records available at first reconstruction. Values can differ from what was recorded at month-end. The timestamp and provenance survive dirty refreshes. Rows created by the ordinary D27 workflow have null provenance, including rows created before V13.
 - `GET /api/v1/advice?month=YYYY-MM&mode=V1` is USER-only. Both parameters are required. A delivered month returns `{month,id,source,verified,items,rating}` where items follow the existing AdviceItem schema. First verified AI or canonical rule delivery is frozen per user and month. If a first delivery is already being generated, return the stored result if available or `503 ADVICE_PENDING` so the client can retry. A short database transaction claims generation before provider calls. The claim expires after 120 seconds and cannot publish after expiry. If no action is eligible, return an empty list and null ID and rating. The empty state is not frozen. `rating` is null until submitted.
 - `POST /api/v1/advice/{id}/rating` is USER-only. It takes `{"rating": integer}` from 1–5 and returns 201 with `{rating}`. Invalid IDs or inputs return 400, missing or foreign delivery returns 404, and duplicate ratings return 409. Reconcile a lost response with the owner-scoped monthly GET and never automatically replay the write.
+
+### Savings goal simulation (T32)
+
+| Method | Path | Role | Inputs | Result | Task |
+|---|---|---|---|---|---|
+| POST | `/api/v1/simulate` | USER | owned goal ID, explicit monthly savings baseline, signed change and category cuts; see [T32 candidate contract](t32-simulator-contract.md) | `200` hypothetical result or unavailable status; `400` invalid inputs; `404` missing or foreign goal; read-only | T32 |
