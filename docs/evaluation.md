@@ -251,6 +251,13 @@ The loader was not invoked. The session reverse mapping and private input file w
 The API, private ADB server and dedicated emulator stopped. The dedicated AVD and MySQL instance
 remain available for the next session.
 
+### Execution 40 synthetic SMS traffic
+
+The dedicated emulator passed the approved three-format NSB screen challenge through paste and inbox,
+with sanitized API evidence for confirmation, diagnosis and explicit retry. Benchmark data remained
+unchanged. See [Execution 40 wire evidence](security-checklist.md#execution-40-android-sms-wire-evidence).
+Performance and formal T55 acceptance remain open.
+
 ## T55.3 moderator and participant materials (draft for approval)
 
 ### Participant information and consent

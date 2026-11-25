@@ -44,6 +44,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Final PR compatibility: preserved 8d38725, merged origin/main a0b5dfb; offline verify 206/206 passed, zero failures/errors/skips, exit 0; service lines 668/677 (98.67%), gate passed (api/target/final-t53-verify.log). Pipeline PR #8 open; next: reviewer acceptance, T14 capture, deployed TLS/proxy/log review and comprehensive scans. T53 remains in-progress.
 - Execution 29 preserves the [classified local scan](../../docs/t53-local-security-evidence.md). Dependency reports remain blocked by feed TLS; D56 deployed HTTPS and runtime captures remain open.
 
+- Execution 40: dedicated emulator NSB paste/inbox connected test passed. Six actual POSTs passed approved field and raw-marker checks, including one diagnostic and one byte-identical explicit retry. Three rows persisted solely under a disposable owner. See [wire evidence](../../docs/security-checklist.md#execution-40-android-sms-wire-evidence). Dependency remediation, OWASP, deployed HTTPS and independent review remain open.
+
 ---
 
 ### T54 · AI and financial correctness tests · `FR06–FR09`
