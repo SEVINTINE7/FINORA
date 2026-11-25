@@ -38,7 +38,7 @@ public class SecurityConfig {
 
     /** BCrypt with cost 12 (decision D09). */
     @Bean
-    PasswordEncoder passwordEncoder() {
+    static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 

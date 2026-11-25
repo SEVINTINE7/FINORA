@@ -11,12 +11,12 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T01.4 Each member confirms their local setup: JDK 17, MySQL 8, Android Studio, Git — all three confirmed
 
 **Done when**
-- [x] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md` (only P05 left, needed by T23)
+- [x] No **Proposed** item needed by T02–T08 remains in `docs/decisions.md` (P05 was subsequently approved as D20 for T23)
 
 **Handoff notes:**
 - P01, P03, P04, P06–P08 accepted → D07, D09–D13. P02 rate limit removed (D08). Git: direct push to `main` (D13). Test DB: local `finora_test` (D11).
 - T01.3/P05: All three team members approved the weights, formulas and missing-data rules on 2026-11-21; recorded as D20.
-- P05 formulas, paid-marker limitations, missing-data policy and emergency-reserve requirements are recorded in D20. T01.3 complete; T23 awaits other dependencies.
+- P05 formulas, paid-marker limitations, missing-data policy and emergency-reserve requirements are recorded in D20. This resolves the historical P05 qualifier in Done when. T01 is in review; T23 awaits its other dependencies.
 - Sevindu's machine: JDK 17.0.12, Maven 3.9.11, Git 2.50, MySQL Server 8.0 (service running), Android Studio + SDK. `mysql` CLI and `adb` not on PATH (optional). No Docker.
 - All three members confirmed local setup (T01.4).
 - 2026-11-21 P05 evidence: 13 synthetic Python Decimal cases were evaluated as proposal evidence; team approval is now D20. Application implementation remains pending.

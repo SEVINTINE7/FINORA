@@ -52,19 +52,17 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sevindu · **Support:** Sahan · **Depends on:** T05, T37 · **Touches:** `api:user/`, `and:ui/auth/`, `and:ui/settings/`, `res:values*/strings.xml`
 - [x] T07.1 [API] Consent row on register (version D12, over18, accepted_at)
 - [x] T07.2 [API] `GET /api/v1/me` → `{email, fullName, language, consentVersion}`; `PUT /api/v1/me` `{fullName, language}`
-- [x] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes all refresh tokens; next login asks to re-consent or delete data (deletion = T36)
-- [ ] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
+- [x] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes normal access and refresh credentials; password sign-in offers restricted re-consent, export or deletion (D15/D54)
+- [x] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
 - [ ] T07.5 [AND·Sahan] Settings screen: language picker (applies at once, saved via `PUT /me`), withdraw consent, "Delete my data" entry (opens T36 flow)
-  - T07.4–T07.5 implemented 2026-11-23 (unit tests 7 new, suite 76/76, `assembleV1Debug` OK); **not yet run on a device** — tick after the device check below.
+  - Android 14 HMD Crest, isolated D50 profile. Physical instrumentation verified the bilingual registration gate, withdrawal and restricted re-consent, and Settings export and password-confirmed deletion. The Settings language switch saved Sinhala without changing the profile name.
 
 **Done when**
 - [x] API tests for `/me` GET/PUT and withdraw (tokens revoked afterwards)
-- [ ] On a device: cannot register without both ticks; language change switches UI to Sinhala
+- [x] On a device: cannot register without both ticks; language change switches UI to Sinhala
 
 **Handoff notes:**
-- API done (T07.1–T07.3). T07.4–T07.5 code by Sevindu: `and:ui/register/` (login → "Create an account"), `and:ui/settings/` (More → Settings), `data/repo/RegisterRepository`, `MeRepository`; home + settings share `ui/auth/ProfileLanguageButton`. Consent text EN/SI is a **draft** (needs team + native-Sinhala review; bump D12 if changed). "Delete my data" shows "not available yet" until T36. D15 re-consent prompt after login not built (no endpoint).
-- `api:user/`: `MeController`, `MeService`, `dto/MeResponse`, `dto/UpdateMeRequest`. Consent row on register was already done in T05; now tested.
-- D15: withdrawn consent → `GET /me` gives `consentVersion: null`; no re-consent endpoint yet. Withdraw is idempotent (204), revokes all refresh tokens via `RefreshTokenRepository.findByUserIdAndRevokedAtIsNull`.
-- `/me` is USER-only (T06 rule). Access token stays valid until it expires (≤30 min) after withdrawal.
-- Tests: `user/MeControllerTest` (7); suite 55/55. `docs/api-contract.md` updated.
-
+- D54/V21 adds password-authenticated, five-minute, single-use consent grants. The restricted flow issues no normal tokens. It preserves authorized T35 export and password-confirmed T36 deletion.
+- Acceptance requires the current consent version and a fresh password sign-in afterwards. MySQL verified revoked sessions, expiry, replacement, replay, invalid version, explicit acceptance and competing requests.
+- Android 17 and the Android 14 HMD Crest verified withdrawal, restricted sign-in, explicit acceptance and fresh sign-in. The isolated HMD API retained the revoked prior refresh credential and issued a new session after recovery. Sahan approved the corrected MD05 consent and deletion labels at `80d5c20`. Registration consent copy outside that inventory remains separate.
+- Original task ownership, prerequisites and independent review remain in force.

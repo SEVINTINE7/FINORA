@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lk.finora.api.auth.dto.LoginRequest;
 import lk.finora.api.auth.dto.LoginResponse;
@@ -33,7 +34,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store");
         return authService.login(request);
     }
 

@@ -1,5 +1,7 @@
 # Sahan 4 — Dashboard, main screens, insights, advice (T20, T38, T24, T30)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
+
+**MD04 — 20/20 verified.** Formal prerequisites and independent reviews remain open. D55 downstream T21/T23 integration and T31.3/T32.2 remain separate. [Development handoff](../../docs/md05-delivery-handoff.md).
 **Detail: outline** — expand before coding.
 
 ---
@@ -26,7 +28,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 ### T38 · Financial screens and navigation · `FR02–FR15`
 **Lead:** Sahan · **Depends on:** T37, T09 · **Touches:** `and:ui/main/`, nav graph
-**D40 Android scope:** Keep the saved five-tab selection, route to existing non-exported USER activities, and verify refresh after writes. History and help need actual destinations before final acceptance.
+**D40 Android scope:** Keep the saved five-tab selection, route to existing non-exported USER activities, and verify refresh after writes. The delivered navigation includes History and Help under More and Advice under Insights. The recorded acceptance applies to these implemented routes.
 - [x] T38.1 Bottom nav: Home (dashboard), Records, Plan (budgets/bills/goals), Insights, More (history, settings, help)
 - [x] T38.2 Wire each screen as its API task finishes (track here which are wired)
 - [x] T38.3 Lists refresh after create/update/delete everywhere
@@ -35,7 +37,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] Every screen reachable; no stale data after edits (manual checklist in Handoff notes)
 
 **Handoff notes:**
-- Home has the dashboard. Records links transactions, manual entry, CSV and SMS. Plan links the existing budget, bill and goal screens. Insights links the D20 screen. More links accounts, categories, settings and help.
+- Home has the dashboard. Records links transactions, manual entry, CSV and SMS. Plan links the existing budget, bill and goal screens. Insights links the D20 screen and Advice. More links accounts, categories, settings, History, Help and Support requests.
 - HMD Android 14 opened the implemented Records, Plan, Insights and More destinations and exercised Back. Home refreshed after transaction create, edit and delete and isolated two disposable logins. Prior emulator evidence covers selected-tab recreation.
 - Isolated Android 17 verified every existing list after real API create, edit and delete with list re-entry: accounts, categories, transactions, budgets, bills and goals. Transaction mutations also refreshed Home and Insights. Plan selection survived landscape recreation.
 - The emulator opened History and Advice against real USER endpoints. Form-driven create, edit and delete refreshed account, category, budget, bill and goal lists.

@@ -58,3 +58,7 @@ JaCoCo gate passed (`api/target/final-t53-verify.log`). Increase from 151 reflec
 analytics/score/advice tests. Added-line checks found no recognizable provider tokens, private-key blocks
 or serialized JWTs; synthetic test passwords/signing keys are deliberately test-only. This limited check
 does not replace comprehensive scanning. git diff --check passed. No live calls or Android modifications.
+
+## MD05 artifact checks
+
+The unsigned V1 release APK was inspected for backup and transfer rules, cleartext blocking, absence of READ_SMS, common credential signatures, and app-owned calls to Android logging or HTTP body logging. The Android 17 emulator checked FLAG_SECURE on the login activity and its language dialog. The remaining device lifecycle, screenshot, Recents and sanitized runtime-log checks are tracked under T40.

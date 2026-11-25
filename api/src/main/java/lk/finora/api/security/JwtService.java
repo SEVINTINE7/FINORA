@@ -26,10 +26,15 @@ public class JwtService {
     }
 
     public String createAccessToken(Long userId, String role) {
+        return createAccessToken(userId, role, 0);
+    }
+
+    public String createAccessToken(Long userId, String role, long staffSessionGeneration) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("role", role)
+                .claim("staffGeneration", staffSessionGeneration)
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + ACCESS_TOKEN_SECONDS * 1000))
                 .signWith(key)

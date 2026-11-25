@@ -1,5 +1,7 @@
 # Sahan 5 — Android privacy, staff help, Android tests (T40, T48, T49, T51)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
+
+**MD05 — 15/16 verified.** Isolated development and physical acceptance are complete. D56 defers T40.1 authenticated release HTTPS to T56 deployment; the checkbox stays open. Formal prerequisites and independent reviews remain. [Development handoff](../../docs/md05-delivery-handoff.md).
 **Detail: outline** — expand before coding.
 
 ---
@@ -7,49 +9,49 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T40 · Android privacy and resilience · `NFR-SEC`
 **Lead:** Sahan · **Depends on:** T37, T08 · **Touches:** `and:`, `AndroidManifest.xml`, `res:xml/`
 - [ ] T40.1 Tokens only in EncryptedSharedPreferences; no keys in APK; release logs stripped
-- [ ] T40.2 `allowBackup=false` or backup rules excluding tokens; `FLAG_SECURE` on financial screens
-- [ ] T40.3 Handle network loss, process death, rotation and expired session gracefully
+- [x] T40.2 `allowBackup=false` or backup rules excluding tokens; `FLAG_SECURE` on financial screens
+- [x] T40.3 Handle network loss, process death, rotation and expired session gracefully
 
 **Done when**
-- [ ] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
+- [x] Manual checklist on device passed (recorded in Handoff notes); `adb logcat` shows no tokens/SMS
 
-**Handoff notes:** —
+**Handoff notes:** D45/D50/D51. The fixed HMD debug build restored USER Help and Support (EN/SI) and STAFF Support focus and protected Recents. Expiry, replacement-account isolation and offline evidence remain valid. On 2026-11-25 Sahan confirmed all staged USER FAQ/Support, STAFF reply, Back, retry and expired-session labels were audible and correct in EN/SI. Isolated acceptance-app Logcat had zero credential or SMS pattern matches across the retained consent and listening checks. This closes the physical checklist. T40.1 remains unchecked. D56 defers the original authenticated release HTTPS verification under D51/T56.
 
 ---
 
 ### T48 · Staff application assistance · `STAFF-03`
 **Lead:** Sahan · **Depends on:** T46, T47 · **Touches:** `api:support/`, `and:ui/staff/`
-- [ ] T48.1 Saved reply templates (login, navigation, SMS permission, language) — staff can insert into ticket replies
-- [ ] T48.2 Templates never ask for passwords, OTPs or SMS text
-- [ ] T48.3 In-app FAQ screen for users (EN/SI)
+- [x] T48.1 Saved reply templates (login, navigation, SMS permission, language) — staff can insert into ticket replies
+- [x] T48.2 Templates never ask for passwords, OTPs or SMS text
+- [x] T48.3 In-app FAQ screen for users (EN/SI)
 
 **Done when**
-- [ ] Tests: only STAFF can manage templates; user sees FAQ
+- [x] Tests: only STAFF can manage templates; user sees FAQ
 
-**Handoff notes:** —
+**Handoff notes:** D49/D50. HMD Crest passed the bilingual saved-reply lifecycle and exposed localized FAQ headings, support status and STAFF preview/confirmation nodes at 130% text. MySQL rejects USER/ADMIN catalog management and arbitrary STAFF text. Sahan approved all four bilingual saved-reply pairs in the [pinned MD05 inventory](../../docs/md05-sinhala-review.md) and confirmed the EN/SI HMD spoken labels on 2026-11-25. Second-STAFF operational publication, formal dependencies and independent review remain.
 
 ---
 
 ### T49 · Staff SMS import troubleshooting · `STAFF-04`
 **Lead:** Sahan · **Support:** Sevindu · **Depends on:** T46, T45 · **Touches:** `and:sms/`, `api:support/`
-- [ ] T49.1 [AND] On parse failure the app offers "Report problem" sending only bank code, format version, error code
-- [ ] T49.2 [API·Sevindu] Staff view of these reports grouped by bank/error; "Flag to admin" action
-- [ ] T49.3 Staff cannot edit SMS formats (admin only, T45)
+- [x] T49.1 [AND] On parse failure the app offers "Report problem" sending only bank code, format version, error code
+- [x] T49.2 [API·Sevindu] Staff view of these reports grouped by bank/error; "Flag to admin" action
+- [x] T49.3 Staff cannot edit SMS formats (admin only, T45)
 
 **Done when**
-- [ ] Tests: report payload contains no SMS text, amounts or account numbers; staff edit format → 403
+- [x] Tests: report payload contains no SMS text, amounts or account numbers; staff edit format → 403
 
-**Handoff notes:** —
+**Handoff notes:** D47/D49. Android 17 verified cancel and confirm with an exact three-field capture and matching persisted metadata. Both reporting paths send null format version; only allowlisted inbox senders can supply a bank code. D53 adds local ADMIN sample checks without changing the diagnostic payload. Formal T45 and independent review remain open.
 
 ---
 
 ### T51 · Android functional tests · `ALL`
 **Lead:** Sahan · **Support:** Thilina · **Depends on:** T38 · **Touches:** `android/app/src/androidTest/`
-- [ ] T51.1 Espresso: register, login, add/edit/delete record, budget, dashboard, SMS permission denied path
-- [ ] T51.2 Run on Android 8 (emulator) and a recent real device
-- [ ] T51.3 Save real test reports/screenshots
+- [x] T51.1 Espresso: register, login, add/edit/delete record, budget, dashboard, SMS permission denied path
+- [x] T51.2 Run on Android 8 (emulator) and a recent real device
+- [x] T51.3 Save real test reports/screenshots
 
 **Done when**
-- [ ] `./gradlew connectedV1DebugAndroidTest` output attached
+- [x] `./gradlew connectedV1DebugAndroidTest` output attached
 
-**Handoff notes:** —
+**Handoff notes:** D46/D49/D50. Four Gradle connected tests passed on isolated Android 8 (API 26), and four direct tests passed on HMD Crest (Android 14) in 60.513 s. Reports and the protected-screen capture result are recorded in the MD05 checkpoint. Keep in progress pending formal T38 dependency closure and independent review.
