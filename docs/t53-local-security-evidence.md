@@ -169,3 +169,41 @@ working source check do not cover unrelated branches, ignored files, or external
 T53 still needs an accepted OWASP dependency report, build-tool triage, deployed HTTPS
 under T56, scoped emulator SMS capture with Sahan, authorized external provider evidence if
 required for acceptance, and independent review.
+
+## Execution 46 wrapper integrity and dependency baseline
+
+Base: 812897e21fb999ebc0ff556d538a76ddb6fc818a. The synchronized team copy
+was at e53b8e550f7e615581894fd777bbdf99ef79a8b6 and contained D01–D13.
+No later candidate-evaluation approval or OWASP data source was recovered there.
+
+- Pinned Maven 3.10.1 SHA-256 after downloading the official ZIP from Maven Central,
+  matching its SHA-512 sidecar, and calculating SHA-256 from those verified bytes.
+  Windows wrapper bootstrap passed with an empty wrapper cache. A separate disposable
+  bootstrap with a deliberately incorrect digest refused the archive.
+- Verified the existing Gradle 9.5.0 distribution pin and the checked-in wrapper JAR
+  against the [official Gradle release checksums](https://gradle.org/release-checksums/).
+  The Android workflow now checks the JAR before invoking it. The exact Bash command
+  accepted the current JAR and rejected a wrong digest locally. Hosted CI is pending
+  publication of this branch. The dependency cache configuration stays as it was.
+- Resolved the current Android build classpath and V1 debug runtime graph with Gradle
+  9.5.0, AGP 9.3.0 and Java 17.0.21.1. The build graph still selects BC provider,
+  PKIX and utility 1.79, KGP 2.2.10, Guava 33.4.0-jre, Commons Lang 3.16.0,
+  jose4j 0.9.5 and JDOM 2.0.6. These modules were absent from the resolved debug
+  runtime graph. No dependency versions changed and the previous eleven advisory
+  matches remain open. This was a graph reconciliation using the retained OSV inventory.
+- Candidate POMs for AGP 9.4.1 and KGP 2.4.21 were available in their official
+  repositories. AGP 9.4 needs Gradle 9.6 and Java 17. The Kotlin compatibility
+  table lists full KGP 2.4.21 support only through AGP 9.3.1. No candidate was
+  configured or built. Avoid treating the two candidates as a verified pair.
+- Dependency verification metadata remains open pending trusted artifact provenance.
+  OWASP remains blocked on an authorized NVD update credential or a verified current,
+  compatible vulnerability database. No update or scan was attempted. The prior OSV
+  evidence and the Execution 45 cold-cache HTTP 429 followed by a successful same-revision
+  retry retain their original scope.
+
+Baseline verification on Java 17 passed ordinary and acceptance V1 debug assembly,
+instrumentation compilation, 150 JVM tests with no failures, errors or skips, and
+unsigned release packaging including release vital lint. Full debug lint crashed
+inside Android lint with NoSuchMethodError for java.util.List.removeLast() while
+the bidirectional-text detector processed BudgetDto.java. No lint checks were disabled.
+The baseline release is not minified, so this run does not verify R8.
