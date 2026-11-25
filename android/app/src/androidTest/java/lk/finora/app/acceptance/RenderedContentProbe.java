@@ -29,6 +29,11 @@ final class RenderedContentProbe {
     private ViewTreeObserver.OnPreDrawListener preDraw;
     private Runnable frameCallback;
     private long vsyncId;
+    private long callbackFrameTime;
+    private long contentFrameTime;
+    private android.view.Window observedWindow;
+    private android.view.Window.OnFrameMetricsAvailableListener metricsListener;
+    private final CompletableFuture<Long> renderedToken = new CompletableFuture<>();
     private android.view.Choreographer.VsyncCallback vsync;
 
     RenderedContentProbe(Predicate<View> usableContent, String traceKey, boolean recordVsync) {
@@ -56,7 +61,19 @@ final class RenderedContentProbe {
         }
         observer = window.getViewTreeObserver();
         if (recordVsync && Build.VERSION.SDK_INT >= 33) {
+            observedWindow = destination.getWindow();
+            metricsListener = (measuredWindow, metrics, drops) -> {
+                long token = metrics.getMetric(android.view.FrameMetrics.FRAME_TIMELINE_VSYNC_ID);
+                if (measuredWindow == observedWindow && contentFrameTime > 0 && token > 0
+                        && metrics.getMetric(android.view.FrameMetrics.VSYNC_TIMESTAMP) == contentFrameTime
+                        && renderedToken.complete(token)) {
+                    trace("rendered-token-" + token);
+                }
+            };
+            observedWindow.addOnFrameMetricsAvailableListener(metricsListener,
+                    new android.os.Handler(Looper.getMainLooper()));
             vsync = data -> {
+                callbackFrameTime = data.getFrameTimeNanos();
                 vsyncId = data.getPreferredFrameTimeline().getVsyncId();
                 if (!finished.isDone() && frameCallback == null) {
                     android.view.Choreographer.getInstance().postVsyncCallback(vsync);
@@ -68,6 +85,7 @@ final class RenderedContentProbe {
             if (!finished.isDone() && frameCallback == null && window.isHardwareAccelerated() && usableContent.test(window)) {
                 long ready = SystemClock.elapsedRealtimeNanos();
                 trace("ready");
+                contentFrameTime = callbackFrameTime;
                 if (vsyncId > 0) trace("vsync-" + vsyncId);
                 frameCallback = () -> {
                     frameCallback = null;
@@ -90,7 +108,15 @@ final class RenderedContentProbe {
         }
         try {
             long remaining = timeout.toNanos() - (SystemClock.elapsedRealtimeNanos() - actionNs);
-            return finished.get(Math.max(remaining, 0), TimeUnit.NANOSECONDS);
+            var sample = finished.get(Math.max(remaining, 0), TimeUnit.NANOSECONDS);
+            if (recordVsync && sample.outcome() == Outcome.COMMITTED) {
+                try {
+                    renderedToken.get(500, TimeUnit.MILLISECONDS);
+                } catch (java.util.concurrent.TimeoutException unmatched) {
+                    // Retain submission only when no window metric shares the ready traversal clock.
+                }
+            }
+            return sample;
         } catch (java.util.concurrent.TimeoutException elapsed) {
             var timedOut = new Sample(actionNs, 0, 0, Outcome.TIMED_OUT);
             finished.complete(timedOut);
@@ -103,6 +129,9 @@ final class RenderedContentProbe {
     }
 
     private void detach() {
+        if (observedWindow != null && metricsListener != null) {
+            observedWindow.removeOnFrameMetricsAvailableListener(metricsListener);
+        }
         if (Build.VERSION.SDK_INT >= 33 && vsync != null) {
             android.view.Choreographer.getInstance().removeVsyncCallback(vsync);
         }

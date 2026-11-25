@@ -332,6 +332,90 @@ Temporary input was removed, the reverse mapping was removed, and the session AP
 processes stopped. The dedicated AVD and MySQL instance were retained. This pilot leaves T55.2
 open for the approved handset, statistic, T16/T38 and independent review.
 
+### Execution 42 displayed-frame qualification and startup investigation
+
+The start commit was 5aed66fd48b5efb84abcafd389b82a62ea04664b. Upstream moved to
+2916515c0651a986bf2868e06213b9b147a08ffb. D57 covers T17.3, T18.4 and T19.3 emulator
+functional checks only. There is no Android or API production-source delta. The dedicated Pixel 6
+AVD used Android 17/API 37, WHPX, SwiftShader, emulator-5580, private ADB 5039 and Android user/serial 0.
+The regular profile and November 2026 were retained. The provider-disabled API was bound to loopback.
+
+In the previous trace, Records preferred token 69737 differed from nearby rendered token 69734.
+In this calibration Records preferred 9807 and rendered 9804, and Plan preferred 10660 and rendered
+10658. The probe now listens on the destination Window, matches FrameMetrics.VSYNC_TIMESTAMP to
+the Choreographer frame time at pre-draw, then records FRAME_TIMELINE_VSYNC_ID. The trace query
+requires the same PID and destination layer, the exact surface and linked display token, and explicit
+presentation statuses. Both app and display intervals use the same Perfetto BOOTTIME trace (clock ID 6).
+A commit-callback arrival can occur after presentation and is kept as a separate diagnostic.
+
+| Route / cohort | Attempts | Qualified | Unqualified | Failures | Timeouts | Median ms | p95 ms | Max ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Home, warm calibration | 1 | 1 | 0 | 0 | 0 | 81.839 | 81.839 | 81.839 |
+| Records, warm calibration | 1 | 1 | 0 | 0 | 0 | 415.561 | 415.561 | 415.561 |
+| Plan / Budgets, warm | 4 | 2 | 2 | 0 | 0 | 174.237 | 188.747 | 188.747 |
+| Insights, warm calibration | 1 | 1 | 0 | 0 | 0 | 410.343 | 410.343 | 410.343 |
+| Home, fresh process after runner startup | 3 | 3 | 0 | 0 | 0 | 2040.318 | 2072.454 | 2072.454 |
+
+Two Plan frames had Unspecified Present on the display track. These targeted samples did not repeat
+the full pilot. At these sample sizes nearest-rank p95 is the maximum. Home restart samples retained
+the encrypted session and began at the instrumented activity launch after runner startup.
+Earlier submission and current displayed measurements do not establish a speedup.
+
+[Calibration](t55-performance/execution42-calibration.csv), [follow-up](t55-performance/execution42-followup.csv),
+[submission rows](t55-performance/execution42-submissions.csv), [display query](t55-performance/execution42-display.sql).
+Local traces execution42.perfetto-trace and execution42-followup.perfetto-trace have SHA-256
+6bfa79ccee52f6e7f8bd4aaaf0e4f318ed5593954f186aa29d540d67110cea99 and
+38e4f0aeb1feb139ea12ee91b124291a25404723865a3279e82acb314fb16528 in the evaluation data parent.
+The app SHA-256 remained 61566a20e6c82165d0dd4dfea85021f44d0dd48d39e0ca968736f51774eb62ed.
+Instrumentation SHA-256 was ddd1d3fb21cb60d9f0a00d4f76087bdf611391e713fb39fba9c25cd8cb4397f3
+for calibration and 16ed4cc8c552d1e93f4bf975ca96da4a77ca3a9f7f6d94f4bc4ab73e7442e61f for follow-up.
+Both used the acceptance runner and verified signer. Both builds and all five targeted instrumented
+invocations passed.
+
+#### Client and server timing
+
+Five independent authenticated GET probes reused ApiClient and measured dispatch through body drain
+on the device elapsed-realtime clock. Tomcat recorded server processing on its own clock. A generated
+test-only X-Finora-Perf-Id joined the observations by ID, route and HTTP 200. No credentials or payload
+values were retained. Client/server milliseconds were dashboard 40.913/34.139, transactions
+20.214/15.203, budgets 10.535/8.111, insights 19.223/15.748 and score 20.488/17.775.
+The screen requests did not carry test IDs, so individual screen attempts and their multiple
+requests remain uncorrelated. [Joined rows](t55-performance/execution42-http.csv).
+
+#### External launcher startup
+
+One force-stop and external am start -W reported COLD, LoginActivity TotalTime 1221 ms.
+Perfetto reported 1221.936 ms for the same cold launch. The first displayed LoginActivity surface
+was at 1250.049 ms and the first displayed MainActivity surface at 2342.661 ms after trace startup.
+The external launch had no financial-content oracle. Main-thread slices included bindApplication
+353.771 ms, login performCreate 99.764 ms including a 57.116 ms inflate, first login traversal
+531.634 ms, and MainActivity performCreate 138.761 ms and activityResume 212.632 ms.
+These intervals can overlap. Server processing for the launcher sequence was refresh 20.515 ms,
+me 16.984 ms and dashboard 40.236 ms. Individual app-side request boundaries, data transformation,
+and cache effects were not isolated. No production optimization or equivalent before/after comparison was made.
+
+#### Handset run preparation
+
+1. Record device-owner consent, exact serial, isolated profile and Android user/serial, Android
+   version and agreed mid-range classification. D57 leaves this gate open. Confirm the statistic
+   and cohorts that govern the original under-two-second requirement.
+2. Pin and verify the app/test APKs, signer, runner and profile. The current pilot runner permits
+   the emulator only. Review an explicitly guarded handset runner and verify Android window
+   metrics and FrameTimeline support on the selected operating system before execution.
+3. Verify the retained database digest and provider-disabled loopback API. Check the baseline
+   reverse map before issuing adb -s SERIAL reverse tcp:8080 tcp:8080 for the approved serial.
+4. Run the November Home, Records, Budgets and Insights oracles. Add timed Bills and Goals
+   only under an approved route decision. Keep the proposed five warm-ups and 30 measured warm
+   attempts per route pending approval. Define a separate reproducible cold cohort and its launch
+   boundary, plus failure, timeout and unqualified-frame handling, before running.
+5. Retain all attempts and compute median, nearest-rank p95 and maximum on qualified displayed
+   samples. Remove only session-owned inputs and mappings, and restore and verify baseline
+   profile settings. T16, T38 and independent review remain formal gates.
+
+The benchmark profiles retained all canonical fixture counts, totals and SHA-256. The loader was
+never invoked. Temporary input and reverse mapping were removed. The API, private ADB server and
+dedicated emulator stopped. The AVD and database were retained.
+
 ## T55.3 moderator and participant materials (draft for approval)
 
 ### Participant information and consent

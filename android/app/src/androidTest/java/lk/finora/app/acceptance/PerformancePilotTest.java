@@ -109,8 +109,10 @@ public class PerformancePilotTest {
             assertTrue(UiDevice.getInstance(runner).wait(Until.hasObject(By.text(
                     app.getString(R.string.dashboard_income, "60000.00"))), 20_000));
             boolean traceCheck = "true".equals(args.getString("finoraTraceCheck"));
+            String traceRoute = args.getString("finoraTraceRoute");
             for (Route route : Route.values()) {
-                for (int n = 1; n <= (traceCheck ? 1 : 15); n++) {
+                if (traceCheck && traceRoute != null && route != Route.valueOf(traceRoute)) continue;
+                for (int n = 1; n <= (traceCheck ? (traceRoute == null ? 1 : 3) : 15); n++) {
                     tab(switch (route) {
                         case HOME, RECORDS -> R.string.records_tab;
                         case PLAN -> R.string.plan_tab;
@@ -123,6 +125,36 @@ public class PerformancePilotTest {
                     if (route != Route.HOME) pressBack();
                 }
             }
+            if ("true".equals(args.getString("finoraHttpProbe"))) measureHttp(sessions);
+        }
+    }
+
+    private static void measureHttp(TokenStore sessions) throws java.io.IOException {
+        var client = new lk.finora.app.data.api.ApiClient(BuildConfig.API_BASE_URL, sessions);
+        var origin = okhttp3.HttpUrl.get(BuildConfig.API_BASE_URL);
+        for (String route : new String[]{"dashboard", "transactions", "budgets", "insights", "score"}) {
+            String identifier = "t55-" + java.util.UUID.randomUUID();
+            var uri = origin.newBuilder().addPathSegments("api/v1/" + route);
+            if ("transactions".equals(route)) {
+                uri.addQueryParameter("from", "2026-11-01").addQueryParameter("to", "2026-11-30");
+            } else {
+                uri.addQueryParameter("month", "2026-11");
+            }
+            var request = new okhttp3.Request.Builder().url(uri.build())
+                    .header("X-Finora-Perf-Id", identifier).build();
+            long start = android.os.SystemClock.elapsedRealtimeNanos();
+            int status = 0;
+            try (var response = client.newCall(request).execute()) {
+                status = response.code();
+                if (response.body() != null) {
+                    var sink = okio.Okio.blackhole();
+                    response.body().source().readAll(sink);
+                }
+            } finally {
+                long end = android.os.SystemClock.elapsedRealtimeNanos();
+                android.util.Log.i("FinoraPerfHttp", identifier + "," + route + "," + status + "," + start + "," + end);
+            }
+            assertEquals("Expected an authenticated read-only HTTP probe", 200, status);
         }
     }
 
@@ -130,7 +162,8 @@ public class PerformancePilotTest {
             Consumer<Runnable> action) throws InterruptedException {
         var runner = InstrumentationRegistry.getInstrumentation();
         String key = route.name() + "-" + cohort + "-" + index;
-        var probe = new RenderedContentProbe(view -> usable(app, route, view), key, "trace-check".equals(cohort));
+        var probe = new RenderedContentProbe(view -> usable(app, route, view), key,
+                "trace-check".equals(cohort) || "fresh-process-launch".equals(cohort));
         var monitor = ActivityLifecycleMonitorRegistry.getInstance();
         var attached = new AtomicBoolean();
         Consumer<Activity> watch = activity -> {
