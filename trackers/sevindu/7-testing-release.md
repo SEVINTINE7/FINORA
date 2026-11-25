@@ -44,6 +44,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Verified locally: `bash -n` on all scripts; backup of `finora_test` → AES256 (`cipher 9`), wrong passphrase rejected, 21 tables + "Dump completed" after decrypt, 31-day file expired / 29-day kept. Restore drill NOT run (needs a DB it may drop).
 - T56.5: signing via `FINORA_KEYSTORE_*` env vars in `android/app/build.gradle`; throwaway keystore → both release APKs pass `apksigner verify`. Real keystore not created yet. Debug build + unit tests unchanged.
 - D56 (Sahan relaying Sevindu): domain and stock-Android-trusted HTTPS will be provided during T56. Run the server setup, restore drill and phone HTTPS check. Record T40.1 authenticated V1 Release evidence with Sahan before closing it. Isolated HTTP evidence is development-only.
+- 2026-11-25: `FIREBASE_CREDENTIALS` added to `finora.env.example` + generated env (T34). Local backup of synthetic V23 `finora_test`: AES256 file has no plaintext, wrong passphrase rejected, dump complete. No server/domain yet; keystore deferred. Restore drill not run (dropping a DB needs explicit approval).
 
 ---
 

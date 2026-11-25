@@ -77,6 +77,8 @@ JWT_SECRET=$(openssl rand -hex 32)
 # Fill in before starting the API (T27/T28). Empty values are allowed until then.
 GROQ_API_KEY=
 GEMINI_API_KEY=
+# T34 push alerts (D57): e.g. /etc/finora/firebase.json, owner finora, mode 400. Empty = no push.
+FIREBASE_CREDENTIALS=
 ENV
   cat > /etc/finora/backup.cnf <<CNF
 [client]
@@ -130,7 +132,8 @@ log "Done"
 cat <<EOF
 Next steps (docs/deploy.md):
   1. Copy /etc/finora/backup.pass to the offline store.
-  2. Fill GROQ_API_KEY / GEMINI_API_KEY in /etc/finora/finora.env when T27/T28 need them.
+  2. Fill GROQ_API_KEY / GEMINI_API_KEY in /etc/finora/finora.env when T27/T28 need them,
+     and FIREBASE_CREDENTIALS when a Firebase project exists (T34, D57).
   3. Upload the API jar and run:  sudo finora-release /tmp/api.jar
   4. From a phone: https://$DOMAIN/actuator/health  ->  {"status":"UP"}
 EOF
