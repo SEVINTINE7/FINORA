@@ -50,17 +50,37 @@ abstract class JsonHttpLlmClient implements LlmClient {
                 && "127.0.0.1".equals(endpoint.getHost()))) throw new IllegalArgumentException("Provider endpoint must use HTTPS");
     }
     protected abstract Map<String, Object> payload(String user);
+    protected Map<String, Object> payload(String user, String system) {
+        throw new UnsupportedOperationException("Structured coaching is not configured");
+    }
     protected abstract String authHeader();
     protected abstract String authValue(String key);
     protected abstract String extract(JsonNode body);
 
     @Override
     public Result generate(FactSheet facts, List<AdviceItem> eligibleActions) {
-        if (key == null || key.isBlank() || model == null || model.isBlank()) return Result.failed(Failure.UNCONFIGURED);
+        if (!configured()) return Result.failed(Failure.UNCONFIGURED);
+        return send(payload(AiPrompt.user(facts, eligibleActions, mapper)), 2);
+    }
+
+    @Override
+    public Result chooseCoachingFocus(List<String> eligibleFocus) {
+        if (!configured()) return Result.failed(Failure.UNCONFIGURED);
+        String system = "Choose one eligible coaching emphasis. Return exactly a JSON object with one "
+                + "string field named focus. Do not supply prose, amounts, warnings or any other properties.";
+        String user = mapper.writeValueAsString(Map.of("eligibleFocus", eligibleFocus));
+        return send(payload(user, system), 1);
+    }
+
+    private boolean configured() {
+        return key != null && !key.isBlank() && model != null && !model.isBlank();
+    }
+
+    private Result send(Map<String, Object> payload, int limit) {
         if (http.followRedirects() != null && http.followRedirects() != HttpClient.Redirect.NEVER)
             throw new IllegalArgumentException("Provider redirects are prohibited");
-        String body = mapper.writeValueAsString(payload(AiPrompt.user(facts, eligibleActions, mapper)));
-        for (int attempt = 0; attempt < 2; attempt++) {
+        String body = mapper.writeValueAsString(payload);
+        for (int attempt = 0; attempt < limit; attempt++) {
             String requestId = UUID.randomUUID().toString();
             long start = System.nanoTime();
             HttpRequest request = HttpRequest.newBuilder(endpoint).timeout(timeout)
@@ -73,7 +93,7 @@ abstract class JsonHttpLlmClient implements LlmClient {
                 int status = response.statusCode();
                 if (status != 200) {
                     log(requestId, start, "HTTP_" + status, null, null);
-                    if (attempt == 0 && (status == 429 || status >= 500 && status <= 599)) continue;
+                    if (attempt + 1 < limit && (status == 429 || status >= 500 && status <= 599)) continue;
                     return Result.failed(Failure.HTTP_ERROR).withHttpAttempts(attempt + 1);
                 }
                 if (response.body() == null || response.body().length() > 64000) {
@@ -93,7 +113,7 @@ abstract class JsonHttpLlmClient implements LlmClient {
                 }
             } catch (HttpTimeoutException timeoutFailure) {
                 log(requestId, start, "TIMEOUT", null, null);
-                if (attempt == 1) return Result.failed(Failure.TIMEOUT).withHttpAttempts(attempt + 1);
+                if (attempt + 1 == limit) return Result.failed(Failure.TIMEOUT).withHttpAttempts(attempt + 1);
             } catch (IOException transportFailure) {
                 if (causedBy(transportFailure, InvalidBody.class)) {
                     log(requestId, start, "INVALID_RESPONSE", null, null);
@@ -101,18 +121,18 @@ abstract class JsonHttpLlmClient implements LlmClient {
                 }
                 if (causedBy(transportFailure, HttpTimeoutException.class)) {
                     log(requestId, start, "TIMEOUT", null, null);
-                    if (attempt == 1) return Result.failed(Failure.TIMEOUT).withHttpAttempts(attempt + 1);
+                    if (attempt + 1 == limit) return Result.failed(Failure.TIMEOUT).withHttpAttempts(attempt + 1);
                     continue;
                 }
                 log(requestId, start, "IO_ERROR", null, null);
-                if (attempt == 1) return Result.failed(Failure.IO_ERROR).withHttpAttempts(attempt + 1);
+                if (attempt + 1 == limit) return Result.failed(Failure.IO_ERROR).withHttpAttempts(attempt + 1);
             } catch (InterruptedException interrupted) {
                 Thread.currentThread().interrupt();
                 log(requestId, start, "INTERRUPTED", null, null);
                 return Result.failed(Failure.INTERRUPTED).withHttpAttempts(attempt + 1);
             }
         }
-        return Result.failed(Failure.IO_ERROR).withHttpAttempts(2);
+        return Result.failed(Failure.IO_ERROR).withHttpAttempts(limit);
     }
 
     private static boolean causedBy(Throwable error, Class<? extends Throwable> expected) {
