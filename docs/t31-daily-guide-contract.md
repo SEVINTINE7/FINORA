@@ -85,3 +85,34 @@ no D39 write paths are modified. Tests cover bill/payment row preservation, not 
 This supersedes the pending local execution statement above.
 Formal dependency closure, contract approval, Android integration,
 live-device acceptance and independent review remain pending.
+
+## Execution 49 cross-month check
+
+A mock-based service test verifies the explicit date override without consulting recorded
+income, includes unpaid occurrences in the current and next months through income day,
+excludes paid and later bills, and applies declared arrears and savings once. The focused
+Java 17 planning run passed 29/29 with zero failures, errors or skips. Main contains the
+backend endpoint. No Android route or screen invokes it yet.
+
+Contract gap: a sum of multiple individually valid bills can exceed the 13-integer-digit
+limit on confirmedTrackedUnpaidBills. That amount can be displayed but cannot be confirmed
+through the current request DTO. The published input limit and exact confirmation behavior
+are unchanged. A wider aggregate or a different confirmation representation requires a
+recorded contract decision. Persistent income-date and Android acceptance gates remain open.
+
+## Execution 50 confirmation-range reproduction
+
+Two eligible unpaid bills at LKR 5,000,000,000,000.00 each are individually valid.
+The response is BILL_CONFIRMATION_REQUIRED with two bills and the exact JSON number
+10000000000000.00 in trackedUnpaidBills. The Jakarta request validator accepts
+9999999999999.99 and rejects the exact quoted total on confirmedTrackedUnpaidBills
+under its 13-integer-digit, two-decimal, nonnegative contract. The service also applies
+the same maximum. DailyGuideServiceTest passed 2/2 on Java 17.
+
+The other submitted amounts are separate user declarations with the same magnitude
+limit; only availableFunds may be negative. Derived spendableFunds and shortfall can
+also aggregate beyond that magnitude but are not round-tripped into a mandatory
+confirmation field. There is no Android daily-guide consumer on the checked main.
+If a wider aggregate confirmation is approved, align the DTO and service validations
+for that field only, preserve exact decimals and equality, and test both sides of the
+old boundary and the Android decimal round trip. This change does not alter the API.
