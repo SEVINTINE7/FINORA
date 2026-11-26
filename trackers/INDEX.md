@@ -6,27 +6,27 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 
 | ID | Task | Lead | Support | Depends on | File | Status |
 |---|---|---|---|---|---|---|
-| T01 | Confirm implementation decisions | Sevindu | Sahan, Thilina | — | [sevindu/1-foundation.md](sevindu/1-foundation.md) | review |
+| T01 | Confirm implementation decisions | Sevindu | Sahan, Thilina | — | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
 | T02 | Repository and build setup | Sevindu | — | T01 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
 | T03 | Database design and migrations | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
 | T04 | Backend API foundation | Sevindu | — | T02 | [sevindu/1-foundation.md](sevindu/1-foundation.md) | done |
 | T05 | Secure authentication | Sevindu | — | T03, T04 | [sevindu/2-auth.md](sevindu/2-auth.md) | done |
 | T06 | Role-based access control | Sevindu | — | T05 | [sevindu/2-auth.md](sevindu/2-auth.md) | done |
 | T07 | Consent and account settings | Sevindu | Sahan | T05, T37 | [sevindu/2-auth.md](sevindu/2-auth.md) | in-progress |
-| T08 | Three-role login routing | Sahan | Sevindu | T06, T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | review |
-| T09 | Accounts and categories | Sevindu | Sahan | T03, T06, T37 | [sevindu/3-records.md](sevindu/3-records.md) | review |
+| T08 | Three-role login routing | Sahan | Sevindu | T06, T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | done |
+| T09 | Accounts and categories | Sevindu | Sahan | T03, T06, T37 | [sevindu/3-records.md](sevindu/3-records.md) | done |
 | T10 | Income and expense records | Sevindu | Sahan | T09 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
 | T11 | Manual transaction entry | Sahan | — | T10, T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T12 | CSV import | Sevindu | Sahan | T10 | [sevindu/3-records.md](sevindu/3-records.md) | in-progress |
-| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | review |
+| T13 | SMS access and fallback | Sahan | — | T37 | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | done |
 | T14 | Local bank SMS parsing | Sahan | — | T13, T45.3 (can start with bundled formats) | [sahan/2-entry-sms.md](sahan/2-entry-sms.md) | in-progress |
 | T15 | Transaction preview and deduplication | Sahan | Sevindu | T14, T10 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | in-progress |
 | T16 | SMS parser regression tests | Sahan | Thilina | T14 | [sahan/3-sms-quality.md](sahan/3-sms-quality.md) | in-progress |
-| T17 | Monthly budgets | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | review |
-| T18 | Monthly bills | Sevindu | Sahan | T17 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | review |
-| T19 | Savings goals | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | review |
+| T17 | Monthly budgets | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | done |
+| T18 | Monthly bills | Sevindu | Sahan | T17 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | done |
+| T19 | Savings goals | Sevindu | Sahan | T10 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | done |
 | T20 | Dashboard and charts | Sahan | Sevindu | T10, T17 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
-| T21 | Deterministic spending metrics | Thilina | — | T10, T17, T18 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | review |
+| T21 | Deterministic spending metrics | Thilina | — | T10, T17, T18 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |
 | T22 | Spending-pattern detection | Thilina | — | T21 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |
 | T23 | Health-score model (0–100) | Thilina | — | T21, T18, T19, T01.3 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | in-progress |
 | T24 | Insights and health-score screens | Sahan | Thilina | T22, T23, T38 | [sahan/4-screens.md](sahan/4-screens.md) | in-progress |
@@ -39,7 +39,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T31 | Daily spending guide | Thilina | Sahan | T17, T18, T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | in-progress |
 | T32 | Savings goal simulator | Thilina | Sahan | T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | in-progress |
 | T33 | Monthly insights and score history | Sevindu | Sahan | T22, T23 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | in-progress |
-| T34 | Budget, bill and goal alerts | Sevindu | Sahan | T17, T18, T19, T37 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | review |
+| T34 | Budget, bill and goal alerts | Sevindu | Sahan | T17, T18, T19, T37 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | done |
 | T35 | Data download | Sevindu | Sahan | T10, T17, T18, T19 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | in-progress |
 | T36 | Data deletion | Sevindu | Sahan | T35 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | in-progress |
 | T37 | Mobile app skeleton | Sahan | — | T02 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | done |
@@ -55,7 +55,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T47 | Staff support requests | Sevindu | Sahan | T46 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | in-progress |
 | T48 | Staff application assistance | Sahan | — | T46, T47 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
 | T49 | Staff SMS import troubleshooting | Sahan | Sevindu | T46, T45 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
-| T50 | Backend API test suite | Sevindu | Thilina | T05 (grows with every API task) | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | review |
+| T50 | Backend API test suite | Sevindu | Thilina | T05 (grows with every API task) | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | done |
 | T51 | Android functional tests | Sahan | Thilina | T38 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
 | T52 | Three-role authorization tests | Thilina | Sevindu | T06, T41, T46 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
 | T53 | Privacy and security checks | Thilina | Sevindu | T14, T27 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
