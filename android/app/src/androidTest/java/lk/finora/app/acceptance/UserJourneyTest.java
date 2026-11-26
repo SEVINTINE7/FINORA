@@ -28,11 +28,31 @@ import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lk.finora.app.BuildConfig;
 import lk.finora.app.R;
+import lk.finora.app.data.api.AccountDto;
+import lk.finora.app.data.api.GoalDto;
+import lk.finora.app.data.api.PlanningTransportFixture;
 import lk.finora.app.data.local.TokenStore;
+import lk.finora.app.data.repo.AccountRepository;
+import lk.finora.app.data.repo.CategoryRepository;
+import lk.finora.app.data.repo.GoalRepository;
+import lk.finora.app.data.repo.TransactionRepository;
+import lk.finora.app.ui.planning.PlanningActivity;
+import okhttp3.Protocol;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import lk.finora.app.ui.login.LoginActivity;
 import lk.finora.app.ui.main.MainActivity;
 import lk.finora.app.ui.register.RegisterActivity;
@@ -1266,6 +1286,146 @@ public class UserJourneyTest {
         }
     }
 
+    @Test public void rotatingDuringSimulationKeepsRestoredCutControlsLocked() throws Exception {
+        var responded = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var completed = new AtomicBoolean();
+        try (var login = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            seedPlanningGoal(true);
+            try (var transport = new PlanningTransportFixture(sessions, chain -> {
+                var request = chain.request();
+                var response = chain.proceed(request);
+                if (!"POST".equals(request.method()) || !"/api/v1/simulate".equals(request.url().encodedPath())) {
+                    return response;
+                }
+                responded.countDown();
+                try {
+                    if (!release.await(8, TimeUnit.SECONDS)) throw new IOException("Simulation fixture timed out");
+                    completed.set(response.isSuccessful());
+                    return response;
+                } catch (InterruptedException interrupted) {
+                    response.close();
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Simulation fixture interrupted", interrupted);
+                } catch (IOException failure) {
+                    response.close();
+                    throw failure;
+                }
+            }); var planning = ActivityScenario.<PlanningActivity>launch(PlanningActivity.simulation(app))) {
+                awaitText("Synthetic planning reserve");
+                typeFixture(onView(withHint(R.string.planning_baseline)), "25000.00");
+                typeFixture(onView(withHint(R.string.planning_adjustment)), "-5000.00");
+                clickText(R.string.planning_add_cut);
+                onView(withContentDescription(R.string.planning_category))
+                        .perform(selectSpinnerItem("Food"));
+                typeFixture(onView(withHint(R.string.planning_reduction)), "1500.00");
+                var original = new AtomicReference<PlanningActivity>();
+                planning.onActivity(original::set);
+                clickText(R.string.planning_calculate);
+                try {
+                    assertTrue("Real simulation response reached the hold", responded.await(4, TimeUnit.SECONDS));
+                    device.setOrientationLeft();
+                    var recreated = new AtomicBoolean();
+                    long deadline = SystemClock.elapsedRealtime() + 3000;
+                    do {
+                        planning.onActivity(current -> recreated.set(current != original.get()
+                                && current.getResources().getConfiguration().orientation
+                                == android.content.res.Configuration.ORIENTATION_LANDSCAPE));
+                        if (!recreated.get()) SystemClock.sleep(25);
+                    } while (!recreated.get() && SystemClock.elapsedRealtime() < deadline);
+                    assertTrue("Rotation must recreate the landscape screen", recreated.get());
+                    onView(withHint(R.string.planning_baseline)).check(matches(allOf(withText("25000.00"), not(isEnabled()))));
+                    onView(withHint(R.string.planning_adjustment)).check(matches(allOf(withText("-5000.00"), not(isEnabled()))));
+                    onView(withContentDescription(R.string.planning_goal)).check(matches(not(isEnabled())));
+                    onView(withContentDescription(R.string.planning_category)).check(matches(not(isEnabled())));
+                    onView(withHint(R.string.planning_reduction)).check(matches(allOf(withText("1500.00"), not(isEnabled()))));
+                    onView(withText(R.string.planning_remove_cut)).check(matches(not(isEnabled())));
+                    onView(withText(R.string.planning_add_cut)).check(matches(not(isEnabled())));
+                    onView(withText(R.string.planning_calculate)).check(matches(not(isEnabled())));
+                    assertFalse(completed.get());
+                } finally {
+                    release.countDown();
+                }
+                onView(withHint(R.string.planning_reduction)).perform(new ViewAction() {
+                    @Override public Matcher<View> getConstraints() { return isAssignableFrom(EditText.class); }
+                    @Override public String getDescription() { return "wait for the held calculation to complete"; }
+                    @Override public void perform(UiController controller, View view) {
+                        long deadline = SystemClock.elapsedRealtime() + 3000;
+                        while (!view.isEnabled() && SystemClock.elapsedRealtime() < deadline) {
+                            controller.loopMainThreadForAtLeast(25);
+                        }
+                        assertTrue("Cut amount becomes editable after completion", view.isEnabled());
+                    }
+                });
+                assertTrue(completed.get());
+                onView(withHint(R.string.planning_reduction)).check(matches(isEnabled()));
+                onView(withContentDescription(R.string.planning_category)).check(matches(isEnabled()));
+                onView(withText(R.string.planning_remove_cut)).check(matches(isEnabled()));
+                device.setOrientationNatural();
+                await(By.textContains(app.getString(R.string.planning_monthly, "21500.00")));
+            }
+        } finally {
+            release.countDown();
+            device.setOrientationNatural();
+        }
+    }
+
+    @Test public void editingAfterInitialChoiceFailureKeepsRetryAvailable() throws Exception {
+        var loads = new AtomicInteger();
+        try (var login = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(UUID.randomUUID().toString().replace("-", ""));
+            seedPlanningGoal(false);
+            try (var transport = new PlanningTransportFixture(sessions, chain -> {
+                var request = chain.request();
+                if ("GET".equals(request.method()) && "/api/v1/categories".equals(request.url().encodedPath())
+                        && loads.incrementAndGet() == 1) {
+                    return new Response.Builder().request(request).protocol(Protocol.HTTP_1_1)
+                            .code(503).message("Synthetic choice load failure")
+                            .body(ResponseBody.create("", null)).build();
+                }
+                return chain.proceed(request);
+            }); var planning = ActivityScenario.<PlanningActivity>launch(PlanningActivity.simulation(app))) {
+                awaitButton(R.string.records_retry);
+                typeFixture(onView(withHint(R.string.planning_baseline)), "17500.00");
+                onView(withText(R.string.records_retry)).perform(reveal()).check(matches(isEnabled()));
+                assertEquals("Editing never automatically retries choice loading", 1, loads.get());
+                clickText(R.string.records_retry);
+                awaitText("Synthetic planning reserve");
+                assertEquals(2, loads.get());
+                onView(withHint(R.string.planning_baseline)).check(matches(withText("17500.00")));
+                onView(withText(R.string.planning_calculate)).check(matches(isEnabled()));
+            }
+        }
+    }
+
+    private void seedPlanningGoal(boolean withPastExpense) throws IOException {
+        var requests = AccountRepository.ProtectedRequests.currentUser();
+        assertNotNull("Synthetic owner must be signed in", requests);
+        var goalRepo = new GoalRepository(requests);
+        var colombo = ZoneId.of("Asia/Colombo");
+        try (var response = goalRepo.create(new GoalDto.Write("Synthetic planning reserve", new BigDecimal("120000.00"),
+                LocalDate.now(colombo).plusMonths(8).toString(), false)).execute()) {
+            GoalRepository.readGoal(response);
+        }
+        if (!withPastExpense) return;
+        AccountDto wallet;
+        try (var response = new AccountRepository(requests)
+                .create(new AccountDto.Write("Synthetic planning wallet", "CASH", BigDecimal.ZERO)).execute()) {
+            wallet = AccountRepository.read(response, AccountDto.class);
+        }
+        long food;
+        try (var response = new CategoryRepository(requests).list().execute()) {
+            food = CategoryRepository.rows(response).stream().filter(c -> "Food".equals(c.name()) && "EXPENSE".equals(c.kind()))
+                    .findFirst().orElseThrow().id();
+        }
+        var date = YearMonth.now(colombo).minusMonths(1).atDay(5);
+        try (var response = new TransactionRepository(requests).create(new TransactionRepository.Edit(wallet.id(), food,
+                "EXPENSE", new BigDecimal("6500.00"), date.toString(), null, null)).execute()) {
+            TransactionRepository.readRow(response);
+        }
+    }
+
     @Test public void syntheticPasteFeedsInsightsAndPlanningSupportsSinhala() {
         org.junit.Assume.assumeTrue("Integrated journey requires the acceptance APK",
                 "lk.finora.app.acceptance".equals(app.getPackageName()));
@@ -1754,7 +1914,11 @@ public class UserJourneyTest {
     }
 
     private static void select(int id, String label) {
-        onView(withId(id)).perform(reveal(), new ViewAction() {
+        onView(withId(id)).perform(reveal(), selectSpinnerItem(label));
+    }
+
+    private static ViewAction selectSpinnerItem(String label) {
+        return new ViewAction() {
             @Override public Matcher<View> getConstraints() {
                 return allOf(isAssignableFrom(android.widget.Spinner.class), isEnabled());
             }
@@ -1774,7 +1938,7 @@ public class UserJourneyTest {
                 } while (SystemClock.elapsedRealtime() < deadline);
                 fail("Expected synthetic fixture choice is unavailable");
             }
-        });
+        };
     }
 
     private static void enter(int id, String value) {

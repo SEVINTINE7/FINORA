@@ -78,3 +78,23 @@ disposable database. Configuration and cleanup component checks are separate
 from that end-to-end execution. Preserve the frozen benchmark and the original
 Execution 69 checkpoint. Production D58 semantic-policy adoption, deployed HTTPS,
 physical-device acceptance and live-provider evaluation are outside this fix.
+
+
+## Windows follow-up
+
+The component checker passed 10/10 in PowerShell 7 on Windows. Verify and Connected
+each started a fresh, separate loopback database with deliberately incorrect inherited
+Spring endpoints. Verify also received an incorrect Maven JVM override. The launcher
+used the disposable instances and restored the caller's settings. Java 17 verification
+reported 505 tests, zero failures, zero errors and one intentional persistent-loader
+skip, with V1–V24 migrations, JaCoCo and packaging passing. Ordinary V1 debug assembly,
+152 JVM tests, full JBR lint and both acceptance APK builds passed.
+
+Four connected journeys passed on the dedicated API 37 emulator. A test interceptor
+held a real successful simulation response while the screen rotated in landscape.
+The restored category, amount, remove, goal, baseline and adjustment controls stayed
+disabled until release, then the screen reported LKR 21,500.00 per month. The other
+regression returned one synthetic category-list failure, edited the numeric draft,
+then explicitly retried and loaded the actual choices without losing the edit. The
+existing planning and synthetic SMS import/Sinhala journeys also passed. The launcher
+completed session cleanup. The frozen benchmark remained outside both databases.

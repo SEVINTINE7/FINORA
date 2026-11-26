@@ -12,6 +12,7 @@ import lk.finora.app.data.local.TokenStore.Session;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -36,6 +37,10 @@ public final class ApiClient {
     }
 
     public ApiClient(String baseUrl, TokenStore store) {
+        this(baseUrl, store, null);
+    }
+
+    ApiClient(String baseUrl, TokenStore store, Interceptor testInterceptor) {
         HttpUrl origin = HttpUrl.get(baseUrl);
         AuthApi publicApi = retrofit(origin, baseClient().retryOnConnectionFailure(false)
                 .addInterceptor(chain -> {
@@ -47,7 +52,7 @@ public final class ApiClient {
                     return chain.proceed(request);
                 }).build());
         sessions = new SessionAuthenticator(origin, store, publicApi);
-        http = baseClient().authenticator(sessions)
+        var builder = baseClient().authenticator(sessions)
                 .addInterceptor(AuthInterceptor.forSessions(origin, store::verifiedSession))
                 .addNetworkInterceptor(chain -> {
                     Session sent = chain.request().tag(Session.class);
@@ -55,8 +60,9 @@ public final class ApiClient {
                         throw new IOException("Session changed before request could be sent");
                     }
                     return chain.proceed(chain.request());
-                })
-                .build();
+                });
+        if (testInterceptor != null) builder.addInterceptor(testInterceptor);
+        http = builder.build();
         calls = request -> http.newCall(AuthInterceptor.isProtected(origin, request.url())
                 ? request.newBuilder().tag(Session.class, store.verifiedSession()).build() : request);
         auth = retrofit(origin, calls);

@@ -213,11 +213,16 @@ try {
         $permissionChanged = $true
     }
     $suite = 'lk.finora.app.acceptance.UserJourneyTest'
-    $cases = "$suite#dailyGuideAndGoalSimulationFromPlanUseTheSignedInOwner,$suite#syntheticPasteFeedsInsightsAndPlanningSupportsSinhala"
+    $cases = @(
+        "$suite#dailyGuideAndGoalSimulationFromPlanUseTheSignedInOwner",
+        "$suite#syntheticPasteFeedsInsightsAndPlanningSupportsSinhala",
+        "$suite#rotatingDuringSimulationKeepsRestoredCutControlsLocked",
+        "$suite#editingAfterInitialChoiceFailureKeepsRetryAvailable"
+    ) -join ','
     $output = Invoke-Device shell am instrument -w -r -e finoraIsolatedEmulator true -e class $cases "$testId/androidx.test.runner.AndroidJUnitRunner"
     $output | Set-Content -LiteralPath (Join-Path $session 'connected.log')
     $output | Select-String -Pattern '^(OK|FAILURES|Tests run|Time:|INSTRUMENTATION_STATUS: test=)'
-    if (-not ($output -match '^OK \(2 tests\)')) { throw 'Connected verification failed. Inspect the session log.' }
+    if (-not ($output -match '^OK \(4 tests\)')) { throw 'Connected verification failed. Inspect the session log.' }
 } finally {
     try {
         if ($emulator -and -not $emulator.HasExited) {
