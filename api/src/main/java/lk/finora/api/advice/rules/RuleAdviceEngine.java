@@ -104,7 +104,7 @@ public final class RuleAdviceEngine {
                             FactKey.SPEND_EARLY, FactKey.SPEND_MIDDLE, FactKey.SPEND_LATE)
                     .say("That puts %s%% of the month's spending in the first ten days.", FactKey.EARLY_SPEND_SHARE);
             if (f.facts().get(FactKey.EARLY_SPEND_SHARE).compareTo(new BigDecimal("50")) >= 0)
-                c.text("Most spending happens right after payday, so set aside the goal transfer and bills before spending.");
+                c.text("Spending is concentrated early in the month. Plan for bills before discretionary spending.");
             out.add(c.item());
         }
         if (f.facts().containsKey(FactKey.PLAN_NEEDS)) {

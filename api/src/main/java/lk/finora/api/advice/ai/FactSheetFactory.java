@@ -139,7 +139,7 @@ public final class FactSheetFactory {
             f.put(FactKey.FOCUS_GOAL_TARGET, g.target());
             f.put(FactKey.FOCUS_GOAL_SAVED, g.saved());
             f.put(FactKey.FOCUS_GOAL_REMAINING, remaining);
-            if (g.targetDate() != null) {
+            if (g.targetDate() != null && !YearMonth.from(g.targetDate()).isBefore(YearMonth.parse(m.month()))) {
                 long months = Math.max(1, ChronoUnit.MONTHS.between(YearMonth.parse(m.month()), YearMonth.from(g.targetDate())));
                 f.put(FactKey.FOCUS_GOAL_MONTHS_LEFT, whole(BigDecimal.valueOf(months)));
                 needed = remaining.divide(BigDecimal.valueOf(months), 2, RoundingMode.CEILING);
@@ -152,7 +152,8 @@ public final class FactSheetFactory {
 
         if (income.signum() > 0) {
             BigDecimal planNeeds = consumption.subtract(wants).max(ZERO);
-            BigDecimal cap = wants.subtract(cutTotal).max(ZERO).min(f.get(FactKey.WANTS_REFERENCE));
+            BigDecimal cap = wants.subtract(cutTotal).max(ZERO).min(
+                    income.multiply(new BigDecimal("0.40")).setScale(2, RoundingMode.DOWN));
             BigDecimal free = income.subtract(planNeeds).subtract(cap).max(ZERO);
             BigDecimal transfer = needed == null ? free : needed.min(free);
             f.put(FactKey.PLAN_NEEDS, planNeeds);
@@ -170,7 +171,8 @@ public final class FactSheetFactory {
         BigDecimal quarter = b.spend().multiply(new BigDecimal("0.25"));
         BigDecimal excess = b.average().signum() > 0 ? b.spend().subtract(b.average()).max(ZERO) : ZERO;
         BigDecimal half = b.spend().multiply(new BigDecimal("0.5"));
-        return quarter.max(excess).min(half).setScale(0, RoundingMode.HALF_UP).setScale(2);
+        return quarter.max(excess).min(half).setScale(0, RoundingMode.HALF_UP)
+                .min(half.setScale(0, RoundingMode.DOWN)).setScale(2);
     }
 
     private static BigDecimal monthsToFinish(BigDecimal remaining, BigDecimal perMonth) {
