@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# T56.1–T56.4 · First-time setup of the FINORA API server (Ubuntu 22.04).
+# T56.1–T56.4 · First-time setup of the FINORA API server (Ubuntu 22.04 or 24.04, D59).
 # Usage (as root, from a copy of the repo's deploy/ folder):
 #   sudo ./server-setup.sh api.example.lk admin@example.lk
 # Safe to re-run: existing secrets, users and certificates are kept.
@@ -10,8 +10,8 @@ EMAIL="${2:?usage: server-setup.sh <domain> <letsencrypt-email>}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 [[ $EUID -eq 0 ]] || { echo "Run as root (sudo)." >&2; exit 1; }
-if ! grep -q 'VERSION_ID="22.04"' /etc/os-release; then
-  echo "WARNING: written for Ubuntu 22.04; continuing anyway." >&2
+if ! grep -qE 'VERSION_ID="(22.04|24.04)"' /etc/os-release; then
+  echo "WARNING: written for Ubuntu 22.04/24.04; continuing anyway." >&2
 fi
 log() { printf '\n== %s\n' "$*"; }
 

@@ -1,6 +1,6 @@
 # FINORA — Deployment, backups and rollback (T56)
 
-One Ubuntu 22.04 server runs everything. Files live in `deploy/`.
+One Ubuntu 24.04 LTS server (22.04 also works; D59) runs everything. Files live in `deploy/`.
 
 ```
 Phone ──HTTPS 443──▶ Nginx (Let's Encrypt) ──▶ 127.0.0.1:8080 API (systemd, user finora) ──▶ 127.0.0.1:3306 MySQL 8
@@ -19,7 +19,7 @@ Phone ──HTTPS 443──▶ Nginx (Let's Encrypt) ──▶ 127.0.0.1:8080 AP
 
 ## 1. First-time server setup (T56.1–T56.3)
 
-Prerequisites: an Ubuntu 22.04 server you can SSH into with a key, and a DNS **A record** for the API domain (e.g. `api.finora.lk`) pointing at the server.
+Prerequisites: an Ubuntu 24.04 (or 22.04) server you can SSH into with a key, and a DNS **A record** for the API domain (e.g. `api.finora.lk`) pointing at the server.
 
 ```bash
 # on your PC
