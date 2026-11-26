@@ -124,3 +124,7 @@ Short, numbered, referenced by tasks (e.g. "see D03"). Add new ones at the botto
   - The user picks the focus goal on the advice screen (`goalId`, default: nearest target date). Advice is frozen per user, month and focus goal (V24).
   - Policy numbers: suggested want cut = max(25%, excess over the prior three-month average), capped at 50%, whole rupees; wants limit = wants − cuts, at most 40% of income; goal transfer = min(amount needed per month, income − needs − wants limit).
   - Leftover: coaching text is English (headings are EN/SI); Thilina to review the policy numbers and the unsafe-phrase list.
+- **D59 T56 hosting: AWS EC2 + DuckDNS** — On 2026-11-26 Sevindu chose an AWS EC2 Ubuntu 22.04 instance (new-account free plan credits) as the T56 server and a free DuckDNS subdomain as the HTTPS domain with Let's Encrypt.
+  - Instance t3.small (2 GB) or another free-plan type with at least 2 GB, Ubuntu 22.04, region ap-south-1 (Mumbai), 20–30 GB gp3. `deploy/server-setup.sh` and `docs/deploy.md` are used unchanged.
+  - The AWS security group allows 22 (team IPs only), 80 and 443. ufw on the server still keeps 80 closed except during certbot runs.
+  - Free-plan credits run out about 6 months after sign-up, and AWS then closes the account. Keep an offline copy of the backups and the backup passphrase, and plan a move before then if the project continues.
