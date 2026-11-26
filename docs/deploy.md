@@ -98,7 +98,8 @@ Record the run here:
 
 | Date | Who | Backup file | Result |
 |---|---|---|---|
-| _not done yet_ | | | |
+| 2026-11-26 | ThilinaW-LK | Synthetic local AES256 drill | 34 table counts matched. Restored dashboards and both USER logins matched on an isolated MySQL 8.0.46 instance. A deliberately failed count returned nonzero. |
+| _deployed environment pending_ | | | |
 
 **Real recovery** (data loss): `sudo systemctl stop finora-api`, then `sudo finora-restore <file> finora --i-know-this-overwrites-production`, then `sudo systemctl start finora-api`.
 
