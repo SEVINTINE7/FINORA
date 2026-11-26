@@ -64,12 +64,13 @@ public final class PlanningViewModel extends ViewModel {
         else if (!simulator && guideInput != null) quote(guideInput);
     }
 
-    void invalidateResult() {
+    void invalidateResult(boolean simulator) {
         guide = null;
         guideInput = null;
         simulation = null;
         simulationInput = null;
-        work.error = 0;
+        // Editing a draft cannot recover failed goal/category loading; keep its Retry visible.
+        if (!simulator || choicesLoaded) work.error = 0;
     }
 
     private void clear() {

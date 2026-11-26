@@ -213,7 +213,6 @@ public final class PlanningActivity extends SecureActivity {
     private void render() {
         if (!AccountListActivity.verify(this, model.work)) return;
         boolean busy = model.work.busy();
-        for (View view : inputs) view.setEnabled(!busy);
         int message = busy ? R.string.records_loading : model.work.error;
         result.setText("");
         if (simulator) {
@@ -241,6 +240,8 @@ public final class PlanningActivity extends SecureActivity {
             confirm.setEnabled(!busy && canConfirm());
             if (!busy && model.guide != null) renderGuide(model.guide);
         }
+        // Rotation can restore cut rows above while a calculation is still in flight.
+        for (View view : inputs) view.setEnabled(!busy);
         retry.setVisibility(!busy && model.work.error != 0 ? View.VISIBLE : View.GONE);
         status.setText(message == 0 ? "" : getString(message));
     }
@@ -390,7 +391,7 @@ public final class PlanningActivity extends SecureActivity {
 
     private void invalidate() {
         if (result == null || restoring || model.work.busy() || !model.work.isCurrent()) return;
-        model.invalidateResult();
+        model.invalidateResult(simulator);
         render();
     }
 
