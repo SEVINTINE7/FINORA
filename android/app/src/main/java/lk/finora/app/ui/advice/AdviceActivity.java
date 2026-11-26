@@ -216,7 +216,9 @@ public final class AdviceActivity extends SecureActivity {
             if (!work.isCurrent() || work.busy()) return;
             if (goals == null) {
                 work.run(goalRepository::list, GoalRepository::rows, rows -> {
-                    goals = rows.stream().filter(g -> "ACTIVE".equals(g.status())).toList();
+                    goals = java.util.Collections.unmodifiableList(rows.stream()
+                            .filter(g -> "ACTIVE".equals(g.status()))
+                            .collect(java.util.stream.Collectors.toList()));
                     // Default to the goal with the nearest target date; goals without a date come last.
                     goalId = goals.stream().min(java.util.Comparator.comparing(
                             (GoalDto g) -> g.targetDate() == null ? "9999-12-31" : g.targetDate()))
