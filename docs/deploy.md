@@ -34,11 +34,18 @@ The script (safe to re-run):
 - firewall: deny all incoming except **22 and 443**. Port 80 is opened only for the few seconds certbot needs (pre/post hooks), then closed again
 - MySQL: `bind-address = 127.0.0.1` (`deploy/mysql/99-finora.cnf`) and three users, all limited to the `finora` schema:
   - `finora_app`: SELECT/INSERT/UPDATE/DELETE only (used by the running API)
-  - `finora_migrate`: adds CREATE/ALTER/DROP/INDEX/REFERENCES (used by Flyway at start-up, via `SPRING_FLYWAY_USER`)
+  - `finora_migrate`: adds CREATE/ALTER/DROP/INDEX/REFERENCES and CREATE TEMPORARY TABLES (used by Flyway at start-up, via `SPRING_FLYWAY_USER`)
   - `finora_backup`: SELECT/SHOW VIEW/TRIGGER/LOCK TABLES (used by backups)
 - generates random passwords and a JWT secret into `/etc/finora/finora.env` (never printed, never in Git). Template: `deploy/finora.env.example`
 - installs the systemd units and enables the nightly backup timer
 - gets the Let's Encrypt certificate and enables `deploy/nginx/finora.conf` (TLS 1.2/1.3, HSTS, only `/api/**` and `/actuator/health` are proxied)
+
+For a fresh MySQL 8 account, keep the loopback JDBC URL at `sslMode=REQUIRED`.
+This uses the server's MySQL TLS support for the first `caching_sha2_password` login.
+On an existing installation, update the `sslMode` parameter in the protected operator
+environment file before starting a release that relies on this setting. Setup reconciles
+the V22 temporary-table grant on the migration role without rotating credentials.
+Verify external HTTPS independently using the approved hostname and trusted certificate.
 
 After it finishes:
 1. **Copy `/etc/finora/backup.pass` to the offline store** (password manager entry "FINORA backup passphrase", lead only). Without it the backups can't be decrypted.
