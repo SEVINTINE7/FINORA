@@ -20,6 +20,13 @@ public final class PlanningViewModel extends ViewModel {
     PlanningRepository.Guide guide;
     PlanningRepository.Simulation simulation;
     boolean choicesLoaded;
+    PlanningRepository.SimulationInput simulationInput;
+    GuideDraft guideDraft;
+    SimulationDraft simulationDraft;
+
+    record GuideDraft(String funds, String savings, String arrears, String date) {}
+    record CutDraft(int category, String amount) {}
+    record SimulationDraft(int goal, String baseline, String adjustment, List<CutDraft> cuts) {}
 
     void loadChoices() {
         if (choicesLoaded || work.busy() || !work.isCurrent()) return;
@@ -42,6 +49,7 @@ public final class PlanningViewModel extends ViewModel {
 
     void simulate(PlanningRepository.SimulationInput input) {
         simulation = null;
+        simulationInput = input;
         work.run(() -> planning.simulate(input), response -> {
             var value = PlanningRepository.readSimulation(response);
             if (value.goalId() != input.goalId()) throw new java.io.IOException("Mismatched simulation");
@@ -49,7 +57,25 @@ public final class PlanningViewModel extends ViewModel {
         }, value -> simulation = value, false);
     }
 
+    void retry(boolean simulator) {
+        if (work.busy() || work.error == 0) return;
+        if (simulator && !choicesLoaded) loadChoices();
+        else if (simulator && simulationInput != null) simulate(simulationInput);
+        else if (!simulator && guideInput != null) quote(guideInput);
+    }
+
+    void invalidateResult() {
+        guide = null;
+        guideInput = null;
+        simulation = null;
+        simulationInput = null;
+        work.error = 0;
+    }
+
     private void clear() {
+        simulationInput = null;
+        guideDraft = null;
+        simulationDraft = null;
         guideInput = null;
         guide = null;
         simulation = null;

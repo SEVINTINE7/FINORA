@@ -1195,7 +1195,7 @@ public class UserJourneyTest {
         }
     }
 
-    @Test public void dailyGuideAndGoalSimulationFromPlanUseTheSignedInOwner() {
+    @Test public void dailyGuideAndGoalSimulationFromPlanUseTheSignedInOwner() throws Exception {
         org.junit.Assume.assumeTrue("Planning integration requires the acceptance APK",
                 "lk.finora.app.acceptance".equals(app.getPackageName()));
         String identity = UUID.randomUUID().toString().replace("-", "");
@@ -1212,6 +1212,11 @@ public class UserJourneyTest {
             typeFixture(onView(withHint(R.string.planning_income_date)), today.plusDays(10).toString());
             clickText(R.string.planning_calculate);
             await(By.textContains(app.getString(R.string.planning_tracked, "0.00", 0)));
+            device.setOrientationLeft();
+            awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
+            onView(withHint(R.string.planning_funds)).check(matches(withText("55000.00")));
+            device.setOrientationNatural();
+            awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
             clickText(R.string.planning_confirm_bills);
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
             await(By.textContains(app.getString(R.string.planning_allowance, "4700.00", 10)));
@@ -1238,6 +1243,12 @@ public class UserJourneyTest {
             await(By.textContains(app.getString(R.string.planning_monthly, "20000.00")));
             await(By.textContains(app.getString(R.string.planning_finish,
                     java.time.YearMonth.from(today).plusMonths(6).atEndOfMonth().toString(), 6)));
+            device.setOrientationLeft();
+            awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
+            onView(withHint(R.string.planning_adjustment)).check(matches(withText("-5000.00")));
+            device.setOrientationNatural();
+            awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
+            await(By.textContains(app.getString(R.string.planning_monthly, "20000.00")));
             typeFixture(onView(withHint(R.string.planning_adjustment)), "-25000.00");
             clickText(R.string.planning_calculate);
             await(By.textContains(app.getString(R.string.planning_no_capacity)));
@@ -1250,6 +1261,8 @@ public class UserJourneyTest {
             clickText(R.string.planning_simulator);
             awaitText(app.getString(R.string.planning_no_goals));
             assertFalse(device.hasObject(By.text("Synthetic emergency reserve")));
+        } finally {
+            device.setOrientationNatural();
         }
     }
 

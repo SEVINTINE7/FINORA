@@ -40,6 +40,9 @@ public final class PlanningActivity extends SecureActivity {
     private Button calculate;
     private Button confirm;
     private Button addCut;
+    private Button retry;
+    private boolean choicesRendered;
+    private boolean restoring;
     private Spinner goalPicker;
     private EditText funds, savings, date, arrears, baseline, adjustment;
     private final List<View> inputs = new ArrayList<>();
@@ -55,7 +58,7 @@ public final class PlanningActivity extends SecureActivity {
         super.onCreate(state);
         model = new ViewModelProvider(this).get(PlanningViewModel.class);
         if (!AccountListActivity.verify(this, model.work)) return;
-        if (state != null) model.simulation = null;
+        restoring = true;
         simulator = getIntent().getBooleanExtra(SIMULATION, false);
         var scroll = new ScrollView(this);
         form = new LinearLayout(this);
@@ -74,6 +77,9 @@ public final class PlanningActivity extends SecureActivity {
         result.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         calculate = button(R.string.planning_calculate, simulator ? this::simulate : this::quote);
         if (!simulator) confirm = button(R.string.planning_confirm_bills, this::confirmQuote);
+        retry = button(R.string.records_retry, () -> model.retry(simulator));
+        retry.setVisibility(View.GONE);
+        restoring = false;
         model.work.changes.observe(this, ignored -> render());
         if (simulator) model.loadChoices();
     }
@@ -89,12 +95,11 @@ public final class PlanningActivity extends SecureActivity {
         savings = money(R.string.planning_savings, false, form);
         arrears = money(R.string.planning_arrears, false, form);
         date = input(R.string.planning_income_date, InputType.TYPE_CLASS_TEXT, form);
-        if (model.guideInput != null) {
-            var draft = model.guideInput;
-            funds.setText(draft.availableFunds() == null ? "" : draft.availableFunds().toPlainString());
-            savings.setText(draft.plannedSavings() == null ? "" : draft.plannedSavings().toPlainString());
-            arrears.setText(draft.additionalUnpaidBills() == null ? "" : draft.additionalUnpaidBills().toPlainString());
-            date.setText(draft.nextIncomeDate());
+        if (model.guideDraft != null) {
+            funds.setText(model.guideDraft.funds());
+            savings.setText(model.guideDraft.savings());
+            arrears.setText(model.guideDraft.arrears());
+            date.setText(model.guideDraft.date());
         }
         button(R.string.planning_assumptions, () -> showSecure(new AlertDialog.Builder(this)
                 .setTitle(R.string.planning_assumptions).setMessage(R.string.planning_guide_assumptions)
@@ -106,7 +111,16 @@ public final class PlanningActivity extends SecureActivity {
         goalPicker = spinner(form, R.string.planning_goal);
         baseline = money(R.string.planning_baseline, false, form);
         adjustment = money(R.string.planning_adjustment, true, form);
-        addCut = button(R.string.planning_add_cut, this::addCut);
+        addCut = button(R.string.planning_add_cut, () -> {
+            if (ready() && !categories.isEmpty() && cuts.size() < 20) {
+                addCut(0, "");
+                invalidate();
+            }
+        });
+        if (model.simulationDraft != null) {
+            baseline.setText(model.simulationDraft.baseline());
+            adjustment.setText(model.simulationDraft.adjustment());
+        }
     }
 
     private void quote() {
@@ -144,7 +158,7 @@ public final class PlanningActivity extends SecureActivity {
 
     private void simulate() {
         if (!ready()) return;
-        if (!model.choicesLoaded) { model.loadChoices(); return; }
+        if (!model.choicesLoaded) return;
         int idx = goalPicker.getSelectedItemPosition();
         if (idx < 0 || idx >= goals.size()) return;
         try {
@@ -168,30 +182,27 @@ public final class PlanningActivity extends SecureActivity {
 
     private boolean ready() { return AccountListActivity.verify(this, model.work) && !model.work.busy(); }
 
-    private void addCut() {
-        if (!ready() || categories.isEmpty() || cuts.size() >= 20) return;
+    private void addCut(int category, String value) {
         var row = new LinearLayout(this);
         row.setOrientation(LinearLayout.VERTICAL);
         form.addView(row, form.indexOfChild(addCut));
         var picker = spinner(row, R.string.planning_category);
-        options(picker, categories.stream().map(this::categoryName).collect(java.util.stream.Collectors.toList()));
+        options(picker, categories.stream().map(this::categoryName).collect(java.util.stream.Collectors.toList()), category);
         var amount = money(R.string.planning_reduction, false, row);
+        amount.setText(value);
         var remove = new Button(this);
         remove.setText(R.string.planning_remove_cut);
         row.addView(remove);
         inputs.add(remove);
         var cut = new CutRow(picker, amount);
         cuts.add(cut);
-        model.simulation = null;
         remove.setOnClickListener(view -> {
             if (!ready()) return;
             form.removeView(row);
             cuts.remove(cut);
-            model.simulation = null;
             inputs.removeAll(java.util.Arrays.asList(picker, amount, remove));
-            render();
+            invalidate();
         });
-        render();
     }
 
     private String categoryName(CategoryDto category) {
@@ -206,16 +217,23 @@ public final class PlanningActivity extends SecureActivity {
         int message = busy ? R.string.records_loading : model.work.error;
         result.setText("");
         if (simulator) {
-            if (model.choicesLoaded && goals.isEmpty()) {
+            if (model.choicesLoaded && !choicesRendered) {
+                choicesRendered = true;
+                restoring = true;
                 goals = model.goals.stream().filter(g -> !"CANCELLED".equals(g.status()))
                         .collect(java.util.stream.Collectors.toList());
                 categories = model.categories.stream().filter(c -> "EXPENSE".equals(c.kind()))
                         .collect(java.util.stream.Collectors.toList());
-                options(goalPicker, goals.stream().map(GoalDto::name).collect(java.util.stream.Collectors.toList()));
+                var draft = model.simulationDraft;
+                options(goalPicker, goals.stream().map(GoalDto::name).collect(java.util.stream.Collectors.toList()),
+                        draft == null ? 0 : draft.goal());
+                if (draft != null && !categories.isEmpty()) {
+                    for (var row : draft.cuts()) addCut(row.category(), row.amount());
+                }
+                restoring = false;
             }
             if (message == 0 && model.choicesLoaded && goals.isEmpty()) message = R.string.planning_no_goals;
-            calculate.setText(!model.choicesLoaded && !busy ? R.string.records_retry : R.string.planning_calculate);
-            calculate.setEnabled(!busy && (!model.choicesLoaded || !goals.isEmpty()));
+            calculate.setEnabled(!busy && !goals.isEmpty());
             addCut.setEnabled(!busy && !goals.isEmpty() && !categories.isEmpty() && cuts.size() < 20);
             if (!busy && model.simulation != null) renderSimulation(model.simulation);
         } else {
@@ -223,6 +241,7 @@ public final class PlanningActivity extends SecureActivity {
             confirm.setEnabled(!busy && canConfirm());
             if (!busy && model.guide != null) renderGuide(model.guide);
         }
+        retry.setVisibility(!busy && model.work.error != 0 ? View.VISIBLE : View.GONE);
         status.setText(message == 0 ? "" : getString(message));
     }
 
@@ -303,20 +322,24 @@ public final class PlanningActivity extends SecureActivity {
         view.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(android.widget.AdapterView<?> parent, View selection,
                     int position, long id) {
-                if (result != null && !model.work.busy() && model.simulation != null) {
-                    model.simulation = null;
-                    render();
-                }
+                var old = (Integer) parent.getTag();
+                parent.setTag(position);
+                if (old != null && old != position) invalidate();
             }
             @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
         return view;
     }
 
-    private void options(Spinner spinner, List<String> values) {
+    private void options(Spinner spinner, List<String> values, int selected) {
         var adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, values);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        if (!values.isEmpty()) {
+            int index = Math.max(0, Math.min(selected, values.size() - 1));
+            spinner.setTag(index);
+            spinner.setSelection(index);
+        }
     }
 
     private EditText money(int hint, boolean signed, LinearLayout into) {
@@ -334,19 +357,48 @@ public final class PlanningActivity extends SecureActivity {
         field.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence text, int start, int before, int count) {
-                if (result == null || model.work.busy()) return;
-                model.guideInput = null;
-                model.guide = null;
-                model.simulation = null;
-                render();
+                invalidate();
             }
             @Override public void afterTextChanged(android.text.Editable text) {}
         });
         return field;
     }
 
+    @Override protected void onSaveInstanceState(Bundle state) {
+        if (result != null && model.work.isCurrent()) {
+            if (simulator) {
+                if (choicesRendered) {
+                    var rows = new ArrayList<PlanningViewModel.CutDraft>();
+                    for (var row : cuts) {
+                        rows.add(new PlanningViewModel.CutDraft(row.category().getSelectedItemPosition(),
+                                row.amount().getText().toString()));
+                    }
+                    model.simulationDraft = new PlanningViewModel.SimulationDraft(
+                            goalPicker.getSelectedItemPosition(), baseline.getText().toString(),
+                            adjustment.getText().toString(), rows);
+                } else {
+                    model.simulationDraft = new PlanningViewModel.SimulationDraft(0, baseline.getText().toString(),
+                            adjustment.getText().toString(), java.util.Collections.emptyList());
+                }
+            } else {
+                model.guideDraft = new PlanningViewModel.GuideDraft(funds.getText().toString(),
+                        savings.getText().toString(), arrears.getText().toString(), date.getText().toString());
+            }
+        }
+        super.onSaveInstanceState(state);
+    }
+
+    private void invalidate() {
+        if (result == null || restoring || model.work.busy() || !model.work.isCurrent()) return;
+        model.invalidateResult();
+        render();
+    }
+
     private BigDecimal amount(EditText field, boolean signed, boolean required) throws InvalidInput {
         String text = field.getText().toString().trim();
+        char separator = java.text.DecimalFormatSymbols.getInstance(
+                getResources().getConfiguration().getLocales().get(0)).getDecimalSeparator();
+        if (separator != '.') text = text.replace(separator, '.');
         if (text.isEmpty() && !required) return null;
         if (text.length() <= 17 && text.matches((signed ? "[-+]?" : "") + "[0-9]{1,13}(\\.[0-9]{1,2})?")) {
             return new BigDecimal(text);

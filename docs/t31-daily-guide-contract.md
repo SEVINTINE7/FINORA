@@ -10,7 +10,8 @@ Do not mark T31 accepted based on this patch. Original T17/T18/T19 gates remain.
 
 POST /api/v1/daily-guide, authenticated USER only, JSON. Read-only calculation despite POST;
 no persistent settings, financial data updates, provider calls or inferred bank balance.
-All request fields nullable. Exact LKR decimals (max 13 integer, 2 fractional digits);
+All request fields nullable. LKR fields allow two fractional digits and up to 13 integer
+digits, except the tracked bill confirmation, which allows 23 integer digits;
 only availableFunds can be negative. Date uses YYYY-MM-DD. User supplies availableFunds
 (current spendable funds before the remaining deductions), plannedSavings (not yet deducted),
 nextIncomeDate (optional override), confirmedTrackedUnpaidBills (confirmation of the
