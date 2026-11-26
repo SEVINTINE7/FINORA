@@ -32,6 +32,12 @@ protocol,participant_code,locale,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,valid_items,miss
 
 Use the outcome categories defined in the evaluation protocol. Report participant flow, task outcomes and assistance with denominators, and valid versus excluded SUS forms before presenting score summaries. Keep free text free of identifying details.
 
+The offline [SUS scoring check](evaluation-tools/sus_scoring.py) accepts exactly ten integer
+responses from 1 to 5. It returns no score for incomplete or invalid forms. Verify it with
+python -B -m unittest discover -s docs/evaluation-tools -v from the repository root.
+Use only resolved answers when scoring and retain the second-review step. The synthetic
+test vectors are not participant data and do not define the group acceptance statistic.
+
 ## T55.4 separate protocol
 
 Keep advice comparison outside the V1 app runtime and this SUS session. Before collecting comparison data, obtain an explicit decision on whether to run it. If approved, predefine the paired unit, primary outcome, randomization and blinding, exclusions, handling of unavailable or fallback advice, analysis, and reporting. New provider requests require reconciled billing and separate explicit authorization.
