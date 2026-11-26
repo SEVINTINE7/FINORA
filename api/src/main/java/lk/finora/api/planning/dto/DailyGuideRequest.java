@@ -10,5 +10,8 @@ public record DailyGuideRequest(
         @Digits(integer = 13, fraction = 2) BigDecimal availableFunds,
         @Digits(integer = 13, fraction = 2) @DecimalMin("0.00") BigDecimal plannedSavings,
         LocalDate nextIncomeDate,
-        @Digits(integer = 13, fraction = 2) @DecimalMin("0.00") BigDecimal confirmedTrackedUnpaidBills,
-        @Digits(integer = 13, fraction = 2) @DecimalMin("0.00") BigDecimal additionalUnpaidBills) {}
+        @Digits(integer = TRACKED_BILL_INTEGER_DIGITS, fraction = 2) @DecimalMin("0.00") BigDecimal confirmedTrackedUnpaidBills,
+        @Digits(integer = 13, fraction = 2) @DecimalMin("0.00") BigDecimal additionalUnpaidBills) {
+    // The quote totals up to Integer.MAX_VALUE individual 13-integer-digit occurrences.
+    public static final int TRACKED_BILL_INTEGER_DIGITS = 23;
+}
