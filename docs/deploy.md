@@ -34,7 +34,7 @@ The script (safe to re-run):
 - firewall: deny all incoming except **22 and 443**. Port 80 is opened only for the few seconds certbot needs (pre/post hooks), then closed again
 - MySQL: `bind-address = 127.0.0.1` (`deploy/mysql/99-finora.cnf`) and three users, all limited to the `finora` schema:
   - `finora_app`: SELECT/INSERT/UPDATE/DELETE only (used by the running API)
-  - `finora_migrate`: adds CREATE/ALTER/DROP/INDEX/REFERENCES (used by Flyway at start-up, via `SPRING_FLYWAY_USER`)
+  - `finora_migrate`: adds CREATE/ALTER/DROP/INDEX/REFERENCES/CREATE TEMPORARY TABLES (used by Flyway at start-up, via `SPRING_FLYWAY_USER`)
   - `finora_backup`: SELECT/SHOW VIEW/TRIGGER/LOCK TABLES (used by backups)
 - generates random passwords and a JWT secret into `/etc/finora/finora.env` (never printed, never in Git). Template: `deploy/finora.env.example`
 - installs the systemd units and enables the nightly backup timer

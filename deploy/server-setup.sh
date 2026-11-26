@@ -57,7 +57,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON finora.* TO 'finora_app'@'localhost';
 -- Flyway user: schema changes on the finora schema only (used at API start-up).
 CREATE USER IF NOT EXISTS 'finora_migrate'@'localhost' IDENTIFIED BY '$MIGRATE_PASS';
 ALTER USER 'finora_migrate'@'localhost' IDENTIFIED BY '$MIGRATE_PASS';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON finora.* TO 'finora_migrate'@'localhost';
+-- CREATE TEMPORARY TABLES: V22 uses a temporary guard table.
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES, CREATE TEMPORARY TABLES ON finora.* TO 'finora_migrate'@'localhost';
 -- Backup user: read-only dump rights.
 CREATE USER IF NOT EXISTS 'finora_backup'@'localhost' IDENTIFIED BY '$BACKUP_PASS';
 ALTER USER 'finora_backup'@'localhost' IDENTIFIED BY '$BACKUP_PASS';
@@ -68,7 +69,7 @@ SQL
   umask 077
   cat > "$ENV_FILE" <<ENV
 # FINORA API secrets (T56.3). Owner finora, mode 400. Never copy into Git.
-DB_URL=jdbc:mysql://127.0.0.1:3306/finora?sslMode=DISABLED&serverTimezone=UTC
+DB_URL=jdbc:mysql://127.0.0.1:3306/finora?sslMode=DISABLED&allowPublicKeyRetrieval=true&serverTimezone=UTC
 DB_USER=finora_app
 DB_PASS=$APP_PASS
 SPRING_FLYWAY_USER=finora_migrate
