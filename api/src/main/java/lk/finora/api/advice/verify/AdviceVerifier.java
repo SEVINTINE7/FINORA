@@ -38,7 +38,7 @@ public final class AdviceVerifier {
     private static final Pattern NUMBER = Pattern.compile("[0-9]+(?:\\.[0-9]+)?");
     /** Free-text numbers may use thousands separators: 9,625 or 54,900.00. */
     private static final Pattern FREE_NUMBER = Pattern.compile(
-            "(?:([\\p{Pd}\\u2212+])[\\p{Zs}\\p{Cf}]*)?([0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?)");
+            "(?:([\\p{Pd}\\u2212+])[\\p{Z}\\p{Cf}]*)?([0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?)");
     private static final int MAX_SECTION_TEXT = 1200;
     /** Products, borrowing, guarantees, links and cuts to essential (need) categories are never allowed. */
     private static final Pattern UNSAFE = Pattern.compile("(?i)guarantee|risk[- ]free|crypto|stock|shares|invest|"

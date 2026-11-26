@@ -12,8 +12,12 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -93,11 +97,19 @@ class D58ReviewTest {
         assertThat(verify(f, "LKR 1,200.00 remains.", item).verified()).isTrue();
         assertThat(verify(f, "LKR -1,200.00 remains.", item).reason()).isEqualTo(Reason.TEXT_NUMBER_MISMATCH);
         assertThat(verify(f, "LKR \u22121,200.00 remains.", item).reason()).isEqualTo(Reason.TEXT_NUMBER_MISMATCH);
-        for (String sign : List.of("- ", "\u2212\u202f", "\u2013\u00a0", "\uff0d\u200e")) {
-            assertThat(verify(f, "LKR " + sign + "1,200.00 remains.", item).reason())
-                    .isEqualTo(Reason.TEXT_NUMBER_MISMATCH);
+        for (String sign : List.of("- ", "\u2212\u202f", "\u2013\u00a0", "\uff0d\u200e",
+                "-\u2028", "\u2212\u2028", "-\u2029", "\u2212\u2029")) {
+            var verdict = verify(f, "LKR " + sign + "1,200.00 remains.", item);
+            assertThat(verdict.reason()).as("sign U+%04X, separator U+%04X",
+                    (int) sign.charAt(0), (int) sign.charAt(1)).isEqualTo(Reason.TEXT_NUMBER_MISMATCH);
+            assertThat(verdict.advice()).isEmpty();
         }
-        assertThat(verify(f, "LKR +\u202f1,200.00 remains.", item).verified()).isTrue();
+        for (String separator : List.of("\u202f", "\u2028", "\u2029")) {
+            String text = "LKR +" + separator + "1,200.00 remains.";
+            var verdict = verify(f, text, item);
+            assertThat(verdict.verified()).isTrue();
+            assertThat(verdict.advice().get(0).text()).isEqualTo(text);
+        }
         for (String text : List.of("A GUARANTEE. ", "A risk\u2011free offer. ", "Use a credit\u00a0 card. ",
                 "Reduce your rent. ", "Visit HTTPS://example.invalid. ")) {
             var verdict = verify(f, text + "LKR 1,200.00 remains.", item);
@@ -106,18 +118,21 @@ class D58ReviewTest {
         }
     }
 
-    @org.junit.jupiter.params.ParameterizedTest
-    @org.junit.jupiter.params.provider.EnumSource(value = Reason.class, names = {"UNSAFE_TEXT", "TEXT_NUMBER_MISMATCH"})
-    void laterInvalidCoachingDiscardsTheWholeProviderReplyAndDoesNotCallBackup(Reason reason) {
-        var goal = new CoachingInputs.Goal(d("100"), d("20"), d("15"), END.plusMonths(2));
-        var facts = facts("100", "40", "40", "0", List.of(), goal);
+    @ParameterizedTest
+    @MethodSource("laterInvalidCoachingCases")
+    void laterInvalidCoachingDiscardsTheWholeProviderReplyAndDoesNotCallBackup(Reason reason, String sign) {
+        var goal = new CoachingInputs.Goal(d("150000"), d("45000"), d("30000"), END.plusMonths(6));
+        var facts = facts("75000", "60000", "40000", "20000",
+                List.of(new CoachingInputs.Bucket("Shopping", d("20000"), d("20000"))), goal);
         var canonical = RuleAdviceEngine.generate(facts);
         var proposed = new ArrayList<>(canonical);
-        var salary = proposed.get(1);
-        assertThat(salary.actionId()).isEqualTo("SALARY_PLAN");
+        var salary = proposed.stream().filter(a -> a.actionId().equals("SALARY_PLAN")).findFirst().orElseThrow();
+        int salaryIndex = proposed.indexOf(salary);
+        assertThat(salaryIndex).isGreaterThan(0);
+        value(facts, FactKey.PLAN_GOAL_TRANSFER, "17500");
         String text = reason == Reason.UNSAFE_TEXT ? "Guaranteed returns. " + salary.text()
-                : salary.text().replaceFirst("[0-9]", "\u2212\u202f$0");
-        proposed.set(1, new AdviceItem(salary.actionId(), text, salary.numbers()));
+                : salary.text().replaceFirst("[0-9]", sign + "$0");
+        proposed.set(salaryIndex, new AdviceItem(salary.actionId(), text, salary.numbers()));
         var rules = mock(RuleAdviceService.class);
         var primary = mock(LlmClient.class);
         var backup = mock(LlmClient.class);
@@ -143,6 +158,14 @@ class D58ReviewTest {
         } finally {
             SecurityContextHolder.setContext(prior);
         }
+    }
+
+    private static Stream<Arguments> laterInvalidCoachingCases() {
+        return Stream.of(
+                Arguments.of(Reason.UNSAFE_TEXT, ""),
+                Arguments.of(Reason.TEXT_NUMBER_MISMATCH, "\u2212\u202f"),
+                Arguments.of(Reason.TEXT_NUMBER_MISMATCH, "\u2212\u2028"),
+                Arguments.of(Reason.TEXT_NUMBER_MISMATCH, "\u2212\u2029"));
     }
 
     private static AdviceVerifier.Verdict verify(FactSheet facts, String text, AdviceItem.NumberFact fact) {
