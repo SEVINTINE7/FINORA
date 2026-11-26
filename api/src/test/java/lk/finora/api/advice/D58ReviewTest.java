@@ -93,6 +93,11 @@ class D58ReviewTest {
         assertThat(verify(f, "LKR 1,200.00 remains.", item).verified()).isTrue();
         assertThat(verify(f, "LKR -1,200.00 remains.", item).reason()).isEqualTo(Reason.TEXT_NUMBER_MISMATCH);
         assertThat(verify(f, "LKR \u22121,200.00 remains.", item).reason()).isEqualTo(Reason.TEXT_NUMBER_MISMATCH);
+        for (String sign : List.of("- ", "\u2212\u202f", "\u2013\u00a0", "\uff0d\u200e")) {
+            assertThat(verify(f, "LKR " + sign + "1,200.00 remains.", item).reason())
+                    .isEqualTo(Reason.TEXT_NUMBER_MISMATCH);
+        }
+        assertThat(verify(f, "LKR +\u202f1,200.00 remains.", item).verified()).isTrue();
         for (String text : List.of("A GUARANTEE. ", "A risk\u2011free offer. ", "Use a credit\u00a0 card. ",
                 "Reduce your rent. ", "Visit HTTPS://example.invalid. ")) {
             var verdict = verify(f, text + "LKR 1,200.00 remains.", item);
@@ -101,15 +106,18 @@ class D58ReviewTest {
         }
     }
 
-    @Test
-    void unsafeCoachingDiscardsTheWholeProviderReplyAndDoesNotCallBackup() {
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.EnumSource(value = Reason.class, names = {"UNSAFE_TEXT", "TEXT_NUMBER_MISMATCH"})
+    void laterInvalidCoachingDiscardsTheWholeProviderReplyAndDoesNotCallBackup(Reason reason) {
         var goal = new CoachingInputs.Goal(d("100"), d("20"), d("15"), END.plusMonths(2));
         var facts = facts("100", "40", "40", "0", List.of(), goal);
         var canonical = RuleAdviceEngine.generate(facts);
         var proposed = new ArrayList<>(canonical);
         var salary = proposed.get(1);
         assertThat(salary.actionId()).isEqualTo("SALARY_PLAN");
-        proposed.set(1, new AdviceItem(salary.actionId(), "Guaranteed returns. " + salary.text(), salary.numbers()));
+        String text = reason == Reason.UNSAFE_TEXT ? "Guaranteed returns. " + salary.text()
+                : salary.text().replaceFirst("[0-9]", "\u2212\u202f$0");
+        proposed.set(1, new AdviceItem(salary.actionId(), text, salary.numbers()));
         var rules = mock(RuleAdviceService.class);
         var primary = mock(LlmClient.class);
         var backup = mock(LlmClient.class);
@@ -128,8 +136,8 @@ class D58ReviewTest {
         SecurityContextHolder.setContext(context);
         try {
             assertThat(pipeline.forCurrentUser(MONTH, 7L))
-                    .isEqualTo(new AdvicePipelineService.Delivery("RULE", false, "UNSAFE_TEXT", canonical));
-            org.mockito.Mockito.verify(sink).record(42L, MONTH, "GROQ", false, Reason.UNSAFE_TEXT);
+                    .isEqualTo(new AdvicePipelineService.Delivery("RULE", false, reason.name(), canonical));
+            org.mockito.Mockito.verify(sink).record(42L, MONTH, "GROQ", false, reason);
             org.mockito.Mockito.verify(backup, never())
                     .generate(any(), any());
         } finally {
