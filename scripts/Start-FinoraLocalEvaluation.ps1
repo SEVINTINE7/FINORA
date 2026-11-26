@@ -33,12 +33,24 @@ $session = Join-Path ([IO.Path]::GetTempPath()) ('finora-local-' + [guid]::NewGu
 [void][IO.Directory]::CreateDirectory($session)
 Write-Host "Session evidence: $session"
 $data = Join-Path $session 'mysql'
-$envNames = @('JAVA_HOME','Path','MAVEN_USER_HOME','MYSQL_PWD','TEST_DB_URL','TEST_DB_USER','TEST_DB_PASS',
+$connectionOverrides = @(Get-ChildItem Env: | Where-Object {
+    $_.Name -like 'SPRING_DATASOURCE_*' -or $_.Name -like 'SPRING_FLYWAY_*'
+} | ForEach-Object { $_.Name })
+$profileOverrides = @(Get-ChildItem Env: | Where-Object {
+    $_.Name -like 'SPRING_PROFILES_*'
+} | ForEach-Object { $_.Name })
+$envNames = @(@('JAVA_HOME','Path','MAVEN_USER_HOME','MAVEN_OPTS','MAVEN_ARGS','MAVEN_SKIP_RC',
+    'MAVEN_DEBUG_OPTS','JVM_CONFIG_MAVEN_OPTS','MAVEN_BASEDIR',
+    'MYSQL_PWD','TEST_DB_URL','TEST_DB_USER','TEST_DB_PASS',
     'DB_URL','DB_USER','DB_PASS','JWT_SECRET','SPRING_PROFILES_ACTIVE','SERVER_ADDRESS','SERVER_PORT',
+    'SPRING_DATASOURCE_URL','SPRING_DATASOURCE_USERNAME','SPRING_DATASOURCE_PASSWORD',
+    'SPRING_FLYWAY_URL','SPRING_FLYWAY_USER','SPRING_FLYWAY_PASSWORD',
     'ANDROID_HOME','ANDROID_ADB_SERVER_PORT','ADB_SERVER_PORT','FINORA_LLM_ENABLED','GROQ_API_KEY',
     'GEMINI_API_KEY','FINORA_LLM_GROQ_API_KEY','FINORA_LLM_GEMINI_API_KEY','FIREBASE_CREDENTIALS',
-    'GOOGLE_APPLICATION_CREDENTIALS','SPRING_APPLICATION_JSON','SPRING_CONFIG_LOCATION',
-    'SPRING_CONFIG_ADDITIONAL_LOCATION','SPRING_CONFIG_IMPORT','JDK_JAVA_OPTIONS','JAVA_TOOL_OPTIONS','_JAVA_OPTIONS')
+    'FINORA_FIREBASE_CREDENTIALS',
+    'GOOGLE_APPLICATION_CREDENTIALS','SPRING_APPLICATION_JSON','SPRING_CONFIG_NAME','SPRING_CONFIG_LOCATION',
+    'SPRING_CONFIG_ADDITIONAL_LOCATION','SPRING_CONFIG_IMPORT','JDK_JAVA_OPTIONS','JAVA_TOOL_OPTIONS','_JAVA_OPTIONS') +
+    $connectionOverrides + $profileOverrides | Select-Object -Unique)
 $previous = @{}
 foreach ($name in $envNames) { $previous[$name] = [Environment]::GetEnvironmentVariable($name, 'Process') }
 $adbOwner = $null
@@ -67,11 +79,19 @@ try {
     $env:Path = "$(Join-Path $JavaHome 'bin');$env:SystemRoot\System32\WindowsPowerShell\v1.0;$env:Path"
     if ($MavenUserHome) { $env:MAVEN_USER_HOME = $MavenUserHome }
     foreach ($name in 'MYSQL_PWD','GROQ_API_KEY','GEMINI_API_KEY','FINORA_LLM_GROQ_API_KEY',
-            'FINORA_LLM_GEMINI_API_KEY','FIREBASE_CREDENTIALS','GOOGLE_APPLICATION_CREDENTIALS',
+            'FINORA_LLM_GEMINI_API_KEY','FIREBASE_CREDENTIALS','FINORA_FIREBASE_CREDENTIALS','GOOGLE_APPLICATION_CREDENTIALS',
             'SPRING_APPLICATION_JSON','SPRING_CONFIG_LOCATION','SPRING_CONFIG_ADDITIONAL_LOCATION',
-            'SPRING_CONFIG_IMPORT','JDK_JAVA_OPTIONS','JAVA_TOOL_OPTIONS','_JAVA_OPTIONS') {
+            'SPRING_CONFIG_IMPORT','JDK_JAVA_OPTIONS','JAVA_TOOL_OPTIONS','_JAVA_OPTIONS','MAVEN_OPTS','MAVEN_ARGS',
+            'MAVEN_DEBUG_OPTS','JVM_CONFIG_MAVEN_OPTS','MAVEN_BASEDIR') {
         Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
     }
+    # Direct Spring and pool-specific overrides outrank the DB_URL/TEST_DB_URL placeholders.
+    foreach ($name in ($connectionOverrides + $profileOverrides)) {
+        Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+    }
+    $env:MAVEN_SKIP_RC = '1'
+    $env:SPRING_CONFIG_NAME = 'application'
+    $env:SPRING_PROFILES_ACTIVE = if ($Mode -eq 'Verify') { 'test' } else { 'dev' }
     $env:FINORA_LLM_ENABLED = 'false'
     $init = Start-Process $mysqlServer -ArgumentList @('--no-defaults','--initialize-insecure', "--datadir=`"$data`"") -Wait -PassThru -WindowStyle Hidden -RedirectStandardError (Join-Path $session 'mysql-init.log')
     if ($init.ExitCode) { throw 'Disposable MySQL initialization failed.' }
@@ -100,6 +120,14 @@ try {
     if ($LASTEXITCODE -or (($identity -replace '\\','/') -notlike "$($data -replace '\\','/')*finora_test*$dbUser@127.0.0.1")) { throw 'Disposable database identity mismatch.' }
     Remove-Item Env:MYSQL_PWD
     $url = "jdbc:mysql://127.0.0.1:$DbPort/finora_test"
+    # Both the application and Flyway must use the instance whose identity was just checked.
+    # Credentials stay in this process environment; none are passed as command arguments.
+    $env:SPRING_DATASOURCE_URL = $url
+    $env:SPRING_DATASOURCE_USERNAME = $dbUser
+    $env:SPRING_DATASOURCE_PASSWORD = $dbPass
+    $env:SPRING_FLYWAY_URL = $url
+    $env:SPRING_FLYWAY_USER = $dbUser
+    $env:SPRING_FLYWAY_PASSWORD = $dbPass
     if ($Mode -eq 'Verify') {
         $env:TEST_DB_URL = $url
         $env:TEST_DB_USER = $dbUser
@@ -107,7 +135,7 @@ try {
         Push-Location (Join-Path $projectRoot 'api')
         try {
             $mavenLog = Join-Path $session 'maven-verify.log'
-            & .\mvnw.cmd -o -B verify *> $mavenLog
+            & .\mvnw.cmd -o -B '-Dfinora.llm.enabled=false' '-Dfinora.firebase.credentials=' verify *> $mavenLog
             $mavenExit = $LASTEXITCODE
             Get-Content -LiteralPath $mavenLog -Tail 24
             if ($mavenExit) { throw 'Maven verification failed.' }
@@ -136,7 +164,6 @@ try {
     $env:DB_USER = $dbUser
     $env:DB_PASS = $dbPass
     $env:JWT_SECRET = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
-    $env:SPRING_PROFILES_ACTIVE = 'dev'
     $env:SERVER_ADDRESS = '127.0.0.1'
     $env:SERVER_PORT = '8080'
     $api = Start-Process $java -ArgumentList @('-jar',"`"$jar`"",'--finora.llm.enabled=false','--finora.firebase.credentials=') -WindowStyle Hidden -PassThru -WorkingDirectory $session -RedirectStandardOutput (Join-Path $session 'api.out') -RedirectStandardError (Join-Path $session 'api.err')
@@ -194,20 +221,35 @@ try {
 } finally {
     try {
         if ($emulator -and -not $emulator.HasExited) {
-            if ((& $adb -P $AdbPort -s $serial emu avd name 2>$null | Select-Object -First 1) -eq $avd) {
-                if ($permissionChanged) {
-                    Invoke-Device shell pm grant --user 0 $appId android.permission.READ_SMS
-                    if (-not ((Invoke-Device shell dumpsys package $appId) -match 'android.permission.READ_SMS: granted=true')) {
-                        Write-Warning 'Could not confirm acceptance app permission restoration.'
+            $ownedDevice = $false
+            try {
+                $reportedAvd = & $adb -P $AdbPort -s $serial emu avd name 2>$null | Select-Object -First 1
+                $ownedDevice = $LASTEXITCODE -eq 0 -and $reportedAvd -eq $avd
+                if ($ownedDevice) {
+                    if ($permissionChanged) {
+                        try {
+                            Invoke-Device shell pm grant --user 0 $appId android.permission.READ_SMS
+                            if (-not ((Invoke-Device shell dumpsys package $appId) -match 'android.permission.READ_SMS: granted=true')) {
+                                Write-Warning 'Could not confirm acceptance app permission restoration.'
+                            }
+                        } catch { Write-Warning 'Acceptance app permission restoration failed.' }
+                    }
+                    if ($mapped) {
+                        try {
+                            Invoke-Device reverse --remove tcp:8080
+                            if ((Invoke-Device reverse --list) -match 'tcp:8080') { Write-Warning 'Reverse mapping still present.' }
+                        } catch { Write-Warning 'Session reverse mapping removal failed.' }
                     }
                 }
-                if ($mapped) {
-                    Invoke-Device reverse --remove tcp:8080
-                    if ((Invoke-Device reverse --list) -match 'tcp:8080') { Write-Warning 'Reverse mapping still present.' }
+            } catch { Write-Warning 'Could not verify the session emulator during cleanup.' }
+            finally {
+                if ($ownedDevice) {
+                    try { Invoke-Device emu kill }
+                    catch { Write-Warning 'Emulator console shutdown failed; stopping the session process.' }
                 }
-                Invoke-Device emu kill
-            } else {
-                Stop-Process -InputObject $emulator -ErrorAction SilentlyContinue
+                if (-not $emulator.HasExited -and -not $emulator.WaitForExit(5000)) {
+                    Stop-Process -InputObject $emulator -ErrorAction SilentlyContinue
+                }
             }
         }
     } finally {
