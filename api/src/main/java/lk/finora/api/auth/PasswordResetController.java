@@ -12,9 +12,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth/password")
 class PasswordResetController {
-    record Forgot(@NotBlank @Email @Size(max = 254) String email) {}
+    record Forgot(@NotBlank @Email @Size(max = 254) String email) {
+        @Override public String toString() { return "Password reset request"; }
+    }
     record Reset(@NotBlank @Email @Size(max = 254) String email, String code,
-            @NotBlank @Size(min = 8, max = 72) @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*[0-9]).*$") String newPassword) {}
+            @NotBlank @Size(min = 8, max = 72) @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*[0-9]).*$") String newPassword) {
+        @Override public String toString() { return "Password reset confirmation"; }
+    }
 
     private final PasswordResetService service;
 

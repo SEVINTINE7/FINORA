@@ -21,6 +21,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 import lk.finora.api.support.IntegrationTest;
+import lk.finora.api.user.Role;
+import lk.finora.api.user.User;
+import lk.finora.api.user.UserStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(OutputCaptureExtension.class)
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
@@ -33,6 +37,7 @@ class PasswordResetTest extends IntegrationTest {
     @MockitoBean PasswordResetRequests requests;
     @Autowired JdbcTemplate jdbc;
     @Autowired EntityManager entities;
+    @Autowired PasswordEncoder encoder;
 
     @BeforeEach void register() throws Exception {
         when(mail.configured()).thenReturn(true);
@@ -134,6 +139,64 @@ class PasswordResetTest extends IntegrationTest {
         assertThat(audit.get("actor_id")).isEqualTo(audit.get("target_id"));
         assertThat(audit.get("reason")).isNull();
         assertThat(logs.getAll().contains(OLD) || logs.getAll().contains(NEW) || logs.getAll().contains(code)).isFalse();
+    }
+
+
+    // A JDBC write while an entity is managed reproduces the stale identity snapshot
+    // that login can otherwise retain when an account change wins the row lock.
+    private User cachedAccount(Role role) {
+        var user = createUser(role);
+        user.setPasswordHash(encoder.encode(OLD));
+        return userRepository.saveAndFlush(user);
+    }
+
+    @Test void loginRefusesAnAccountDisabledAfterItsIdentityWasLoaded() throws Exception {
+        var admin = cachedAccount(Role.ADMIN);
+        jdbc.update("UPDATE users SET status='DISABLED', staff_session_generation=staff_session_generation+1 WHERE id=?",
+                admin.getId());
+        assertThat(admin.getStatus()).isEqualTo(UserStatus.ACTIVE);
+        send("login", Map.of("email", admin.getEmail(), "password", OLD))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("ACCOUNT_DISABLED"));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM refresh_tokens WHERE user_id=?",
+                Integer.class, admin.getId())).isZero();
+    }
+
+    @Test void loginIssuesTheCurrentGenerationAndLanguageAfterAnAccountChange() throws Exception {
+        var admin = cachedAccount(Role.ADMIN);
+        long nextGeneration = admin.getStaffSessionGeneration() + 2;
+        jdbc.update("UPDATE users SET staff_session_generation=?, language='SI' WHERE id=?",
+                nextGeneration, admin.getId());
+        assertThat(admin.getStaffSessionGeneration()).isNotEqualTo(nextGeneration);
+        String body = send("login", Map.of("email", admin.getEmail(), "password", OLD))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("ADMIN"))
+                .andExpect(jsonPath("$.language").value("SI"))
+                .andReturn().getResponse().getContentAsString();
+        String access = jsonMapper.readTree(body).get("accessToken").asString();
+        assertThat(jwtService.readToken(access).get("staffGeneration", Long.class)).isEqualTo(nextGeneration);
+        entities.flush();
+        assertThat(jdbc.queryForList("SELECT staff_session_generation FROM refresh_tokens WHERE user_id=?",
+                Long.class, admin.getId())).containsExactly(nextGeneration);
+    }
+
+    @Test void loginReadsTheCurrentRoleRatherThanTheCachedRole() throws Exception {
+        var user = cachedAccount(Role.USER);
+        // This is an isolated identity-state regression, not a test of the T60 promotion workflow.
+        jdbc.update("UPDATE users SET role='STAFF', staff_session_generation=staff_session_generation+1 WHERE id=?",
+                user.getId());
+        assertThat(user.getRole()).isEqualTo(Role.USER);
+        String body = send("login", Map.of("email", user.getEmail(), "password", OLD))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.role").value("STAFF"))
+                .andReturn().getResponse().getContentAsString();
+        String access = jsonMapper.readTree(body).get("accessToken").asString();
+        assertThat(jwtService.readToken(access).get("role", String.class)).isEqualTo("STAFF");
+    }
+
+    @Test void passwordResetRequestRepresentationsDoNotContainCredentialsOrEmail() {
+        assertThat(new PasswordResetController.Forgot(OWNER).toString()).isEqualTo("Password reset request");
+        assertThat(new PasswordResetController.Reset(OWNER, "012345", NEW).toString())
+                .isEqualTo("Password reset confirmation");
     }
 
     @Test void localizedMailContainsOnlyCodeAndExpiry() {
