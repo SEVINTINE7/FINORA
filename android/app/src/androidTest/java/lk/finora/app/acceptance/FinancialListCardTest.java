@@ -1,5 +1,6 @@
 package lk.finora.app.acceptance;
 
+import static org.hamcrest.Matchers.allOf;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
@@ -109,7 +110,7 @@ public final class FinancialListCardTest {
             scenario.onActivity(activity -> {
                 assertEquals(locale, activity.getResources().getConfiguration().getLocales().get(0).getLanguage());
                 assertTrue((activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_SECURE) != 0);
-                labels[0] = activity.getString(R.string.transaction_card_debit, "1250.75");
+                labels[0] = lk.finora.app.ui.Money.signed(activity, new java.math.BigDecimal("1250.75"), false);
                 labels[1] = activity.getString(R.string.records_empty);
                 labels[2] = activity.getString(R.string.records_loading);
                 labels[3] = activity.getString(R.string.records_failed);
@@ -117,16 +118,17 @@ public final class FinancialListCardTest {
             assertTrue(device.wait(Until.hasObject(By.text(labels[2])), 10_000));
             allowFirstResponse.countDown();
             assertTrue(device.wait(Until.hasObject(By.text(labels[3])), 10_000));
-            onView(withText(R.string.records_retry)).perform(scrollTo(), click());
+            onView(withText(R.string.records_retry)).perform(click());
             assertTrue(device.wait(Until.hasObject(By.text("Synthetic shop")), 10_000));
-            onView(withText(labels[0])).perform(scrollTo()).check(matches(isDisplayed()));
-            onView(withText(R.string.records_remove)).check(matches(not(isDisplayed())));
-            onView(withId(R.id.record_actions)).perform(scrollTo(), click());
-            onView(withText(R.string.records_edit)).perform(scrollTo()).check(matches(isDisplayed()));
-            onView(withText(R.string.records_remove)).perform(scrollTo(), click());
+            onView(allOf(withId(R.id.row_amount), withText(labels[0]))).check(matches(isDisplayed()));
+            // T62/D65: swipe a row to remove it; cancelling restores the row and deletes nothing.
+            onView(withText("Synthetic shop")).perform(androidx.test.espresso.action.ViewActions.swipeLeft());
+            onView(withText(R.string.transaction_remove)).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(click());
             assertEquals(0, deletions.get());
-            onView(withText(R.string.records_remove)).perform(scrollTo(), click());
+            onView(withText("Synthetic shop")).check(matches(isDisplayed()));
+            // Long-press is the non-gesture route to the same confirmation.
+            onView(withText("Synthetic shop")).perform(androidx.test.espresso.action.ViewActions.longClick());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
             assertTrue(device.wait(Until.hasObject(By.text(labels[1])), 10_000));
             assertEquals(1, deletions.get());

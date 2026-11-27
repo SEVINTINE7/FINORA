@@ -18,6 +18,7 @@ import lk.finora.app.data.repo.BudgetRepository;
 import lk.finora.app.data.repo.CategoryRepository;
 import lk.finora.app.data.repo.GoalRepository;
 import lk.finora.app.data.repo.InsightsRepository;
+import lk.finora.app.data.repo.MeRepository;
 import lk.finora.app.data.repo.TransactionRepository;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 import okhttp3.Call;
@@ -29,6 +30,8 @@ final class DashboardHighlights {
     final Section<List<BillDto>> bills = new Section<>();
     final Section<List<TransactionRepository.Row>> recent = new Section<>();
     final Section<List<GoalDto>> goals = new Section<>();
+    /** T62: the greeting name; loaded once, failures only hide the name. */
+    final Section<String> name = new Section<>();
 
     void load(YearMonth month) {
         if (!score.work.isCurrent()) return;
@@ -66,6 +69,10 @@ final class DashboardHighlights {
             return rows.stream().limit(5).collect(java.util.stream.Collectors.toList());
         });
         goals.load(goalRepository::list, GoalRepository::rows);
+        if (name.value == null && !name.work.busy()) {
+            var me = new MeRepository(requests);
+            name.load(me::profile, MeRepository::firstName);
+        }
     }
 
     static List<BillDto> upcoming(List<BillDto> rows, LocalDate today) {
@@ -81,7 +88,7 @@ final class DashboardHighlights {
     }
 
     void close() {
-        for (var section : List.of(score, budgets, categories, bills, recent, goals)) section.work.close();
+        for (var section : List.of(score, budgets, categories, bills, recent, goals, name)) section.work.close();
     }
 
     static final class Section<T> {

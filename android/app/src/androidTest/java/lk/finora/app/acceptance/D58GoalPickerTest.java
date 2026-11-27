@@ -83,18 +83,18 @@ public class D58GoalPickerTest {
             }
             if ("true".equals(args.getString("finoraD58Realistic"))) {
                 verifyRealisticPlan(device, "worker", workerPassword, "Emergency fund", "105000.00", "17500.00", "6");
-                activate(withText(R.string.sign_out));
+                signOut();
                 verifyRealisticPlan(device, "irregular", irregularPassword, "Laptop for study", "90000.00", "4000.00", "23");
-                activate(withText(R.string.sign_out));
+                signOut();
                 return;
             }
             exerciseGoals(app, device, workerPassword);
-            activate(withText(R.string.sign_out));
+            signOut();
             openAdvice(device, "irregular", irregularPassword);
             await(device, By.text(app.getString(R.string.advice_empty)), "second owner empty advice");
             assertTrue("Second owner has no first-owner goals", !device.hasObject(By.text("Near synthetic goal")));
             pressBack();
-            activate(withText(R.string.sign_out));
+            signOut();
         } finally {
             var current = sessions.session();
             if (current != null) assertTrue("Unable to clear evaluation session", sessions.clear(current));
@@ -172,6 +172,12 @@ public class D58GoalPickerTest {
     private static void await(UiDevice device, androidx.test.uiautomator.BySelector selector, String name) {
         assertTrue(name, device.wait(Until.hasObject(selector), WAIT_MS));
         android.util.Log.i("FinoraT55", "PASS " + name);
+    }
+
+    private static void signOut() {
+        // T62: user sign-out lives in the More tab.
+        tab(R.string.more_tab);
+        activate(withText(R.string.sign_out));
     }
 
     private static void tab(int label) {

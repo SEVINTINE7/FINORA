@@ -84,7 +84,10 @@ public class SmsPrivacyJourneyTest {
             click(R.id.sign_in);
             waitFor(By.desc(app.getString(R.string.records_tab)), "Login");
             action(onView(withId(R.string.records_tab)), View::performClick);
-            action(onView(allOf(withText(R.string.sms_access_title), isClickable())), View::performClick);
+            // T62/D65: SMS access opens from the Records header's import button.
+            action(onView(withId(R.id.records_import)), View::performClick);
+            onView(withText(R.string.sms_access_title)).inRoot(isDialog())
+                    .perform(androidx.test.espresso.action.ViewActions.click());
             click(R.id.sms_paste_entry_action);
             for (int i = 0; i < AMOUNTS.length; i++) {
                 paste(input.get(i + 2));

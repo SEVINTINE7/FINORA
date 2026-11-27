@@ -81,9 +81,10 @@ public final class ShellNavigationTest {
             onView(withId(R.id.shell_add_transaction)).check(matches(isDisplayed()));
             onView(withId(R.string.records_tab)).perform(click());
             openFormAndReturn();
-            onView(withText(R.string.sms_csv_import)).check(matches(isDisplayed()));
+            // T62/D65: the Records tab opens the list directly; import moved behind its header button.
+            onView(withId(R.id.records_import)).check(matches(isDisplayed()));
             scenario.recreate();
-            onView(withText(R.string.sms_csv_import)).check(matches(isDisplayed()));
+            onView(withId(R.id.records_import)).check(matches(isDisplayed()));
             for (int tab : new int[]{R.string.plan_tab, R.string.insights_tab, R.string.more_tab}) {
                 onView(withId(tab)).perform(click());
                 scenario.onActivity(activity -> {

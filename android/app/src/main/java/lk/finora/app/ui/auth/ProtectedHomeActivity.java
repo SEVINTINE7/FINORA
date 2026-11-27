@@ -54,6 +54,15 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
 
     protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {}
 
+    /** T62: the user shell uses the light surface; Admin and Staff keep the navy shell. */
+    protected boolean lightShell() { return false; }
+
+    /** Where the language and sign-out controls go; the user shell moves them to its More tab (T62). */
+    protected void placeAccountControls(LinearLayout layout, View language, Button logout) {
+        layout.addView(language);
+        layout.addView(logout);
+    }
+
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -70,12 +79,19 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
         model = new ViewModelProvider(this).get(HomeViewModel.class);
         var binding = ActivityFinoraHomeBinding.inflate(getLayoutInflater());
         LinearLayout layout = binding.getRoot();
-        getWindow().setBackgroundDrawableResource(R.color.finora_navy);
+        boolean light = lightShell();
+        int background = light ? R.color.finora_surface : R.color.finora_navy;
+        getWindow().setBackgroundDrawableResource(background);
         var systemBars = androidx.core.view.WindowCompat.getInsetsController(getWindow(), layout);
-        systemBars.setAppearanceLightStatusBars(false);
-        systemBars.setAppearanceLightNavigationBars(false);
-        layout.setBackgroundColor(getColor(R.color.finora_navy));
+        boolean lightBars = light && getResources().getBoolean(R.bool.finora_light_bars);
+        systemBars.setAppearanceLightStatusBars(lightBars);
+        systemBars.setAppearanceLightNavigationBars(lightBars);
+        layout.setBackgroundColor(getColor(background));
         TextView title = binding.homeTitle;
+        if (light) {
+            layout.setPadding(0, 0, 0, 0);
+            title.setTextColor(getColor(R.color.finora_ink));
+        }
         title.setText(titleResource());
         androidx.core.view.ViewCompat.setAccessibilityHeading(title, true);
         TextView message = new TextView(this);
@@ -85,12 +101,11 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
         if (showPlaceholder()) {
             layout.addView(message, new LinearLayout.LayoutParams(-1, 0, 1));
         }
-        addLanguageSelector(layout);
         Button logout = new Button(this);
         logout.setText(R.string.sign_out);
         logout.setTextColor(getColor(R.color.finora_navy));
         logout.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.finora_mint)));
-        layout.addView(logout);
+        placeAccountControls(layout, ProfileLanguageButton.create(this, entry, model::signingOut), logout);
         addNavigation(layout, title, state);
         logout.setOnClickListener(view -> {
             layout.setVisibility(View.INVISIBLE);
@@ -165,10 +180,6 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
             route.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
         };
         getWindow().getDecorView().postDelayed(pendingFocusRestore, TALKBACK_WINDOW_SETTLE_MS);
-    }
-
-    private void addLanguageSelector(LinearLayout layout) {
-        layout.addView(ProfileLanguageButton.create(this, entry, model::signingOut));
     }
 
     @Override

@@ -163,9 +163,13 @@ public final class TransactionFormActivity extends SecureActivity {
         options(account, accounts, draft.account());
         List<Choice<String>> types = new ArrayList<>();
         types.add(new Choice<>(null, getString(R.string.transaction_choose)));
-        types.add(new Choice<>("INCOME", getString(R.string.category_income)));
         types.add(new Choice<>("EXPENSE", getString(R.string.category_expense)));
+        types.add(new Choice<>("INCOME", getString(R.string.category_income)));
         chipOptions(type, types, draft.type());
+        // T62.5: the "Choose" placeholder stays selected until the person picks a type, but is not shown.
+        type.hideChoice(0);
+        type.setChoiceIcon(1, R.drawable.finora_ic_arrow_down);
+        type.setChoiceIcon(2, R.drawable.finora_ic_arrow_up);
         updateCategories(draft.type(), draft.category());
         amount.setText(draft.amount());
         merchant.setText(draft.merchant());
@@ -199,14 +203,18 @@ public final class TransactionFormActivity extends SecureActivity {
         List<Choice<Long>> choices = new ArrayList<>();
         choices.add(new Choice<>(null, getString(R.string.category_unspecified)));
         boolean sinhala = "si".equals(getResources().getConfiguration().getLocales().get(0).getLanguage());
+        List<Integer> icons = new ArrayList<>();
+        icons.add(R.drawable.finora_ic_cat_other);
         for (var item : model.categories) {
             if (Objects.equals(item.kind(), kind)) {
                 String name = sinhala && item.nameSi() != null && !item.nameSi().trim().isEmpty()
                         ? item.nameSi() : item.name();
                 choices.add(new Choice<>(item.id(), name));
+                icons.add(lk.finora.app.ui.CategoryIcons.forCategory(item.name(), "INCOME".equals(kind)));
             }
         }
         chipOptions(category, choices, selected);
+        for (int i = 0; i < icons.size(); i++) category.setChoiceIcon(i, icons.get(i));
         updatingCategory = false;
     }
 
@@ -219,7 +227,7 @@ public final class TransactionFormActivity extends SecureActivity {
     private void pickDate() {
         if (!verify() || model.work.busy()) return;
         LocalDate initial = selectedDate.isEmpty() ? LocalDate.now() : LocalDate.parse(selectedDate);
-        FinancialDatePicker.show(this, R.string.transaction_date, initial, this::selectDate);
+        FinancialDatePicker.show(this, R.string.form_date_label, initial, this::selectDate);
     }
 
     private void selectDate(LocalDate value) {
@@ -230,7 +238,8 @@ public final class TransactionFormActivity extends SecureActivity {
     }
 
     private void showDate() {
-        date.setText(selectedDate.isEmpty() ? getString(R.string.transaction_choose_date) : selectedDate);
+        date.setText(selectedDate.isEmpty() ? getString(R.string.transaction_choose_date)
+                : TransactionRows.fullDate(this, LocalDate.parse(selectedDate)));
     }
 
     private void save() {

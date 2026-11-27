@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T62.4/D65 Records: type toggle, filter chips, day-grouped rows, swipe to remove, Load more. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/records_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/records_review_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/finora_screen_margin"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="@dimen/finora_screen_margin"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/finora_neutral_surface"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                style="@style/FinoraText.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/records_review_hint" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/records_review_done"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:minHeight="48dp"
+                android:text="@string/transaction_records_reviewed" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingTop="16dp"
+        android:paddingEnd="@dimen/finora_screen_margin">
+
+        <TextView
+            android:id="@+id/records_heading"
+            style="@style/FinoraText.Greeting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/records_tab" />
+
+        <ImageButton
+            android:id="@+id/records_import"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/finora_circle"
+            android:backgroundTint="@color/finora_neutral_surface"
+            android:contentDescription="@string/records_import"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/finora_ic_import"
+            android:tooltipText="@string/records_import"
+            app:tint="@color/finora_ink" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/records_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/finora_screen_margin"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="@dimen/finora_screen_margin"
+        app:checkedButton="@+id/records_type_all"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@id/records_type_all"
+            style="@style/Widget.Finora.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/transaction_all" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/records_type_expense"
+            style="@style/Widget.Finora.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/category_expense" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/records_type_income"
+            style="@style/Widget.Finora.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/category_income" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/records_filters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleLine="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/records_filter_dates"
+                style="@style/Widget.Finora.FilterChip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/records_all_dates" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/records_filter_account"
+                style="@style/Widget.Finora.FilterChip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transaction_account" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/records_filter_category"
+                style="@style/Widget.Finora.FilterChip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transaction_category" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/records_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/finora_screen_margin"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/finora_screen_margin"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/records_retry"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/finora_screen_margin"
+        android:minHeight="48dp"
+        android:text="@string/records_retry"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/records_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:paddingBottom="@dimen/finora_fab_clearance" />
+</LinearLayout>

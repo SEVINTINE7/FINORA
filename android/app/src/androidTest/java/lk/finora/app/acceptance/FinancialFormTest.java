@@ -141,7 +141,7 @@ public final class FinancialFormTest {
             });
             onView(allOf(withText(R.string.category_expense), isEnabled())).perform(scrollTo(), click());
             onView(withText("si".equals(locale) ? "ආහාර" : "Food")).perform(scrollTo(), click());
-            onView(withId(R.id.form_save)).perform(scrollTo(), click());
+            onView(withId(R.id.form_save)).perform(click());
             onView(withId(R.id.form_amount_error)).perform(scrollTo()).check(matches(isDisplayed()));
             assertNull(posted.get());
             scenario.onActivity(activity -> activity.<EditText>findViewById(R.id.form_amount).setText("1250.75"));
@@ -155,21 +155,26 @@ public final class FinancialFormTest {
             });
             onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(click());
             var date = new AtomicReference<String>();
-            scenario.onActivity(activity -> date.set(activity.<android.widget.Button>findViewById(R.id.form_date)
-                    .getText().toString()));
+            var localized = new AtomicReference<android.content.Context>();
+            scenario.onActivity(activity -> {
+                date.set(activity.<android.widget.Button>findViewById(R.id.form_date).getText().toString());
+                localized.set(activity.createConfigurationContext(activity.getResources().getConfiguration()));
+            });
             scenario.recreate();
             onView(withId(R.id.form_amount)).check(matches(withText("1250.75")));
             scenario.onActivity(activity -> {
                 var categories = activity.<FormChoices>findViewById(R.id.form_category);
                 assertEquals("si".equals(locale) ? "ආහාර" : "Food", categories.getSelectedItem().toString());
             });
-            onView(withId(R.id.form_save)).perform(scrollTo(), click());
+            onView(withId(R.id.form_save)).perform(click());
             assertTrue(device.wait(Until.gone(By.res(packageName, "form_save")), 10_000));
             assertNotNull(posted.get());
             var payload = new JSONObject(posted.get());
             assertEquals(new BigDecimal("1250.75"), new BigDecimal(payload.getString("amount")));
             assertEquals(2, payload.getLong("categoryId"));
-            assertEquals(date.get(), payload.getString("txnDate"));
+            // T62/D65: the date button shows the localized full date of the ISO date that is sent.
+            assertEquals(date.get(), lk.finora.app.ui.transactions.TransactionRows.fullDate(localized.get(),
+                    java.time.LocalDate.parse(payload.getString("txnDate"))));
         }
     }
 }

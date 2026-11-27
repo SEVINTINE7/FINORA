@@ -40,6 +40,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import lk.finora.app.BuildConfig;
 import lk.finora.app.R;
+import lk.finora.app.ui.Money;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.ui.budgets.BudgetListActivity;
 import lk.finora.app.ui.insights.InsightsActivity;
@@ -57,7 +58,8 @@ public class PerformancePilotTest {
 
     private enum Route {
         HOME(R.string.home_tab, MainActivity.class),
-        RECORDS(R.string.transaction_title, TransactionActivity.class),
+        // T62/D65: Records is a tab of the user shell, measured like Home.
+        RECORDS(R.string.records_tab, MainActivity.class),
         PLAN(R.string.budget_list_title, BudgetListActivity.class),
         INSIGHTS(R.string.insight_open, InsightsActivity.class);
 
@@ -104,7 +106,7 @@ public class PerformancePilotTest {
                     .setText("finora-t55-perf-worker@example.invalid")));
             onView(withId(R.id.password)).perform(act(view -> ((EditText) view).setText(password)));
             onView(withId(R.id.sign_in)).perform(act(View::performClick));
-            assertTrue(UiDevice.getInstance(runner).wait(Until.hasObject(By.text(
+            assertTrue(UiDevice.getInstance(runner).wait(Until.hasObject(By.desc(
                     app.getString(R.string.dashboard_income, "60000.00"))), 20_000));
             boolean traceCheck = "true".equals(args.getString("finoraTraceCheck"));
             String traceRoute = args.getString("finoraTraceRoute");
@@ -112,15 +114,16 @@ public class PerformancePilotTest {
                 if (traceCheck && traceRoute != null && route != Route.valueOf(traceRoute)) continue;
                 for (int n = 1; n <= (traceCheck ? (traceRoute == null ? 1 : 3) : 15); n++) {
                     tab(switch (route) {
-                        case HOME, RECORDS -> R.string.records_tab;
+                        case HOME -> R.string.records_tab;
+                        case RECORDS -> R.string.home_tab;
                         case PLAN -> R.string.plan_tab;
                         case INSIGHTS -> R.string.insights_tab;
                     });
                     sample(app, route, traceCheck ? "trace-check" : n <= 5 ? "warmup" : "warm", n <= 5 ? n : n - 5,
-                            started -> onView(route == Route.HOME
+                            started -> onView(route == Route.HOME || route == Route.RECORDS
                                     ? withId(route.button)
                                     : withText(route.button)).perform(act(view -> { started.run(); view.performClick(); })));
-                    if (route != Route.HOME) pressBack();
+                    if (route != Route.HOME && route != Route.RECORDS) pressBack();
                 }
             }
             if ("true".equals(args.getString("finoraHttpProbe"))) measureHttp(sessions);
@@ -199,9 +202,11 @@ public class PerformancePilotTest {
     private static boolean usable(Context app, Route route, View root) {
         Predicate<String> visible = text -> hasText(root, text::equals);
         return switch (route) {
-            case HOME -> visible.test(app.getString(R.string.dashboard_income, "60000.00"))
-                    && visible.test(app.getString(R.string.dashboard_expense, "40000.00"));
-            case RECORDS -> hasText(root, text -> text.startsWith("2026-11-30") && text.contains("LKR"));
+            case HOME -> visible.test(Money.rupees(app, new java.math.BigDecimal("60000.00")))
+                    && visible.test(Money.rupees(app, new java.math.BigDecimal("40000.00")));
+            case RECORDS -> visible.test(lk.finora.app.ui.transactions.TransactionRows.day(app, "2026-11-30",
+                    java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo"))))
+                    && hasText(root, text -> text.contains(app.getString(R.string.form_rupees_prefix).trim()));
             case PLAN -> visible.test("Shopping")
                     && hasText(root, text -> text.contains("LKR") && text.contains("5000"));
             case INSIGHTS -> hasText(root, text -> text.matches("[0-9]+ out of 100"))

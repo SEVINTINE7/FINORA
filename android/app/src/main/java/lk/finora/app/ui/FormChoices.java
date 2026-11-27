@@ -50,6 +50,22 @@ public final class FormChoices extends ChipGroup {
         if (adapter.getCount() > 0) setSelection(0);
     }
 
+    /** T62: hides a placeholder choice (such as "Choose") while keeping its position and value. */
+    public void hideChoice(int position) {
+        if (position >= 0 && position < getChildCount()) getChildAt(position).setVisibility(GONE);
+    }
+
+    /** T62: shows a tinted icon at the start of one choice. */
+    public void setChoiceIcon(int position, int icon) {
+        if (position < 0 || position >= getChildCount()) return;
+        var chip = (Chip) getChildAt(position);
+        chip.setChipIconResource(icon);
+        chip.setChipIconVisible(true);
+        chip.setChipIconSize(getResources().getDisplayMetrics().density * 18);
+        chip.setChipIconTint(new ColorStateList(new int[][]{{android.R.attr.state_checked}, {}},
+                new int[]{getContext().getColor(R.color.finora_navy), getContext().getColor(R.color.finora_muted)}));
+    }
+
     public void setSelection(int position) {
         if (position >= 0 && position < getChildCount()) check(getChildAt(position).getId());
     }

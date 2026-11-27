@@ -7,6 +7,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -14,10 +15,11 @@ import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialDatePicker;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.advice.AdviceActivity;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
@@ -29,13 +31,12 @@ import lk.finora.app.ui.dashboard.DashboardViewModel;
 import lk.finora.app.ui.goals.GoalListActivity;
 import lk.finora.app.ui.help.FaqActivity;
 import lk.finora.app.ui.history.HistoryActivity;
-import lk.finora.app.ui.importer.CsvImportActivity;
 import lk.finora.app.ui.insights.InsightsActivity;
 import lk.finora.app.ui.planning.PlanningActivity;
 import lk.finora.app.ui.settings.SettingsActivity;
-import lk.finora.app.ui.sms.SmsAccessActivity;
-import lk.finora.app.ui.transactions.TransactionActivity;
 import lk.finora.app.ui.transactions.TransactionFormActivity;
+import lk.finora.app.ui.transactions.TransactionListPanel;
+import lk.finora.app.ui.transactions.TransactionViewModel;
 
 public final class MainActivity extends ProtectedHomeActivity {
     private static final String DESTINATION = "destination";
@@ -45,6 +46,11 @@ public final class MainActivity extends ProtectedHomeActivity {
             R.drawable.finora_nav_plan, R.drawable.finora_nav_insights, R.drawable.finora_nav_more};
     private int destination;
     private DashboardViewModel dashboard;
+    private TransactionListPanel records;
+    private BottomNavigationView navigation;
+    private View language;
+    private Button logout;
+    private boolean resumedOnce;
     @Override protected String requiredRole() { return "USER"; }
     @Override protected int titleResource() { return R.string.home_user; }
     @Override protected boolean showPlaceholder() { return false; }
@@ -59,12 +65,6 @@ public final class MainActivity extends ProtectedHomeActivity {
         addFocusableRoute(moreActions, R.string.history_title, HistoryActivity.class);
         addFocusableRoute(moreActions, R.string.finance_help, FaqActivity.class);
         addFocusableRoute(moreActions, R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class);
-        LinearLayout recordActions = new LinearLayout(this);
-        recordActions.setOrientation(LinearLayout.VERTICAL);
-        addMoreAction(recordActions, R.string.transaction_title, TransactionActivity.class);
-        addMoreAction(recordActions, R.string.transaction_open_manual, TransactionFormActivity.class);
-        addMoreAction(recordActions, R.string.sms_csv_import, CsvImportActivity.class);
-        addFocusableRoute(recordActions, R.string.sms_access_title, SmsAccessActivity.class);
         LinearLayout planActions = new LinearLayout(this);
         planActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(planActions, R.string.budget_list_title, BudgetListActivity.class);
@@ -83,35 +83,49 @@ public final class MainActivity extends ProtectedHomeActivity {
         // T34.5: alert channel + push token (no-op until Firebase is configured, D57)
         lk.finora.app.notifications.AlertNotifications.createChannel(this);
         lk.finora.app.notifications.PushRegistration.register(getApplicationContext());
+        int margin = getResources().getDimensionPixelSize(R.dimen.finora_screen_margin);
+        title.setPadding(margin, margin, margin, 0);
+        ((LinearLayout.LayoutParams) title.getLayoutParams()).gravity = Gravity.START;
         dashboard = new ViewModelProvider(this).get(DashboardViewModel.class);
-        ScrollView home = new DashboardPanel(this, dashboard).view();
-        layout.addView(home, 1, new LinearLayout.LayoutParams(-1, 0, 1));
+        DashboardPanel homePanel = new DashboardPanel(this, dashboard);
+        View home = homePanel.view();
+        records = new TransactionListPanel(this, new ViewModelProvider(this).get(TransactionViewModel.class),
+                false, () -> {});
+        View recordsView = records.view();
         ScrollView actions = new ScrollView(this);
         LinearLayout tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.VERTICAL);
+        tabs.setPadding(margin, margin / 2, margin, margin);
         actions.addView(tabs);
-        for (LinearLayout section : new LinearLayout[]{moreActions, recordActions, planActions, insightActions}) {
+        for (LinearLayout section : new LinearLayout[]{moreActions, planActions, insightActions}) {
             tabs.addView(section);
         }
-        layout.addView(actions, 2, new LinearLayout.LayoutParams(-1, 0, 1));
+        if (language != null) moreActions.addView(language, new LinearLayout.LayoutParams(-1, -2));
+        if (logout != null) moreActions.addView(logout, new LinearLayout.LayoutParams(-1, -2));
 
-        FloatingActionButton addTransaction = new FloatingActionButton(this);
+        FrameLayout stack = new FrameLayout(this);
+        stack.addView(home, new FrameLayout.LayoutParams(-1, -1));
+        stack.addView(recordsView, new FrameLayout.LayoutParams(-1, -1));
+        stack.addView(actions, new FrameLayout.LayoutParams(-1, -1));
+        ExtendedFloatingActionButton addTransaction = new ExtendedFloatingActionButton(this);
         addTransaction.setId(R.id.shell_add_transaction);
-        addTransaction.setImageResource(R.drawable.finora_nav_add);
+        addTransaction.setText(R.string.shell_add);
+        addTransaction.setIconResource(R.drawable.finora_ic_add);
         addTransaction.setContentDescription(getString(R.string.transaction_open_manual));
         addTransaction.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.finora_green)));
-        addTransaction.setImageTintList(ColorStateList.valueOf(getColor(R.color.finora_action_ink)));
-        addTransaction.setShapeAppearanceModel(addTransaction.getShapeAppearanceModel().toBuilder()
-                .setAllCornerSizes(getResources().getDimension(R.dimen.finora_control_radius)).build());
+        addTransaction.setTextColor(getColor(R.color.finora_action_ink));
+        addTransaction.setIconTint(ColorStateList.valueOf(getColor(R.color.finora_action_ink)));
         addTransaction.setOnClickListener(view -> startActivity(new Intent(this, TransactionFormActivity.class)));
-        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-2, -2);
-        actionParams.gravity = Gravity.END;
-        actionParams.bottomMargin = getResources().getDimensionPixelSize(R.dimen.finora_space_s);
-        layout.addView(addTransaction, actionParams);
+        FrameLayout.LayoutParams actionParams = new FrameLayout.LayoutParams(-2, -2, Gravity.BOTTOM | Gravity.END);
+        actionParams.setMargins(margin, margin, margin, margin);
+        stack.addView(addTransaction, actionParams);
+        layout.addView(stack, 1, new LinearLayout.LayoutParams(-1, 0, 1));
 
-        BottomNavigationView navigation = new BottomNavigationView(this);
+        navigation = new BottomNavigationView(this);
+        homePanel.onOpenRecords(() -> navigation.setSelectedItemId(LABELS[1]));
         navigation.setId(R.id.shell_navigation);
-        navigation.setBackgroundColor(getColor(R.color.finora_navy));
+        navigation.setBackgroundColor(getColor(R.color.finora_nav_surface));
+        navigation.setElevation(getResources().getDisplayMetrics().density * 8);
         navigation.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
         navigation.setItemHorizontalTranslationEnabled(false);
         navigation.setLabelFontScalingEnabled(true);
@@ -119,11 +133,10 @@ public final class MainActivity extends ProtectedHomeActivity {
         navigation.setItemActiveIndicatorEnabled(true);
         navigation.setItemActiveIndicatorColor(ColorStateList.valueOf(getColor(R.color.finora_mint)));
         int[][] states = {{android.R.attr.state_checked}, {}};
-        ColorStateList colors = new ColorStateList(states,
-                new int[]{getColor(R.color.finora_mint), getColor(R.color.finora_on_navy)});
         navigation.setItemIconTintList(new ColorStateList(states,
-                new int[]{getColor(R.color.finora_navy), getColor(R.color.finora_on_navy)}));
-        navigation.setItemTextColor(colors);
+                new int[]{getColor(R.color.finora_navy), getColor(R.color.finora_muted)}));
+        navigation.setItemTextColor(new ColorStateList(states,
+                new int[]{getColor(R.color.finora_ink), getColor(R.color.finora_muted)}));
         for (int index = 0; index < LABELS.length; index++) {
             int label = LABELS[index];
             navigation.getMenu().add(0, label, Menu.NONE, label).setIcon(ICONS[index])
@@ -134,27 +147,49 @@ public final class MainActivity extends ProtectedHomeActivity {
             while (LABELS[selected] != item.getItemId()) selected++;
             int former = destination;
             destination = selected;
+            int tab = LABELS[destination];
+            boolean panel = destination == 0 || tab == R.string.records_tab;
             home.setVisibility(destination == 0 ? View.VISIBLE : View.GONE);
-            actions.setVisibility(destination == 0 ? View.GONE : View.VISIBLE);
-            title.setText(destination == 0 ? titleResource() : LABELS[destination]);
-            moreActions.setVisibility(LABELS[destination] == R.string.more_tab ? View.VISIBLE : View.GONE);
-            recordActions.setVisibility(LABELS[destination] == R.string.records_tab ? View.VISIBLE : View.GONE);
-            planActions.setVisibility(LABELS[destination] == R.string.plan_tab ? View.VISIBLE : View.GONE);
-            insightActions.setVisibility(LABELS[destination] == R.string.insights_tab ? View.VISIBLE : View.GONE);
-            addTransaction.setVisibility(destination == 0 || item.getItemId() == R.string.records_tab
-                    ? View.VISIBLE : View.GONE);
-            if (destination == 0 && former != 0) dashboard.refresh();
+            recordsView.setVisibility(tab == R.string.records_tab ? View.VISIBLE : View.GONE);
+            actions.setVisibility(panel ? View.GONE : View.VISIBLE);
+            title.setVisibility(panel ? View.GONE : View.VISIBLE);
+            title.setText(destination == 0 ? titleResource() : tab);
+            moreActions.setVisibility(tab == R.string.more_tab ? View.VISIBLE : View.GONE);
+            planActions.setVisibility(tab == R.string.plan_tab ? View.VISIBLE : View.GONE);
+            insightActions.setVisibility(tab == R.string.insights_tab ? View.VISIBLE : View.GONE);
+            addTransaction.setVisibility(panel ? View.VISIBLE : View.GONE);
+            if (destination == 0 && former > 0) dashboard.refresh();
+            if (tab == R.string.records_tab && former != destination) records.show();
             return true;
         });
         int restored = state == null ? 0 : state.getInt(DESTINATION);
         if (restored < 0 || restored >= LABELS.length) restored = 0;
+        // Run the listener for the restored tab even when it is already the menu's selected item.
+        destination = -1;
         navigation.setSelectedItemId(LABELS[restored]);
+        if (destination == -1) destination = restored;
         layout.addView(navigation, new LinearLayout.LayoutParams(-1, -2));
+    }
+
+    @Override protected boolean lightShell() { return true; }
+
+    @Override protected void placeAccountControls(LinearLayout layout, View language, Button logout) {
+        // Language and sign-out live in the More tab (T62).
+        this.language = language;
+        this.logout = logout;
+    }
+
+    @Override protected void onCreate(Bundle state) {
+        FinancialDatePicker.protect(this);
+        super.onCreate(state);
     }
 
     @Override protected void onResume() {
         super.onResume();
         if (dashboard != null && destination == 0) dashboard.refresh();
+        // Rows added from the form or edited elsewhere appear when returning to the Records tab.
+        if (records != null && destination == 1 && resumedOnce) records.show();
+        resumedOnce = true;
     }
 
     private void addMoreAction(LinearLayout actions, int label, Class<?> screen) {

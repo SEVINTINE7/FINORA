@@ -5,6 +5,8 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static org.hamcrest.Matchers.containsString;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -88,14 +90,17 @@ public final class DashboardCardTest {
                         "si".equals(locale) ? "ආහාර" : "Food", "25.25");
                 expected[4] = activity.getString(R.string.score_unavailable);
             });
-            assertTrue("Monthly totals visible", device.wait(Until.hasObject(By.text(expected[0])), 10_000));
+            // T62/D65: amounts are shown grouped ("Rs. 75.25"); exact plain values stay in spoken labels.
+            assertTrue("Monthly totals visible", device.wait(Until.hasObject(By.desc(expected[0])), 10_000));
+            checkText("Synthetic");
             checkText(expected[1]);
-            checkText(expected[2]);
+            onView(withContentDescription(containsString(expected[2]))).perform(scrollTo())
+                    .check(matches(isDisplayed()));
             checkText("Synthetic bill");
             checkText("Synthetic merchant");
             checkText("Synthetic focus goal");
-            checkText(expected[3]);
-            onView(withText(R.string.dashboard_previous)).perform(scrollTo(), click());
+            onView(withContentDescription(expected[3])).perform(scrollTo()).check(matches(isDisplayed()));
+            onView(withContentDescription(R.string.dashboard_previous)).perform(scrollTo(), click());
             checkText(expected[4]);
         } finally {
             tokens.clear(testSession);
@@ -122,6 +127,7 @@ public final class DashboardCardTest {
                 yield "{" + total + ",\"byCategory\":[{\"categoryId\":1,\"name\":\"Food\",\"nameSi\":\"ආහාර\","
                         + "\"total\":25.25}],\"trend\":[" + String.join(",", trend) + "]}";
             }
+            case "/api/v1/me" -> "{\"fullName\":\"Synthetic Person\",\"email\":\"synthetic@example.invalid\"}";
             case "/api/v1/score" -> "{\"month\":\"%s\",\"total\":%s,\"modelVersion\":\"D20-v1\"}"
                     .formatted(month, current ? "72" : "null");
             case "/api/v1/categories" -> "[{\"id\":1,\"name\":\"Food\",\"nameSi\":\"ආහාර\"}]";

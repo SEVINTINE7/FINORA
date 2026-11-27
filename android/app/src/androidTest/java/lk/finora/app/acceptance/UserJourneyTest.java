@@ -162,6 +162,7 @@ public class UserJourneyTest {
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             var problems = new java.util.ArrayList<String>();
             checkFaqLayout("en", scale, problems);
+            tab(R.string.more_tab);
             clickText(R.string.language_selector);
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
@@ -184,6 +185,7 @@ public class UserJourneyTest {
             checkRecoveryText("en", scale, problems);
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             checkUserRoutes("en", scale, problems);
+            tab(R.string.more_tab);
             clickText(R.string.language_selector);
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
@@ -615,13 +617,15 @@ public class UserJourneyTest {
         checkScreenText(MainActivity.class, language, scale, problems);
         tab(R.string.records_tab);
         checkScreenText(MainActivity.class, language, scale, problems);
-        checkRoute(R.string.transaction_title, lk.finora.app.ui.transactions.TransactionActivity.class,
-                null, language, scale, problems);
-        checkRoute(R.string.transaction_open_manual, lk.finora.app.ui.transactions.TransactionFormActivity.class,
-                null, language, scale, problems);
-        checkRoute(R.string.sms_csv_import, lk.finora.app.ui.importer.CsvImportActivity.class,
-                null, language, scale, problems);
-        clickText(R.string.sms_access_title);
+        clickId(R.id.shell_add_transaction);
+        checkScreenText(lk.finora.app.ui.transactions.TransactionFormActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(MainActivity.class);
+        openImport(R.string.sms_csv_import);
+        checkScreenText(lk.finora.app.ui.importer.CsvImportActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(MainActivity.class);
+        openImport(R.string.sms_access_title);
         checkScreenText(lk.finora.app.ui.sms.SmsAccessActivity.class, language, scale, problems);
         clickId(R.id.sms_paste_entry_action);
         checkScreenText(lk.finora.app.ui.sms.PasteSmsActivity.class, language, scale, problems);
@@ -1340,7 +1344,7 @@ public class UserJourneyTest {
             awaitActivity(MainActivity.class);
 
             tab(R.string.records_tab);
-            clickText(R.string.transaction_open_manual);
+            clickId(R.id.shell_add_transaction);
             awaitId("form_account");
             select(R.id.form_account, "Synthetic wallet");
             select(R.id.form_type, app.getString(R.string.category_expense));
@@ -1368,25 +1372,18 @@ public class UserJourneyTest {
             awaitActivity(MainActivity.class);
 
             tab(R.string.records_tab);
-            clickText(R.string.transaction_title);
-            String edit = app.getString(R.string.records_edit_named, "");
-            expandActions(MERCHANT);
-            onView(allOf(withContentDescription(startsWith(edit)),
-                    withContentDescription(containsString(MERCHANT)))).perform(activateControl());
+            await(By.descContains(MERCHANT));
+            onView(withContentDescription(containsString(MERCHANT))).perform(activateControl());
             awaitActivity(lk.finora.app.ui.transactions.TransactionFormActivity.class);
             awaitId("form_amount");
             enter(R.id.form_amount, "15.17");
             clickId(R.id.form_save);
             await(By.textContains("15.17"));
-            String remove = app.getString(R.string.records_remove_named, "");
-            expandActions(MERCHANT);
-            onView(allOf(withContentDescription(startsWith(remove)),
-                    withContentDescription(containsString(MERCHANT)))).perform(activateControl());
+            onView(withContentDescription(containsString(MERCHANT)))
+                    .perform(androidx.test.espresso.action.ViewActions.longClick());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
             awaitText(app.getString(R.string.records_empty));
-            pressBack();
-            awaitActivity(MainActivity.class);
-            clickText(R.string.sms_access_title);
+            openImport(R.string.sms_access_title);
             onView(withText(R.string.sms_manual_entry)).check(matches(isDisplayed()));
             clickText(R.string.sms_no_thanks);
             assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
@@ -1453,7 +1450,7 @@ public class UserJourneyTest {
             await(By.textContains(app.getString(R.string.planning_no_capacity)));
             pressBack();
             awaitActivity(MainActivity.class);
-            clickText(R.string.sign_out);
+            signOut();
 
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             tab(R.string.plan_tab);
@@ -1626,7 +1623,7 @@ public class UserJourneyTest {
             awaitActivity(MainActivity.class);
 
             tab(R.string.records_tab);
-            clickText(R.string.transaction_open_manual);
+            clickId(R.id.shell_add_transaction);
             select(R.id.form_account, account);
             select(R.id.form_type, app.getString(R.string.category_income));
             enter(R.id.form_amount, "85000.00");
@@ -1635,7 +1632,7 @@ public class UserJourneyTest {
             clickId(R.id.form_save);
             awaitActivity(MainActivity.class);
 
-            clickText(R.string.sms_access_title);
+            openImport(R.string.sms_access_title);
             awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
             awaitId("sms_paste_entry_action");
             clickId(R.id.sms_paste_entry_action);
@@ -1689,8 +1686,8 @@ public class UserJourneyTest {
             awaitActivity(MainActivity.class);
 
             tab(R.string.home_tab);
-            awaitText(app.getString(R.string.dashboard_income, "85000.00"));
-            awaitText(app.getString(R.string.dashboard_expense, "1250.75"));
+            await(By.desc(app.getString(R.string.dashboard_income, "85000.00")));
+            await(By.desc(app.getString(R.string.dashboard_expense, "1250.75")));
             tab(R.string.insights_tab);
             clickText(R.string.insight_open);
             awaitShown(app.getString(R.string.score_spending_within));
@@ -1734,7 +1731,7 @@ public class UserJourneyTest {
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             tab(R.string.records_tab);
-            clickText(R.string.sms_access_title);
+            openImport(R.string.sms_access_title);
             awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
             onView(withText(R.string.sms_access_explanation)).perform(reveal()).check(matches(isDisplayed()));
             assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
@@ -1769,7 +1766,7 @@ public class UserJourneyTest {
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             tab(R.string.records_tab);
-            clickText(R.string.sms_access_title);
+            openImport(R.string.sms_access_title);
             awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
 
             clickId(R.id.sms_allow);
@@ -1794,7 +1791,7 @@ public class UserJourneyTest {
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             tab(R.string.records_tab);
-            clickText(R.string.sms_access_title);
+            openImport(R.string.sms_access_title);
             awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
             for (int attempt = 0; attempt < 2; attempt++) {
                 clickId(R.id.sms_allow);
@@ -1842,7 +1839,7 @@ public class UserJourneyTest {
                 await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.records_tab)));
             }
             tab(R.string.records_tab);
-            clickText(R.string.sms_access_title);
+            openImport(R.string.sms_access_title);
             clickText(R.string.sms_paste);
             awaitId("sms_paste_action");
             var instrumentation = InstrumentationRegistry.getInstrumentation();
@@ -1987,6 +1984,8 @@ public class UserJourneyTest {
     }
 
     private void signOut() {
+        // The user shell keeps sign-out in its More tab (T62); Admin and Staff homes show it directly.
+        if (onUserShell()) tab(R.string.more_tab);
         clickText(R.string.sign_out);
         awaitActivity(LoginActivity.class);
     }
@@ -2072,6 +2071,21 @@ public class UserJourneyTest {
     }
     private void await(BySelector selector) {
         assertTrue("Expected FINORA screen state did not appear", device.wait(Until.hasObject(selector), UI_TIMEOUT_MS));
+    }
+
+    private static boolean onUserShell() {
+        var found = new java.util.concurrent.atomic.AtomicBoolean();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> found.set(
+                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).stream()
+                        .anyMatch(MainActivity.class::isInstance)));
+        return found.get();
+    }
+
+    /** T62/D65: CSV import and SMS access open from the Records header's import button. */
+    private static void openImport(int label) {
+        tab(R.string.records_tab);
+        clickId(R.id.records_import);
+        onView(withText(label)).inRoot(isDialog()).perform(androidx.test.espresso.action.ViewActions.click());
     }
 
     private static void tab(int label) {

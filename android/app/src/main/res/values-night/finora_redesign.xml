@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="finora_card_line">#2E4A45</color>
+    <color name="finora_hero">#1C3B37</color>
+    <color name="finora_hero_tile">#27504A</color>
+    <color name="finora_nav_surface">#142B29</color>
+    <color name="finora_chart_2">#7FB8D6</color>
+    <color name="finora_chart_3">#E3B15C</color>
+    <color name="finora_chart_4">#A6D7BE</color>
+    <color name="finora_chart_5">#B8C5BF</color>
+    <color name="finora_chart_6">#C3A8E8</color>
+    <color name="finora_chart_7">#E58FA9</color>
+    <color name="finora_chart_8">#9AA5F0</color>
+</resources>

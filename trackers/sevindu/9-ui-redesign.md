@@ -19,13 +19,18 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 ### T62 · Home, Records and Add transaction · `UX-02`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T58.1–T58.2 (D65) · **Touches:** `and:ui/main/`, `and:ui/dashboard/`, `and:ui/transactions/`, `and:ui/` shared views, `res:layout/`, `res:values*/`
 - [x] T62.1 Mockups of Home, Records and Add transaction approved by Sevindu on 2026-11-28 (D65), on the private design canvas https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14
-- [ ] T62.2 Shared kit: grouped LKR formatter (`Rs. 85,000.00`), section header with action link, transaction row (category icon, title, meta, signed amount), segmented type toggle, filter chip, extended FAB; unit tests for the formatter
-- [ ] T62.3 Home (`DashboardPanel` → XML): greeting with `/me` name, month pill, navy balance card, score ring + "See advice", recent transactions + "See all", budgets with over-limit state, upcoming bills, focus goal, category donut + legend, 6-month trend with labels; loading/error/empty per section
-- [ ] T62.4 Records (`TransactionActivity` → XML + RecyclerView): Records tab opens the list directly; All/Expense/Income toggle; Month/Account/Category chips replace the filter dialog; day groups with day totals; tap row → edit; swipe → Delete with confirm dialog (no undo); "Load more" replaces Previous/Next; Import icon → CSV import / SMS access; review mode kept
-- [ ] T62.5 Add/Edit transaction (`activity_transaction_form.xml`): Expense/Income toggle, large amount with "Rs." prefix, category chips with icons, account dropdown, Material date picker, optional merchant/note, Save pinned at bottom; inline errors; uncertain-save review/retry kept
-- [ ] T62.6 Screenshots (see Done when) shown to Sevindu for approval
+- [x] T62.2 Shared kit: grouped LKR formatter (`Rs. 85,000.00`), section header with action link, transaction row (category icon, title, meta, signed amount), segmented type toggle, filter chip, extended FAB; unit tests for the formatter
+- [x] T62.3 Home (`DashboardPanel` → XML): greeting with `/me` name, month pill, navy balance card, score ring + "See advice", recent transactions + "See all", budgets with over-limit state, upcoming bills, focus goal, category donut + legend, 6-month trend with labels; loading/error/empty per section
+- [x] T62.4 Records (`TransactionActivity` → XML + RecyclerView): Records tab opens the list directly; All/Expense/Income toggle; Month/Account/Category chips replace the filter dialog; day groups with day totals; tap row → edit; swipe → Delete with confirm dialog (no undo); "Load more" replaces Previous/Next; Import icon → CSV import / SMS access; review mode kept
+- [x] T62.5 Add/Edit transaction (`activity_transaction_form.xml`): Expense/Income toggle, large amount with "Rs." prefix, category chips with icons, account dropdown, Material date picker, optional merchant/note, Save pinned at bottom; inline errors; uncertain-save review/retry kept
+- [ ] T62.6 Screenshots (see Done when) shown to Sevindu for approval — 25 captured 2026-11-28 (EN/SI × light/dark + EN 130% font), awaiting approval
 
 **Handoff notes:**
+- Kit: `and:ui/Money` (+`MoneyTest`), `CategoryIcons`, `transactions/TransactionRows`, `res:values*/finora_redesign.xml`, `finora_ic_*` icons. Home = `res:layout/panel_dashboard.xml` + `DashboardPanel`; name from `/me` via `MeRepository.profile()`.
+- Records = `TransactionListPanel` (tab and `TransactionActivity`); `Pagination` now appends pages and dedupes by id (`TransactionPaginationTest`). Dates chip uses a FLAG_SECURE range picker (`FinancialDatePicker.showRange`) instead of a Month chip.
+- User shell is light (`ProtectedHomeActivity.lightShell/placeAccountControls`); Sign out and Language moved to the More tab. Admin/Staff unchanged.
+- Checks 2026-11-28: 161 unit tests pass, assemble OK, lint 4 = baseline; Shell/DashboardCard/FinancialListCard/FinancialForm pass on Pixel_8. Live-API journeys (UserJourney, Evaluation, D58, SMS, Performance) updated but not run.
+- Screenshots: guarded `T62ScreenshotTest` draws views in-process (FLAG_SECURE stays on). Sinhala strings and the CLDR short month "ඉල්" need native review.
 
 ### T63 · Budgets and bills · `UX-03`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/budgets/`, `and:ui/bills/`, `res:layout/`

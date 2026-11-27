@@ -60,6 +60,9 @@ public class HandsetTalkBackProbeTest {
             SystemClock.sleep(2_000);
         }
         if ("true".equals(arguments.getString("finoraOpenSms"))) {
+            var importer = findControl(automation, localized, "records_import", 0, true);
+            assertTrue("Could not open import choices", importer.performAction(AccessibilityNodeInfo.ACTION_CLICK));
+            SystemClock.sleep(1_000);
             var sms = findControl(automation, localized, "sms_access_title", 0, true);
             sms.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
             assertTrue("Could not open SMS access", sms.performAction(AccessibilityNodeInfo.ACTION_CLICK));
@@ -111,7 +114,7 @@ public class HandsetTalkBackProbeTest {
             matching.clear();
             if (root != null && packageName.contentEquals(root.getPackageName())) {
                 for (var candidate : root.findAccessibilityNodeInfosByText(label)) {
-                    CharSequence spokenLabel = "records_tab".equals(resource)
+                    CharSequence spokenLabel = "records_tab".equals(resource) || "records_import".equals(resource)
                             ? candidate.getContentDescription() : candidate.getText();
                     if (candidate.isVisibleToUser() && spokenLabel != null
                             && (!clickableOnly || candidate.isClickable())

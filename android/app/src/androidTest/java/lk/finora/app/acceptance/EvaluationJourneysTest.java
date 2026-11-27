@@ -74,9 +74,9 @@ public class EvaluationJourneysTest {
         var device = UiDevice.getInstance(instrumentation);
         try (var scenario = ActivityScenario.launch(LoginActivity.class)) {
             exercise(app, device, "worker", workerPassword, "60000.00", "40000.00");
-            activate(withText(R.string.sign_out));
+            signOut();
             exercise(app, device, "irregular", irregularPassword, "25750.00", "11000.00");
-            activate(withText(R.string.sign_out));
+            signOut();
         } finally {
             var current = sessions.session();
             if (current != null) assertTrue("Unable to clear evaluation session", sessions.clear(current));
@@ -89,12 +89,12 @@ public class EvaluationJourneysTest {
         replace(R.id.email, email);
         replace(R.id.password, password);
         activate(withId(R.id.sign_in));
-        await(device, By.text(app.getString(R.string.dashboard_income, income)), profile + " Home income");
-        await(device, By.text(app.getString(R.string.dashboard_expense, expense)), profile + " Home expense");
+        await(device, By.desc(app.getString(R.string.dashboard_income, income)), profile + " Home income");
+        await(device, By.desc(app.getString(R.string.dashboard_expense, expense)), profile + " Home expense");
+        // T62/D65: the Records tab is the list itself, grouped under day headers.
         tab(R.string.records_tab);
-        activate(withText(R.string.transaction_title));
-        await(device, By.textContains("2026-11-30"), profile + " Records November row");
-        pressBack();
+        await(device, By.text(lk.finora.app.ui.transactions.TransactionRows.day(app, "2026-11-30",
+                java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo")))), profile + " Records November row");
         tab(R.string.plan_tab);
         activate(withText(R.string.budget_list_title));
         await(device, By.textContains("Shopping"), profile + " Shopping budget");
@@ -126,6 +126,11 @@ public class EvaluationJourneysTest {
     private static void await(UiDevice device, androidx.test.uiautomator.BySelector selector, String name) {
         assertTrue(name, device.wait(Until.hasObject(selector), WAIT_MS));
         android.util.Log.i("FinoraT55", "PASS " + name);
+    }
+
+    private static void signOut() {
+        tab(R.string.more_tab);
+        activate(withText(R.string.sign_out));
     }
 
     private static void tab(int label) {
