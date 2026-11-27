@@ -29,6 +29,10 @@ spring:
       max-request-size: 2MB
 
 management:
+  # Optional SMTP must not trigger a live SMTP connection from the health endpoint.
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:

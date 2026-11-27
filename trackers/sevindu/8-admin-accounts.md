@@ -8,7 +8,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 - [x] T59.1 [API] `POST /api/v1/admin/admins` `{email, fullName, password}` (D09 rule) → 201 `{id, email, fullName, enabled}` with `Cache-Control: no-store`; duplicate email → 409 `CONFLICT`; audit `ADMIN_CREATED` (actor, target only)
 - [x] T59.2 [API] `GET /api/v1/admin/admins` (id, email, fullName, enabled, createdAt) and `PATCH /api/v1/admin/admins/{id}` `{enabled}`; disabling yourself or the last active ADMIN → 409 `CONFLICT`; disabling revokes that admin's refresh tokens
 - [ ] T59.3 [AND·Sahan] Admin home → "Admins": list, create form (password + confirm, show/hide), enable/disable with confirm dialog; EN/SI strings
-- [ ] T59.4 [API·Thilina] Add the new routes to the T52 role matrix (none, USER, STAFF, ADMIN, disabled)
+- [x] T59.4 [API·Thilina] Add the new routes to the T52 role matrix (none, USER, STAFF, ADMIN, disabled)
 
 **Done when**
 - [ ] Tests: only ADMIN reaches the routes; weak password 400; duplicate 409; self/last-admin disable 409; new admin signs in and lands on Admin home; password absent from responses and logs
@@ -16,7 +16,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 **Handoff notes:**
 - 2026-11-27 Sevindu: `api:admin/AdminAccountController` + `AdminAccountService` (JDBC, no migration). Create lower-cases the email, stores BCrypt only, audits `ADMIN_CREATED` (target_type `ADMIN`). Enable/disable locks every ADMIN row `FOR UPDATE`, checks the actor is still active, refuses self/last-admin (409), bumps `staff_session_generation` and revokes refresh tokens on disable. Contract added to `docs/api-contract.md`.
 - Tests: `AdminAccountControllerTest` 6/6; full `mvnw verify` 519 run, 0 failures/errors, 1 skipped, JaCoCo met.
-- Open: T59.3 Android Admins screen (Sahan), T59.4 matrix routes (Thilina), live check that a created admin lands on Admin home, then Done when.
+- T59.4: [hosted API job](https://github.com/SEVINTINE7/FINORA/actions/runs/45969996509/job/140407825126), PR #34 at `9c6ad9bd1142dbc7805a0bb33336f48e99b3ae41` on upstream `5948f1dbe75bff114801465ad4f14234c1dabf8f`: all three ADMIN mappings discovered, `EndpointAuthTest` 7/7 and `AdminAccountControllerTest` 6/6 passed. Inventory 111 total/101 protected/10 auth; 527 tests run, 0 failures/errors, 1 skip. Existing matrix and feature tests cover this criterion; original implementation/test authorship retained.
+- Open: T59.3 Android Admins screen (Sahan), live Admin home check, independent review and parent Done when.
 
 ---
 

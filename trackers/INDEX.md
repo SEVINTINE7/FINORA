@@ -30,7 +30,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T22 | Spending-pattern detection | Thilina | — | T21 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |
 | T23 | Health-score model (0–100) | Thilina | — | T21, T18, T19, T01.3 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | in-progress |
 | T24 | Insights and health-score screens | Sahan | Thilina | T22, T23, T38 | [sahan/4-screens.md](sahan/4-screens.md) | review |
-| T25 | Rule-based advice engine | Thilina | — | T21, T22, T23 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | in-progress |
+| T25 | Rule-based advice engine | Thilina | — | T21, T22, T23 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | review |
 | T26 | AI-safe fact and response schema | Thilina | — | T21, T25 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
 | T27 | Server-only Groq integration | Thilina | Sevindu | T04, T26 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
 | T28 | Gemini backup and rule fallback | Thilina | — | T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
@@ -66,7 +66,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T58 | Modern Material 3 UI | Sahan | — | T37 (D61) | [sahan/6-ui-redesign.md](sahan/6-ui-redesign.md) | in-progress |
 | T59 | Admin creates admin accounts | Sevindu | Thilina, Sahan | T41, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | in-progress |
 | T60 | Promote a USER to STAFF | Sevindu | Thilina, Sahan | T36, T42, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | todo |
-| T61 | Forgot password by emailed code | Thilina | Sevindu, Sahan | T05 | [thilina/6-password-reset.md](thilina/6-password-reset.md) | todo |
+| T61 | Forgot password by emailed code | Thilina | Sevindu, Sahan | T05 | [thilina/6-password-reset.md](thilina/6-password-reset.md) | in-progress |
 
 ## Your parts inside other members' tasks
 
@@ -79,6 +79,8 @@ T53 verification update (2026-11-22): remains **in-progress**. Final upstream-co
 D58 advice update (2026-11-25): goal-coaching sections with checked free wording and a user-selected focus goal changed T25 (T25.4), T26 (T26.5), T29 (T29.4) and T30 (T30.6). T25, T26, T29 and T30 are in progress until Thilina reviews the D58 formulas and unsafe-phrase list.
 
 Tracker sync (2026-11-27): 27 tasks with every subtask and Done-when box ticked moved from in-progress to **review** (T10–T12, T14–T16, T20, T24, T26–T30, T33, T35, T36, T38, T41–T49, T51). They become `done` only after human review. T32.1 and its tests are checked; T31 stays unchecked until the failing daily-guide test is resolved (see T31 handoff).
+
+T25 review reconciliation (2026-11-27): all four rule-advice subtasks and the Done-when test are checked, including the D58 formula review recorded in merged PR #32. Move T25 to `review` under the same all-boxes-checked rule above. T23.6 and independent acceptance remain open; this is not a dependency waiver or production AI semantic amendment.
 
 Tracker sync (2026-11-26): T31, T32, T54 and T55 moved from todo to **in-progress**. Daily-guide and simulator backend code (`api:planning/`), the T54 guarded provider evaluation and the T55 dataset, emulator timing and SUS tooling are on `main`. Their subtask boxes stay unchecked pending approvals, live runs and handset measurements.
 

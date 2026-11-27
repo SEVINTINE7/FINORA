@@ -189,6 +189,33 @@ class SupportTicketControllerTest extends IntegrationTest {
     }
 
     @Test
+    void characterizesRetirementByProposingAndUnrelatedStaffBeforeAndAfterApproval() throws Exception {
+        String proposer = tokenFor(createUser(Role.STAFF));
+        String reviewer = tokenFor(createUser(Role.STAFF));
+        String unrelated = tokenFor(createUser(Role.STAFF));
+        for (String initialState : java.util.List.of("DRAFT", "ACTIVE")) {
+            for (String actor : java.util.List.of(proposer, unrelated)) {
+                send(CATALOG, proposer, "{\"topic\":\"SIGN_IN\"}").andExpect(status().isNoContent());
+                var revision = jsonMapper.readTree(read(CATALOG, proposer).andExpect(status().isOk())
+                        .andReturn().getResponse().getContentAsString()).get(0).get("id").asLong();
+                String path = CATALOG + "/" + revision;
+                if (initialState.equals("ACTIVE")) {
+                    send(path + "/approve", reviewer, "").andExpect(status().isNoContent());
+                }
+                String row = "SELECT * FROM support_reply_revisions WHERE id = ?";
+                var expected = new java.util.HashMap<>(jdbc.queryForMap(row, revision));
+                assertThat(expected.put("state", "RETIRED")).isEqualTo(initialState);
+                assertThat(expected.put("active_topic", null)).isEqualTo(initialState.equals("ACTIVE") ? "SIGN_IN" : null);
+                send(path + "/retire", actor, "").andExpect(status().isNoContent());
+                assertThat(jdbc.queryForMap(row, revision)).isEqualTo(expected);
+                send(path + "/retire", actor, "").andExpect(status().isNotFound())
+                        .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+                assertThat(jdbc.queryForMap(row, revision)).isEqualTo(expected);
+            }
+        }
+    }
+
+    @Test
     void missingSharedRevisionCannotChangeTheReplyCatalog() throws Exception {
         String proposer = tokenFor(createUser(Role.STAFF));
         String reviewer = tokenFor(createUser(Role.STAFF));

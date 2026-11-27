@@ -24,6 +24,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Final UTC DTO check: 38 scoring tests passed (`api/target/t23-final-check.log`). Next: feature-branch PR review (stacked on T21 PR #5); keep T23 in-progress until dependency/human acceptance. User separately authorized backend T25/T26 continuation; T50 was not repeated.
 - Execution 29 carries the D55 loan classification and historical regression from 94e8335; no score policy or migration changes. Team review and dependency closure remain open.
 
+- 2026-11-27 dependency reconciliation: the index at `5948f1dbe75bff114801465ad4f14234c1dabf8f` marks both T18 and T19 `done`. T23.1–T23.5 and its technical test criterion are already checked. Keep T23.6 open for independent team review; no teammate status changes.
+
 ---
 
 ### T25 · Rule-based advice engine · `FR08`
@@ -45,3 +47,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Execution 33 verified fixed-ledger advice and numeric provenance across a budget-limit-only NEAR-to-OVER change. Independent T25 acceptance remains open.
 - 2026-11-25 D58 (Sevindu): coaching sections and policy numbers in `docs/ai-schema.md`; `CoachingAdviceTest` hand-checks every fact. Catalogue tests now filter to T25 actions. Thilina to review the cut/split formulas.
 - 2026-11-27 Thilina formula review: the D58 want cut uses the larger of one quarter of spend and excess above the prior average, bounded by half of spend after whole-rupee rounding. Wants are capped at 40% of income; the selected goal transfer cannot exceed available headroom or the monthly requirement where known. PR #26 covers cap/cent boundaries; PR #19 covers budget invariance and exact provenance. This closes the recorded test criterion. Independent acceptance remains open.
+- 2026-11-27 tracker reconciliation: T25 has 5/5 checked technical criteria, so it enters review under the index rule. T23 and independent review still gate final acceptance; no new financial policy is adopted.

@@ -36,6 +36,7 @@ Every error, including 401/403 from security and 404 for unknown paths:
 | 400 | `UNDER_18` | Register with `over18=false` |
 | 401 | `INVALID_CREDENTIALS` | Login: wrong password **or** unknown email (same body for both) |
 | 401 | `INVALID_REFRESH_TOKEN` | Refresh token unknown, expired, already used or logged out |
+| 400 | `INVALID_RESET_CODE` | Password reset code incorrect, expired, exhausted, replaced or used; same error for unknown or inactive account |
 | 409 | `CONFLICT` | Duplicate name (account per user; category per user + kind, including defaults) (T09) |
 | 409 | `IN_USE` | Deleting a category used by transactions, budgets or bills (T09) |
 | 413 | `FILE_TOO_LARGE` | Uploaded CSV over 1 MB (T12) |
@@ -71,6 +72,8 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/auth/login` | Public | `{email, password}` | `200 {accessToken, refreshToken, expiresIn: 1800, role, language}` · 401 `INVALID_CREDENTIALS` · 403 `ACCOUNT_DISABLED` | T05 |
 | POST | `/api/v1/auth/refresh` | Public | `{refreshToken}` | `200` same as login (new pair; old refresh token revoked) · 401 `INVALID_REFRESH_TOKEN` | T05 |
 | POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
+| POST | `/api/v1/auth/password/forgot` | Public | `{email}` | `202 {message}` for every valid email request, including unknown, disabled and rate-limited accounts; at most 3 issued codes per account per rolling hour | T61/D64 |
+| POST | `/api/v1/auth/password/reset` | Public | `{email, code, newPassword}` (D09) | `204`; code valid for 15 minutes, single use, invalidated at 5 failed attempts; `400 INVALID_RESET_CODE` or `VALIDATION_ERROR`; all sessions revoked on success | T61/D64 |
 | GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion, alerts: {budget, bill, goal}}` (`consentVersion` = `null` after withdrawal, D15; `alerts` all `true` by default, T34) | T07/T34 |
 | PUT | `/api/v1/me` | USER | `{fullName, language: "EN"\|"SI"}` | `200` same as GET · 400 `VALIDATION_ERROR` | T07 |
 | PATCH | `/api/v1/me` | USER | `{language: "EN"\|"SI"}` (other fields ignored) | `200` same as GET · 400 `VALIDATION_ERROR`. Changes only the language, so a newer name is kept (D60). Used by the app's language picker. | T07.5/T39.2 |
