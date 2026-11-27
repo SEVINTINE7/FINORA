@@ -149,4 +149,12 @@
         <item name="android:background">@drawable/finora_button_secondary</item>
         <item name="android:textColor">@color/finora_secondary_text</item>
     </style>
+    <style name="FinoraField.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/finora_control_radius</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/finora_control_radius</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/finora_control_radius</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/finora_control_radius</item>
+        <item name="boxStrokeWidth">@dimen/finora_outline_width</item>
+        <item name="boxStrokeWidthFocused">@dimen/finora_focus_width</item>
+    </style>
 </resources>

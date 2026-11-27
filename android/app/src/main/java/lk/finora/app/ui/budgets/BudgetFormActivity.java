@@ -3,7 +3,6 @@ package lk.finora.app.ui.budgets;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
@@ -14,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FormFields;
+import lk.finora.app.ui.FormChoices;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.CategoryDto;
 import lk.finora.app.ui.accounts.AccountFormActivity;
@@ -23,7 +24,7 @@ import lk.finora.app.ui.accounts.AccountListActivity;
 public final class BudgetFormActivity extends SecureActivity {
     private BudgetFormViewModel model;
     private boolean filled;
-    private Spinner category;
+    private FormChoices category;
     private EditText limit;
 
     @Override protected void onCreate(Bundle state) {
@@ -112,7 +113,7 @@ public final class BudgetFormActivity extends SecureActivity {
         try {
             amount = BudgetFormViewModel.parseLimit(limit.getText().toString());
         } catch (IllegalArgumentException failure) {
-            limit.setError(getString(R.string.budget_limit_invalid));
+            FormFields.error(limit, R.string.budget_limit_invalid);
             return;
         }
         model.category = Math.max(0, category.getSelectedItemPosition());

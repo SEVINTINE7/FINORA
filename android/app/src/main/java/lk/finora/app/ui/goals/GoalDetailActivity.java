@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 
 import lk.finora.app.R;
 import lk.finora.app.ui.FinancialCard;
+import lk.finora.app.ui.FinancialDatePicker;
+import lk.finora.app.ui.FormFields;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -28,6 +30,7 @@ public final class GoalDetailActivity extends SecureActivity {
     private EditText date;
 
     @Override protected void onCreate(Bundle state) {
+        FinancialDatePicker.protect(this);
         super.onCreate(state);
         model = new ViewModelProvider(this).get(GoalDetailViewModel.class);
         if (!AccountListActivity.verify(this, model.work)) return;
@@ -38,6 +41,16 @@ public final class GoalDetailActivity extends SecureActivity {
         }
         amount = findViewById(R.id.contribution_amount);
         date = findViewById(R.id.contribution_date);
+        for (EditText field : new EditText[]{amount, date}) {
+            lk.finora.app.ui.accounts.AccountFormActivity.watch(field, ignored -> {});
+        }
+        FormFields.calendar(date, () -> {
+            if (!canSelectDate()) return;
+            var current = GoalRules.parseDate(date.getText().toString());
+            FinancialDatePicker.show(this, R.string.goal_contribution_date,
+                    current == null ? GoalRules.today() : current, this::selectDate);
+        });
+        FinancialDatePicker.restore(this, this::selectDate);
         if (state == null) date.setText(GoalRules.today().toString());
         model.id = getIntent().getLongExtra(AccountListActivity.ITEM_ID, 0);
 
@@ -64,18 +77,26 @@ public final class GoalDetailActivity extends SecureActivity {
         if (AccountListActivity.verify(this, model.work) && !model.work.ambiguousCreate) model.load(model.id);
     }
 
+    private boolean canSelectDate() {
+        return AccountListActivity.verify(this, model.work) && !model.work.busy() && model.goal != null;
+    }
+
+    private void selectDate(java.time.LocalDate value) {
+        if (canSelectDate()) date.setText(value.toString());
+    }
+
     private void addContribution() {
         if (!AccountListActivity.verify(this, model.work) || model.work.busy() || model.goal == null) return;
         BigDecimal value;
         try {
             value = GoalRules.parseAmount(amount.getText().toString());
         } catch (IllegalArgumentException failure) {
-            amount.setError(getString(R.string.budget_limit_invalid));
+            FormFields.error(amount, R.string.budget_limit_invalid);
             return;
         }
         String day = date.getText().toString().trim();
         if (!GoalRules.validContributionDate(day, GoalRules.today())) {
-            date.setError(getString(R.string.goal_contribution_date_invalid));
+            FormFields.error(date, R.string.goal_contribution_date_invalid);
             return;
         }
         model.addContribution(value, day);

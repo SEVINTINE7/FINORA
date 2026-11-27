@@ -1,4 +1,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -16,37 +17,53 @@
             android:layout_marginBottom="@dimen/finora_space_s"
             android:text="@string/goal_form_title" />
 
-        <EditText
-            android:id="@+id/form_name"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/FinoraField.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/form_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/records_name"
+                android:importantForAutofill="no"
+                android:inputType="textCapSentences"
+                android:minHeight="@dimen/finora_touch"
+                android:saveEnabled="false" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/FinoraField.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/finora_space_s"
-            android:hint="@string/records_name"
-            android:importantForAutofill="no"
-            android:inputType="textCapSentences"
-            android:minHeight="@dimen/finora_touch"
-            android:saveEnabled="false" />
+            app:prefixText="@string/form_rupees_prefix">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/goal_target"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/goal_target"
+                android:importantForAutofill="no"
+                android:inputType="numberDecimal"
+                android:minHeight="@dimen/finora_touch"
+                android:saveEnabled="false" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/goal_target"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/FinoraField.Outlined"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:hint="@string/goal_target"
-            android:importantForAutofill="no"
-            android:inputType="numberDecimal"
-            android:minHeight="@dimen/finora_touch"
-            android:saveEnabled="false" />
-
-        <EditText
-            android:id="@+id/goal_target_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/goal_target_date"
-            android:importantForAutofill="no"
-            android:inputType="date"
-            android:minHeight="@dimen/finora_touch"
-            android:saveEnabled="false" />
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/goal_target_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/goal_target_date"
+                android:importantForAutofill="no"
+                android:inputType="date"
+                android:minHeight="@dimen/finora_touch"
+                android:saveEnabled="false" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             style="@style/FinoraText.Body"

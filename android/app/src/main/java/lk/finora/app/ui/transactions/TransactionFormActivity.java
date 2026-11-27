@@ -1,12 +1,10 @@
 package lk.finora.app.ui.transactions;
 
-import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FormChoices;
+import lk.finora.app.ui.FinancialDatePicker;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.transactions.TransactionFormValidator.Draft;
@@ -35,8 +35,8 @@ public final class TransactionFormActivity extends SecureActivity {
     static final String ID = "transaction_id";
     private TransactionFormViewModel model;
     private Spinner account;
-    private Spinner type;
-    private Spinner category;
+    private FormChoices type;
+    private FormChoices category;
     private EditText amount;
     private EditText merchant;
     private EditText note;
@@ -58,6 +58,7 @@ public final class TransactionFormActivity extends SecureActivity {
             });
 
     @Override protected void onCreate(Bundle state) {
+        FinancialDatePicker.protect(this);
         super.onCreate(state);
         model = new ViewModelProvider(this).get(TransactionFormViewModel.class);
         if (!verify()) return;
@@ -86,6 +87,7 @@ public final class TransactionFormActivity extends SecureActivity {
         errorViews.put(Field.MERCHANT, R.id.form_merchant_error);
         errorViews.put(Field.NOTE, R.id.form_note_error);
         date.setOnClickListener(view -> pickDate());
+        FinancialDatePicker.restore(this, this::selectDate);
         findViewById(R.id.form_retry).setOnClickListener(view -> model.load(id));
         findViewById(R.id.form_save).setOnClickListener(view -> save());
         findViewById(R.id.form_review).setOnClickListener(view -> {
@@ -163,7 +165,7 @@ public final class TransactionFormActivity extends SecureActivity {
         types.add(new Choice<>(null, getString(R.string.transaction_choose)));
         types.add(new Choice<>("INCOME", getString(R.string.category_income)));
         types.add(new Choice<>("EXPENSE", getString(R.string.category_expense)));
-        options(type, types, draft.type());
+        chipOptions(type, types, draft.type());
         updateCategories(draft.type(), draft.category());
         amount.setText(draft.amount());
         merchant.setText(draft.merchant());
@@ -171,19 +173,18 @@ public final class TransactionFormActivity extends SecureActivity {
         selectedDate = draft.date();
         showDate();
         initialized = true;
-        AdapterView.OnItemSelectedListener selection = new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (parent == type && !Objects.equals(value(type), categoryType)) {
-                    updateCategories(value(type), null);
-                }
+        account.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
                 captureDraft();
             }
 
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        };
-        account.setOnItemSelectedListener(selection);
-        type.setOnItemSelectedListener(selection);
-        category.setOnItemSelectedListener(selection);
+            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+        type.onSelectionChanged(() -> {
+            if (!Objects.equals(value(type), categoryType)) updateCategories(value(type), null);
+            captureDraft();
+        });
+        category.onSelectionChanged(this::captureDraft);
         TextWatcher watcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence text, int start, int before, int count) { captureDraft(); }
@@ -205,7 +206,7 @@ public final class TransactionFormActivity extends SecureActivity {
                 choices.add(new Choice<>(item.id(), name));
             }
         }
-        options(category, choices, selected);
+        chipOptions(category, choices, selected);
         updatingCategory = false;
     }
 
@@ -218,12 +219,14 @@ public final class TransactionFormActivity extends SecureActivity {
     private void pickDate() {
         if (!verify() || model.work.busy()) return;
         LocalDate initial = selectedDate.isEmpty() ? LocalDate.now() : LocalDate.parse(selectedDate);
-        showSecure(new DatePickerDialog(this, (picker, year, month, day) -> {
-            if (!verify() || model.work.busy()) return;
-            selectedDate = LocalDate.of(year, month + 1, day).toString();
-            showDate();
-            captureDraft();
-        }, initial.getYear(), initial.getMonthValue() - 1, initial.getDayOfMonth()));
+        FinancialDatePicker.show(this, R.string.transaction_date, initial, this::selectDate);
+    }
+
+    private void selectDate(LocalDate value) {
+        if (!verify() || model.work.busy()) return;
+        selectedDate = value.toString();
+        showDate();
+        captureDraft();
     }
 
     private void showDate() {
@@ -261,6 +264,22 @@ public final class TransactionFormActivity extends SecureActivity {
                 break;
             }
         }
+    }
+
+    private <T> void chipOptions(FormChoices group, List<Choice<T>> choices, T selected) {
+        group.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, choices));
+        for (int i = 0; i < choices.size(); i++) {
+            if (Objects.equals(choices.get(i).value(), selected)) {
+                group.setSelection(i);
+                break;
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T value(FormChoices group) {
+        Choice<T> chosen = (Choice<T>) group.getSelectedItem();
+        return chosen == null ? null : chosen.value();
     }
 
     @SuppressWarnings("unchecked")

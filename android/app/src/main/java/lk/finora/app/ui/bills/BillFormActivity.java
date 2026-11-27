@@ -3,7 +3,6 @@ package lk.finora.app.ui.bills;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -13,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FormFields;
+import lk.finora.app.ui.FormChoices;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.CategoryDto;
 import lk.finora.app.ui.accounts.AccountFormActivity;
@@ -25,7 +26,7 @@ public final class BillFormActivity extends SecureActivity {
     private EditText name;
     private EditText amount;
     private EditText dueDay;
-    private Spinner category;
+    private FormChoices category;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -102,21 +103,21 @@ public final class BillFormActivity extends SecureActivity {
         if (!AccountListActivity.verify(this, model.work) || !model.ready || model.work.busy()) return;
         String billName = name.getText().toString().trim();
         if (!BillFormViewModel.validName(billName)) {
-            name.setError(getString(R.string.records_name_invalid));
+            FormFields.error(name, R.string.records_name_invalid);
             return;
         }
         BigDecimal billAmount;
         try {
             billAmount = BillFormViewModel.parseAmount(amount.getText().toString());
         } catch (IllegalArgumentException failure) {
-            amount.setError(getString(R.string.budget_limit_invalid));
+            FormFields.error(amount, R.string.budget_limit_invalid);
             return;
         }
         int day;
         try {
             day = BillFormViewModel.parseDueDay(dueDay.getText().toString());
         } catch (IllegalArgumentException failure) {
-            dueDay.setError(getString(R.string.bill_due_day_invalid));
+            FormFields.error(dueDay, R.string.bill_due_day_invalid);
             return;
         }
         model.category = Math.max(0, category.getSelectedItemPosition());

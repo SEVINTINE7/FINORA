@@ -1170,7 +1170,7 @@ public class UserJourneyTest {
             enter(R.id.form_amount, "12.34");
             enter(R.id.form_merchant, MERCHANT);
             clickId(R.id.form_date);
-            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.form_save);
             await(By.desc(app.getString(R.string.records_tab)));
             tab(R.string.home_tab);
@@ -1453,7 +1453,7 @@ public class UserJourneyTest {
             select(R.id.form_type, app.getString(R.string.category_income));
             enter(R.id.form_amount, "85000.00");
             clickId(R.id.form_date);
-            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.form_save);
             awaitActivity(MainActivity.class);
 
@@ -1921,7 +1921,33 @@ public class UserJourneyTest {
     }
 
     private static void select(int id, String label) {
-        onView(withId(id)).perform(reveal(), selectSpinnerItem(label));
+        onView(withId(id)).perform(reveal(), selectFormChoice(label));
+    }
+
+    private static ViewAction selectFormChoice(String label) {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isEnabled(); }
+            @Override public String getDescription() { return "select the synthetic fixture choice"; }
+            @Override public void perform(UiController controller, View view) {
+                if (view instanceof lk.finora.app.ui.FormChoices choices) {
+                    long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+                    do {
+                        for (int i = 0; i < choices.getChildCount(); i++) {
+                            var chip = (com.google.android.material.chip.Chip) choices.getChildAt(i);
+                            if (label.contentEquals(chip.getText())) {
+                                chip.performClick();
+                                controller.loopMainThreadUntilIdle();
+                                return;
+                            }
+                        }
+                        controller.loopMainThreadForAtLeast(50);
+                    } while (SystemClock.elapsedRealtime() < deadline);
+                    fail("Expected synthetic fixture chip is unavailable");
+                } else {
+                    selectSpinnerItem(label).perform(controller, view);
+                }
+            }
+        };
     }
 
     private static ViewAction selectSpinnerItem(String label) {

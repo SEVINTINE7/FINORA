@@ -2,11 +2,12 @@ package lk.finora.app.ui.categories;
 
 import android.os.Bundle;
 import android.widget.EditText;
-import android.widget.Spinner;
 
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FormFields;
+import lk.finora.app.ui.FormChoices;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -16,8 +17,8 @@ public final class CategoryFormActivity extends SecureActivity {
     private boolean filled;
     private EditText name;
     private EditText nameSi;
-    private Spinner kind;
-    private Spinner need;
+    private FormChoices kind;
+    private FormChoices need;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -27,8 +28,8 @@ public final class CategoryFormActivity extends SecureActivity {
         setContentView(R.layout.activity_category_form);
         name = findViewById(R.id.form_name);
         nameSi = findViewById(R.id.category_name_si);
-        kind = AccountFormActivity.spinner(this, R.id.form_kind, R.string.category_income, R.string.category_expense);
-        need = AccountFormActivity.spinner(this, R.id.category_classification, R.string.category_unspecified,
+        kind = AccountFormActivity.choices(this, R.id.form_kind, R.string.category_income, R.string.category_expense);
+        need = AccountFormActivity.choices(this, R.id.category_classification, R.string.category_unspecified,
                 R.string.category_need, R.string.category_want);
         AccountFormActivity.watch(name, text -> model.name = text);
         AccountFormActivity.watch(nameSi, text -> model.nameSi = text);
@@ -82,11 +83,11 @@ public final class CategoryFormActivity extends SecureActivity {
         if (!AccountListActivity.verify(this, model.work) || !model.ready || model.work.busy()) return;
         String value = name.getText().toString().trim();
         if (value.isEmpty() || value.length() > 60) {
-            name.setError(getString(R.string.records_name_invalid));
+            FormFields.error(name, R.string.records_name_invalid);
             return;
         }
         if (nameSi.length() > 60) {
-            nameSi.setError(getString(R.string.category_name_si_invalid));
+            FormFields.error(nameSi, R.string.category_name_si_invalid);
             return;
         }
         model.kind = kind.getSelectedItemPosition();
