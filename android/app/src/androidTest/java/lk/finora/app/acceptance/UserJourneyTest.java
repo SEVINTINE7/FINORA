@@ -63,6 +63,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
@@ -90,8 +91,8 @@ public class UserJourneyTest {
         assertEquals("http://127.0.0.1:8080/", BuildConfig.API_BASE_URL);
         boolean emulator = "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE);
         if ("true".equals(arguments.getString("finoraIsolatedHandset"))) {
-            assertEquals("Handset mode requires the separate acceptance package",
-                    "lk.finora.app.acceptance", app.getPackageName());
+            assertFalse("Handset mode requires physical hardware", emulator);
+            assertTrue("Handset mode requires an isolated acceptance package", isAcceptancePackage());
             long serial = app.getSystemService(UserManager.class).getSerialNumberForUser(Process.myUserHandle());
             assertTrue("Handset mode requires a known Android user serial", serial > 0);
             assertEquals("Wrong Android test profile", Long.toString(serial),
@@ -107,6 +108,11 @@ public class UserJourneyTest {
         sessions = TokenStore.open(app);
         clearSession();
         instrumentation.runOnMainSync(() -> LocaleHelper.apply("EN"));
+    }
+
+    private boolean isAcceptancePackage() {
+        return "lk.finora.app.acceptance".equals(app.getPackageName())
+                || "lk.finora.app.t57handset".equals(app.getPackageName());
     }
 
     @After public void clearSession() throws Exception {
@@ -1390,7 +1396,7 @@ public class UserJourneyTest {
 
     @Test public void dailyGuideAndGoalSimulationFromPlanUseTheSignedInOwner() throws Exception {
         org.junit.Assume.assumeTrue("Planning integration requires the acceptance APK",
-                "lk.finora.app.acceptance".equals(app.getPackageName()));
+                isAcceptancePackage());
         String identity = UUID.randomUUID().toString().replace("-", "");
         var today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo"));
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
@@ -1601,7 +1607,7 @@ public class UserJourneyTest {
 
     @Test public void syntheticPasteFeedsInsightsAndPlanningSupportsSinhala() {
         org.junit.Assume.assumeTrue("Integrated journey requires the acceptance APK",
-                "lk.finora.app.acceptance".equals(app.getPackageName()));
+                isAcceptancePackage());
         var runner = InstrumentationRegistry.getInstrumentation();
         var clipboard = app.getSystemService(ClipboardManager.class);
         var today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo"));
@@ -1646,9 +1652,9 @@ public class UserJourneyTest {
                     + "\n" + app.getString(R.string.sms_extracted_merchant, "TEST SUPERMARKET");
             awaitText(extracted);
             clickId(R.id.sms_paste_preview);
-            var row = By.text(app.getString(R.string.sms_preview_selected, extracted));
-            await(row);
-            device.findObject(row).click();
+            String selectedRow = app.getString(R.string.sms_preview_selected, extracted);
+            await(By.text(selectedRow));
+            onData(equalTo(selectedRow)).inRoot(isDialog()).perform(click());
             onView(new org.hamcrest.TypeSafeMatcher<View>() {
                 @Override protected boolean matchesSafely(View view) {
                     if (!(view instanceof android.widget.Spinner) || !(view.getParent() instanceof ViewGroup parent)) {

@@ -79,3 +79,29 @@ Integration source `00ba7e138ff17e5fe2254a5ffce943ef94b4d7bd` combines the teste
 - **T52/T53.** Retain the route inventory, synthetic authorization and privacy evidence and merged backend dependency fixes from PR #37. STAFF retirement actor and state semantics remain open. Authenticated D59 security verification needs approved synthetic accounts, an independently established expired token and deployment attestations. OWASP needs a trusted current feed or compatible populated database. The retained Android build-tool findings still need a supported remediation.
 - **T55.** Retain the qualified handset calibration in PR #38. Formal timing requires recorded device classification, routes and cohorts, and the statistic used for acceptance. The benchmark database was outside this run.
 - **T54/T61.5.** No live requests or SMTP sends. Live model qualification requires current authorized credentials, confirmed model access and free headroom, billing reconciliation and accepted execution scope. Production mail requires authorized SMTP configuration and a synthetic recipient.
+
+## T57 physical V1 acceptance
+
+The integrated candidate was exercised on the HMD Crest (Android 14, API 34) in one temporary secondary user with USB reverse to a fresh loopback MySQL and API. The host checked both installed APKs byte for byte and verified a shared debug certificate and the runner target. The app ID `lk.finora.app.t57handset` and test ID `lk.finora.app.t57handset.test` avoid replacing the original FINORA installations. READ_SMS stayed denied. Only synthetic accounts and LKR fixtures were used. Provider calls, Firebase and SMTP delivery were disabled.
+
+The executable API was built at `7c706f7534cecd5ef7abd6aaf2ff9acffdf54b37` and verified against unchanged integrated API production sources before each handset session. API JAR SHA-256 `9a586e1d0f21f96205cef9d57886258f625ebdeb912183caa9adb1633089dfa2`. The debug app was built from the same application source tree via the integration checkpoint `92d1750874ca6ba5677825a6b2c199592ef60b15`, with the opt-in package configuration. Installed app SHA-256 `b8f93d5df606ade7b3bb3e5a25f2b471e06d7da2e7f80e5f5034bda4e3af6af0`. Initial instrumentation SHA-256 `02b4d6079a2c2e58761e7362fe3cff4a604353dd1143bfd5ad573932d6166b6f`. Shared debug certificate SHA-256 `863fd92f2b8a4b4ff071062669525d5f866dbfa6752acfcef0f8eaac46092f6f`.
+
+| Journey | Initial handset result |
+| --- | --- |
+| USER registration, login, financial records and denied SMS permission | Passed |
+| USER daily guide, bill confirmation, savings simulator and owner switching | Passed |
+| USER synthetic SMS paste, Insights, canonical V1 advice and Sinhala planning | Preview parsed the fixture. Test could not open the preview row editor. |
+| STAFF draft, reviewer approval, claim, EN/SI replies and retention after retirement | Passed |
+| ADMIN USER and category management | Passed |
+| ADMIN STAFF create, activate, disable and session check | Passed |
+| ADMIN management and irreversible synthetic USER promotion | Passed |
+| ADMIN discard a synthetic unpublished NSB draft | Passed |
+| ADMIN edit, validate, publish, activate and roll back a synthetic NSB draft | Passed |
+
+The configured production release signer remains the T56 designated certificate. Its keystore and all four signing environment settings were absent on this laptop. This run adds no signed-release or deployed authentication result. The formal T55 cohort, device classification and acceptance statistic remain unapproved in the available records. The physical journeys did not use or mutate the frozen evaluation benchmark.
+
+The focused SMS rerun passed on the dedicated emulator and then on the same retained HMD Crest profile after the test selected the dialog adapter row through Espresso. It verified synthetic import, Insights, canonical V1 advice and Sinhala planning. The application APK was byte-identical. The corrected instrumentation APK SHA-256 was `db9a62ed30be40c6a2947d340437f87ef87a49bc14386cf3ba5f866d5040ab34`. Across the initial run and focused rerun, all nine executed cases passed. STAFF diagnostic flag and ADMIN acknowledgment/closure retain the prior Android and API evidence [MD05 checkpoint](md05-implementation-checkpoint.md). Those actions were outside this handset run. Independent T57 acceptance remains open.
+
+The device does not support `cmd user is-user-unlocked`. The launcher now checks Activity Manager user state and resumed the single authorized profile. The device rejected scripted user removal even after stopping the profile. A follow-up in Owner removed that exact stopped profile. Read-back verified Owner foreground, original users 0 and 10, both Sahan QA APK paths present, both candidate APKs absent, no USB reverse mapping and no session API, MySQL, private ADB or emulator listeners. The launcher now retries only the same stopped, session-owned identity while Android settles. Session evidence retains synthetic data and logs locally.
+
+The guarded runner is opt-in. Build `assembleV1Debug assembleV1DebugAndroidTest` with `-PfinoraFinalHandset=true` and empty Firebase build properties. Run `scripts/Start-FinoraLocalEvaluation.ps1 -Mode Handset` with the installed tool paths, the explicitly approved USB serial, the verified API source commit and executable SHA-256. Resume needs the exact existing test-profile name. An installed instrumentation retry additionally requires comparison against both APKs retained by its earlier run. Neither mode installs or uses release credentials.

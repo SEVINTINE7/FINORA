@@ -1,10 +1,16 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidateSet('Verify', 'Connected', 'Demo')][string]$Mode,
+    [Parameter(Mandatory)][ValidateSet('Verify', 'Connected', 'Demo', 'Handset')][string]$Mode,
     [Parameter(Mandatory)][string]$JavaHome,
     [Parameter(Mandatory)][string]$MySqlBin,
     [string]$AndroidSdk,
     [string]$MavenUserHome,
+    [string]$HandsetSerial,
+    [ValidatePattern('^FINORA-T57-[a-f0-9]{8}$')][string]$ResumeHandsetProfile,
+    [string]$ResumeHandsetArtifacts,
+    [switch]$OnlyHandsetSmsPaste,
+    [string]$ApiSourceRevision,
+    [string]$ExpectedApiSha256,
     [ValidateRange(1024, 65535)][int]$DbPort = 3330,
     [ValidateRange(1024, 65535)][int]$AdbPort = 5039,
     [ValidateRange(5554, 5682)][int]$EmulatorPort = 5582
@@ -21,7 +27,13 @@ foreach ($tool in $java, $mysql, $mysqlAdmin, $mysqlServer) {
     if (-not (Test-Path -LiteralPath $tool -PathType Leaf)) { throw "Missing tool: $tool" }
 }
 $ports = @($DbPort)
-if ($Mode -ne 'Verify') {
+if ($Mode -eq 'Handset') {
+    if (-not $AndroidSdk -or $HandsetSerial -cnotmatch '^[A-Za-z0-9]+$' -or
+            $ApiSourceRevision -cnotmatch '^[a-f0-9]{40}$' -or $ExpectedApiSha256 -notmatch '^[a-f0-9]{64}$') {
+        throw 'Handset mode requires the SDK, approved USB serial, API source revision and executable hash.'
+    }
+    $ports += 8080
+} elseif ($Mode -ne 'Verify') {
     if (-not $AndroidSdk -or $EmulatorPort % 2) { throw 'Supply the SDK and an even emulator port.' }
     $ports += @(8080, $AdbPort, $EmulatorPort, ($EmulatorPort + 1))
 }
@@ -42,6 +54,7 @@ $profileOverrides = @(Get-ChildItem Env: | Where-Object {
 $envNames = @(@('JAVA_HOME','Path','MAVEN_USER_HOME','MAVEN_OPTS','MAVEN_ARGS','MAVEN_SKIP_RC',
     'MAVEN_DEBUG_OPTS','JVM_CONFIG_MAVEN_OPTS','MAVEN_BASEDIR',
     'MYSQL_PWD','TEST_DB_URL','TEST_DB_USER','TEST_DB_PASS',
+    'FINORA_BOOTSTRAP_ADMIN_EMAIL','FINORA_BOOTSTRAP_ADMIN_PASSWORD','FINORA_MAIL_HOST','FINORA_MAIL_FROM',
     'DB_URL','DB_USER','DB_PASS','JWT_SECRET','SPRING_PROFILES_ACTIVE','SERVER_ADDRESS','SERVER_PORT',
     'SPRING_DATASOURCE_URL','SPRING_DATASOURCE_USERNAME','SPRING_DATASOURCE_PASSWORD',
     'SPRING_FLYWAY_URL','SPRING_FLYWAY_USER','SPRING_FLYWAY_PASSWORD',
@@ -149,16 +162,29 @@ try {
     $app = Join-Path $projectRoot 'android\app\build\outputs\apk\v1\debug\app-v1-debug.apk'
     $test = Join-Path $projectRoot 'android\app\build\outputs\apk\androidTest\v1\debug\app-v1-debug-androidTest.apk'
     $aapt = Join-Path $AndroidSdk 'build-tools\36.0.0\aapt.exe'
-    foreach ($file in @($adb,$emulatorExe,$jar,$app,$aapt) + $(if ($Mode -eq 'Connected') { @($test) })) {
-        if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Build or install prerequisite: $file" }
-    }
-    if (-not ((& $aapt dump badging $app) -match "^package: name='$appId'")) { throw 'Expected the separate acceptance APK.' }
-    if ($Mode -eq 'Connected' -and (-not ((& $aapt dump badging $test) -match "^package: name='$testId'") -or
-            -not ((& $aapt dump xmltree $test AndroidManifest.xml) -match "android:targetPackage.*=`"$appId`""))) {
-        throw 'Expected the separate acceptance instrumentation APK.'
-    }
-    if (Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'emulator|qemu' -and $_.CommandLine -like "*$avd*" }) {
-        throw 'The dedicated FINORA AVD is already in use.'
+    if ($Mode -eq 'Handset') {
+        if (-not (Test-Path -LiteralPath $jar -PathType Leaf) -or
+                (Get-FileHash -LiteralPath $jar).Hash -ine $ExpectedApiSha256) {
+            throw 'Executable API hash does not match the expected candidate.'
+        }
+        & git -C $projectRoot diff --quiet $ApiSourceRevision -- api/src/main api/pom.xml
+        if ($LASTEXITCODE) { throw 'API production sources differ from the executable source revision.' }
+        $env:FINORA_BOOTSTRAP_ADMIN_EMAIL = 'delivery-admin@example.test'
+        $env:FINORA_BOOTSTRAP_ADMIN_PASSWORD = 'Synthetic9-delivery-admin'
+        $env:FINORA_MAIL_HOST = ''
+        $env:FINORA_MAIL_FROM = ''
+    } else {
+        foreach ($file in @($adb,$emulatorExe,$jar,$app,$aapt) + $(if ($Mode -eq 'Connected') { @($test) })) {
+            if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Build or install prerequisite: $file" }
+        }
+        if (-not ((& $aapt dump badging $app) -match "^package: name='$appId'")) { throw 'Expected the separate acceptance APK.' }
+        if ($Mode -eq 'Connected' -and (-not ((& $aapt dump badging $test) -match "^package: name='$testId'") -or
+                -not ((& $aapt dump xmltree $test AndroidManifest.xml) -match "android:targetPackage.*=`"$appId`""))) {
+            throw 'Expected the separate acceptance instrumentation APK.'
+        }
+        if (Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'emulator|qemu' -and $_.CommandLine -like "*$avd*" }) {
+            throw 'The dedicated FINORA AVD is already in use.'
+        }
     }
     $env:DB_URL = $url
     $env:DB_USER = $dbUser
@@ -175,6 +201,27 @@ try {
     }
     $apiListener = Get-NetTCPConnection -State Listen -LocalPort 8080
     if (-not $healthy -or $apiListener.OwningProcess -ne $api.Id -or $apiListener.LocalAddress -ne '127.0.0.1') { throw 'Local API listener verification failed.' }
+    if ($Mode -eq 'Handset') {
+        function Invoke-SyntheticPost([string]$route, [object]$body, [hashtable]$headers = @{}) {
+            Invoke-RestMethod -Method Post -TimeoutSec 10 -Uri ("http://127.0.0.1:8080/api/v1/$route") `
+                -Headers $headers -ContentType 'application/json' -Body ($body | ConvertTo-Json -Compress)
+        }
+        $admin = Invoke-SyntheticPost 'auth/login' @{email=$env:FINORA_BOOTSTRAP_ADMIN_EMAIL;password=$env:FINORA_BOOTSTRAP_ADMIN_PASSWORD}
+        if ($admin.role -ne 'ADMIN' -or -not $admin.accessToken) { throw 'Disposable ADMIN bootstrap failed.' }
+        foreach ($email in 'support-drafter@example.test','support-reviewer@example.test') {
+            $staff = Invoke-SyntheticPost 'admin/staff' @{email=$email;fullName='Synthetic STAFF'} @{Authorization=('Bearer ' + $admin.accessToken)}
+            if (-not $staff.temporaryPassword) { throw 'Disposable STAFF provisioning failed.' }
+            Invoke-SyntheticPost 'auth/staff/activate' @{email=$email;temporaryPassword=$staff.temporaryPassword;password='Synthetic9-support-suite'} | Out-Null
+        }
+        $admin = $staff = $null
+        if ($ResumeHandsetArtifacts) {
+            $app = Join-Path $ResumeHandsetArtifacts 'lk.finora.app.t57handset.apk'
+        }
+        & (Join-Path $PSScriptRoot 'Invoke-FinoraHandsetJourneys.ps1') -Sdk $AndroidSdk -Serial $HandsetSerial `
+            -AppApk $app -TestApk $test -Evidence $session -ApiPid $api.Id -ResumeProfile $ResumeHandsetProfile `
+            -ResumeArtifacts $ResumeHandsetArtifacts -OnlySmsPaste:$OnlyHandsetSmsPaste
+        return
+    }
     $env:ANDROID_HOME = $AndroidSdk
     $env:ANDROID_ADB_SERVER_PORT = "$AdbPort"
     $env:ADB_SERVER_PORT = "$AdbPort"

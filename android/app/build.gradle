@@ -15,7 +15,11 @@ if (!releaseApi.isEmpty()) {
 // passed in by env vars. Without FINORA_KEYSTORE_FILE, release builds stay unsigned.
 def env = { String name -> providers.environmentVariable(name).orElse('').get() }
 def handsetAcceptance = providers.gradleProperty('finoraHandsetAcceptance').orElse('false').get() == 'true'
-if (handsetAcceptance && providers.gradleProperty('finoraSessionVerification').orElse('false').get() == 'true') {
+def finalHandset = providers.gradleProperty('finoraFinalHandset').orElse('false').get() == 'true'
+if (handsetAcceptance && finalHandset) {
+    throw new GradleException('Choose only one handset acceptance package')
+}
+if ((handsetAcceptance || finalHandset) && providers.gradleProperty('finoraSessionVerification').orElse('false').get() == 'true') {
     throw new GradleException('Handset acceptance requires the guarded AndroidJUnitRunner')
 }
 // T34.5 Firebase (D57): set these in ~/.gradle/gradle.properties or with -P; never commit them.
@@ -80,7 +84,9 @@ android {
 
     buildTypes {
         debug {
-            if (handsetAcceptance) {
+            if (finalHandset) {
+                applicationIdSuffix '.t57handset'
+            } else if (handsetAcceptance) {
                 applicationIdSuffix '.acceptance'
             }
             buildConfigField 'String', 'API_BASE_URL', '"http://127.0.0.1:8080/"'  // D22: phone/emulator reach the laptop API via adb reverse tcp:8080 tcp:8080
