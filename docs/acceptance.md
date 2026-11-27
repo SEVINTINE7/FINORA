@@ -41,6 +41,16 @@
 | T59 · todo · support | T59.4 covers anonymous, USER, STAFF, ADMIN and disabled callers on create/list/enable-disable ADMIN. T41/T43 are now done. Sevindu's routes are absent at the cited revision. Exercise them when available. [Contract](../trackers/sevindu/8-admin-accounts.md) |
 | T60 · todo · support | T60.4 requires the promoted owner to have zero financial rows and lose financial access, sessions to be revoked, and the other owner's data to remain intact. The promotion operation is absent. Sevindu owns it; T36/T42 remain in review. [Contract](../trackers/sevindu/8-admin-accounts.md) |
 
+### Subsequent verified evidence — 2026-11-27
+
+The above task statuses are historical. Upstream `5948f1dbe75bff114801465ad4f14234c1dabf8f` contains T59.1–T59.2. The prospective merge of [PR #34](https://github.com/SEVINTINE7/FINORA/pull/34) at `9c6ad9bd1142dbc7805a0bb33336f48e99b3ae41` passed both hosted jobs. The [API job log](https://github.com/SEVINTINE7/FINORA/actions/runs/45969996509/job/140407825126) records 527 tests run, 0 failures, 0 errors, 1 intentional skip; T52_RUNTIME total=111 protected=101 auth=10; EndpointAuthTest 7/7 and AdminAccountControllerTest 6/6.
+
+- **T59.4:** The dynamic authorization inventory explicitly includes GET and POST `/api/v1/admin/admins` and PATCH `/api/v1/admin/admins/{id}`. Existing matrix tests cover anonymous, wrong-role, expired/malformed and disabled sessions; ADMIN controller tests cover permitted operations and denial, credential privacy and session revocation. This is evidence for the assigned role-matrix criterion, not closure of the parent task. Credit the feature and its controller tests to their original contributors. Reconcile the T59.4 tracker box when adopting this handoff.
+- **T61.1–T61.3:** The published backend candidate has successful local and hosted verification. No real SMTP or signed Android recovery journey is established. Independent review, T61.4 and T61.5 remain open.
+- **T60.4:** The required promotion endpoint is not present in the inspected upstream revision. Keep the privacy test obligation open; use disposable synthetic accounts when the implementation becomes available.
+
+No new provider calls, deployed requests or participant evidence are implied by these CI observations. No new production policy is adopted.
+
 ## Demonstrated flows and remaining decisions
 
 - Five realistic D58 accounts authenticated and passed their financial oracles on V24. The worker and laptop scenarios also passed ten Android UI checkpoints. The worker can transfer LKR 17,500 per month for six months under the fixture assumptions. The laptop plan supports LKR 4,000 per month, giving 23 months. Freelancer, shortfall and completed-goal cases have API evidence only. [Fixture data and APK identities](d58-realistic-qualification.md)
