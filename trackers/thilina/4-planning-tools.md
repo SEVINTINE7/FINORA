@@ -21,6 +21,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - 2026-11-27 tracker sync (Sevindu): daily-guide code is on `main`, but T31.1/T31.2 stay unchecked. Local run: 40/41 daily-guide tests passed; `DailyGuideServiceTest.validBillsCanProduceAnAggregateThatTheConfirmationFieldRejects` (line 83) fails because it still expects `@Digits` to reject a 14-digit aggregate that `29a92f4` now accepts. Thilina to decide whether the test or the field limit is correct.
 - 2026-11-27 resolved: PR #23's assertion was merged after the PR #28 fix and described the pre-fix behaviour; updated it to expect the exact aggregate to be accepted (Sevindu merged #28 as the approved correction). Full `mvnw verify`: 503 run, 0 failures/errors, 1 skipped, JaCoCo gate met; daily-guide 28/28. T31.1/T31.2/tests checked; T31.3 Android card and contract sign-off remain.
 
+- 2026-11-27 integration update: merged [PR #30](https://github.com/SEVINTINE7/FINORA/pull/30) includes the Android Daily Guide and assumptions/confirmation controls. Its tested `264c1ae` revision passed the dedicated emulator planning/retry/rotation journeys; the LKR 4,700.00 allowance was observed. T17/T18/T19 are now `done`. Preserve T31.3 as open for Sahan's review and final contract acceptance; implementation is not missing.
+
 ---
 
 ### T32 · Savings goal simulator · `FR14`
@@ -39,3 +41,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 Review evidence: T31 draft PR #14 retains 0a1f4e5. The integration run on 2026-11-24 passed all 23 daily-guide tests within 129 focused backend tests on isolated finora_test. Contract approval, persistent-date policy and MD05 review gates remain open.
 - [PR #13](https://github.com/SEVINTINE7/FINORA/pull/13) contains the backend candidate and simulator contract at `d59e94f`. Android T32.2 remains unchecked pending approved savings/cut and date semantics and formal T19 closure or a documented early start. The candidate is separate from draft PR #16.
 - 2026-11-27 tracker sync (Sevindu): simulator code is on `main` (`api:planning/Simulation*`). Simulation tests 31/31 passed locally (Controller 13, DatabaseIntegration 3, Math 8, Service 7), covering rounding, zero capacity and unreachable goals. T32.2 Android screen and team approval of the contract remain open.
+- 2026-11-27 integration update: merged [PR #30](https://github.com/SEVINTINE7/FINORA/pull/30) includes the Android Simulator. Connected evidence at `264c1ae` covers the LKR 20,000.00 hypothetical monthly saving, held-response rotation and recovery after a category-load failure. T19 is now `done`. Keep T32.2 open for Sahan's review and contract acceptance; no physical-handset claim.

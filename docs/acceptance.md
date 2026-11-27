@@ -51,6 +51,8 @@ The above task statuses are historical. Upstream `5948f1dbe75bff114801465ad4f142
 
 No new provider calls, deployed requests or participant evidence are implied by these CI observations. No new production policy is adopted.
 
+The T25 checklist on upstream is fully checked, so this handoff proposes the ordinary `review` status, with T23 and independent acceptance retained. T18/T19 are officially `done`; T23.6 now waits for independent review. T31/T32 implementation is merged, and their Android support criteria remain open for Sahan's review. PR #33's own hosted verification at `5251b1a` confirms T59.4: 521 passed, 1 skipped, 109 mappings (101 protected/8 auth), `EndpointAuthTest` 7/7, `AdminAccountControllerTest` 6/6. See the [actual API job](https://github.com/SEVINTINE7/FINORA/actions/runs/45973464721/job/140419302365). The 111-route inventory above is the separate D64 prospective merge, not a contradiction.
+
 ## Demonstrated flows and remaining decisions
 
 - Five realistic D58 accounts authenticated and passed their financial oracles on V24. The worker and laptop scenarios also passed ten Android UI checkpoints. The worker can transfer LKR 17,500 per month for six months under the fixture assumptions. The laptop plan supports LKR 4,000 per month, giving 23 months. Freelancer, shortfall and completed-goal cases have API evidence only. [Fixture data and APK identities](d58-realistic-qualification.md)
