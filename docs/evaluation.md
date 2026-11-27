@@ -499,3 +499,21 @@ and hints separately. Record observed errors in coded terms and omit identifying
 - Team/lecturer approval record — approved revision, date, recruitment plan, languages, consent/contact,
   access/retention, time limits, SUS acceptance statistic, pilot and reviewer. No participant study or SUS
   score exists for this draft. D03 V1-only applies.
+
+
+## HMD Crest handset calibration (27 November 2026)
+
+One guarded trace-check attempt per route completed on the owner-approved HMD Crest (Android 14, API 34) in a temporary secondary user. The previously verified APK pair was reused byte for byte. The isolated API used revision 5a1376ad859f244964f15dcfbf9bf87e3cdf53cb and executable SHA-256 084dbb1b7715b60247bffbd933dd24e6f5e437f0de1f3c8effa9c94d24578aa1. The retained MySQL session dataset matched all eight counts and the canonical 826-transaction digest before and after calibration. Normal login and the November worker dashboard oracle passed. The original benchmark instance on port 3317 was left untouched.
+
+| Route | Action to submission (ms) | Action to qualified display (ms) |
+|---|---:|---:|
+| Home | 100.473 | Unqualified |
+| Records | 714.614 | Unqualified |
+| Plan | 325.515 | 343.091 |
+| Insights | 277.700 | Unqualified |
+
+The original query expected emulator marker names. The handset trace contained four vsync markers and used Android 14 surface names. The [handset query](t55-performance/handset-calibration-display.sql) matches process, activity surface, vsync token and display presentation. Plan had one matching BudgetListActivity surface and an on-time display event following content readiness and frame submission. Home, Records and Insights had no matching surface token. Trace SHA-256 d212a7395424c2390935ae0cb9025674e411cfe19c618184a8f85d1e3e5ee8aa. Raw trace and submission CSV are retained locally under session fdde4a9218ce.
+
+The retry reused the verified database, API JAR, installed APKs and temporary user. Cleanup restored Owner as foreground, removed only the temporary user and session USB reverse mapping, stopped the session API and MySQL, and verified Sahan's FINORA-T10-QA user and package set. The earlier automated removal did not complete. Android package manager's wait-for-removal operation succeeded on the exact owned user.
+
+This is mixed-revision calibration with one observation per route. T55.2 remains open for an approved device classification and measurement cohort/statistic, qualified samples for all required routes and independent review.
