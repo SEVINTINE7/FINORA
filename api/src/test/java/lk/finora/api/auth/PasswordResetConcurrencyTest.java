@@ -7,24 +7,30 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import lk.finora.api.support.IntegrationTest;
+import lk.finora.api.auth.dto.LoginRequest;
+import lk.finora.api.common.error.ApiException;
 import lk.finora.api.user.Role;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class PasswordResetConcurrencyTest extends IntegrationTest {
     @Autowired PasswordResetService resets;
-    @Autowired PasswordEncoder encoder;
+    @MockitoSpyBean PasswordEncoder encoder;
+    @Autowired AuthService auth;
     @Autowired JdbcTemplate jdbc;
     @MockitoBean PasswordResetMail mail;
 
@@ -50,6 +56,58 @@ class PasswordResetConcurrencyTest extends IntegrationTest {
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM password_reset_codes WHERE user_id=?",
                     Integer.class, owner.getId())).isZero();
         } finally {
+            jdbc.update("DELETE FROM users WHERE id=?", owner.getId());
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void committedResetDuringPasswordCheckCannotIssueAnOldPasswordSession() throws Exception {
+        var owner = createUser(Role.USER);
+        String oldPassword = "SyntheticBeforeReset2026";
+        String newPassword = "SyntheticAfterReset2026";
+        var checked = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var worker = Executors.newSingleThreadExecutor();
+        try {
+            jdbc.update("UPDATE users SET password_hash=? WHERE id=?", encoder.encode(oldPassword), owner.getId());
+            when(mail.configured()).thenReturn(true);
+            resets.issue(owner.getEmail());
+            var code = ArgumentCaptor.forClass(String.class);
+            verify(mail).afterCommit(eq(owner.getEmail()), eq("EN"), code.capture());
+
+            // Only pause the old-password BCrypt check. Reset-code verification and
+            // new-password hashing continue through the real encoder.
+            doAnswer(invocation -> {
+                boolean matched = (boolean) invocation.callRealMethod();
+                checked.countDown();
+                if (!release.await(20, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("Synthetic login checkpoint timed out");
+                }
+                return matched;
+            }).when(encoder).matches(eq(oldPassword), anyString());
+            var pendingLogin = worker.submit(() -> auth.login(new LoginRequest(owner.getEmail(), oldPassword)));
+            assertThat(checked.await(10, TimeUnit.SECONDS)).isTrue();
+
+            assertThat(resets.reset(owner.getEmail(), code.getValue(), newPassword)).isTrue();
+            release.countDown();
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> pendingLogin.get(20, TimeUnit.SECONDS))
+                    .isInstanceOf(ExecutionException.class)
+                    .hasCauseInstanceOf(ApiException.class)
+                    .satisfies(failure -> assertThat(((ApiException) failure.getCause()).getCode())
+                            .isEqualTo("INVALID_CREDENTIALS"));
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM refresh_tokens WHERE user_id=?",
+                    Integer.class, owner.getId())).isZero();
+            var fresh = auth.login(new LoginRequest(owner.getEmail(), newPassword));
+            assertThat(fresh.refreshToken()).isNotBlank();
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM refresh_tokens WHERE user_id=? AND revoked_at IS NULL",
+                    Integer.class, owner.getId())).isEqualTo(1);
+        } finally {
+            release.countDown();
+            worker.shutdownNow();
+            if (!worker.awaitTermination(30, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("Synthetic login worker did not terminate");
+            }
             jdbc.update("DELETE FROM users WHERE id=?", owner.getId());
         }
     }

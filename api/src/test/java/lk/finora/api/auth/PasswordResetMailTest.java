@@ -5,12 +5,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.core.task.TaskExecutor;
+import java.util.concurrent.RejectedExecutionException;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+@ExtendWith(OutputCaptureExtension.class)
 class PasswordResetMailTest {
     @Test void requiresVerifiedTlsAndCompleteConfiguration() {
         for (int port : new int[]{465, 587}) {
@@ -51,4 +57,40 @@ class PasswordResetMailTest {
         assertThat(captured.getValue().getFrom()).isEqualTo("reset@example.test");
         assertThat(captured.getValue().getText()).contains("012345", "15");
     }
+
+    @Test void failedSmtpDeliveryAndDispatchDoNotLeakDetails(CapturedOutput output) {
+        String recipient = "synthetic-private@example.test";
+        String code = "038291";
+        String transportSecret = "SyntheticTransportFailure2026";
+        var sender = spy(new JavaMailSenderImpl());
+        doThrow(new IllegalStateException(recipient + " " + code + " " + transportSecret))
+                .when(sender).send(any(SimpleMailMessage.class));
+        var smtpFailure = new PasswordResetMail("smtp.example.test", 587, "test", "synthetic",
+                "reset@example.test", Runnable::run, sender);
+        commitDelivery(smtpFailure, recipient, code);
+        verify(sender, times(1)).send(any(SimpleMailMessage.class));
+        assertThat(output.getAll()).contains("Password reset mail delivery failed")
+                .doesNotContain(recipient, code, transportSecret);
+
+        TaskExecutor rejected = command -> { throw new RejectedExecutionException(transportSecret); };
+        var dispatchFailure = new PasswordResetMail("smtp.example.test", 587, "test", "synthetic",
+                "reset@example.test", rejected, sender);
+        commitDelivery(dispatchFailure, recipient, code);
+        verify(sender, times(1)).send(any(SimpleMailMessage.class));
+        assertThat(output.getAll()).contains("Password reset mail dispatch unavailable")
+                .doesNotContain(recipient, code, transportSecret);
+    }
+
+    private static void commitDelivery(PasswordResetMail mail, String recipient, String code) {
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            mail.afterCommit(recipient, "EN", code);
+            var callback = TransactionSynchronizationManager.getSynchronizations().get(0);
+            callback.afterCommit();
+            callback.afterCompletion(TransactionSynchronization.STATUS_COMMITTED);
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
 }
