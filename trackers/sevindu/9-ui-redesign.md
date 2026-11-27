@@ -35,14 +35,15 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 ### T63 · Budgets and bills · `UX-03`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/budgets/`, `and:ui/bills/`, `res:layout/`
 - [x] T63.1 Mockups of Budget list, Budget form, Bill list and Bill form approved by Sevindu on 2026-11-28 (design canvas, row "T63 · Budgets and bills")
-- [ ] T63.2 Budget list (progress cards, over-limit state) and Budget form (category chips, amount field, month)
+- [x] T63.2 Budget list (progress cards, over-limit state) and Budget form (category chips, amount field, month)
 - [ ] T63.3 Bill list (due-day badges, paid-this-month state and "Mark paid") and Bill form (name, amount, due day 1–31, category)
 - [ ] T63.4 Screenshots approved
 
 **Handoff notes:**
-- T63.2 (2026-11-28, built, not yet seen on a device): `res:layout/activity_budget_list.xml`, `item_budget.xml`, `activity_budget_form.xml` rewritten; `BudgetListActivity`/`BudgetFormActivity` use ViewBinding. Cards sort OVER → NEAR → OK (`BudgetListViewModel.ordered`), summary card from `totals()`. Tap edits; long-press or the TalkBack action "Remove …" opens the existing confirm. Card speaks the old exact LKR sentence; state is its state description.
+- T63.2 (2026-11-28, verified on Pixel_8): `res:layout/activity_budget_list.xml`, `item_budget.xml`, `activity_budget_form.xml` rewritten; `BudgetListActivity`/`BudgetFormActivity` use ViewBinding. Cards sort OVER → NEAR → OK (`BudgetListViewModel.ordered`), summary card from `totals()`. Tap edits; long-press or the TalkBack action "Remove …" opens the existing confirm. Card speaks the old exact LKR sentence; state is its state description.
 - New colours `finora_warn_fill`/`finora_warn_ink`; OK/OVER reuse `finora_success_surface`/`finora_error_surface`. `budget_form_title` removed; `budget_limit` now "Monthly limit" (prefix shows Rs.). Bills still use `budget_previous_symbol`.
-- Checks: 163 unit tests pass, assemble OK, lint 4 = baseline, androidTest compiles. UserJourneyTest budget steps updated, not run. Emulator check of T63.2 pending.
+- Checks: 163 unit tests, assemble, lint 4 = baseline; Form/Shell/Dashboard/Records fixture tests 4/4 on Pixel_8. Guarded `T63ScreenshotTest` (live dev API) checks order, long-press confirm and tap-to-edit and captures EN/SI × light/dark + 130%. UserJourneyTest budget steps updated, not run.
+- Device fixes: summary bar stop dot removed; amount fields (budget and T62 transaction) always show "Rs." with a 0.00 placeholder; dark over-limit bar `finora_bar_over`, tracks `finora_card_line`. SI chips wrap to 2 lines.
 
 ### T64 · Goals and planning tools · `UX-04`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/goals/`, `and:ui/planning/`, `res:layout/`

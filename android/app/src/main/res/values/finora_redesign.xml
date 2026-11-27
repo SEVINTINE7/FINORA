@@ -114,4 +114,5 @@
     <color name="finora_chart_8">#5865B8</color>
     <color name="finora_warn_fill">#FDF0D5</color>
     <color name="finora_warn_ink">#7A4B00</color>
+    <color name="finora_bar_over">#982C30</color>
 </resources>

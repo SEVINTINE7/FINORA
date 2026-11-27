@@ -79,6 +79,8 @@
                 app:boxCornerRadiusTopEnd="16dp"
                 app:boxCornerRadiusTopStart="16dp"
                 app:hintEnabled="false"
+                app:expandedHintEnabled="false"
+                app:placeholderText="@string/form_amount_placeholder"
                 app:prefixText="@string/form_rupees_prefix"
                 app:prefixTextAppearance="@style/Finora.AmountPrefix">
                 <com.google.android.material.textfield.TextInputEditText

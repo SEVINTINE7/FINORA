@@ -96,7 +96,7 @@ public final class T62ScreenshotTest {
         }
     }
 
-    private static void setLocales(android.content.Context app, String tags) {
+    static void setLocales(android.content.Context app, String tags) {
         var manager = app.getSystemService(android.app.LocaleManager.class);
         if (android.os.Build.VERSION.SDK_INT >= 33 && manager != null) {
             manager.setApplicationLocales(android.os.LocaleList.forLanguageTags(tags));
@@ -105,13 +105,13 @@ public final class T62ScreenshotTest {
         }
     }
 
-    private static void settle() {
+    static void settle() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         SystemClock.sleep(3_000);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
-    private static void capture(Activity activity, File file) {
+    static void capture(Activity activity, File file) {
         View root = activity.getWindow().getDecorView();
         Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
         root.draw(new Canvas(bitmap));
@@ -122,7 +122,7 @@ public final class T62ScreenshotTest {
         }
     }
 
-    private static JSONObject login(String email, String password) throws Exception {
+    static JSONObject login(String email, String password) throws Exception {
         assertNotNull("finoraShotEmail required", email);
         var connection = (HttpURLConnection) new URL("http://127.0.0.1:8080/api/v1/auth/login").openConnection();
         connection.setRequestMethod("POST");

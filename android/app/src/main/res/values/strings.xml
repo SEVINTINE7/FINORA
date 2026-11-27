@@ -144,6 +144,7 @@
     <string name="budget_duplicate">This category already has a budget for this month.</string>
     <string name="budget_no_categories">Every expense category already has a budget this month.</string>
     <string name="budget_unknown_category">Unknown category</string>
+    <string name="form_amount_placeholder" translatable="false">0.00</string>
     <string name="budget_add">Add budget</string>
     <string name="budget_edit_title">Edit budget</string>
     <string name="budget_save">Save budget</string>

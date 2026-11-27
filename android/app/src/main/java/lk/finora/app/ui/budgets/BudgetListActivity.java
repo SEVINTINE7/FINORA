@@ -77,6 +77,8 @@ public final class BudgetListActivity extends SecureActivity {
         view.budgetSummaryAmount.setText(amount);
         view.budgetSummaryUsed.setText(used);
         view.budgetSummaryBar.setIndicatorColor(getColor(over ? R.color.finora_error_surface : R.color.finora_mint));
+        view.budgetSummaryBar.setTrackStopIndicatorSize(0);
+        view.budgetSummaryBar.setIndicatorTrackGapSize(0);
         view.budgetSummaryBar.setProgressCompat(BudgetListViewModel.percent(totals.used(), totals.limit()), false);
         view.budgetSummaryCard.setContentDescription(label + ", " + amount + ". " + used);
     }

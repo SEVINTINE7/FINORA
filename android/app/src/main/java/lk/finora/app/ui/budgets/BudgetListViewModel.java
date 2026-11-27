@@ -88,7 +88,7 @@ public final class BudgetListViewModel extends ViewModel {
 
     static int stateBar(String state) {
         switch (state) {
-            case "OVER": return R.color.finora_error;
+            case "OVER": return R.color.finora_bar_over;
             case "NEAR": return R.color.finora_chart_3;
             default: return R.color.finora_green;
         }

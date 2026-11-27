@@ -13,4 +13,5 @@
     <color name="finora_chart_8">#9AA5F0</color>
     <color name="finora_warn_fill">#4A3410</color>
     <color name="finora_warn_ink">#F2C374</color>
+    <color name="finora_bar_over">#E5797C</color>
 </resources>
