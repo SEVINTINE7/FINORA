@@ -1,0 +1,4 @@
+"route","outcome","traversal_token","display_token","surface_status","display_status","action_ns","ready_ns","submitted_ns","display_end_ns","qualified_ms"
+"HOME","COMMITTED","21059261","21059290","Late Present","Early Present","81563924950884","81563990030691","81563999109384","81564011904460","86.954000"
+"RECORDS","COMMITTED","21059612","21059723","Late Present","On-time Present","81564537870422","81564796733345","81564808892383","81564835267344","297.397000"
+"INSIGHTS","COMMITTED","21060953","21061027","Late Present","On-time Present","81566095087767","81566321236305","81566327364305","81566348472421","253.385000"

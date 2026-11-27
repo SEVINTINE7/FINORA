@@ -499,3 +499,58 @@ and hints separately. Record observed errors in coded terms and omit identifying
 - Team/lecturer approval record — approved revision, date, recruitment plan, languages, consent/contact,
   access/retention, time limits, SUS acceptance statistic, pilot and reviewer. No participant study or SUS
   score exists for this draft. D03 V1-only applies.
+
+
+## HMD Crest handset calibration (27 November 2026)
+
+One guarded trace-check attempt per route completed on the owner-approved HMD Crest (Android 14, API 34) in a temporary secondary user. The previously verified APK pair was reused byte for byte. The isolated API used revision 5a1376ad859f244964f15dcfbf9bf87e3cdf53cb and executable SHA-256 084dbb1b7715b60247bffbd933dd24e6f5e437f0de1f3c8effa9c94d24578aa1. The retained MySQL session dataset matched all eight counts and the canonical 826-transaction digest before and after calibration. Normal login and the November worker dashboard oracle passed. The original benchmark instance on port 3317 was left untouched.
+
+| Route | Action to submission (ms) | Action to qualified display (ms) |
+|---|---:|---:|
+| Home | 100.473 | Unqualified |
+| Records | 714.614 | Unqualified |
+| Plan | 325.515 | 343.091 |
+| Insights | 277.700 | Unqualified |
+
+The original query expected emulator marker names. The handset trace contained four vsync markers and used Android 14 surface names. The [handset query](t55-performance/handset-calibration-display.sql) matches process, activity surface, vsync token and display presentation. Plan had one matching BudgetListActivity surface and an on-time display event following content readiness and frame submission. Home, Records and Insights had no matching surface token. Trace SHA-256 d212a7395424c2390935ae0cb9025674e411cfe19c618184a8f85d1e3e5ee8aa. Raw trace and submission CSV are retained locally under session fdde4a9218ce.
+
+The retry reused the verified database, API JAR, installed APKs and temporary user. Cleanup restored Owner as foreground, removed only the temporary user and session USB reverse mapping, stopped the session API and MySQL, and verified Sahan's FINORA-T10-QA user and package set. The earlier automated removal did not complete. Android package manager's wait-for-removal operation succeeded on the exact owned user.
+
+This is mixed-revision calibration with one observation per route. T55.2 remains open for an approved device classification and measurement cohort/statistic, qualified samples for all required routes and independent review.
+
+
+### Retained trace requalification
+
+The API 34 harness emitted no rendered-token markers. Android documents its public FrameMetrics frame timeline ID as API 36. The three failed joins used the callback-preferred IDs 21028071, 21028845 and 21031333. The ready markers are nested in Choreographer traversals 21028068, 21028838 and 21031331. The same-process DrawFrames slices carry those traversal IDs, and each ID joins one destination activity surface and one actual display event. The prior trace and its original results remain retained.
+
+| Route | Traversal token | Display end minus action |
+|---|---:|---:|
+| Home | 21028068 | 106.734 ms |
+| Records | 21028838 | 727.575 ms |
+| Plan | 21029976 | 343.091 ms |
+| Insights | 21031331 | 296.690 ms |
+
+The [corrected trace query](t55-performance/handset-traversal-display.sql) requires an exact process, traversal token, activity surface, unique display event and ordered timing markers. A no-match replay left all four rows unqualified. These results are a reanalysis of one historical observation per route.
+
+### Targeted confirmation after approval
+
+Use the original application APK and the separately signed instrumentation APK (SHA-256 8daf8e2aa6bd6bb75d0b6acb4bee6d3af4e17f9f17889871f7d57f31f54c9df0). The test-only overlay requires the literal route list HOME,RECORDS,INSIGHTS and filters the existing loop to those three destinations. The offline assembleV1DebugAndroidTest task passed. The package, AndroidJUnitRunner target and signer were checked.
+
+The prepared local launcher refuses before ADB unless a connected session is explicitly approved. The approved run uses the retained session database and JAR, a new session-owned temporary user, and a single trace with one attempt per listed route. Record all three rows and retain the trace even if a presentation cannot be qualified. Preserve the baseline users and package identities, remove only the session USB reverse and profile, and recheck the dataset digest. No second connected session has run. T55.2 acceptance remains open.
+
+
+### Targeted handset confirmation (27 November 2026)
+
+The approved HMD Crest API 34 session ran Home, Records and Insights once each. The launcher reused the verified application APK, API JAR and session-owned synthetic data. The targeted instrumentation APK passed signature, package and runner checks. All three attempts completed and qualified against the destination surface and actual display timeline.
+
+| Route | Action to submission | Action to qualified display |
+|---|---:|---:|
+| Home | 74.335 ms | 86.954 ms |
+| Records | 271.045 ms | 297.397 ms |
+| Insights | 232.301 ms | 253.385 ms |
+
+[Sanitized timing and token rows](t55-performance/handset-targeted-display.csv). Perfetto SHA-256 e223ca44c2a65215fd7c3600c5bd7db82de74a99ab8c3f506f08daffe3aa1df5. The raw trace remains in the local evidence session. The historical Plan qualification remains 343.091 ms.
+
+The launcher stopped the API and MySQL and removed its USB reverse mapping. Automated profile cleanup needed a follow-up. Android acknowledged removal of the exact temporary user. A read-back confirmed Owner was foreground, the temporary profile was absent, both Sahan APK paths matched, and no reverse mappings or session listeners remained. The dataset digest and eight counts matched before and after the session.
+
+These are calibration observations. T55.2 remains in progress pending the approved device classification, routes, cohort, statistic and independent acceptance.
