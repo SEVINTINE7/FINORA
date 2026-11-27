@@ -18,6 +18,17 @@
     <color name="finora_success_surface">#E1F2E5</color>
     <color name="finora_neutral_surface">#EAF0EB</color>
 
+    <color name="finora_action_ink">@color/finora_on_navy</color>
+    <color name="finora_primary_focus_ring">@color/finora_mint</color>
+    <color name="finora_secondary_role">@color/finora_navy_line</color>
+    <color name="finora_secondary_role_ink">@color/finora_on_navy</color>
+    <color name="finora_tertiary_role">@color/finora_navy</color>
+    <color name="finora_tertiary_role_ink">@color/finora_on_navy</color>
+    <color name="finora_error_ink">@color/finora_on_navy</color>
+    <color name="finora_inverse_surface">@color/finora_navy</color>
+    <color name="finora_inverse_ink">@color/finora_on_navy</color>
+    <bool name="finora_light_bars">true</bool>
+
     <dimen name="finora_space_xs">6dp</dimen>
     <dimen name="finora_space_s">12dp</dimen>
     <dimen name="finora_space_m">16dp</dimen>
@@ -34,32 +45,62 @@
     <dimen name="finora_icon">20dp</dimen>
     <dimen name="finora_art_size">152dp</dimen>
 
-    <style name="Theme.Finora" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:colorAccent">@color/finora_green</item>
-        <item name="android:windowBackground">@color/finora_navy</item>
-        <item name="android:statusBarColor">@color/finora_navy</item>
-        <item name="android:navigationBarColor">@color/finora_surface</item>
-        <item name="android:windowLightStatusBar">false</item>
+    <style name="Theme.Finora" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:fontFamily">@font/finora_body</item>
+        <item name="fontFamily">@font/finora_body</item>
+        <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
+        <item name="colorPrimary">@color/finora_green</item>
+        <item name="colorOnPrimary">@color/finora_action_ink</item>
+        <item name="colorPrimaryContainer">@color/finora_mint</item>
+        <item name="colorOnPrimaryContainer">@color/finora_navy</item>
+        <item name="colorSecondary">@color/finora_secondary_role</item>
+        <item name="colorOnSecondary">@color/finora_secondary_role_ink</item>
+        <item name="colorSecondaryContainer">@color/finora_success_surface</item>
+        <item name="colorOnSecondaryContainer">@color/finora_green</item>
+        <item name="colorTertiary">@color/finora_tertiary_role</item>
+        <item name="colorOnTertiary">@color/finora_tertiary_role_ink</item>
+        <item name="colorTertiaryContainer">@color/finora_neutral_surface</item>
+        <item name="colorOnTertiaryContainer">@color/finora_ink</item>
+        <item name="android:colorBackground">@color/finora_surface</item>
+        <item name="colorOnBackground">@color/finora_ink</item>
+        <item name="colorSurface">@color/finora_field</item>
+        <item name="colorOnSurface">@color/finora_ink</item>
+        <item name="colorSurfaceVariant">@color/finora_neutral_surface</item>
+        <item name="colorOnSurfaceVariant">@color/finora_muted</item>
+        <item name="colorOutline">@color/finora_outline</item>
+        <item name="colorError">@color/finora_error</item>
+        <item name="colorOnError">@color/finora_error_ink</item>
+        <item name="colorErrorContainer">@color/finora_error_surface</item>
+        <item name="colorOnErrorContainer">@color/finora_error</item>
+        <item name="colorSurfaceInverse">@color/finora_inverse_surface</item>
+        <item name="colorOnSurfaceInverse">@color/finora_inverse_ink</item>
+        <item name="android:windowBackground">@color/finora_surface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">@bool/finora_light_bars</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
     <style name="FinoraText">
         <item name="android:textColor">@color/finora_ink</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontFamily">@font/finora_body</item>
     </style>
     <style name="FinoraText.Wordmark">
         <item name="android:textColor">@color/finora_on_navy</item>
         <item name="android:textSize">19sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/finora_body</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">0.12</item>
     </style>
     <style name="FinoraText.Display">
         <item name="android:textColor">@color/finora_on_navy</item>
         <item name="android:textSize">36sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/finora_body</item>
+        <item name="android:textStyle">bold</item>
     </style>
     <style name="FinoraText.Heading">
         <item name="android:textSize">25sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/finora_body</item>
+        <item name="android:textStyle">bold</item>
     </style>
     <style name="FinoraText.Body">
         <item name="android:textSize">15sp</item>
@@ -71,7 +112,8 @@
     </style>
     <style name="FinoraText.Label">
         <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/finora_body</item>
+        <item name="android:textStyle">bold</item>
     </style>
     <style name="FinoraText.FieldError" parent="FinoraText.Caption">
         <item name="android:paddingTop">@dimen/finora_space_xs</item>
@@ -89,7 +131,8 @@
     </style>
     <style name="FinoraButton">
         <item name="android:minHeight">@dimen/finora_control_height</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/finora_body</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:stateListAnimator">@null</item>

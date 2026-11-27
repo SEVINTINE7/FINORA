@@ -64,13 +64,21 @@ public final class LoginActivity extends SecureActivity {
                 else model.exportConsentData(destination);
             });
 
+    @Override protected boolean hasScreenInsets() {
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setBackgroundDrawableResource(R.color.finora_navy);
         setContentView(R.layout.activity_login);
         WindowCompat.getInsetsController(getWindow(), findViewById(R.id.login_root))
-                .setAppearanceLightNavigationBars(true);
+                .setAppearanceLightStatusBars(false);
+        WindowCompat.getInsetsController(getWindow(), findViewById(R.id.login_root))
+                .setAppearanceLightNavigationBars((getResources().getConfiguration().uiMode
+                        & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                        != android.content.res.Configuration.UI_MODE_NIGHT_YES);
         configureInsets();
 
         email = findViewById(R.id.email);

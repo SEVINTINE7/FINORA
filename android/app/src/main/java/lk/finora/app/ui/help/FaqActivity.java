@@ -16,6 +16,10 @@ import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 public final class FaqActivity extends SecureActivity {
     private Work session;
 
+    @Override protected boolean hasScreenInsets() {
+        return true;
+    }
+
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         session = new Work(() -> {});
