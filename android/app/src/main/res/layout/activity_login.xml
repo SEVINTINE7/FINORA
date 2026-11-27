@@ -54,6 +54,16 @@
             </LinearLayout>
         </FrameLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/login_sign_in_options"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/finora_outer_margin"
+            android:minHeight="@dimen/finora_touch"
+            android:text="@string/login_sign_in_options" />
+
         <LinearLayout
             android:id="@+id/login_sheet"
             android:layout_width="match_parent"

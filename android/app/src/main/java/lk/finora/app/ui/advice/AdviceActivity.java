@@ -21,6 +21,8 @@ import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.data.repo.GoalRepository;
 
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraScreenBinding;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.MonthlyRepository;
@@ -38,14 +40,9 @@ public final class AdviceActivity extends SecureActivity {
         super.onCreate(state);
         model = new ViewModelProvider(this).get(Model.class);
         if (!AccountListActivity.verify(this, model.work)) return;
-        var scroll = new ScrollView(this);
-        scroll.setBackgroundColor(getColor(R.color.finora_surface));
-        page = new LinearLayout(this);
-        page.setOrientation(LinearLayout.VERTICAL);
-        int pad = Math.round(16 * getResources().getDisplayMetrics().density);
-        page.setPadding(pad, pad, pad, pad);
-        scroll.addView(page);
-        setContentView(scroll);
+        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
+        page = binding.screenPage;
+        setContentView(binding.getRoot());
         model.work.changes.observe(this, ignored -> render());
     }
 
@@ -183,7 +180,7 @@ public final class AdviceActivity extends SecureActivity {
     }
 
     private Button button(int title, Runnable action) {
-        var control = new Button(this);
+        var control = ScreenControls.action(this);
         control.setText(title);
         control.setEnabled(!model.work.busy());
         control.setOnClickListener(view -> action.run());
@@ -192,7 +189,7 @@ public final class AdviceActivity extends SecureActivity {
     }
 
     private void line(String value, boolean heading) {
-        var label = new TextView(this);
+        var label = ScreenControls.text(this);
         label.setText(value);
         label.setTextColor(getColor(R.color.finora_ink));
         label.setTextSize(heading ? 20 : 16);

@@ -157,4 +157,5 @@
         <item name="boxStrokeWidth">@dimen/finora_outline_width</item>
         <item name="boxStrokeWidthFocused">@dimen/finora_focus_width</item>
     </style>
+    <dimen name="finora_home_top">48dp</dimen>
 </resources>

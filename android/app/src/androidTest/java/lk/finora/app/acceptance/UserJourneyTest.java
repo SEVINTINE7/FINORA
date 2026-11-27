@@ -862,23 +862,32 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
             signOut();
 
-            clickText(R.string.staff_activate);
+            onView(withText(R.string.staff_activate)).check(
+                    androidx.test.espresso.assertion.ViewAssertions.doesNotExist());
+            clickId(R.id.login_sign_in_options);
+            dialogChoice(app.getString(R.string.staff_activate));
             awaitActivity(lk.finora.app.ui.staff.StaffAccessActivity.class);
             typeFixture(onView(withHint(R.string.email)), staffEmail);
             typeFixture(onView(withHint(R.string.staff_temporary)), temporary.getAndSet(null));
             typeFixture(onView(withHint(R.string.staff_new_password)), "Synthetic9-replacement");
             clickText(R.string.staff_activate);
             awaitText(app.getString(R.string.staff_activation_done));
+            assertNull("Activation must not create a session", sessions.session());
             pressBack();
             awaitActivity(LoginActivity.class);
+            signInStaff(staffEmail, "Synthetic9-replacement");
+            signOut();
 
             signInAdmin(adminEmail, adminPassword);
             clickText(R.string.staff_manage);
-            awaitButton(R.string.staff_disable);
-            clickText(R.string.staff_disable);
+            String disable = app.getString(R.string.staff_account_summary,
+                    app.getString(R.string.staff_disable), staffEmail);
+            await(By.desc(disable));
+            onView(withContentDescription(disable)).perform(reveal(), activateControl());
             onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(staffEmail)));
             confirm();
-            awaitButton(R.string.staff_enable);
+            await(By.desc(app.getString(R.string.staff_account_summary,
+                    app.getString(R.string.staff_enable), staffEmail)));
         }
     }
 
@@ -1133,6 +1142,13 @@ public class UserJourneyTest {
                     & WindowManager.LayoutParams.FLAG_SECURE) != 0));
             onView(allOf(withText(R.string.language_selector), isClickable())).perform(activateControl());
             onView(withText(R.string.language_english)).inRoot(isDialog()).check((view, failure) -> {
+                if (failure != null) throw failure;
+                var params = (WindowManager.LayoutParams) view.getRootView().getLayoutParams();
+                assertTrue((params.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0);
+            });
+            pressBack();
+            clickId(R.id.login_sign_in_options);
+            onView(withText(R.string.staff_activate)).inRoot(isDialog()).check((view, failure) -> {
                 if (failure != null) throw failure;
                 var params = (WindowManager.LayoutParams) view.getRootView().getLayoutParams();
                 assertTrue((params.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0);

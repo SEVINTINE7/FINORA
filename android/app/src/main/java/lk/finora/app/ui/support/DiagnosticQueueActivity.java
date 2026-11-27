@@ -8,6 +8,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraScreenBinding;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.ui.SecureActivity;
 
 public final class DiagnosticQueueActivity extends SecureActivity {
@@ -21,14 +23,9 @@ public final class DiagnosticQueueActivity extends SecureActivity {
             finish();
             return;
         }
-        ScrollView scroll = new ScrollView(this);
-        scroll.setFitsSystemWindows(true);
-        rows = new LinearLayout(this);
-        rows.setOrientation(LinearLayout.VERTICAL);
-        int padding = Math.round(16 * getResources().getDisplayMetrics().density);
-        rows.setPadding(padding, padding, padding, padding);
-        scroll.addView(rows);
-        setContentView(scroll);
+        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
+        rows = binding.screenPage;
+        setContentView(binding.getRoot());
         model.work.changes.observe(this, ignored -> render());
     }
 
@@ -109,14 +106,14 @@ public final class DiagnosticQueueActivity extends SecureActivity {
     }
 
     private TextView label(String text) {
-        var view = new TextView(this);
+        var view = ScreenControls.text(this);
         view.setText(text);
         rows.addView(view);
         return view;
     }
 
     private void addButton(int text, Runnable action) {
-        var button = new Button(this);
+        var button = ScreenControls.action(this);
         button.setText(text);
         button.setOnClickListener(view -> action.run());
         rows.addView(button);

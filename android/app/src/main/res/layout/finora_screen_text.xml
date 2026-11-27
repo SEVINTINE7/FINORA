@@ -1,0 +1,6 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/FinoraText.Body"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/finora_space_xs"
+    android:paddingBottom="@dimen/finora_space_xs" />

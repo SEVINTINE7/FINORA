@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraInsightsBinding;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.InsightsRepository.Declaration;
 import lk.finora.app.data.repo.InsightsRepository.Insight;
@@ -47,25 +49,16 @@ public final class InsightsActivity extends SecureActivity {
         model = new ViewModelProvider(this).get(InsightsViewModel.class);
         if (!AccountListActivity.verify(this, model.patternsWork)) return;
         restoreEditor = model.rotatedDraft != null;
-        var scroll = new ScrollView(this);
-        scroll.setBackgroundColor(getColor(R.color.finora_surface));
-        var body = new LinearLayout(this);
-        int padding = Math.round(16 * getResources().getDisplayMetrics().density);
-        body.setPadding(padding, padding, padding, padding);
-        body.setOrientation(LinearLayout.VERTICAL);
-        scroll.addView(body);
-        setContentView(scroll);
-        line(body, getString(R.string.insight_open), true);
-        var navigation = new LinearLayout(this);
-        previous = button(R.string.dashboard_previous, () -> model.shift(-1));
-        next = button(R.string.dashboard_next, () -> model.shift(1));
-        navigation.addView(previous, new LinearLayout.LayoutParams(0, -2, 1));
-        navigation.addView(next, new LinearLayout.LayoutParams(0, -2, 1));
-        body.addView(navigation);
-        month = line(body, "", true);
-        results = new LinearLayout(this);
-        results.setOrientation(LinearLayout.VERTICAL);
-        body.addView(results);
+        var binding = ActivityFinoraInsightsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        ViewCompat.setAccessibilityHeading(binding.insightsTitle, true);
+        ViewCompat.setAccessibilityHeading(binding.insightsMonth, true);
+        previous = binding.insightsPrevious;
+        next = binding.insightsNext;
+        previous.setOnClickListener(view -> model.shift(-1));
+        next.setOnClickListener(view -> model.shift(1));
+        month = binding.insightsMonth;
+        results = binding.insightsResults;
         for (Work work : new Work[]{model.patternsWork, model.scoreWork, model.declarationWork}) {
             work.changes.observe(this, ignored -> render());
         }
@@ -298,22 +291,22 @@ public final class InsightsActivity extends SecureActivity {
     }
 
     private EditText field(LinearLayout target, int label, String value) {
-        var edit = new EditText(this);
+        var edit = ScreenControls.field(this);
         edit.setHint(label);
         edit.setText(value);
-        target.addView(edit, new LinearLayout.LayoutParams(-1, -2));
+        ScreenControls.addField(target, edit);
         return edit;
     }
 
     private Button button(int label, Runnable action) {
-        var button = new Button(this);
+        var button = ScreenControls.action(this);
         button.setText(label);
         button.setOnClickListener(view -> action.run());
         return button;
     }
 
     private TextView line(LinearLayout target, String text, boolean heading) {
-        var view = new TextView(this);
+        var view = ScreenControls.text(this);
         view.setText(text);
         view.setTextColor(getColor(R.color.finora_ink));
         view.setTextSize(heading ? 20 : 16);

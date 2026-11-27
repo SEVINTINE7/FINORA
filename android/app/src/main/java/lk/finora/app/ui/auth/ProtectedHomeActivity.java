@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraHomeBinding;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
@@ -67,21 +68,16 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
             routeReturned = state.getBoolean(ROUTE_RETURNED);
         }
         model = new ViewModelProvider(this).get(HomeViewModel.class);
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setGravity(Gravity.CENTER_HORIZONTAL);
-        int padding = Math.round(24 * getResources().getDisplayMetrics().density);
-        layout.setPadding(padding, padding * 2, padding, padding);
+        var binding = ActivityFinoraHomeBinding.inflate(getLayoutInflater());
+        LinearLayout layout = binding.getRoot();
         getWindow().setBackgroundDrawableResource(R.color.finora_navy);
         var systemBars = androidx.core.view.WindowCompat.getInsetsController(getWindow(), layout);
         systemBars.setAppearanceLightStatusBars(false);
         systemBars.setAppearanceLightNavigationBars(false);
         layout.setBackgroundColor(getColor(R.color.finora_navy));
-        TextView title = new TextView(this);
+        TextView title = binding.homeTitle;
         title.setText(titleResource());
-        title.setTextColor(getColor(R.color.finora_on_navy));
-        title.setTextSize(28);
-        layout.addView(title);
+        androidx.core.view.ViewCompat.setAccessibilityHeading(title, true);
         TextView message = new TextView(this);
         message.setText(R.string.home_placeholder);
         message.setTextColor(getColor(R.color.finora_on_navy));

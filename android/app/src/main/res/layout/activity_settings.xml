@@ -124,6 +124,14 @@
             android:layout_marginBottom="@dimen/finora_space_s"
             android:text="@string/settings_delete_info" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/settings_export"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/finora_touch"
+            android:text="@string/settings_export_data" />
+
         <Button
             android:id="@+id/settings_delete"
             style="@style/FinoraButton.Secondary"

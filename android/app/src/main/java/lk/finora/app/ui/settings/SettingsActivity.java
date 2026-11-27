@@ -17,6 +17,7 @@ import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivitySettingsBinding;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.local.TokenStore.Session;
@@ -58,7 +59,8 @@ public final class SettingsActivity extends SecureActivity {
         }
         if (!AccountListActivity.verify(this, model.work)) return;
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
-        setContentView(R.layout.activity_settings);
+        var binding = ActivitySettingsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         for (int heading : new int[]{R.id.settings_heading, R.id.settings_language_heading,
                 R.id.settings_privacy_heading}) {
             ViewCompat.setAccessibilityHeading(findViewById(heading), true);
@@ -67,16 +69,13 @@ public final class SettingsActivity extends SecureActivity {
                 .addView(ProfileLanguageButton.create(this, entry, session::signingOut));
         bindAlerts();
         findViewById(R.id.settings_withdraw).setOnClickListener(view -> confirmWithdraw());
-        var export = new Button(this);
-        export.setText(R.string.settings_export_data);
+        var export = binding.settingsExport;
         export.setOnClickListener(view -> {
             if (!AccountListActivity.verify(this, model.work) || model.work.busy()
                     || model.awaitingExportDestination) return;
             model.awaitingExportDestination = true;
             exportTarget.launch("finora-export-" + java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo")) + ".json");
         });
-        var content = (android.widget.LinearLayout) findViewById(R.id.settings_content);
-        content.addView(export, content.indexOfChild(findViewById(R.id.settings_delete)));
         findViewById(R.id.settings_delete).setOnClickListener(view -> confirmDeletion());
         session.signedOut().observe(this, failed -> {
             if (failed != null) SessionNavigation.openLogin(this, failed);
