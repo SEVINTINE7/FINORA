@@ -32,7 +32,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T56.2 MySQL bound to localhost, app user with least privileges
 - [x] T56.3 Nginx + Let's Encrypt HTTPS reverse proxy; secrets in env file readable only by service user
 - [x] T56.4 Nightly encrypted `mysqldump` backup, keep per T36.3; do one restore drill
-- [ ] T56.5 Signed release APKs (`v1` and `beta`); keystore never in Git
+- [x] T56.5 Signed release APKs (`v1` and `beta`); keystore never in Git
 - [x] T56.6 Rollback steps in `docs/deploy.md` — §6 + `deploy/release.sh` (auto-rollback on failed health check) and `deploy/rollback.sh`
 
 **Done when**
@@ -48,6 +48,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - 2026-11-27 Sevindu, live server `finorafinance.duckdns.org` (AWS EC2, Ubuntu 24.04 per D59, so T56.1's "22.04" is superseded): ufw active, default deny, only 22/443 allowed (AWS security group further limits 22 to team IPs); `finora-api`, `finora-backup.timer`, `nginx` active; API runs as `finora` and listens on 127.0.0.1:8080; MySQL on 127.0.0.1:3306/33060 only; `/etc/finora/finora.env` is `-r-------- finora`, backup files root-only; Let's Encrypt ECDSA cert valid to 2027-02-24. Public probe: health UP, ports 80/3306/8080 closed.
 - Release `api-20261127T070942Z.jar` (main `29e73a9`, D60 PATCH /me) went live via `finora-release` after a pre-release backup. Restore drill of `finora-20261127T070941Z.sql.gz.gpg` -> `finora_restore_drill`: RESTORE DRILL PASSED (34 tables, equal row counts; drill DB dropped). Repeat the drill once real user data exists.
 - 2026-11-27: `SHOW GRANTS` for `finora_app`@localhost = USAGE on *.* plus SELECT, INSERT, UPDATE, DELETE on `finora`.* only (T56.2). Phone on mobile data opened `https://finorafinance.duckdns.org/actuator/health` -> `"status":"UP"` with no certificate warning (Done when). Only T56.5 (real keystore, signed `v1`/`beta` APKs) remains.
+- 2026-11-27 T56.5: real keystore created by Sevindu outside the repo (`%USERPROFILE%inora-keysinora-release.jks`, alias `finora`; second offline copy and password-manager entry are Sevindu's responsibility). Only the `v1` flavor exists (D03), so no `beta` APK. `assembleV1Release` with `FINORA_RELEASE_API_URL=https://finorafinance.duckdns.org/`: `apksigner verify` OK, cert `CN=Sevindu Geshan, O=Finora Finances, C=LK`, SHA-256 `3155b9684974b07f20b744971e470ef19f533e7a10b9dcf91cad8d80d623715e`. The dex has the domain and no `127.0.0.1:8080`; no keystore in the APK or Git. Pixel_8 API emulator: a made-up account's sign-in returned the server's `INVALID_CREDENTIALS` message, so the release app reached the live API over trusted HTTPS. T40.1 release-build evidence can now be recorded with Sahan.
 
 ---
 
