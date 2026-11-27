@@ -83,7 +83,7 @@ Expected: padlock shown, body `{"status":"UP"}` (it may also list `groups`). Als
 **Restore drill.** Do this once after setup and after big schema changes. It restores into a separate database and leaves the live one alone:
 ```bash
 sudo systemctl start finora-backup
-latest=$(ls -1t /var/backups/finora/finora-*.sql.gz.gpg | head -n 1)
+latest=$(sudo sh -c 'ls -1t /var/backups/finora/finora-*.sql.gz.gpg | head -n 1')   # the folder is root-only (700)
 sudo finora-restore "$latest" finora_restore_drill --compare finora   # must end with RESTORE DRILL PASSED
 sudo mysql -e "DROP DATABASE finora_restore_drill"
 ```
