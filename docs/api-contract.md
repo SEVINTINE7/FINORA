@@ -70,6 +70,8 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/auth/register` | Public | `{email, password, fullName, language: "EN"\|"SI", over18: true, consentVersion: "1.0"}` | `201 {userId}` · 400 `VALIDATION_ERROR`/`UNDER_18` · 409 `EMAIL_TAKEN` | T05 |
 | POST | `/api/v1/auth/login` | Public | `{email, password}` | `200 {accessToken, refreshToken, expiresIn: 1800, role, language}` · 401 `INVALID_CREDENTIALS` · 403 `ACCOUNT_DISABLED` | T05 |
 | POST | `/api/v1/auth/refresh` | Public | `{refreshToken}` | `200` same as login (new pair; old refresh token revoked) · 401 `INVALID_REFRESH_TOKEN` | T05 |
+| POST | `/api/v1/auth/password/forgot` | Public | `{email}` | `202` empty for every valid address, including unknown, disabled and rate-limited accounts. The active account's language selects the code email. | T61/D64 |
+| POST | `/api/v1/auth/password/reset` | Public | `{email, code, newPassword}` (six-digit string, D09 password, at most 72 UTF-8 bytes) | `204` empty on success. `400 INVALID_RESET_CODE` for invalid, used or expired codes. Success revokes every refresh token. Existing access JWTs retain their D07 expiry. | T61/D64 |
 | POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
 | GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion, alerts: {budget, bill, goal}}` (`consentVersion` = `null` after withdrawal, D15; `alerts` all `true` by default, T34) | T07/T34 |
 | PUT | `/api/v1/me` | USER | `{fullName, language: "EN"\|"SI"}` | `200` same as GET · 400 `VALIDATION_ERROR` | T07 |

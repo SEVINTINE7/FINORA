@@ -1,6 +1,10 @@
 # T52 authorization coverage inventory
 
-## Current inventory — 27 November 2026
+## D64 password reset delta
+
+The D64 backend registers **108 mappings: 98 protected and 10 public authentication-protocol mappings**. The two additions are `POST /api/v1/auth/password/forgot` and `POST /api/v1/auth/password/reset`. The former accepts a valid address with an empty 202. The latter requires an active account and its current single-use code. Both operate without a bearer token. The D64 password-reset integration tests exercise both public paths, expiry, attempt and issuance limits, session revocation and the empty success responses. RestrictedConsentAuthorizationTest checks the expanded exact auth set.
+
+## Pre-D64 inventory — 27 November 2026
 
 A method-and-path set comparison against the [hosted PR #30 API job](https://github.com/SEVINTINE7/FINORA/actions/runs/45964499693/job/140389834750) at `8305d4b346d836067931aa46a403092e9d6ecb52` found all 102 historical rows below and exactly four additions. Together the two route tables account for **106 mappings, 98 protected and eight authentication-protocol mappings**.
 

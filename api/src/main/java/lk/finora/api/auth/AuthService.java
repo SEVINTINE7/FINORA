@@ -105,6 +105,12 @@ public class AuthService {
         if (user == null || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new ApiException(ErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED, "Email or password is wrong");
         }
+        // A reset may finish while BCrypt is checking the old hash. Serialize issuance with that reset.
+        var hashes = jdbc.queryForList("SELECT password_hash FROM users WHERE id = ? FOR UPDATE",
+                String.class, user.getId());
+        if (hashes.isEmpty() || !user.getPasswordHash().equals(hashes.get(0))) {
+            throw new ApiException(ErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED, "Email or password is wrong");
+        }
         if (user.getStatus() == UserStatus.DISABLED) {
             throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
         }

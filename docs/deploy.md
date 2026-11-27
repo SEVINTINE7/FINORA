@@ -141,3 +141,9 @@ Set `FINORA_HISTORY_ACTIVATION_INSTANT` to the approved production activation ti
 ### First ADMIN provisioning (D49)
 
 On a new deployment, set `FINORA_BOOTSTRAP_ADMIN_EMAIL` and `FINORA_BOOTSTRAP_ADMIN_PASSWORD` through the deployment secret store before starting the service. Use an authorized address and a unique high-entropy password of at least 16 characters and at most 72 UTF-8 bytes. When both variables are absent the bootstrap is inactive. The application creates one ADMIN only if none exists, including when multiple instances start together. It never resets an existing password. Remove the bootstrap variables once the administrator can sign in. Share subsequent STAFF activation credentials only through the approved secure channel.
+
+## D64 password reset mail
+
+Configure the five FINORA_MAIL_* settings in the existing protected service environment after the operator has chosen an authorized SMTP account. The app uses implicit TLS on port 465 and requires STARTTLS on other ports (default 587), verifies the SMTP hostname and authenticates with the configured username and password. Empty host, sender or credentials leave mail inactive. Restrict the sender to the approved address.
+
+A 202 confirms receipt of a syntactically valid request. To qualify a deployed release, use a consented disposable mailbox, confirm receipt in the account language, complete one reset and verify normal login. Record delivery and login verdicts only. The repository tests use fake delivery; server setup and the live check remain with the T56/T61.5 operator.

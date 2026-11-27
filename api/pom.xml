@@ -19,6 +19,10 @@
 		<jjwt.version>0.13.0</jjwt.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 		<!-- T34.3: FCM push via the Firebase Admin SDK (credentials from FIREBASE_CREDENTIALS) -->
 		<dependency>
 			<groupId>com.google.firebase</groupId>

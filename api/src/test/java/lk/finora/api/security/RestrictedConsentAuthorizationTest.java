@@ -77,6 +77,7 @@ class RestrictedConsentAuthorizationTest extends IntegrationTest {
             }
         }
         assertEquals(Set.of("POST " + AUTH + "register", "POST " + AUTH + "login", "POST " + AUTH + "refresh",
+                "POST " + AUTH + "password/forgot", "POST " + AUTH + "password/reset",
                 "POST " + AUTH + "logout", "POST " + AUTH + "staff/activate", "POST " + RECOVERY + "accept",
                 "POST " + RECOVERY + "export", "POST " + RECOVERY + "delete"),authRoutes);
         assertTrue(result.size() >= 40);
@@ -104,7 +105,7 @@ class RestrictedConsentAuthorizationTest extends IntegrationTest {
         }
         assertTrue(before.equals(state(owner.id())),"Denied routes must leave owner state unchanged");
         export(owner,owner.id());
-        System.out.printf("T52_CONSENT_BOUNDARY: %d protected mappings, %d denied probes, 8 auth mappings inventoried%n",routes.size(),routes.size()*3);
+        System.out.printf("T52_CONSENT_BOUNDARY: %d protected mappings, %d denied probes, 10 auth mappings inventoried%n",routes.size(),routes.size()*3);
     }
 
     @Test void normalRolesAndInvalidCredentialsCannotUseRecoveryEndpoints() throws Exception {
