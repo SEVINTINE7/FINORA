@@ -46,9 +46,9 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T38 | Financial screens and navigation | Sahan | — | T37, T09 | [sahan/4-screens.md](sahan/4-screens.md) | review |
 | T39 | Sinhala and English support | Sahan | — | T37 | [sahan/1-app-skeleton.md](sahan/1-app-skeleton.md) | in-progress |
 | T40 | Android privacy and resilience | Sahan | — | T37, T08 | [sahan/5-privacy-staff-tests.md](sahan/5-privacy-staff-tests.md) | in-progress |
-| T41 | Admin login and dashboard | Sevindu | — | T06, T08 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | review |
+| T41 | Admin login and dashboard | Sevindu | — | T06, T08 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | done |
 | T42 | Admin manages user accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | review |
-| T43 | Admin manages staff accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | review |
+| T43 | Admin manages staff accounts | Sevindu | — | T41 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | done |
 | T44 | Admin default categories | Sevindu | — | T41, T09 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | review |
 | T45 | Admin bank SMS formats | Sevindu | Sahan | T41, T14 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | review |
 | T46 | Staff login and dashboard | Sevindu | Sahan | T06, T08, T43 | [sevindu/6-admin-staff.md](sevindu/6-admin-staff.md) | review |
@@ -63,6 +63,10 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T55 | SMS, usability and performance checks | Thilina | Sahan | T16, T38 | [thilina/5-qa.md](thilina/5-qa.md) | in-progress |
 | T56 | Deployment and backups | Sevindu | — | T04 | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | review |
 | T57 | End-to-end acceptance and handoff | Sevindu | Sahan, Thilina | all tasks | [sevindu/7-testing-release.md](sevindu/7-testing-release.md) | todo |
+| T58 | Modern Material 3 UI | Sahan | — | T37 (D61) | [sahan/6-ui-redesign.md](sahan/6-ui-redesign.md) | todo |
+| T59 | Admin creates admin accounts | Sevindu | Thilina, Sahan | T41, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | in-progress |
+| T60 | Promote a USER to STAFF | Sevindu | Thilina, Sahan | T36, T42, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | todo |
+| T61 | Forgot password by emailed code | Thilina | Sevindu, Sahan | T05 | [thilina/6-password-reset.md](thilina/6-password-reset.md) | todo |
 
 ## Your parts inside other members' tasks
 
@@ -78,12 +82,12 @@ Tracker sync (2026-11-27): 27 tasks with every subtask and Done-when box ticked 
 
 Tracker sync (2026-11-26): T31, T32, T54 and T55 moved from todo to **in-progress**. Daily-guide and simulator backend code (`api:planning/`), the T54 guarded provider evaluation and the T55 dataset, emulator timing and SUS tooling are on `main`. Their subtask boxes stay unchecked pending approvals, live runs and handset measurements.
 
-- **Sevindu:** T08, T15, T20, T27, T49, T52, T53 — look for subtasks tagged `[…·Sevindu]`
-- **Sahan:** T01, T07, T09, T10, T12, T17, T18, T19, T31, T32, T33, T34, T35, T36, T45, T46, T47, T55, T57 — look for subtasks tagged `[…·Sahan]`
-- **Thilina:** T01, T16, T24, T30, T50, T51, T57 — look for subtasks tagged `[…·Thilina]`
+- **Sevindu:** T61 (T61.5 server mail), T08, T15, T20, T27, T49, T52, T53 — look for subtasks tagged `[…·Sevindu]`
+- **Sahan:** T59.3, T60.3, T61.4 (Android screens), T01, T07, T09, T10, T12, T17, T18, T19, T31, T32, T33, T34, T35, T36, T45, T46, T47, T55, T57 — look for subtasks tagged `[…·Sahan]`
+- **Thilina:** T59.4, T60.4 (role/privacy tests), T01, T16, T24, T30, T50, T51, T57 — look for subtasks tagged `[…·Thilina]`
 
 ## Files per member
 
-- **Sevindu:** 1-foundation · 2-auth · 3-records · 4-planning-data · 5-alerts-data-rights · 6-admin-staff · 7-testing-release
-- **Sahan:** 1-app-skeleton · 2-entry-sms · 3-sms-quality · 4-screens · 5-privacy-staff-tests
-- **Thilina:** 1-metrics-patterns · 2-score-rules · 3-ai-pipeline · 4-planning-tools · 5-qa
+- **Sevindu:** 1-foundation · 2-auth · 3-records · 4-planning-data · 5-alerts-data-rights · 6-admin-staff · 7-testing-release · 8-admin-accounts
+- **Sahan:** 1-app-skeleton · 2-entry-sms · 3-sms-quality · 4-screens · 5-privacy-staff-tests · 6-ui-redesign
+- **Thilina:** 1-metrics-patterns · 2-score-rules · 3-ai-pipeline · 4-planning-tools · 5-qa · 6-password-reset

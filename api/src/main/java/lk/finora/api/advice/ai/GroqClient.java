@@ -17,8 +17,11 @@ public final class GroqClient extends JsonHttpLlmClient {
     @Override protected String authHeader() { return "Authorization"; }
     @Override protected String authValue(String key) { return "Bearer " + key; }
     @Override protected Map<String, Object> payload(String user) {
+        return payload(user, TRANSPORT_SYSTEM);
+    }
+    @Override protected Map<String, Object> payload(String user, String system) {
         return Map.of("model", model, "response_format", Map.of("type", "json_object"), "messages", List.of(
-                Map.of("role", "system", "content", TRANSPORT_SYSTEM), Map.of("role", "user", "content", user)));
+                Map.of("role", "system", "content", system), Map.of("role", "user", "content", user)));
     }
     @Override protected String extract(JsonNode body) {
         JsonNode choice = body.path("choices").path(0);

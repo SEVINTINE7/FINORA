@@ -10,7 +10,8 @@ Do not mark T31 accepted based on this patch. Original T17/T18/T19 gates remain.
 
 POST /api/v1/daily-guide, authenticated USER only, JSON. Read-only calculation despite POST;
 no persistent settings, financial data updates, provider calls or inferred bank balance.
-All request fields nullable. Exact LKR decimals (max 13 integer, 2 fractional digits);
+All request fields nullable. LKR fields allow two fractional digits and up to 13 integer
+digits, except the tracked bill confirmation, which allows 23 integer digits;
 only availableFunds can be negative. Date uses YYYY-MM-DD. User supplies availableFunds
 (current spendable funds before the remaining deductions), plannedSavings (not yet deducted),
 nextIncomeDate (optional override), confirmedTrackedUnpaidBills (confirmation of the
@@ -116,3 +117,10 @@ confirmation field. There is no Android daily-guide consumer on the checked main
 If a wider aggregate confirmation is approved, align the DTO and service validations
 for that field only, preserve exact decimals and equality, and test both sides of the
 old boundary and the Android decimal round trip. This change does not alter the API.
+
+## Merged aggregate confirmation
+
+PR #28 permits the exact server-quoted tracked bill aggregate with up to 23 integer and two
+fractional digits. Other money fields retain their individual limits. A one-cent mismatch still
+returns BILLS_CHANGED. The income-date override remains request-scoped. The earlier
+confirmation-range reproduction above describes the API before PR #28.

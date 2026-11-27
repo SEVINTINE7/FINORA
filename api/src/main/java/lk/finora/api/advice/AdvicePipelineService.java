@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.http.HttpStatus;
 
 import lk.finora.api.advice.ai.AdviceItem;
+import lk.finora.api.advice.ai.FactSheet;
 import lk.finora.api.advice.ai.LlmClient;
 import lk.finora.api.advice.rules.RuleAdviceEngine;
 import lk.finora.api.advice.rules.RuleAdviceService;
@@ -22,9 +23,25 @@ public class AdvicePipelineService {
     private final List<LlmClient> providers;
     private final AdviceVerifier verifier;
     private final VerificationSink outcomes;
+    private final StructuredCoachingPrototype structured;
 
     public AdvicePipelineService(RuleAdviceService rules, List<LlmClient> providers, AdviceVerifier verifier, VerificationSink outcomes) {
-        this.rules = rules; this.providers = List.copyOf(providers); this.verifier = verifier; this.outcomes = outcomes;
+        this(rules, providers, verifier, outcomes, null);
+    }
+
+    static AdvicePipelineService forStructuredEvaluation(RuleAdviceService rules, LlmClient provider,
+            VerificationSink outcomes) {
+        return new AdvicePipelineService(rules, List.of(provider), new AdviceVerifier(), outcomes,
+                new StructuredCoachingPrototype());
+    }
+
+    private AdvicePipelineService(RuleAdviceService rules, List<LlmClient> providers, AdviceVerifier verifier,
+            VerificationSink outcomes, StructuredCoachingPrototype structured) {
+        this.rules = rules;
+        this.providers = List.copyOf(providers);
+        this.verifier = verifier;
+        this.outcomes = outcomes;
+        this.structured = structured;
         if (providers.size() > 2 || providers.stream().map(LlmClient::provider).distinct().count() != providers.size()
                 || providers.stream().anyMatch(p -> !Set.of("GROQ", "GEMINI").contains(p.provider())))
             throw new IllegalArgumentException("Provider order must contain unique GROQ/GEMINI entries");
@@ -46,6 +63,7 @@ public class AdvicePipelineService {
         var facts = rules.facts(userId, month, goalId);
         List<AdviceItem> eligible = RuleAdviceEngine.generate(facts);
         if (eligible.isEmpty()) return new Delivery("RULE", false, "NO_ELIGIBLE_ACTIONS", eligible);
+        if (structured != null) return structuredDelivery(userId, month, facts);
         for (LlmClient provider : providers) {
             LlmClient.Result result;
             try { result = provider.generate(facts, eligible); }
@@ -61,5 +79,26 @@ public class AdvicePipelineService {
             return new Delivery("RULE", false, verdict.reason().name(), eligible);
         }
         return new Delivery("RULE", false, providers.isEmpty() ? "PROVIDERS_DISABLED" : "PROVIDERS_FAILED", eligible);
+    }
+
+    private Delivery structuredDelivery(long userId, String month, FactSheet facts) {
+        var eligible = structured.eligibleFocus(facts).stream().map(Enum::name).toList();
+        if (eligible.isEmpty()) {
+            return new Delivery("RULE", false, "NO_ELIGIBLE_FOCUS", structured.deliver(facts, null).forDisplay());
+        }
+        var provider = providers.get(0);
+        LlmClient.Result reply;
+        try {
+            reply = provider.chooseCoachingFocus(eligible);
+        } catch (RuntimeException ignored) {
+            reply = LlmClient.Result.failed(LlmClient.Failure.INVALID_RESPONSE);
+        }
+        boolean received = reply != null && reply.success();
+        var delivery = structured.deliver(facts, received ? reply.reply() : null);
+        var reason = delivery.personalized() ? AdviceVerifier.Reason.ACCEPTED
+                : received ? AdviceVerifier.Reason.INVALID_SHAPE : AdviceVerifier.Reason.PROVIDER_FAILURE;
+        outcomes.record(userId, month, provider.provider(), delivery.personalized(), reason);
+        return new Delivery(delivery.personalized() ? "AI" : "RULE", delivery.personalized(),
+                reason.name(), delivery.forDisplay());
     }
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="planning_guide">Daily spending guide</string>
+    <string name="planning_simulator">Goal simulation</string>
+    <string name="planning_guide_intro">Use funds you can spend before deductions. Enter zero explicitly when you have no planned savings or additional unpaid bills.</string>
+    <string name="planning_funds">Enter available funds (LKR)</string>
+    <string name="planning_savings">Enter planned savings (LKR)</string>
+    <string name="planning_arrears">Enter additional unpaid bills (LKR)</string>
+    <string name="planning_income_date">Next income date (optional, YYYY-MM-DD)</string>
+    <string name="planning_assumptions">Calculation assumptions</string>
+    <string name="planning_guide_assumptions">Available funds are your own estimate. Enter only savings and older or untracked bills that are still to be deducted. Paid markers are not bank confirmation. This guide includes current overdue bills and bills due through the next income date. It counts today and excludes income day. The daily amount rounds down to cents. The estimated income date is not guaranteed.</string>
+    <string name="planning_simulation_intro">Enter the monthly savings baseline first. The signed adjustment excludes any category cuts below. The first hypothetical contribution is at the end of next month. This estimate does not save anything or guarantee a date.</string>
+    <string name="planning_goal">Savings goal</string>
+    <string name="planning_baseline">Monthly savings baseline (LKR)</string>
+    <string name="planning_adjustment">Monthly adjustment (LKR, positive or negative)</string>
+    <string name="planning_add_cut">Add category reduction</string>
+    <string name="planning_remove_cut">Remove category reduction</string>
+    <string name="planning_category">Expense category</string>
+    <string name="planning_reduction">Monthly reduction (LKR)</string>
+    <string name="planning_calculate">Calculate</string>
+    <string name="planning_confirm_bills">Confirm tracked bills</string>
+    <string name="planning_confirm_message">Confirm LKR %1$s in tracked unpaid bills. Include any older or untracked unpaid bills separately.</string>
+    <string name="planning_invalid_date">Use a valid date in YYYY-MM-DD format.</string>
+    <string name="planning_invalid_amount">Enter a valid LKR amount with up to two decimal places.</string>
+    <string name="planning_invalid_cut">Use a positive reduction and select each category only once.</string>
+    <string name="planning_no_goals">Create a savings goal to run a simulation.</string>
+    <string name="planning_date_entered">Entered income date: %1$s</string>
+    <string name="planning_date_inferred">Estimated income date from the last recorded income: %1$s</string>
+    <string name="planning_tracked">Tracked unpaid bills: LKR %1$s (%2$d)</string>
+    <string name="planning_allowance">Daily allowance: LKR %1$s for %2$d days</string>
+    <string name="planning_shortfall">Shortfall: LKR %1$s</string>
+    <string name="planning_zero">No spendable allowance remains.</string>
+    <string name="planning_overcommitted">Planned commitments exceed available funds.</string>
+    <string name="planning_date_missing">Enter a next income date; no recorded income date is available.</string>
+    <string name="planning_income_today">Income is due today. A daily allowance is unavailable.</string>
+    <string name="planning_income_passed">The estimated or entered date has passed. Enter a future date.</string>
+    <string name="planning_bills_changed">Tracked bills changed. Check and confirm the new amount.</string>
+    <string name="planning_estimate">Estimate</string>
+    <string name="planning_completed">This goal is already funded.</string>
+    <string name="planning_no_capacity">No monthly savings remain under these inputs.</string>
+    <string name="planning_horizon">The estimate exceeds the simulation horizon.</string>
+    <string name="planning_monthly">Hypothetical monthly savings: LKR %1$s</string>
+    <string name="planning_remaining">Goal balance remaining: LKR %1$s</string>
+    <string name="planning_finish">Estimated finish: %1$s (%2$d months)</string>
+    <string name="planning_reference">Category spending reference month: %1$s</string>
+</resources>
