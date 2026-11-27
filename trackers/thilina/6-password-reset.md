@@ -16,3 +16,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 
 **Handoff notes:**
 - 2026-11-27 Thilina: T61.1-3 implemented; 530 tests, 0 failures/errors, 1 existing skip; JaCoCo passed. Android and live SMTP pending.
+- 2026-11-27 PR #34 reconciled: its parallel T61 implementation was dropped in favour of #35 (access-token invalidation via session generation, timing-equalized reset, DTO conventions); only its mail/env/schema docs were kept. Verify on MySQL 8: 538 tests, 0 failures/errors, 1 skip.

@@ -4,6 +4,10 @@ MySQL 8, managed by Flyway (`api/src/main/resources/db/migration/V1…V7`). Neve
 
 **Conventions:** `id BIGINT AUTO_INCREMENT`; `created_at DATETIME(6)` UTC; money `DECIMAL(15,2)` LKR (D06) with `CHECK (> 0)`; months `CHAR(7)` `YYYY-MM` with a format CHECK; ownership via `user_id`.
 
+### D64 password reset (V25)
+
+`password_reset_codes` holds at most one BCrypt code hash per user with UTC creation/expiry, an attempt count (CHECK 0–4) and the `staff_session_generation` it was issued under. `password_reset_issuances` keeps issuance timestamps separately from the replaceable code, so a successful or exhausted reset cannot reset the rolling three-per-hour limit. Both tables cascade on user deletion. [Migration](../api/src/main/resources/db/migration/V25__password_reset.sql)
+
 ## Delete rules
 - Deleting a **user** removes every row they own (`ON DELETE CASCADE`) → supports data deletion (T36).
 - Deleting a **category** sets `transactions.category_id` / `bills.category_id` to NULL — money records are never lost. Budgets for that category are removed.
