@@ -56,7 +56,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Sevindu · **Support:** Sahan, Thilina · **Depends on:** all tasks · **Touches:** `docs/acceptance.md`
 - [ ] T57.1 On a real phone: register → add records/SMS import → dashboard → patterns → score → advice → daily guide/simulator
 - [ ] T57.2 Admin: all 5 functions; Staff: all 4 functions
-- [ ] T57.3 `beta` shows two unlabeled advices + ratings; `v1` shows one
+- [ ] T57.3 Verify the single V1 advice flow per D03/D40: verified AI advice or canonical RULE fallback, with one rating per advice per USER. Legacy BETA requests are rejected without creating advice or generation leases.
 - [ ] T57.4 List open defects; document only verified working features
 
 **Done when**
@@ -67,3 +67,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - T57.3 follow-up: focused verification confirmed canonical V1 delivery and legacy BETA rejection without persistence. D03/D40 define one V1 experience. The historical dual-advice criterion awaits tracker reconciliation. [Integrated acceptance evidence](../../docs/acceptance.md#integrated-acceptance-follow-up).
 
 - T57 handset follow-up: nine isolated HMD Crest cases passed across the main batch and focused SMS/V1 rerun. USER financial records and planning, STAFF bilingual support and ADMIN user, staff, category and NSB management were exercised. Prior diagnostics evidence is kept separate. The temporary profile and candidate packages are gone. Signed-release authentication and independent T57 review remain open. [Physical results and exact APK/API identities](../../docs/acceptance.md#t57-physical-v1-acceptance).
+
+- Proposed reconciliation for lead review (2026-11-27): the historical T57.3 wording was “`beta` shows two unlabeled advices + ratings; `v1` shows one”. D03/D40 supersede the runtime Beta requirement; T55.4 research acceptance remains separate. See [support-task evidence](../../docs/acceptance.md#support-task-reconciliation-after-pr-39-merge--2026-11-27). Keep T57.3 and all other checklist boxes open pending formal acceptance. No new tests or policy decision claimed.
