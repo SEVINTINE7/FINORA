@@ -223,6 +223,50 @@ class AuthControllerTest extends IntegrationTest {
     }
 
     @Test
+    void issuedTokensHaveTheD07Lifetimes() throws Exception {
+        String email = "lifetime@example.com";
+        postJson("/api/v1/auth/register", registerBody(email, PASSWORD)).andExpect(status().isCreated());
+        var fourteenDays = java.time.Duration.ofDays(14);
+        var earliestExpiry = java.time.Instant.now().plus(fourteenDays)
+                .truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+        var response = login(email, PASSWORD).andExpect(status().isOk());
+        var latestExpiry = java.time.Instant.now().plus(fourteenDays).plusNanos(1000);
+        var claims = jwtService.readToken(readField(response, "accessToken"));
+        assertThat(java.time.Duration.between(claims.getIssuedAt().toInstant(), claims.getExpiration().toInstant()))
+                .isEqualTo(java.time.Duration.ofMinutes(30));
+        var storedExpiry = jdbc.queryForObject("""
+                SELECT expires_at FROM refresh_tokens WHERE user_id = (SELECT id FROM users WHERE email = ?)
+                """, java.time.LocalDateTime.class, email);
+        assertThat(storedExpiry.toInstant(java.time.ZoneOffset.UTC)).isBetween(earliestExpiry, latestExpiry);
+    }
+
+    @Test
+    void refreshRotationRequiresExpiryStrictlyAfterDatabaseTime() throws Exception {
+        String email = "boundary@example.com";
+        postJson("/api/v1/auth/register", registerBody(email, PASSWORD)).andExpect(status().isCreated());
+        String refresh = readField(login(email, PASSWORD).andExpect(status().isOk()), "refreshToken");
+        String owner = " WHERE user_id = (SELECT id FROM users WHERE email = ?)";
+        // Keep the JVM-side preliminary check valid while isolating the atomic database check.
+        long tomorrow = java.time.Instant.now().plus(java.time.Duration.ofDays(1)).getEpochSecond();
+        jdbc.execute("SET SESSION timestamp = " + tomorrow);
+        try {
+            assertThat(jdbc.update("UPDATE refresh_tokens SET expires_at = UTC_TIMESTAMP(6)" + owner, email))
+                    .isEqualTo(1);
+            entityManager.clear();
+            postJson("/api/v1/auth/refresh", Map.of("refreshToken", refresh)).andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.code").value("INVALID_REFRESH_TOKEN"));
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM refresh_tokens" + owner + " AND revoked_at IS NULL",
+                    Integer.class, email)).isEqualTo(1);
+            assertThat(jdbc.update("UPDATE refresh_tokens SET expires_at = UTC_TIMESTAMP(6) + INTERVAL 1 MICROSECOND"
+                    + owner, email)).isEqualTo(1);
+            entityManager.clear();
+            postJson("/api/v1/auth/refresh", Map.of("refreshToken", refresh)).andExpect(status().isOk());
+        } finally {
+            jdbc.execute("SET SESSION timestamp = DEFAULT");
+        }
+    }
+
+    @Test
     void expiredRefreshTokenCannotIssueNewTokens() throws Exception {
         postJson("/api/v1/auth/register", registerBody("nimal@example.com", PASSWORD));
 

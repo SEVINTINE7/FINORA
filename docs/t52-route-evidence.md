@@ -256,3 +256,7 @@ Java 17 and verified loopback MySQL 8.0.46 finora_test. Providers were disabled.
 Focused Maven run: 6 tests, 0 failures, 0 errors, 0 skipped.
 Integrated Maven verify: Tests run: 450, Failures: 0, Errors: 0, Skipped: 0.
 JaCoCo and packaging passed. Independent CI on this follow-up remains pending.
+
+### Execution 73 retirement characterization
+
+On disposable MySQL, SupportTicketControllerTest.characterizesRetirementByProposingAndUnrelatedStaffBeforeAndAfterApproval passed all four combinations of proposer/unrelated STAFF and DRAFT/ACTIVE. Initial retirement returned 204. Only state and the generated active-topic column changed. Repeating retirement returned 404 with unchanged contents. Approval of ACTIVE fixtures used a separate reviewer. These observations leave the intended retirement actor/state rule for independent decision.
