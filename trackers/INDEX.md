@@ -66,7 +66,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T58 | Modern Material 3 UI | Sahan | — | T37 (D61) | [sahan/6-ui-redesign.md](sahan/6-ui-redesign.md) | todo |
 | T59 | Admin creates admin accounts | Sevindu | Thilina, Sahan | T41, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | in-progress |
 | T60 | Promote a USER to STAFF | Sevindu | Thilina, Sahan | T36, T42, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | todo |
-| T61 | Forgot password by emailed code | Thilina | Sevindu, Sahan | T05 | [thilina/6-password-reset.md](thilina/6-password-reset.md) | todo |
+| T61 | Forgot password by emailed code | Thilina | Sevindu, Sahan | T05 | [thilina/6-password-reset.md](thilina/6-password-reset.md) | in-progress |
 
 ## Your parts inside other members' tasks
 

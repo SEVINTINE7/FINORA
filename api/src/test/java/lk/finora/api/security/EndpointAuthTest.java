@@ -201,7 +201,7 @@ class EndpointAuthTest extends IntegrationTest {
     @Test
     void authEndpointsArePublic() throws Exception {
         // No token: validation runs (400), security does not block (not 401/403)
-        for (String path : List.of("register", "login", "refresh", "logout")) {
+        for (String path : List.of("register", "login", "refresh", "logout", "password/forgot", "password/reset")) {
             mockMvc.perform(post(API + "auth/" + path).contentType(MediaType.APPLICATION_JSON).content("{}"))
                     .andExpect(status().isBadRequest());
         }
