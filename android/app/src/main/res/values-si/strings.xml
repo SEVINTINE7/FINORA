@@ -491,4 +491,8 @@
     <string name="settings_notifications_allow">දැනුම්දීම්වලට ඉඩ දෙන්න</string>
     <string name="settings_notifications_off">FINORA සඳහා දැනුම්දීම් අක්‍රියයි. අනෙක් සියල්ල තවමත් ක්‍රියා කරයි.</string>
     <string name="shell_navigate_up">ඉහළට යන්න</string>
+    <string name="dashboard_monthly_balance">මාසික ශේෂය</string>
+    <string name="dashboard_upcoming_bills">ඉදිරියේදී ගෙවිය යුතු බිල්පත්</string>
+    <string name="dashboard_recent_transactions">මෑත ගනුදෙනු</string>
+    <string name="dashboard_focus_goal">ප්‍රමුඛ ඉලක්කය</string>
 </resources>

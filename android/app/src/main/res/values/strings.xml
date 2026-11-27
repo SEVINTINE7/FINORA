@@ -491,4 +491,8 @@
     <string name="settings_notifications_allow">Allow notifications</string>
     <string name="settings_notifications_off">Notifications are off for FINORA. Everything else still works.</string>
     <string name="shell_navigate_up">Navigate up</string>
+    <string name="dashboard_monthly_balance">Monthly balance</string>
+    <string name="dashboard_upcoming_bills">Upcoming bills</string>
+    <string name="dashboard_recent_transactions">Recent transactions</string>
+    <string name="dashboard_focus_goal">Focus goal</string>
 </resources>
