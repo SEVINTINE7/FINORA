@@ -20,3 +20,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 - [ ] Every screen checked on an emulator in EN, SI, light and dark, at large font; acceptance re-run per `docs/android-acceptance-testing.md`
 
 **Handoff notes:**
+- T58.0 proposal: [visual direction](../../docs/t58-visual-direction.md). Verified all 32 light/dark text pairs at or above 4.5:1 and checked both mockups.
+- T58.0 remains unchecked until Sevindu approves this proposal. T58.1 is gated on that approval.
