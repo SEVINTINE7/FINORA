@@ -57,7 +57,7 @@ class DailyGuideServiceTest {
     }
 
     @Test
-    void validBillsCanProduceAnAggregateAboveTheIndividualLimitThatTheConfirmationFieldAccepts() {
+    void validBillsCanRoundTripAnAggregateAboveTheIndividualLimit() {
         long owner = 42L;
         var today = LocalDate.now(ZoneId.of("Asia/Colombo"));
         var month = YearMonth.from(today);
@@ -79,10 +79,15 @@ class DailyGuideServiceTest {
             var validator = factory.getValidator();
             assertThat(validator.validate(confirmation(incomeDate, new BigDecimal("9999999999999.99"))))
                     .isEmpty();
-            // PR #28: the confirmation field echoes the exact server aggregate, even above the individual limit
-            assertThat(validator.validate(confirmation(incomeDate, quote.trackedUnpaidBills())))
-                    .isEmpty();
+            assertThat(validator.validate(confirmation(incomeDate, quote.trackedUnpaidBills()))).isEmpty();
         }
+        var accepted = service.calculate(owner, confirmation(incomeDate, quote.trackedUnpaidBills()));
+        assertThat(accepted.status()).isEqualTo("SHORTFALL");
+        assertThat(accepted.shortfall()).isEqualByComparingTo("10000000000000.00");
+
+        var changed = service.calculate(owner, confirmation(incomeDate,
+                quote.trackedUnpaidBills().subtract(new BigDecimal("0.01"))));
+        assertThat(changed.status()).isEqualTo("BILLS_CHANGED");
     }
 
     private static DailyGuideRequest confirmation(LocalDate nextIncomeDate, BigDecimal trackedTotal) {

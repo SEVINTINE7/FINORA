@@ -29,6 +29,18 @@ final class StructuredCoachingPrototype {
             sections = List.copyOf(sections);
             warnings = List.copyOf(warnings);
         }
+
+        List<AdviceItem> forDisplay() {
+            if (warnings.isEmpty()) return sections;
+            var result = new ArrayList<AdviceItem>(sections);
+            var messages = warnings.stream().map(warning -> switch (warning) {
+                case ESTIMATE_UNAVAILABLE -> "A completion estimate is unavailable from the recorded inputs.";
+                case NO_AFFORDABLE_TRANSFER -> "The calculated plan leaves no affordable transfer.";
+                case INSUFFICIENT_FOR_TARGET_DATE -> "The calculated transfer falls short of the target date requirements.";
+            }).toList();
+            result.add(new AdviceItem("COACHING_WARNINGS", String.join(" ", messages), List.of()));
+            return List.copyOf(result);
+        }
     }
 
     private static final JsonMapper JSON = JsonMapper.builder()

@@ -22,7 +22,10 @@ public final class GeminiClient extends JsonHttpLlmClient {
     @Override protected String authHeader() { return "x-goog-api-key"; }
     @Override protected String authValue(String key) { return key; }
     @Override protected Map<String, Object> payload(String user) {
-        return Map.of("systemInstruction", Map.of("parts", List.of(Map.of("text", TRANSPORT_SYSTEM))),
+        return payload(user, TRANSPORT_SYSTEM);
+    }
+    @Override protected Map<String, Object> payload(String user, String system) {
+        return Map.of("systemInstruction", Map.of("parts", List.of(Map.of("text", system))),
                 "contents", List.of(Map.of("role", "user", "parts", List.of(Map.of("text", user)))),
                 "generationConfig", Map.of("responseMimeType", "application/json"));
     }

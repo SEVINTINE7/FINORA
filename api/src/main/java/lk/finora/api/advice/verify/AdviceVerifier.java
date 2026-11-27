@@ -37,7 +37,8 @@ public final class AdviceVerifier {
             .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
     private static final Pattern NUMBER = Pattern.compile("[0-9]+(?:\\.[0-9]+)?");
     /** Free-text numbers may use thousands separators: 9,625 or 54,900.00. */
-    private static final Pattern FREE_NUMBER = Pattern.compile("[-\u2212+]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?)");
+    private static final Pattern FREE_NUMBER = Pattern.compile(
+            "(?:([\\p{Pd}\\u2212+])[\\p{Z}\\p{Cf}]*)?([0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?)");
     private static final int MAX_SECTION_TEXT = 1200;
     /** Products, borrowing, guarantees, links and cuts to essential (need) categories are never allowed. */
     private static final Pattern UNSAFE = Pattern.compile("(?i)guarantee|risk[- ]free|crypto|stock|shares|invest|"
@@ -115,7 +116,11 @@ public final class AdviceVerifier {
         String phraseText = normalized.replaceAll("[\\p{Z}\\p{Pd}]+", " ");
         if (UNSAFE.matcher(phraseText).find()) return Reason.UNSAFE_TEXT;
         List<BigDecimal> tokens = FREE_NUMBER.matcher(normalized).results()
-                .map(r -> new BigDecimal(r.group().replace(",", "").replace('−', '-'))).toList();
+                .map(r -> {
+                    String sign = r.group(1);
+                    return new BigDecimal((sign != null && !sign.equals("+") ? "-" : "")
+                            + r.group(2).replace(",", ""));
+                }).toList();
         if (tokens.size() != numbers.size()) return Reason.TEXT_NUMBER_MISMATCH;
         List<AdviceItem.NumberFact> trusted = new ArrayList<>();
         for (int j = 0; j < numbers.size(); j++) {
