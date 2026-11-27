@@ -16,8 +16,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import lk.finora.api.account.FinanceWriteLock;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lk.finora.api.user.ConsentRecoveryService;
 
 import lk.finora.api.auth.dto.LoginRequest;
@@ -52,9 +50,6 @@ public class AuthService {
     private final FinanceWriteLock owners;
     private final JdbcTemplate jdbc;
     private final SecureRandom random = new SecureRandom();
-
-    @PersistenceContext
-    private EntityManager entities;
 
     public AuthService(UserRepository userRepository, ConsentRepository consentRepository,
             RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
@@ -111,15 +106,6 @@ public class AuthService {
         if (user == null || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new ApiException(ErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED, "Email or password is wrong");
         }
-        // A reset may finish while BCrypt is checking the old hash. Serialize issuance with that reset.
-        var hashes = jdbc.queryForList("SELECT password_hash FROM users WHERE id = ? FOR UPDATE",
-                String.class, user.getId());
-        if (hashes.isEmpty() || !user.getPasswordHash().equals(hashes.get(0))) {
-            throw new ApiException(ErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED, "Email or password is wrong");
-        }
-        // The locking read does not refresh a previously managed JPA entity. Read the
-        // current role, status, language and session generation while the row is locked.
-        entities.refresh(user);
         if (user.getStatus() == UserStatus.DISABLED) {
             throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
         }
@@ -152,7 +138,6 @@ public class AuthService {
             throw invalidRefresh();
         }
         User user = userRepository.findById(stored.getUserId()).orElseThrow();
-        entities.refresh(user);
         if (user.getStatus() == UserStatus.DISABLED) {
             throw new ApiException(ErrorCodes.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, "This account has been disabled");
         }

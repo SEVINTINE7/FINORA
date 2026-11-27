@@ -15,9 +15,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 - [ ] Tests: unknown email gets the same 202; expiry, single use, 5-try lock and hourly limit enforced; old refresh tokens rejected after reset; codes/passwords absent from logs; one real email received from the live server
 
 **Handoff notes:**
-- D64 backend and V25 migration implemented; the two public endpoints and Android response codes are in [the API contract](../../docs/api-contract.md).
-- Local Java 17 / disposable MySQL 8: Maven verify reported 520 tests, 0 failures/errors, 1 intentional loader skip. JaCoCo and executable API packaging passed. Inventory was 108 routes, including 98 protected.
-- Four concurrent issuance requests produced three codes; two simultaneous resets produced one success and one audit event. The two original refresh sessions rejected rotation after reset.
-- One additional focused integration test passed through HTTP, the actual worker, transaction commit, fake mail delivery and confirmation. No real email was sent.
-- Sahan owns T61.4. Sevindu owns SMTP provider selection, protected live configuration and actual receipt for T61.5; see [deployment instructions](../../docs/deploy.md). Parent acceptance remains open.
 - 2026-11-27 Thilina: T61.1-3 implemented; 530 tests, 0 failures/errors, 1 existing skip; JaCoCo passed. Android and live SMTP pending.
+- 2026-11-27 PR #34 reconciled: its parallel T61 implementation was dropped in favour of #35 (access-token invalidation via session generation, timing-equalized reset, DTO conventions); only its mail/env/schema docs were kept. Verify on MySQL 8: 538 tests, 0 failures/errors, 1 skip.

@@ -6,7 +6,7 @@ MySQL 8, managed by Flyway (`api/src/main/resources/db/migration/V1…V7`). Neve
 
 ### D64 password reset (V25)
 
-`password_reset_codes` has one active BCrypt hash, UTC creation/expiry and an attempt count per user. `password_reset_issues` keeps issuance timestamps independently of the replaceable code so consumption cannot reset the rolling hourly limit. Both tables cascade on user deletion. [Migration](../api/src/main/resources/db/migration/V25__password_reset_codes.sql)
+`password_reset_codes` holds at most one BCrypt code hash per user with UTC creation/expiry, an attempt count (CHECK 0–4) and the `staff_session_generation` it was issued under. `password_reset_issuances` keeps issuance timestamps separately from the replaceable code, so a successful or exhausted reset cannot reset the rolling three-per-hour limit. Both tables cascade on user deletion. [Migration](../api/src/main/resources/db/migration/V25__password_reset.sql)
 
 ## Delete rules
 - Deleting a **user** removes every row they own (`ON DELETE CASCADE`) → supports data deletion (T36).

@@ -77,7 +77,6 @@ class RestrictedConsentAuthorizationTest extends IntegrationTest {
             }
         }
         assertEquals(Set.of("POST " + AUTH + "register", "POST " + AUTH + "login", "POST " + AUTH + "refresh",
-                "POST " + AUTH + "password/forgot", "POST " + AUTH + "password/reset",
                 "POST " + AUTH + "logout", "POST " + AUTH + "staff/activate", "POST " + RECOVERY + "accept",
                 "POST " + RECOVERY + "export", "POST " + RECOVERY + "delete", "POST " + AUTH + "password/forgot", "POST " + AUTH + "password/reset"),authRoutes);
         assertTrue(result.size() >= 40);

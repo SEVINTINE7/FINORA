@@ -144,6 +144,6 @@ On a new deployment, set `FINORA_BOOTSTRAP_ADMIN_EMAIL` and `FINORA_BOOTSTRAP_AD
 
 ## D64 password reset mail
 
-Configure the five FINORA_MAIL_* settings in the existing protected service environment after the operator has chosen an authorized SMTP account. The app uses implicit TLS on port 465 and requires STARTTLS on other ports (default 587), verifies the SMTP hostname and authenticates with the configured username and password. Empty host, sender or credentials leave mail inactive. Restrict the sender to the approved address.
+Set the `FINORA_MAIL_*` settings in the protected service environment once the operator has chosen an authorized SMTP account. Mail stays inactive while `FINORA_MAIL_HOST` or `FINORA_MAIL_FROM` is empty. Port 465 uses implicit TLS; any other port (default 587) requires STARTTLS. The SMTP hostname is always verified. SMTP authentication is used when `FINORA_MAIL_USERNAME` is set. Delivery runs on a small bounded background queue after the reset code commits; failures are logged without the recipient, code or exception text.
 
-A 202 confirms receipt of a syntactically valid request. To qualify a deployed release, use a consented disposable mailbox, confirm receipt in the account language, complete one reset and verify normal login. Record delivery and login verdicts only. The repository tests use fake delivery; server setup and the live check remain with the T56/T61.5 operator.
+A 202 from `/auth/password/forgot` only confirms a valid request. To qualify a deployed release, use a consented disposable mailbox, confirm receipt in the account language, complete one reset and verify normal login. Record delivery and login verdicts only. Repository tests use a fake mail sender; the live check belongs to T61.5.
