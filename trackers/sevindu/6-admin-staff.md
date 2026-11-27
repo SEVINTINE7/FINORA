@@ -14,6 +14,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - [x] Tests: USER/STAFF tokens and forged/expired tokens → 401/403; response contains no amounts
 
 **Handoff notes:** D49/D53. MySQL verified first-ADMIN bootstrap, exact five counts and role/expired-token denial. Android 17 verified the new end-to-end USER and default-category links alongside existing STAFF and SMS destinations. Formal dependencies and independent review remain open.
+- 2026-11-27 review (Sevindu, done): every box re-checked against code; AdminStats 2/2, AdminDependency 4/4, FirstAdminBootstrap 2/2, EndpointAuth 7/7, RoleAccess 11/11, Md05FinancialPrivacy 6/6 passed; live bootstrap ADMIN signed in on a phone against the D59 server.
 
 ---
 
@@ -40,6 +41,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Roles 
 - [x] Tests: staff cannot create staff/admins or change own role; disabled staff session → 403
 
 **Handoff notes:** D49. Isolated Android 17 verified STAFF list, create, first-login activation and disable using the UI. MySQL denied STAFF provisioning and role changes, returned 403 while disabled and rejected the old credentials after re-enable. Formal T41 and independent review remain open.
+- 2026-11-27 review (Sevindu, done): StaffProvisioning 2/2 (STAFF 403 on create/role change, disabled 403 ACCOUNT_DISABLED, old session dead after re-enable) plus the role suites above passed. D62 later adds ADMIN-only `/admin/admins` as the single route that grants ADMIN.
 
 ---
 
