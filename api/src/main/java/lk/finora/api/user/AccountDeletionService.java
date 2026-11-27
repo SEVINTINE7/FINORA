@@ -14,7 +14,11 @@ class AccountDeletionService {
     private final FinanceWriteLock writeLock;
     private final PasswordEncoder passwords;
 
-    AccountDeletionService(JdbcTemplate jdbc, FinanceWriteLock writeLock, PasswordEncoder passwords) {
+    private final FinancialDataDeletion financialData;
+
+    AccountDeletionService(JdbcTemplate jdbc, FinanceWriteLock writeLock, PasswordEncoder passwords,
+            FinancialDataDeletion financialData) {
+        this.financialData = financialData;
         this.jdbc = jdbc;
         this.writeLock = writeLock;
         this.passwords = passwords;
@@ -30,6 +34,7 @@ class AccountDeletionService {
             throw new ApiException("INVALID_CREDENTIALS", HttpStatus.BAD_REQUEST, "Password is incorrect");
         }
         jdbc.update("UPDATE audit_events SET target_id = NULL WHERE target_type = 'USER' AND target_id = ?", id);
+        financialData.erase(id);
         jdbc.update("DELETE FROM users WHERE id = ? AND role = 'USER'", id);
         jdbc.update("INSERT INTO audit_events (action, target_type) VALUES ('USER_DELETED', 'USER')");
     }

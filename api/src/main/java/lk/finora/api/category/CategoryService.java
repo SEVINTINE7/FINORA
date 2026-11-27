@@ -46,6 +46,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponse create(Long userId, CreateCategoryRequest request) {
+        writeLock.acquire(userId);
         String name = request.name().trim();
         CategoryKind kind = CategoryKind.valueOf(request.kind());
         // 0 = no category to skip, because this one is new
@@ -84,6 +85,7 @@ public class CategoryService {
 
     @Transactional
     public void delete(Long userId, Long id) {
+        writeLock.acquire(userId);
         Category category = findOwn(userId, id);
         if (categoryRepository.countUses(id) > 0) {
             throw new ApiException(ErrorCodes.IN_USE, HttpStatus.CONFLICT,

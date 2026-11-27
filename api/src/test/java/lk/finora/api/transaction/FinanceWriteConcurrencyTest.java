@@ -155,7 +155,8 @@ class FinanceWriteConcurrencyTest extends IntegrationTest {
                     int pendingLocks = jdbc.queryForObject("""
                             SELECT COUNT(*) FROM information_schema.PROCESSLIST
                             WHERE ID <> CONNECTION_ID() AND INFO = ?
-                            """, Integer.class, "SELECT id FROM users WHERE id = " + owner.getId() + " FOR UPDATE");
+                            """, Integer.class, "SELECT id FROM users WHERE id = " + owner.getId()
+                                    + " AND role = 'USER' FOR UPDATE");
                     if (pendingLocks == 1) return next;
                     try {
                         Thread.sleep(25);

@@ -18,12 +18,16 @@ public class DeviceService {
 
     private final JdbcTemplate jdbc;
 
-    public DeviceService(JdbcTemplate jdbc) {
+    private final lk.finora.api.account.FinanceWriteLock owners;
+
+    public DeviceService(JdbcTemplate jdbc, lk.finora.api.account.FinanceWriteLock owners) {
+        this.owners = owners;
         this.jdbc = jdbc;
     }
 
     @Transactional
     public void register(Long userId, String token) {
+        owners.acquire(userId);
         Long owner = jdbc.query("SELECT user_id FROM device_tokens WHERE token = ? FOR UPDATE",
                 rs -> rs.next() ? rs.getLong(1) : null, token);
         if (userId.equals(owner)) {
@@ -44,6 +48,7 @@ public class DeviceService {
     /** Another user's token (or an unknown one) gives 404, never 403. */
     @Transactional
     public void remove(Long userId, String token) {
+        owners.acquire(userId);
         if (jdbc.update("DELETE FROM device_tokens WHERE token = ? AND user_id = ?", token, userId) == 0) {
             throw ApiException.notFound("Device not found");
         }

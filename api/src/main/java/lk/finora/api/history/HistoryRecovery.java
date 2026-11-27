@@ -83,9 +83,10 @@ class HistoryRecovery {
                 jdbc.update("""
                         INSERT INTO history_recovery_retry (user_id, month, retry_at)
                         SELECT id, ?, UTC_TIMESTAMP(6) + INTERVAL 30 MINUTE FROM users
-                        WHERE id = ? AND NOT EXISTS (
+                        WHERE id = ? AND role = 'USER' AND NOT EXISTS (
                             SELECT 1 FROM monthly_history WHERE user_id = users.id AND month = ?
                         )
+                        FOR UPDATE
                         ON DUPLICATE KEY UPDATE retry_at = UTC_TIMESTAMP(6) + INTERVAL 30 MINUTE
                         """, target, id, target);
             }

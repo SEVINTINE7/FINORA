@@ -32,8 +32,11 @@ public class BudgetService {
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
 
+    private final lk.finora.api.account.FinanceWriteLock owners;
+
     public BudgetService(BudgetRepository budgetRepository, CategoryRepository categoryRepository,
-            TransactionRepository transactionRepository) {
+            TransactionRepository transactionRepository, lk.finora.api.account.FinanceWriteLock owners) {
+        this.owners = owners;
         this.budgetRepository = budgetRepository;
         this.categoryRepository = categoryRepository;
         this.transactionRepository = transactionRepository;
@@ -58,6 +61,7 @@ public class BudgetService {
 
     @Transactional
     public BudgetResponse create(Long userId, BudgetRequest request) {
+        owners.acquire(userId);
         checkCategory(userId, request.categoryId());
         if (budgetRepository.existsByUserIdAndCategoryIdAndMonth(userId, request.categoryId(), request.month())) {
             throw duplicate();
@@ -74,6 +78,7 @@ public class BudgetService {
 
     @Transactional
     public BudgetResponse update(Long userId, Long id, BudgetRequest request) {
+        owners.acquire(userId);
         Budget budget = findOwn(userId, id);
         checkCategory(userId, request.categoryId());
         if (budgetRepository.existsByUserIdAndCategoryIdAndMonthAndIdNot(userId, request.categoryId(),
@@ -90,6 +95,7 @@ public class BudgetService {
 
     @Transactional
     public void delete(Long userId, Long id) {
+        owners.acquire(userId);
         budgetRepository.delete(findOwn(userId, id));
     }
 

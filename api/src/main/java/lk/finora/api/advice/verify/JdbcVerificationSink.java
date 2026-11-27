@@ -10,7 +10,9 @@ public class JdbcVerificationSink implements VerificationSink {
     @Override
     public void record(Long userId, String month, String provider, boolean verified, AdviceVerifier.Reason reason) {
         if (!java.util.Set.of("GROQ", "GEMINI").contains(provider)) throw new IllegalArgumentException("Unknown provider");
-        jdbc.update("INSERT INTO advice_verification_events(user_id,month,provider,verified,reason) VALUES (?,?,?,?,?)",
-                userId, month, provider, verified, reason.name());
+        jdbc.update("""
+                INSERT INTO advice_verification_events(user_id,month,provider,verified,reason)
+                SELECT id,?,?,?,? FROM users WHERE id=? AND role='USER' FOR UPDATE
+                """, month, provider, verified, reason.name(), userId);
     }
 }
