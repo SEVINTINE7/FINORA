@@ -334,4 +334,39 @@ class MeControllerTest extends IntegrationTest {
                         .content(json(Map.of("budget", false, "bill", false, "goal", false))))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void preferenceWritesReturnOnlyOwnProfileAndLeaveOtherOwnerIntact() throws Exception {
+        var other = createUser(lk.finora.api.user.Role.USER);
+        entityManager.flush();
+        String select = "SELECT email, full_name, language, alert_budget, alert_bill, alert_goal FROM users WHERE email = ?";
+        var otherBefore = jdbc.queryForMap(select, other.getEmail());
+        var language = patchMe(accessToken, Map.of("language", "SI")).andExpect(status().isOk())
+                .andReturn().getResponse();
+        var flags = Map.of("budget", false, "bill", true, "goal", false);
+        var alerts = mockMvc.perform(put("/api/v1/me/alerts").header("Authorization", bearer())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(flags)))
+                .andExpect(status().isOk()).andReturn().getResponse();
+
+        for (var response : java.util.List.of(language, alerts)) {
+            var profile = jsonMapper.readTree(response.getContentAsString());
+            assertThat(profile.propertyNames()).containsExactlyInAnyOrder("email", "fullName", "language", "consentVersion", "alerts");
+            assertThat(profile.get("alerts").propertyNames()).containsExactlyInAnyOrder("budget", "bill", "goal");
+            assertThat(profile.get("email").asString()).isEqualTo(EMAIL);
+            assertThat(profile.get("language").asString()).isEqualTo("SI");
+        }
+        entityManager.flush();
+        var saved = jdbc.queryForMap(select, EMAIL);
+        assertThat(saved).containsEntry("language", "SI").containsEntry("alert_budget", false)
+                .containsEntry("alert_bill", true).containsEntry("alert_goal", false);
+        assertThat(jdbc.queryForMap(select, other.getEmail())).isEqualTo(otherBefore);
+
+        patchMe(accessToken, Map.of("language", "invalid")).andExpect(status().isBadRequest());
+        mockMvc.perform(put("/api/v1/me/alerts").header("Authorization", bearer())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(Map.of("budget", true))))
+                .andExpect(status().isBadRequest());
+        entityManager.flush();
+        assertThat(jdbc.queryForMap(select, EMAIL)).isEqualTo(saved);
+        assertThat(jdbc.queryForMap(select, other.getEmail())).isEqualTo(otherBefore);
+    }
 }

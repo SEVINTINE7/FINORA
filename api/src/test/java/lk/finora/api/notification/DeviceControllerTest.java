@@ -107,4 +107,26 @@ class DeviceControllerTest extends IntegrationTest {
         send(createUser(Role.ADMIN), post("/api/v1/devices"), TOKEN).andExpect(status().isForbidden());
         assertThat(ownerOf(TOKEN)).isNull();
     }
+
+    @Test
+    void privilegedRequestsCannotMoveOrRemoveAnAlreadyRegisteredToken() throws Exception {
+        var created = send(userA, post("/api/v1/devices"), TOKEN).andExpect(status().isNoContent())
+                .andReturn().getResponse();
+        assertThat(created.getContentAsByteArray()).isEmpty();
+        for (Role role : java.util.List.of(Role.STAFF, Role.ADMIN)) {
+            var operator = createUser(role);
+            for (var request : java.util.List.of(post("/api/v1/devices"), delete("/api/v1/devices"))) {
+                var denied = send(operator, request, TOKEN).andExpect(status().isForbidden())
+                        .andExpect(jsonPath("$.code").value("FORBIDDEN")).andReturn().getResponse();
+                assertThat(jsonMapper.readTree(denied.getContentAsString()).propertyNames())
+                        .containsExactlyInAnyOrder("timestamp", "status", "code", "message", "path");
+                assertThat(denied.getContentAsString()).doesNotContain(TOKEN, userA.getEmail());
+                assertThat(ownerOf(TOKEN)).isEqualTo(userA.getId());
+                assertThat(count(operator)).isZero();
+            }
+        }
+        var removed = send(userA, delete("/api/v1/devices"), TOKEN).andExpect(status().isNoContent())
+                .andReturn().getResponse();
+        assertThat(removed.getContentAsByteArray()).isEmpty();
+    }
 }
