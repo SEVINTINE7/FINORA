@@ -23,6 +23,11 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
         scroll.addView(actions);
         layout.addView(scroll, new android.widget.LinearLayout.LayoutParams(-1, 0, 1));
         addDirectory(actions, R.string.admin_manage_users, false);
+        var admins = ScreenControls.homeAction(this);
+        admins.setText(R.string.admin_manage_admins);
+        admins.setOnClickListener(view -> startActivity(new android.content.Intent(this, AdminDirectoryActivity.class)
+                .putExtra(AdminDirectoryActivity.ADMINS, true)));
+        actions.addView(admins);
         addDirectory(actions, R.string.admin_default_categories, true);
         var diagnostics = ScreenControls.homeAction(this);
         diagnostics.setText(R.string.sms_diagnostic_admin);

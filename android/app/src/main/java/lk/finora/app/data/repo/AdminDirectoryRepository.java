@@ -22,6 +22,25 @@ public final class AdminDirectoryRepository {
                 .put(AccountRepository.json(Map.of("status", status, "reason", reason))).build());
     }
 
+    public Call admins() { return requests.call(request("/api/v1/admin/admins").build()); }
+
+    public Call createAdmin(String email, String name, String password) {
+        return requests.call(request("/api/v1/admin/admins")
+                .post(AccountRepository.json(Map.of("email", email, "fullName", name, "password", password))).build());
+    }
+
+    public Call setAdminEnabled(long id, boolean enabled) {
+        return requests.call(request("/api/v1/admin/admins/" + id)
+                .patch(AccountRepository.json(Map.of("enabled", enabled))).build());
+    }
+
+    public Call promote(long id, String confirm) {
+        return requests.call(request(USERS + "/" + id + "/promote-to-staff")
+                .post(AccountRepository.json(Map.of("confirm", confirm))).build());
+    }
+
+    public record Admin(long id, String email, String fullName, boolean enabled) {}
+
     public Call categories() { return requests.call(request(CATEGORIES).build()); }
 
     public Call saveCategory(Long id, String name, String nameSi, String kind) {

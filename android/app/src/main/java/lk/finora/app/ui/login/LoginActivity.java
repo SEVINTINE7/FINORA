@@ -47,6 +47,13 @@ public final class LoginActivity extends SecureActivity {
     private Button createAccount;
     // Set when the user comes back from a successful sign-up; shown instead of an empty state
     private boolean registered;
+    private final ActivityResultLauncher<Intent> recover = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    password.setText("");
+                    feedback.success(R.string.reset_success);
+                }
+            });
     private final ActivityResultLauncher<Intent> register = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 Intent data = result.getData();
@@ -114,6 +121,8 @@ public final class LoginActivity extends SecureActivity {
         model.state().observe(this, this::render);
         model.restore(getIntent().getBooleanExtra(SessionNavigation.STORAGE_ERROR, false));
         submit.setOnClickListener(view -> signIn(model));
+        findViewById(R.id.forgot_password).setOnClickListener(view ->
+                recover.launch(new Intent(this, PasswordResetActivity.class)));
         createAccount = findViewById(R.id.create_account);
         createAccount.setOnClickListener(view -> register.launch(new Intent(this, RegisterActivity.class)));
         email.setOnEditorActionListener((view, action, event) -> {
@@ -229,6 +238,7 @@ public final class LoginActivity extends SecureActivity {
         password.setEnabled(!state.loading);
         visibility.setEnabled(!state.loading);
         createAccount.setEnabled(!state.loading);
+        findViewById(R.id.forgot_password).setEnabled(!state.loading);
         if (state.loading) {
             registered = false;
             feedback.loading(R.string.signing_in);

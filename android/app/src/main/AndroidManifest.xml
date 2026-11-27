@@ -23,6 +23,8 @@
             android:exported="false">
             <meta-data android:name="autoStoreLocales" android:value="true" />
         </service>
+        <activity android:name=".ui.login.PasswordResetActivity" android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.login.LoginActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -831,6 +831,78 @@ public class UserJourneyTest {
         fail("Expected restored focus " + expected + ", observed " + actual);
     }
 
+    @Test public void adminManagesAdminsAndPromotesAnIsolatedSyntheticUser() {
+        org.junit.Assume.assumeTrue("Requires the disposable ADMIN fixture",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        String userEmail = "t51-" + identity + "@example.test";
+        String createdEmail = "admin-" + identity + "@example.test";
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            signOut();
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.admin_manage_admins);
+            awaitButton(R.string.admin_create_admin);
+            clickText(R.string.admin_create_admin);
+            typeFixture(onView(withHint(R.string.admin_new_email)).inRoot(isDialog()), createdEmail);
+            typeFixture(onView(withHint(R.string.admin_new_name)).inRoot(isDialog()), "Synthetic new administrator");
+            typeFixture(onView(withHint(R.string.admin_new_password)).inRoot(isDialog()), "Synthetic2026");
+            typeFixture(onView(withHint(R.string.admin_confirm_password)).inRoot(isDialog()), "Synthetic2026");
+            confirm();
+            await(By.textContains(createdEmail));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            signOut();
+            signInAdmin(createdEmail, "Synthetic2026");
+            signOut();
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.admin_manage_admins);
+            await(By.textContains(createdEmail));
+            String disable = app.getString(R.string.admin_disable_user) + ". Synthetic new administrator · "
+                    + createdEmail + " · " + app.getString(R.string.support_active);
+            onView(withContentDescription(disable)).perform(reveal(), activateControl());
+            confirm();
+            await(By.descContains(createdEmail + " · " + app.getString(R.string.admin_inactive)));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            clickText(R.string.admin_manage_users);
+            await(By.textContains(userEmail));
+            String makeStaff = app.getString(R.string.admin_make_staff) + ". Synthetic UI user · "
+                    + userEmail + " · " + app.getString(R.string.support_active);
+            onView(withContentDescription(makeStaff)).perform(reveal(), activateControl());
+            typeFixture(onView(withHint(R.string.admin_promote_confirmation)).inRoot(isDialog()), "DELETE_FINANCIAL_DATA");
+            confirm();
+            assertTrue(device.wait(Until.gone(By.textContains(userEmail)), UI_TIMEOUT_MS));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            signOut();
+            signInStaff(userEmail, "Test-" + identity + "-9");
+        }
+    }
+
+    @Test public void recoveryOpensInBothLanguagesAndRejectsAnInvalidCode() {
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            clickId(R.id.forgot_password);
+            awaitActivity(lk.finora.app.ui.login.PasswordResetActivity.class);
+            typeFixture(onView(withHint(R.string.admin_new_email)), "unknown-" + UUID.randomUUID() + "@example.test");
+            clickText(R.string.reset_request);
+            awaitText(app.getString(R.string.reset_check_mail));
+            typeFixture(onView(withHint(R.string.reset_code)), "012345");
+            typeFixture(onView(withHint(R.string.admin_new_password)), "Synthetic2026");
+            onView(allOf(withText(R.string.reset_confirm), isAssignableFrom(android.widget.Button.class)))
+                    .perform(reveal(), activateControl());
+            awaitText(app.getString(R.string.reset_code_invalid));
+            pressBack();
+            awaitActivity(LoginActivity.class);
+            chooseTestLanguage("si");
+            clickId(R.id.forgot_password);
+            awaitActivity(lk.finora.app.ui.login.PasswordResetActivity.class);
+            var config = new android.content.res.Configuration(app.getResources().getConfiguration());
+            config.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(config).getString(R.string.reset_request));
+        }
+    }
+
     @Test public void adminListsCreatesAndDisablesStaff() {
         var arguments = InstrumentationRegistry.getArguments();
         org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
