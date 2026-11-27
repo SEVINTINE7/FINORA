@@ -67,6 +67,16 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T59 | Admin creates admin accounts | Sevindu | Thilina, Sahan | T41, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | in-progress |
 | T60 | Promote a USER to STAFF | Sevindu | Thilina, Sahan | T36, T42, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | in-progress |
 | T61 | Forgot password by emailed code | Thilina | Sevindu, Sahan | T05 | [thilina/6-password-reset.md](thilina/6-password-reset.md) | in-progress |
+| T62 | Redesign Home, Records, Add transaction | Sevindu | Sahan | T58.1–T58.2 (D65) | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | in-progress |
+| T63 | Redesign budgets and bills | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T64 | Redesign goals and planning tools | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T65 | Redesign accounts and categories | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T66 | Redesign insights, advice, history | Sevindu | Sahan, Thilina | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T67 | Redesign import screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T68 | Redesign settings, help, support | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T69 | Redesign register and password reset | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T70 | Redesign staff screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T71 | Redesign admin screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
 
 ## Your parts inside other members' tasks
 
@@ -85,12 +95,12 @@ T25 review reconciliation (2026-11-27): all four rule-advice subtasks and the Do
 Tracker sync (2026-11-26): T31, T32, T54 and T55 moved from todo to **in-progress**. Daily-guide and simulator backend code (`api:planning/`), the T54 guarded provider evaluation and the T55 dataset, emulator timing and SUS tooling are on `main`. Their subtask boxes stay unchecked pending approvals, live runs and handset measurements.
 
 - **Sevindu:** T61 (T61.5 server mail), T08, T15, T20, T27, T49, T52, T53 — look for subtasks tagged `[…·Sevindu]`
-- **Sahan:** T59.3, T60.3, T61.4 (Android screens), T01, T07, T09, T10, T12, T17, T18, T19, T31, T32, T33, T34, T35, T36, T45, T46, T47, T55, T57 — look for subtasks tagged `[…·Sahan]`
+- **Sahan:** T62–T71 (design review), T59.3, T60.3, T61.4 (Android screens), T01, T07, T09, T10, T12, T17, T18, T19, T31, T32, T33, T34, T35, T36, T45, T46, T47, T55, T57 — look for subtasks tagged `[…·Sahan]`
 - **Thilina:** T59.4, T60.4 (role/privacy tests), T01, T16, T24, T30, T50, T51, T57 — look for subtasks tagged `[…·Thilina]`
 
 ## Files per member
 
-- **Sevindu:** 1-foundation · 2-auth · 3-records · 4-planning-data · 5-alerts-data-rights · 6-admin-staff · 7-testing-release · 8-admin-accounts
+- **Sevindu:** 1-foundation · 2-auth · 3-records · 4-planning-data · 5-alerts-data-rights · 6-admin-staff · 7-testing-release · 8-admin-accounts · 9-ui-redesign
 - **Sahan:** 1-app-skeleton · 2-entry-sms · 3-sms-quality · 4-screens · 5-privacy-staff-tests · 6-ui-redesign
 - **Thilina:** 1-metrics-patterns · 2-score-rules · 3-ai-pipeline · 4-planning-tools · 5-qa · 6-password-reset
 
