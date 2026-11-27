@@ -1,5 +1,5 @@
-# Sevindu 8 — More admins and USER→STAFF promotion (T59–T60)
-Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisions D62, D63.
+# Sevindu 8 — More admins, USER→STAFF promotion and one sign-in page (T59–T60, T72)
+Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisions D62, D63, D66.
 
 ---
 
@@ -34,3 +34,18 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 **Handoff notes:**
 
 - PR #39 implements D63 and shares financial erasure with T36. Role-aware owner locking rejects late financial writes. The disposable MySQL regression verifies financial row counts, preserved login identity, revoked credentials, ADMIN role and confirmation rules and the privacy allowlist. The isolated emulator confirmed typed promotion and STAFF sign-in. Parent acceptance remains open for independent review and the T36/T42 dependency reviews.
+
+---
+
+### T72 · One sign-in page for every role · `AUTH-04`
+**Lead:** Sevindu · **Support:** Sahan (Android), Thilina (role tests) · **Depends on:** T46, T59 · **Touches:** `api:staff/`, `mig:`, `and:ui/login/`, `and:ui/staff/StaffAccessActivity`, `and:ui/admin/`, `and:ui/auth/SessionNavigation`
+**Detail: outline** — expand the exact endpoints, the migration for pending staff and the tests, and show them to Sevindu before coding.
+- [ ] T72.1 [API] An ADMIN creates STAFF the way T59.1 creates an ADMIN: `{email, fullName, password}` (D09 rule), and the account is ACTIVE at once. Retire the temporary password, the activation route and `POST /api/v1/auth/staff/activate`, and decide what happens to staff still waiting for activation
+- [ ] T72.2 [AND] Remove "Sign-in options → Set up staff access" from the Login screen; staff, admins and users sign in on the same form. Admin staff screen: create form with password + confirm, like the Admins form
+- [ ] T72.3 [AND] After sign-in, `SessionNavigation` opens the home for the role: USER → Home tab, STAFF → Staff home, ADMIN → Admin home. A disabled account shows the same sign-in error for every role
+- [ ] T72.4 [API·Thilina] Role-matrix and journey tests for the new and retired routes
+
+**Done when**
+- [ ] Tests: weak password 400; duplicate 409; retired routes gone; a new STAFF signs in on the Login screen and lands on Staff home; ADMIN and USER land on their homes; disabled STAFF cannot sign in; password absent from responses and logs
+
+**Handoff notes:**

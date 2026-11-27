@@ -1,5 +1,5 @@
-# Sevindu 9 — Screen-by-screen UI redesign (T62–T71)
-Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisions D61, D65.
+# Sevindu 9 — Screen-by-screen UI redesign (T62–T71, T73)
+Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisions D61, D65, D67.
 
 Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigation). T58 stays Sahan's task. This job replaces the remaining code-built, default-widget layouts screen by screen with the approved D65 design. The colours stay unchanged. The Login screen is out of scope.
 
@@ -23,7 +23,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [x] T62.3 Home (`DashboardPanel` → XML): greeting with `/me` name, month pill, navy balance card, score ring + "See advice", recent transactions + "See all", budgets with over-limit state, upcoming bills, focus goal, category donut + legend, 6-month trend with labels; loading/error/empty per section
 - [x] T62.4 Records (`TransactionActivity` → XML + RecyclerView): Records tab opens the list directly; All/Expense/Income toggle; Month/Account/Category chips replace the filter dialog; day groups with day totals; tap row → edit; swipe → Delete with confirm dialog (no undo); "Load more" replaces Previous/Next; Import icon → CSV import / SMS access; review mode kept
 - [x] T62.5 Add/Edit transaction (`activity_transaction_form.xml`): Expense/Income toggle, large amount with "Rs." prefix, category chips with icons, account dropdown, Material date picker, optional merchant/note, Save pinned at bottom; inline errors; uncertain-save review/retry kept
-- [ ] T62.6 Screenshots (see Done when) shown to Sevindu for approval — 25 captured 2026-11-28 (EN/SI × light/dark + EN 130% font), awaiting approval
+- [x] T62.6 Screenshots (see Done when) shown to Sevindu for approval — 25 captured 2026-11-28 (EN/SI × light/dark + EN 130% font); approved by Sevindu on 2026-11-28 with the three D65 implementation changes
 
 **Handoff notes:**
 - Kit: `and:ui/Money` (+`MoneyTest`), `CategoryIcons`, `transactions/TransactionRows`, `res:values*/finora_redesign.xml`, `finora_ic_*` icons. Home = `res:layout/panel_dashboard.xml` + `DashboardPanel`; name from `/me` via `MeRepository.profile()`.
@@ -96,8 +96,8 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 
 ### T70 · Staff screens · `UX-10`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/staff/`, `and:ui/support/DiagnosticQueueActivity`, `and:ui/support/FormatSampleActivity`, `res:layout/`
-- [ ] T70.1 Mockups of Staff home, Staff activation, Diagnostic queue and Format sample approved by Sevindu
-- [ ] T70.2 Staff home and Staff activation
+- [ ] T70.1 Mockups of Staff home, Diagnostic queue and Format sample approved by Sevindu (Staff activation is removed by T72, D66)
+- [ ] T70.2 Staff home
 - [ ] T70.3 Diagnostic queue and Format sample; rule 4 unchanged: STAFF never see user transactions
 - [ ] T70.4 Screenshots approved
 
@@ -108,5 +108,17 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [ ] T71.1 Mockups of Admin home and Admin directory (users, staff, admins) approved by Sevindu
 - [ ] T71.2 Admin home (function tiles) and Admin directory (search, status chips, enable/disable/promote with confirm dialogs)
 - [ ] T71.3 Screenshots approved
+
+**Handoff notes:**
+
+---
+
+### T73 · Loading animation for slow screens · `UX-12`
+**Lead:** Sevindu · **Support:** Sahan (review), Thilina (advice wording) · **Depends on:** T62 · **Touches:** `and:ui/` shared views, `and:ui/advice/`, `and:ui/insights/`, `and:ui/history/`, `and:ui/importer/`, `res:layout/`, `res:values*/`
+- [ ] T73.1 Mockups of the loading states for AI advice, Insights, CSV import preview and the Sign in button approved by Sevindu
+- [ ] T73.2 Shared loading view: Material 3 `LoadingIndicator` with a short message. It appears only after 300 ms, so fast answers never flash. After 5 s it adds "Still working…". With system animations off it shows a still indicator. TalkBack announces the message once. Lists show skeleton rows instead
+- [ ] T73.3 AI advice: staged messages while waiting ("Reading this month's totals", "Checking the advice numbers"), with no amounts in them. When the LLM times out or fails the number check, rule-based advice replaces the loader without an error flash (rule 3)
+- [ ] T73.4 Use the shared view on Insights, History, CSV import preview, Staff and Admin lists, and as a progress indicator inside the Sign in button
+- [ ] T73.5 Screenshots approved
 
 **Handoff notes:**
