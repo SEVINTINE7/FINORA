@@ -106,3 +106,5 @@ four deterministic validation tests and contribution evidence. No production see
 - 2026-11-27 T55.2: HMD Crest API 34 calibration completed on the approved temporary profile. Four submission samples and one qualified displayed Plan frame (343.091 ms) were retained. The remaining three presentations were unqualified. Cleanup and the canonical synthetic digest were verified. [Evidence](../../docs/evaluation.md#hmd-crest-handset-calibration-27-november-2026). Formal status is unchanged.
 
 - T55.2 retained trace reanalysis recovered three unique display matches using the enclosing Choreographer traversal. Plan is unchanged. One three-route confirmation is prepared and requires approval before connecting. See the evaluation evidence. Formal status stays open.
+
+- T55.2 targeted HMD Crest confirmation qualified 3/3 displayed frames (Home 86.954 ms, Records 297.397 ms, Insights 253.385 ms). Exact temporary user removal, Sahan profile and package paths, and the canonical synthetic dataset were verified. [Confirmation evidence](../../docs/evaluation.md#targeted-handset-confirmation-27-november-2026). Formal status remains in progress.

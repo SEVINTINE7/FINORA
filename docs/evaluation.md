@@ -537,3 +537,20 @@ The [corrected trace query](t55-performance/handset-traversal-display.sql) requi
 Use the original application APK and the separately signed instrumentation APK (SHA-256 8daf8e2aa6bd6bb75d0b6acb4bee6d3af4e17f9f17889871f7d57f31f54c9df0). The test-only overlay requires the literal route list HOME,RECORDS,INSIGHTS and filters the existing loop to those three destinations. The offline assembleV1DebugAndroidTest task passed. The package, AndroidJUnitRunner target and signer were checked.
 
 The prepared local launcher refuses before ADB unless a connected session is explicitly approved. The approved run uses the retained session database and JAR, a new session-owned temporary user, and a single trace with one attempt per listed route. Record all three rows and retain the trace even if a presentation cannot be qualified. Preserve the baseline users and package identities, remove only the session USB reverse and profile, and recheck the dataset digest. No second connected session has run. T55.2 acceptance remains open.
+
+
+### Targeted handset confirmation (27 November 2026)
+
+The approved HMD Crest API 34 session ran Home, Records and Insights once each. The launcher reused the verified application APK, API JAR and session-owned synthetic data. The targeted instrumentation APK passed signature, package and runner checks. All three attempts completed and qualified against the destination surface and actual display timeline.
+
+| Route | Action to submission | Action to qualified display |
+|---|---:|---:|
+| Home | 74.335 ms | 86.954 ms |
+| Records | 271.045 ms | 297.397 ms |
+| Insights | 232.301 ms | 253.385 ms |
+
+[Sanitized timing and token rows](t55-performance/handset-targeted-display.csv). Perfetto SHA-256 e223ca44c2a65215fd7c3600c5bd7db82de74a99ab8c3f506f08daffe3aa1df5. The raw trace remains in the local evidence session. The historical Plan qualification remains 343.091 ms.
+
+The launcher stopped the API and MySQL and removed its USB reverse mapping. Automated profile cleanup needed a follow-up. Android acknowledged removal of the exact temporary user. A read-back confirmed Owner was foreground, the temporary profile was absent, both Sahan APK paths matched, and no reverse mappings or session listeners remained. The dataset digest and eight counts matched before and after the session.
+
+These are calibration observations. T55.2 remains in progress pending the approved device classification, routes, cohort, statistic and independent acceptance.
