@@ -56,7 +56,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T39 · Sinhala and English support · `FR01`
 **Lead:** Sahan · **Depends on:** T37 · **Touches:** `res:values*/strings.xml`, `and:util/LocaleHelper.java`
 - [x] T39.1 Lint rule / review: no hard-coded user-visible strings in layouts or Java
-- [ ] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
+- [x] T39.2 In-app language switch (AppCompatDelegate per-app locales), synced with `/me.language`
 - [x] T39.3 Sinhala font renders correctly; long Sinhala labels don't overflow
 - [ ] T39.4 Native speaker reviews all Sinhala strings (record who/when in Handoff notes)
 
@@ -71,3 +71,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Sahan confirmed the spoken TalkBack labels for Sign in, Show password and Language, and approved all 37 Sinhala resource pairs as native-speaker reviewer on 2026-11-22.
 - Live USER sync passed both ways. The HMD Crest retained confirmed Sinhala on same-process home recreation and on Login after a cold offline restart.
 - Sahan reported a technical GO from independent source re-review of `92f2dd3`, including the stable login identity correction. Independent human final approval remains pending. The separate MD04 [64-pair](../../docs/md04-sinhala-native-speaker-approval.md) and [23-pair](../../docs/md04-history-advice-native-speaker-approval.md) approvals are recorded at their reviewed revisions.
+- 2026-11-27 D60 (Sevindu): profile race fixed. New `PATCH /api/v1/me` changes only the language; `PUT /me`, `PATCH /me` and `PUT /me/alerts` take the owner lock first. `LocaleHelper` now sends the language only via PATCH. Verified: `MeControllerTest` 16/16 (new: rename by a second session survives a later language save; name in PATCH ignored; missing/unknown language 400; no session/withdrawn 401), Android `testV1DebugUnitTest` 152/152. Handset re-check of the picker against the new endpoint is still worth doing.

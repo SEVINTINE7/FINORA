@@ -130,7 +130,7 @@ public final class LocaleHelper {
             Gson gson = new Gson();
             Request.Builder request = new Request.Builder().url(BuildConfig.API_BASE_URL + "api/v1/me");
             if (update != null) {
-                request.put(RequestBody.create(gson.toJson(update), MediaType.get("application/json")));
+                request.patch(RequestBody.create(gson.toJson(update), MediaType.get("application/json")));
             }
             Call call;
             synchronized (store) {
@@ -208,7 +208,7 @@ public final class LocaleHelper {
     static String synchronize(String requested, ProfileEndpoint endpoint) throws IOException {
         Profile profile = endpoint.exchange(null);
         if (requested != null && !requested.equals(profile.language)) {
-            profile = endpoint.exchange(new LanguageUpdate(profile.fullName, requested));
+            profile = endpoint.exchange(new LanguageUpdate(requested));
             if (!requested.equals(profile.language)) {
                 throw new IOException("Language update was not confirmed");
             }
@@ -225,12 +225,11 @@ public final class LocaleHelper {
         String language;
     }
 
+    /** Body of PATCH /api/v1/me (D60): the language only, so a newer profile name is never overwritten. */
     static final class LanguageUpdate {
-        final String fullName;
         final String language;
 
-        LanguageUpdate(String fullName, String language) {
-            this.fullName = fullName;
+        LanguageUpdate(String language) {
             this.language = language;
         }
     }

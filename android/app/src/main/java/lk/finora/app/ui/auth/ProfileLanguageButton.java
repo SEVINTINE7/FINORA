@@ -14,7 +14,7 @@ import lk.finora.app.util.LocaleHelper;
 
 /**
  * Language button shared by the home and settings screens. For a USER the choice applies at once and is
- * saved with PUT /me (T07.5); Admin/Staff have no /me, so only the app locale changes.
+ * saved with PATCH /me (T07.5, D60); Admin/Staff have no /me, so only the app locale changes.
  */
 public final class ProfileLanguageButton {
     private ProfileLanguageButton() {}
