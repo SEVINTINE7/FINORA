@@ -27,7 +27,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 - Execution 72 reconciles all 106 hosted mappings (98 protected). Owner-scoped ID probes and privileged financial privacy are verified for the implemented routes. The [current inventory](../../docs/t52-route-evidence.md) identifies exact tests and the outstanding STAFF retirement policy. T41/T46 are in review; T52 awaits independent acceptance.
 
-- Execution 32 focused methods passed 6/6. Bill and budget category writes, CSV name/ID resolution, HTTP simulation cuts, nested contributions, and support reply/privacy boundaries now have direct evidence. [Scenario dispositions](../../docs/t52-route-evidence.md) retain the open STAFF retirement decision, T41/T46 and independent CI acceptance.
+- Execution 32 focused methods passed 6/6. Bill and budget category writes, CSV name/ID resolution, HTTP simulation cuts, nested contributions, and support reply/privacy boundaries now have direct evidence.
+- Merged PR #39 CI confirms [112 exact mappings](../../docs/t52-route-evidence.md#merged-inventory-delta--27-november-2026) and passing authorization suites. The mapped delta adds D62 ADMIN management, D63 promotion and D64 password recovery. T41 is done. The STAFF retirement rule, T46 closure and independent acceptance remain open.
 
 ---
 
