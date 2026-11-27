@@ -1,5 +1,9 @@
 # T52 authorization coverage inventory
 
+## D63 candidate delta
+
+Local dynamic discovery for PR #39 reported 112 mappings, including 102 protected routes and 10 auth routes. The added mapping is POST /api/v1/admin/users/{id}/promote-to-staff. UserPromotionControllerTest asserts the successful ADMIN scenario, response allowlist, non-ADMIN refusals, exact confirmation, invalid targets, purge scope and invalidated old access/refresh tokens. The separate STAFF retirement policy remains open.
+
 ## Current inventory — 27 November 2026
 
 A method-and-path set comparison against the [hosted PR #30 API job](https://github.com/SEVINTINE7/FINORA/actions/runs/45964499693/job/140389834750) at `8305d4b346d836067931aa46a403092e9d6ecb52` found all 102 historical rows below and exactly four additions. Together the two route tables account for **106 mappings, 98 protected and eight authentication-protocol mappings**.

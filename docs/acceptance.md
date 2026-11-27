@@ -62,3 +62,7 @@ The T25 checklist on upstream is fully checked, so this handoff proposes the ord
 - AGP experiment `59801b7` removed three of eleven build-classpath advisory matches; eight remained, including one critical. The assessed runtime graphs had zero matches. KGP experiment `81e8170` failed configuration. Both remain isolated. Supported remediation and trusted fresh OWASP data remain security acceptance requirements.
 
 No new physical-handset, participant, deployed authentication or extended-usage observations are claimed. The frozen benchmark remains identified by SHA-256 `14e563da86de67d4f295b6a9f8577d76ec781128b9c91900e6a1b54c96069944`.
+
+## PR #39 candidate verification
+
+Two isolated FINORA emulator journeys passed. ADMIN creation, sign-in, disable, typed promotion and STAFF sign-in were observed. Password recovery opened in English and Sinhala and exercised the generic code request and invalid-code rejection. The backend synthetic tests verify promotion of only the intended owner, no response finance payload, session revocation and preservation of the second owner's finances. The new verification supplements the retained PR #30 planning evidence and PR #38 handset calibration. T57 independent sign-off, full signed-release journey, live reset delivery and formal T55 cohort remain outstanding.

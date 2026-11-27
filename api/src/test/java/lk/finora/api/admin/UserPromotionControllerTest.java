@@ -16,6 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class UserPromotionControllerTest extends IntegrationTest {
     private static final Map<String,String> CONFIRM = Map.of("confirm", "DELETE_FINANCIAL_DATA");
     private static final String PASSWORD = "Synthetic2026";
+    private static final java.util.List<String> FINANCIAL_TABLES = java.util.List.of(
+            "accounts", "transactions", "budgets", "bills", "goals", "score_inputs", "categories",
+            "health_scores", "insights", "advice", "advice_ratings", "advice_generation_leases",
+            "advice_verification_events", "monthly_history", "history_recovery_retry", "alert_events", "device_tokens");
     @Autowired JdbcTemplate jdbc;
     @Autowired PasswordEncoder passwords;
     @Autowired jakarta.persistence.EntityManager entities;
@@ -24,6 +28,9 @@ class UserPromotionControllerTest extends IntegrationTest {
         var seed = new EvaluationDatasetSeeder(jdbc).seed();
         long target = seed.users().get("worker"), other = seed.users().get("irregular");
         for (long id : new long[]{target, other}) seedDerivedRows(id);
+        var otherSnapshot = financialCounts(other);
+        assertThat(financialCounts(target).values()).allMatch(count -> count > 0);
+        assertThat(otherSnapshot.values()).allMatch(count -> count > 0);
         String email = jdbc.queryForObject("SELECT email FROM users WHERE id=?", String.class, target);
         jdbc.update("UPDATE users SET password_hash=? WHERE id=?", passwords.encode(PASSWORD), target);
         jdbc.update("INSERT INTO consents(user_id,version,over18,accepted_at) VALUES (?,'1.0',TRUE,UTC_TIMESTAMP(6))", target);
@@ -34,12 +41,8 @@ class UserPromotionControllerTest extends IntegrationTest {
                 .andExpect(status().isOk()).andExpect(header().string("Cache-Control","no-store")).andReturn();
         assertThat(jsonMapper.readTree(res.getResponse().getContentAsString()).propertyNames())
                 .containsExactlyInAnyOrder("id","email","fullName","status","pending");
-        for (String table : new String[]{"accounts","transactions","budgets","bills","goals","score_inputs",
-                "categories","health_scores","insights","advice","advice_ratings","advice_generation_leases",
-                "advice_verification_events","monthly_history","history_recovery_retry","alert_events","device_tokens"}) {
-            assertThat(count(table,target)).as(table).isZero();
-            assertThat(count(table,other)).as(table).isPositive();
-        }
+        assertThat(financialCounts(target).values()).allMatch(count -> count == 0);
+        assertThat(financialCounts(other)).isEqualTo(otherSnapshot);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM goal_contributions WHERE goal_id=?", Integer.class,
                 seed.goals().get("worker"))).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM goal_contributions WHERE goal_id=?", Integer.class,
@@ -92,6 +95,18 @@ class UserPromotionControllerTest extends IntegrationTest {
         jdbc.update("INSERT INTO advice_verification_events(user_id,month,provider,verified,reason) VALUES (?,'2026-11','GROQ',FALSE,'TIMEOUT')", id);
         jdbc.update("INSERT INTO alert_events(user_id,type,ref_id,period) VALUES (?,'BILL_DUE',1,'2026-11')", id);
         jdbc.update("INSERT INTO device_tokens(user_id,token) VALUES (?,?)", id, "synthetic-" + id);
+    }
+
+    private Map<String, Integer> financialCounts(long owner) {
+        var counts = new java.util.LinkedHashMap<String, Integer>();
+        for (String table : FINANCIAL_TABLES) counts.put(table, count(table, owner));
+        counts.put("bill_payments", jdbc.queryForObject("""
+                SELECT COUNT(*) FROM bill_payments p JOIN bills b ON b.id=p.bill_id WHERE b.user_id=?
+                """, Integer.class, owner));
+        counts.put("goal_contributions", jdbc.queryForObject("""
+                SELECT COUNT(*) FROM goal_contributions c JOIN goals g ON g.id=c.goal_id WHERE g.user_id=?
+                """, Integer.class, owner));
+        return counts;
     }
 
     private int count(String table,long id) {
