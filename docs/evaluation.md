@@ -517,3 +517,23 @@ The original query expected emulator marker names. The handset trace contained f
 The retry reused the verified database, API JAR, installed APKs and temporary user. Cleanup restored Owner as foreground, removed only the temporary user and session USB reverse mapping, stopped the session API and MySQL, and verified Sahan's FINORA-T10-QA user and package set. The earlier automated removal did not complete. Android package manager's wait-for-removal operation succeeded on the exact owned user.
 
 This is mixed-revision calibration with one observation per route. T55.2 remains open for an approved device classification and measurement cohort/statistic, qualified samples for all required routes and independent review.
+
+
+### Retained trace requalification
+
+The API 34 harness emitted no rendered-token markers. Android documents its public FrameMetrics frame timeline ID as API 36. The three failed joins used the callback-preferred IDs 21028071, 21028845 and 21031333. The ready markers are nested in Choreographer traversals 21028068, 21028838 and 21031331. The same-process DrawFrames slices carry those traversal IDs, and each ID joins one destination activity surface and one actual display event. The prior trace and its original results remain retained.
+
+| Route | Traversal token | Display end minus action |
+|---|---:|---:|
+| Home | 21028068 | 106.734 ms |
+| Records | 21028838 | 727.575 ms |
+| Plan | 21029976 | 343.091 ms |
+| Insights | 21031331 | 296.690 ms |
+
+The [corrected trace query](t55-performance/handset-traversal-display.sql) requires an exact process, traversal token, activity surface, unique display event and ordered timing markers. A no-match replay left all four rows unqualified. These results are a reanalysis of one historical observation per route.
+
+### Targeted confirmation after approval
+
+Use the original application APK and the separately signed instrumentation APK (SHA-256 8daf8e2aa6bd6bb75d0b6acb4bee6d3af4e17f9f17889871f7d57f31f54c9df0). The test-only overlay requires the literal route list HOME,RECORDS,INSIGHTS and filters the existing loop to those three destinations. The offline assembleV1DebugAndroidTest task passed. The package, AndroidJUnitRunner target and signer were checked.
+
+The prepared local launcher refuses before ADB unless a connected session is explicitly approved. The approved run uses the retained session database and JAR, a new session-owned temporary user, and a single trace with one attempt per listed route. Record all three rows and retain the trace even if a presentation cannot be qualified. Preserve the baseline users and package identities, remove only the session USB reverse and profile, and recheck the dataset digest. No second connected session has run. T55.2 acceptance remains open.

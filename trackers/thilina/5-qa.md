@@ -104,3 +104,5 @@ four deterministic validation tests and contribution evidence. No production see
 - Execution 42: eight qualified displayed frames across all four routes, two unqualified Plan attempts, five correlated HTTP probes and a separate external cold-launch trace. See [evaluation evidence](../../docs/evaluation.md#execution-42-displayed-frame-qualification-and-startup-investigation). T55.2 handset and formal acceptance remain open.
 
 - 2026-11-27 T55.2: HMD Crest API 34 calibration completed on the approved temporary profile. Four submission samples and one qualified displayed Plan frame (343.091 ms) were retained. The remaining three presentations were unqualified. Cleanup and the canonical synthetic digest were verified. [Evidence](../../docs/evaluation.md#hmd-crest-handset-calibration-27-november-2026). Formal status is unchanged.
+
+- T55.2 retained trace reanalysis recovered three unique display matches using the enclosing Choreographer traversal. Plan is unchanged. One three-route confirmation is prepared and requires approval before connecting. See the evaluation evidence. Formal status stays open.
