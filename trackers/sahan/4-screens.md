@@ -58,7 +58,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 **Handoff notes:**
 - Isolated Android 17 displayed an unavailable D20 score, saved and reloaded a declaration, retained an unsaved 123.45 reserve through landscape recreation, and displayed the financial-guidance note. English/Sinhala resources contain the note.
-- HMD Android 14 displayed all four patterns, exact fixture figures and periods, score 47 with two not-applicable components and score 52 with five scored components. The zero-income month displayed missing inputs and an unavailable score.
+- HMD Android 14 displayed all four patterns, exact fixture figures and periods, score 47 with two not-applicable components and score 52 with five scored components. The zero-income month displayed missing inputs and an unavailable score. The merged PR #39 [API CI](https://github.com/SEVINTINE7/FINORA/actions/runs/46039086735/job/140646145075) passed all six D55 category-rename regressions for the backend facts consumed by these screens.
 - A proxy withheld a committed declaration response. HMD showed uncertainty, one PUT was observed, and an explicit reload was required before editing and displayed the committed amount.
 - Corrected dark-on-dark Insights and declaration text. HMD screenshots verified readable English and Sinhala Insights after the fix. Sahan confirmed TalkBack spoke Previous month and Next month correctly in both languages, in order.
 - Isolated Android 17: a proxy dropped all three Insights reads; explicit Retry restored data. A held month response disabled month controls until completion. A positive response held across login replacement did not appear in the replacement user's empty Insights.
@@ -83,5 +83,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - MySQL verified stable rule delivery, exact facts, owner/role checks and concurrent rating results 201/409. Existing verifier and provider fallback suites passed with mocks.
 - Isolated Android and HMD Android 14 matched LKR 50.23 in English and Sinhala. A dropped 201 reconciled rating 5 with GET and a single POST on both devices. Live-provider evidence remains open.
 - MySQL V12 coordinates first delivery across instances without holding a database lock during provider calls. HMD retained the saved rating after the upgrade and Sahan confirmed its Sinhala TalkBack label.
-- D44 authorizes live-provider verification with approved configuration. Both credentials, approved model IDs and a numeric call budget are absent. English and Sinhala HMD rating announcements and return focus passed.
+- English and Sinhala HMD rating announcements and return focus passed. D44 live-provider verification follows the separate [T54 release gates](../../docs/t54-provider-evaluation.md#release-gates-and-invocation). The provider-disabled PR #39 handset journey adds canonical V1 delivery evidence.
 - 2026-11-25 D58: emulator showed verified Groq coaching (all five sections) for 2026-10 with the goal picker. Sinhala TalkBack for the new headings and a physical-device check are still open.
