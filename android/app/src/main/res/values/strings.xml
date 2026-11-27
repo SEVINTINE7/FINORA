@@ -130,8 +130,6 @@
     <string name="budget_list_title">Budgets</string>
     <string name="budget_previous_month">Previous month</string>
     <string name="budget_next_month">Next month</string>
-    <string name="budget_previous_symbol">‹</string>
-    <string name="budget_next_symbol">›</string>
     <string name="budget_category">Expense category</string>
     <string name="budget_limit">Monthly limit</string>
     <string name="budget_limit_invalid">Enter an amount more than 0 with up to 2 decimals.</string>
@@ -186,7 +184,6 @@
     <string name="settings_delete_info">You can ask FINORA to delete all of your data.</string>
     <string name="settings_delete">Delete my data</string>
     <string name="bill_list_title">Bills</string>
-    <string name="bill_form_title">Bill</string>
     <string name="bill_summary">This month: LKR %1$s in bills · LKR %2$s paid · LKR %3$s still to pay</string>
     <string name="bill_details">LKR %1$s · due %2$s</string>
     <string name="bill_paid">Paid</string>
@@ -195,12 +192,26 @@
     <string name="bill_paid_toggle">Paid this month</string>
     <string name="bill_paid_named">%1$s paid this month</string>
     <string name="bill_remove_message">Remove this bill? Past paid marks are removed too. Your transactions are not changed.</string>
-    <string name="bill_amount">Amount (LKR)</string>
-    <string name="bill_due_day">Due day of the month (1–31)</string>
+    <string name="bill_amount">Amount each month</string>
+    <string name="bill_due_day">Due day each month</string>
     <string name="bill_due_day_hint">If the month is shorter, the bill is due on its last day.</string>
     <string name="bill_due_day_invalid">Enter a day from 1 to 31.</string>
     <string name="bill_category">Expense category (optional)</string>
     <string name="bill_no_category">No category</string>
+    <string name="bill_add">Add bill</string>
+    <string name="bill_edit_title">Edit bill</string>
+    <string name="bill_save">Save bill</string>
+    <string name="bill_name">Bill name</string>
+    <string name="bill_still_to_pay">Still to pay</string>
+    <string name="bill_of_total">of %1$s</string>
+    <string name="bill_paid_count">Paid %1$d of %2$d · %3$s</string>
+    <string name="bill_section_due">To pay</string>
+    <string name="bill_mark_paid">Mark paid</string>
+    <string name="bill_day_number">Day %1$d</string>
+    <plurals name="bill_overdue_days">
+        <item quantity="one">Overdue by %1$d day</item>
+        <item quantity="other">Overdue by %1$d days</item>
+    </plurals>
     <string name="goal_list_title">Savings goals</string>
     <string name="goal_form_title">Savings goal</string>
     <string name="goal_open">Open</string>

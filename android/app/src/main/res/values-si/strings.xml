@@ -130,8 +130,6 @@
     <string name="budget_list_title">අයවැය</string>
     <string name="budget_previous_month">පෙර මාසය</string>
     <string name="budget_next_month">ඊළඟ මාසය</string>
-    <string name="budget_previous_symbol">‹</string>
-    <string name="budget_next_symbol">›</string>
     <string name="budget_category">වියදම් කාණ්ඩය</string>
     <string name="budget_limit">මාසික සීමාව</string>
     <string name="budget_limit_invalid">0ට වැඩි, දශම ස්ථාන 2ක් දක්වා මුදලක් ඇතුළත් කරන්න.</string>
@@ -185,7 +183,6 @@
     <string name="settings_delete_info">ඔබේ සියලු දත්ත මකා දැමීමට FINORA වෙත ඉල්ලීමක් කළ හැක.</string>
     <string name="settings_delete">මගේ දත්ත මකන්න</string>
     <string name="bill_list_title">බිල්පත්</string>
-    <string name="bill_form_title">බිල්පත</string>
     <string name="bill_summary">මෙම මාසය: බිල්පත් රු. %1$s · රු. %2$s ගෙවා ඇත · තව රු. %3$s ගෙවිය යුතුය</string>
     <string name="bill_details">රු. %1$s · ගෙවිය යුතු දිනය %2$s</string>
     <string name="bill_paid">ගෙවා ඇත</string>
@@ -194,12 +191,26 @@
     <string name="bill_paid_toggle">මෙම මාසයේ ගෙවා ඇත</string>
     <string name="bill_paid_named">%1$s මෙම මාසයේ ගෙවා ඇත</string>
     <string name="bill_remove_message">මෙම බිල්පත ඉවත් කරන්නද? පෙර ගෙවීම් සලකුණු ද ඉවත් වේ. ඔබේ ගනුදෙනු වෙනස් නොවේ.</string>
-    <string name="bill_amount">මුදල (රු.)</string>
-    <string name="bill_due_day">මාසයේ ගෙවිය යුතු දිනය (1–31)</string>
+    <string name="bill_amount">මාසික මුදල</string>
+    <string name="bill_due_day">සෑම මාසයකම ගෙවිය යුතු දිනය</string>
     <string name="bill_due_day_hint">මාසය කෙටි නම්, බිල්පත ගෙවිය යුත්තේ එහි අවසන් දිනයේය.</string>
     <string name="bill_due_day_invalid">1 සිට 31 දක්වා දිනයක් ඇතුළත් කරන්න.</string>
     <string name="bill_category">වියදම් කාණ්ඩය (විකල්ප)</string>
     <string name="bill_no_category">කාණ්ඩයක් නැත</string>
+    <string name="bill_add">බිල්පතක් එක් කරන්න</string>
+    <string name="bill_edit_title">බිල්පත සංස්කරණය කරන්න</string>
+    <string name="bill_save">බිල්පත සුරකින්න</string>
+    <string name="bill_name">බිල්පතේ නම</string>
+    <string name="bill_still_to_pay">තව ගෙවිය යුතු</string>
+    <string name="bill_of_total">%1$s න්</string>
+    <string name="bill_paid_count">%2$d න් %1$d ක් ගෙවා ඇත · %3$s</string>
+    <string name="bill_section_due">ගෙවිය යුතු</string>
+    <string name="bill_mark_paid">ගෙව්වා</string>
+    <string name="bill_day_number">%1$d වන දිනය</string>
+    <plurals name="bill_overdue_days">
+        <item quantity="one">දින %1$d කින් ප්‍රමාදයි</item>
+        <item quantity="other">දින %1$d කින් ප්‍රමාදයි</item>
+    </plurals>
     <string name="goal_list_title">ඉතිරි කිරීමේ ඉලක්ක</string>
     <string name="goal_form_title">ඉතිරි කිරීමේ ඉලක්කය</string>
     <string name="goal_open">විවෘත කරන්න</string>

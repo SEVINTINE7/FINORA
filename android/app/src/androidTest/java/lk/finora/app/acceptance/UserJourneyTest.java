@@ -382,9 +382,9 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
             enter(R.id.form_name, "Synthetic rent");
             enter(R.id.bill_amount, "5000.00");
-            enter(R.id.bill_due_day, "31");
+            onView(withContentDescription(app.getString(R.string.bill_day_number, 31))).perform(reveal(), click());
             clickId(R.id.records_save);
-            awaitText(app.getString(R.string.bill_unpaid));
+            awaitText(app.getString(R.string.bill_mark_paid));
             pressBack();
             awaitActivity(MainActivity.class);
             clickText(R.string.goal_list_title);
@@ -475,26 +475,26 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
             enter(R.id.form_name, "Synthetic rent");
             enter(R.id.bill_amount, "5000.00");
-            enter(R.id.bill_due_day, "31");
+            onView(withContentDescription(app.getString(R.string.bill_day_number, 31))).perform(reveal(), click());
             device.setOrientationLeft();
             awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
             onView(withId(R.id.form_name)).check(matches(withText("Synthetic rent")));
-            onView(withId(R.id.bill_due_day)).check(matches(withText("31")));
+            onView(withContentDescription(app.getString(R.string.bill_day_number, 31))).check(matches(isChecked()));
             device.setOrientationNatural();
             awaitActivity(lk.finora.app.ui.bills.BillFormActivity.class);
             clickId(R.id.records_save);
-            awaitText(app.getString(R.string.bill_details, "5000.00", due));
-            awaitText(app.getString(R.string.bill_unpaid));
-            awaitText(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
+            // T63.3: the row and summary speak the exact LKR sentences; "Mark paid" is the visible toggle.
+            await(By.desc("Synthetic rent. " + app.getString(R.string.bill_details, "5000.00", due)));
+            awaitText(app.getString(R.string.bill_mark_paid));
+            await(By.desc(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00")));
             String paidLabel = app.getString(R.string.bill_paid_named, "Synthetic rent");
             onView(withContentDescription(paidLabel)).perform(activateControl());
-            awaitText(app.getString(R.string.bill_summary, "5000.00", "5000.00", "0.00"));
+            await(By.desc(app.getString(R.string.bill_summary, "5000.00", "5000.00", "0.00")));
             awaitText(app.getString(R.string.bill_paid));
             onView(withContentDescription(paidLabel)).check(matches(isChecked()));
             onView(withContentDescription(paidLabel)).perform(activateControl());
-            awaitText(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
+            await(By.desc(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00")));
             onView(withContentDescription(paidLabel)).check(matches(not(isChecked())));
-            await(By.desc(app.getString(R.string.records_actions_named, "Synthetic rent")));
         }
 
         // T19.3 goals: list → detail, add/remove contributions, progress, rotation on detail
@@ -540,14 +540,14 @@ public class UserJourneyTest {
         configuration.setLocale(java.util.Locale.forLanguageTag("si"));
         var si = app.createConfigurationContext(configuration);
         try (var ignored = ActivityScenario.launch(lk.finora.app.ui.budgets.BudgetListActivity.class)) {
-            awaitText(app.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            await(By.desc("Food. " + app.getString(R.string.budget_left, "0.00", "250.00", "250.00")));
             InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("SI"));
-            awaitText(si.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            await(By.desc("Food. " + si.getString(R.string.budget_left, "0.00", "250.00", "250.00")));
             awaitText(si.getString(R.string.budget_state_ok));
         }
         try (var ignored = ActivityScenario.launch(lk.finora.app.ui.bills.BillListActivity.class)) {
-            awaitText(si.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
-            awaitText(si.getString(R.string.bill_unpaid));
+            await(By.desc(si.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00")));
+            awaitText(si.getString(R.string.bill_mark_paid));
             await(By.desc(si.getString(R.string.bill_paid_named, "Synthetic rent")));
         }
         try (var ignored = ActivityScenario.launch(lk.finora.app.ui.goals.GoalListActivity.class)) {

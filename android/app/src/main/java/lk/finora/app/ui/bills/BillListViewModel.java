@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import lk.finora.app.R;
@@ -57,6 +59,36 @@ public final class BillListViewModel extends ViewModel {
             if (failure.status == 409) return null;
             throw failure;
         }
+    }
+
+    /** T63.3: bills still to pay, earliest due first (overdue ones come first naturally). */
+    static List<BillDto> toPay(List<BillDto> rows) {
+        List<BillDto> result = new ArrayList<>();
+        for (BillDto item : rows) if (!item.paid()) result.add(item);
+        result.sort(Comparator.comparing(BillDto::dueDate));
+        return result;
+    }
+
+    /** T63.3: bills paid this month, in due-date order. */
+    static List<BillDto> paidOnes(List<BillDto> rows) {
+        List<BillDto> result = new ArrayList<>();
+        for (BillDto item : rows) if (item.paid()) result.add(item);
+        result.sort(Comparator.comparing(BillDto::dueDate));
+        return result;
+    }
+
+    /** Whole days past the due date (0 when not late). */
+    static int daysLate(String dueDate, LocalDate today) {
+        long days = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.parse(dueDate), today);
+        return (int) Math.max(0, days);
+    }
+
+    /** Whole percent of the month's bill total already paid, 0–100. */
+    static int percentPaid(BillDto.Summary summary) {
+        if (summary == null || summary.total().signum() <= 0) return 0;
+        return summary.paid().multiply(java.math.BigDecimal.valueOf(100))
+                .divide(summary.total(), 0, java.math.RoundingMode.DOWN).max(java.math.BigDecimal.ZERO)
+                .min(java.math.BigDecimal.valueOf(100)).intValue();
     }
 
     /** Paid wins; otherwise a due date before today is overdue. */

@@ -1,53 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T63.3/D65 a bill still to pay: due-date tile, name, amount, due state (icon + words), Mark paid. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/finora_space_s"
-    android:layout_marginBottom="@dimen/finora_space_s">
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="12dp"
+    android:paddingBottom="10dp">
 
-        <TextView
-            android:id="@+id/record_name"
-            style="@style/FinoraText.Label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+    <LinearLayout
+        android:id="@+id/bill_row"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:baselineAligned="false"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal"
+        tools:ignore="NestedWeights">
 
-        <TextView
-            android:id="@+id/record_details"
-            android:gravity="end"
-            style="@style/FinoraText.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+        <LinearLayout
+            android:id="@+id/bill_tile"
+            android:layout_width="44dp"
+            android:layout_height="48dp"
+            android:background="@drawable/finora_badge"
+            android:gravity="center"
+            android:importantForAccessibility="noHideDescendants"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/bill_status"
-            style="@style/FinoraText.Label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            <TextView
+                android:id="@+id/bill_tile_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-        <CheckBox
-            android:id="@+id/bill_paid"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:minHeight="@dimen/finora_touch"
-            android:text="@string/bill_paid_toggle" />
+            <TextView
+                android:id="@+id/bill_tile_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/record_edit"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/records_edit" />
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:importantForAccessibility="noHideDescendants"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/record_remove"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/records_remove" />
+            <TextView
+                android:id="@+id/record_name"
+                style="@style/FinoraText.RowTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/record_details"
+                style="@style/FinoraText.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/finora_muted" />
+
+            <TextView
+                android:id="@+id/bill_status"
+                style="@style/FinoraText.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/bill_paid"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkable="true"
+        android:minHeight="48dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:text="@string/bill_mark_paid"
+        android:textSize="13sp"
+        app:strokeColor="@color/finora_green" />
 </LinearLayout>
