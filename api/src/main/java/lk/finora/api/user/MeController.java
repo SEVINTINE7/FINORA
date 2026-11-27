@@ -2,6 +2,7 @@ package lk.finora.api.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import lk.finora.api.security.CurrentUser;
 import lk.finora.api.user.dto.AlertSettings;
 import lk.finora.api.user.dto.MeResponse;
+import lk.finora.api.user.dto.UpdateLanguageRequest;
 import lk.finora.api.user.dto.UpdateMeRequest;
 
 /** The logged-in user's own account settings. USER role only (T06 rules). */
@@ -34,6 +36,12 @@ public class MeController {
     @PutMapping
     public MeResponse updateMe(@Valid @RequestBody UpdateMeRequest request) {
         return meService.updateMe(CurrentUser.id(), request);
+    }
+
+    /** D60: language-only update used by the app's language picker. */
+    @PatchMapping
+    public MeResponse updateLanguage(@Valid @RequestBody UpdateLanguageRequest request) {
+        return meService.updateLanguage(CurrentUser.id(), request);
     }
 
     @PutMapping("/alerts")

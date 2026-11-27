@@ -54,6 +54,11 @@ class DataRightsControllerTest extends IntegrationTest {
                 .andExpect(content().string(not(containsString("Other goal"))))
                 .andExpect(content().string(not(containsString("Synthetic-device-secret-9"))))
                 .andExpect(content().string(not(containsString("password_hash"))));
+        // Count only the event this deletion adds: rows committed by earlier runs may already exist.
+        int deletionEventsBefore = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM audit_events WHERE action='USER_DELETED'
+                AND actor_id IS NULL AND target_id IS NULL AND reason IS NULL
+                """, Integer.class);
         deleteAs(access, "Synthetic9-wrong").andExpect(status().isBadRequest());
         deleteAs(access, "Synthetic9-password").andExpect(status().isNoContent());
         entities.clear();
@@ -61,7 +66,7 @@ class DataRightsControllerTest extends IntegrationTest {
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM accounts WHERE user_id=?", Integer.class, other.getId()));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM device_tokens WHERE user_id=?", Integer.class, owner.getId()));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM refresh_tokens WHERE user_id=?", Integer.class, owner.getId()));
-        assertEquals(1, jdbc.queryForObject("""
+        assertEquals(deletionEventsBefore + 1, jdbc.queryForObject("""
                 SELECT COUNT(*) FROM audit_events WHERE action='USER_DELETED'
                 AND actor_id IS NULL AND target_id IS NULL AND reason IS NULL
                 """, Integer.class));

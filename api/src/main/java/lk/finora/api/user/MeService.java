@@ -9,6 +9,7 @@ import lk.finora.api.account.FinanceWriteLock;
 import lk.finora.api.common.error.ApiException;
 import lk.finora.api.user.dto.AlertSettings;
 import lk.finora.api.user.dto.MeResponse;
+import lk.finora.api.user.dto.UpdateLanguageRequest;
 import lk.finora.api.user.dto.UpdateMeRequest;
 
 /** The logged-in user's own profile and consent (T07). */
@@ -35,8 +36,22 @@ public class MeService {
 
     @Transactional
     public MeResponse updateMe(Long userId, UpdateMeRequest request) {
+        owners.acquire(userId); // D60: profile writes for one user run one at a time
         User user = findUser(userId);
         user.setFullName(request.fullName().trim());
+        user.setLanguage(Language.valueOf(request.language()));
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
+    /**
+     * D60: changes only the language. The owner lock is taken before the user row is read, so a
+     * name saved by another session just before is read here and kept.
+     */
+    @Transactional
+    public MeResponse updateLanguage(Long userId, UpdateLanguageRequest request) {
+        owners.acquire(userId);
+        User user = findUser(userId);
         user.setLanguage(Language.valueOf(request.language()));
         userRepository.save(user);
         return toResponse(user);
@@ -45,6 +60,7 @@ public class MeService {
     /** T34.4: turns each alert type on or off. Turned-off types get no new alert events. */
     @Transactional
     public MeResponse updateAlerts(Long userId, AlertSettings request) {
+        owners.acquire(userId); // D60
         User user = findUser(userId);
         user.setAlertBudget(request.budget());
         user.setAlertBill(request.bill());

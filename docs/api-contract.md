@@ -73,6 +73,7 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
 | GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion, alerts: {budget, bill, goal}}` (`consentVersion` = `null` after withdrawal, D15; `alerts` all `true` by default, T34) | T07/T34 |
 | PUT | `/api/v1/me` | USER | `{fullName, language: "EN"\|"SI"}` | `200` same as GET · 400 `VALIDATION_ERROR` | T07 |
+| PATCH | `/api/v1/me` | USER | `{language: "EN"\|"SI"}` (other fields ignored) | `200` same as GET · 400 `VALIDATION_ERROR`. Changes only the language, so a newer name is kept (D60). Used by the app's language picker. | T07.5/T39.2 |
 | PUT | `/api/v1/me/alerts` | USER | `{budget, bill, goal}` (all three booleans required) | `200` same as GET · 400 `VALIDATION_ERROR`. A type turned off gets no new events and unsent ones are not pushed. | T34.4 |
 | POST | `/api/v1/devices` | USER | `{token}` (FCM token, 1–255 chars `[A-Za-z0-9:_-]`) | `204`; repeat = no change. A token registered to another account moves to the caller. At most 10 tokens per user (oldest dropped). · 400 `VALIDATION_ERROR` | T34.1 |
 | DELETE | `/api/v1/devices` | USER | `{token}` (in the body, so it never appears in URLs or access logs) | `204` · 404 `NOT_FOUND` for an unknown or another user's token | T34.1 |

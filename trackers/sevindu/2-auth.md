@@ -54,7 +54,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T07.2 [API] `GET /api/v1/me` → `{email, fullName, language, consentVersion}`; `PUT /api/v1/me` `{fullName, language}`
 - [x] T07.3 [API] `POST /api/v1/me/consent/withdraw` → sets `withdrawn_at`, revokes normal access and refresh credentials; password sign-in offers restricted re-consent, export or deletion (D15/D54)
 - [x] T07.4 [AND·Sahan] Register screen: email, name, password, language, over-18 checkbox, consent checkbox + consent text (EN/SI). Submit disabled until both ticked
-- [ ] T07.5 [AND·Sahan] Settings screen: language picker (applies at once, saved via `PUT /me`), withdraw consent, "Delete my data" entry (opens T36 flow)
+- [x] T07.5 [AND·Sahan] Settings screen: language picker (applies at once, saved via `PUT /me`), withdraw consent, "Delete my data" entry (opens T36 flow)
   - Android 14 HMD Crest, isolated D50 profile. Physical instrumentation verified the bilingual registration gate, withdrawal and restricted re-consent, and Settings export and password-confirmed deletion. The Settings language switch saved Sinhala without changing the profile name.
 
 **Done when**
@@ -66,3 +66,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Acceptance requires the current consent version and a fresh password sign-in afterwards. MySQL verified revoked sessions, expiry, replacement, replay, invalid version, explicit acceptance and competing requests.
 - Android 17 and the Android 14 HMD Crest verified withdrawal, restricted sign-in, explicit acceptance and fresh sign-in. The isolated HMD API retained the revoked prior refresh credential and issued a new session after recovery. Sahan approved the corrected MD05 consent and deletion labels at `80d5c20`. Registration consent copy outside that inventory remains separate.
 - Original task ownership, prerequisites and independent review remain in force.
+- 2026-11-27 D60 (Sevindu): profile race fixed. New `PATCH /api/v1/me` changes only the language; `PUT /me`, `PATCH /me` and `PUT /me/alerts` take the owner lock first. `LocaleHelper` now sends the language only via PATCH. Verified: `MeControllerTest` 16/16 (new: rename by a second session survives a later language save; name in PATCH ignored; missing/unknown language 400; no session/withdrawn 401), Android `testV1DebugUnitTest` 152/152. Handset re-check of the picker against the new endpoint is still worth doing.
