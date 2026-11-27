@@ -13,6 +13,8 @@ The reviewed repository revision is `f52f3163a59e05b47b28e46bbed5c0aa670c2851`. 
 | T53.2 | The [emulator screen capture](t53-android-sms-wire-evidence.md) covered six paste/inbox/diagnostic/retry requests. Both provider request builders have [loopback serialization and logging evidence](t53-local-security-evidence.md). The November 27 delta since `bf2af3d` did not change the SMS import or provider request builders. Coverage is synthetic and local. |
 | T53.3 | Gitleaks 8.30.0, verified against the retained archive and checksum, scanned 44 commits in `b48be9b..f52f316` with full redaction. One generic-api-key finding at `StaffProvisioningControllerTest.java:80` in `fdab512` is the literal synthetic password supplied by the mocked activation test. No suppression. The existing eleven Android build-classpath advisory matches remain the retained assessment. The November 27 delta did not change the dependency declarations. OWASP still requires authorized fresh feed access or a trusted populated database. |
 
+Execution 73 locally checked normal login issuance at exactly 30 minutes for the access JWT and 14 days for the stored refresh credential. The atomic refresh comparison rejected database-clock equality without revocation and accepted one microsecond of remaining life. The two new AuthControllerTest cases passed on disposable MySQL 8. These results supplement the earlier dated entries. Deployed log redaction and retention remain operator checks.
+
 Independent security acceptance remains pending. The dated entries below retain their original verification scope.
 
 ## Historical baseline

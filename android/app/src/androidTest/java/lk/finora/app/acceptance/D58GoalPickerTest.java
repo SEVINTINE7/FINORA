@@ -81,6 +81,13 @@ public class D58GoalPickerTest {
                 scrollTo(device, By.text("ඔබේ ඉලක්කය සඳහා සැලැස්ම"), "Sinhala goal heading");
                 return;
             }
+            if ("true".equals(args.getString("finoraD58Realistic"))) {
+                verifyRealisticPlan(device, "worker", workerPassword, "Emergency fund", "105000.00", "17500.00", "6");
+                activate(withText(R.string.sign_out));
+                verifyRealisticPlan(device, "irregular", irregularPassword, "Laptop for study", "90000.00", "4000.00", "23");
+                activate(withText(R.string.sign_out));
+                return;
+            }
             exerciseGoals(app, device, workerPassword);
             activate(withText(R.string.sign_out));
             openAdvice(device, "irregular", irregularPassword);
@@ -128,6 +135,18 @@ public class D58GoalPickerTest {
         activate(withText(R.string.advice_goal_none));
         scrollTo(device, By.text(app.getString(R.string.advice_rules)), "general canonical advice");
         assertTrue("General advice omits focus section", !device.hasObject(goal));
+        pressBack();
+    }
+
+    private static void verifyRealisticPlan(UiDevice device, String profile, String password,
+            String goalName, String remaining, String transfer, String months) {
+        openAdvice(device, profile, password);
+        var goal = By.text(goalName);
+        await(device, goal, profile + " realistic active goal");
+        assertTrue("Synthetic focus goal selected", device.findObject(goal).isChecked());
+        scrollTo(device, By.textContains("still needs LKR " + remaining), profile + " exact remaining balance");
+        scrollTo(device, By.textContains("takes about " + months + " months"), profile + " exact plan duration");
+        scrollTo(device, By.textContains("move LKR " + transfer + " to your goal"), profile + " exact planned transfer");
         pressBack();
     }
 

@@ -256,3 +256,11 @@ Java 17 and verified loopback MySQL 8.0.46 finora_test. Providers were disabled.
 Focused Maven run: 6 tests, 0 failures, 0 errors, 0 skipped.
 Integrated Maven verify: Tests run: 450, Failures: 0, Errors: 0, Skipped: 0.
 JaCoCo and packaging passed. Independent CI on this follow-up remains pending.
+
+### Execution 73 retirement characterization
+
+On disposable MySQL, SupportTicketControllerTest.characterizesRetirementByProposingAndUnrelatedStaffBeforeAndAfterApproval passed all four combinations of proposer/unrelated STAFF and DRAFT/ACTIVE. Initial retirement returned 204. Only state and the generated active-topic column changed. Repeating retirement returned 404 with unchanged contents. Approval of ACTIVE fixtures used a separate reviewer. These observations leave the intended retirement actor/state rule for independent decision.
+
+### T59.4 — exact hosted review evidence
+
+PR #33 at `5251b1a46852438a02960e2557d0256ea66f00ec` on upstream `5948f1dbe75bff114801465ad4f14234c1dabf8f` passed [hosted API CI](https://github.com/SEVINTINE7/FINORA/actions/runs/45973464721/job/140419302365): 522 tests run, 0 failures/errors, 1 intentional skip. The runtime discovery printed `T52_RUNTIME total=109 protected=101 auth=8` and the GET/POST `/api/v1/admin/admins` and PATCH `/api/v1/admin/admins/{id}` routes. `EndpointAuthTest` 7/7 and `AdminAccountControllerTest` 6/6 passed. D64 adds two public reset routes in PR #34's separate tree (111/101/10). These inventories are revision-specific; T60 is not implemented at this baseline. No parent task or independent review is closed by this record.
