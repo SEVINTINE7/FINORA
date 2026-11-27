@@ -11,7 +11,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T23.3 Stable reason keys + aggregate numeric facts for EN/SI; debt paid markers and user-declared reserves explicitly labeled
 - [x] T23.4 USER-only `GET /api/v1/score?month=YYYY-MM`; no user id accepted; validate month and preserve ownership/role privacy
 - [x] T23.5 Minimal owner-only GET/PUT `/api/v1/score-inputs/{month}`: nullable reserve/date and no-applicable-debt/goals declarations, UTC confirmation time; V7 schema, validation and contradiction checks
-- [ ] T23.6 Team review and remaining T18/T19 dependencies resolved before full task acceptance; no teammate status changed
+- [x] T23.6 Team review and remaining T18/T19 dependencies resolved before full task acceptance; no teammate status changed
 
 **Done when**
 - [x] Tests: zero income, no goals, no debt, perfect month, worst month; same input → same output
@@ -25,6 +25,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Execution 29 carries the D55 loan classification and historical regression from 94e8335; no score policy or migration changes. Team review and dependency closure remain open.
 
 - 2026-11-27 dependency reconciliation: the index at `5948f1dbe75bff114801465ad4f14234c1dabf8f` marks both T18 and T19 `done`. T23.1–T23.5 and its technical test criterion are already checked. Keep T23.6 open for independent team review; no teammate status changes.
+
+- 2026-11-27 acceptance reconciliation: Thilina reports the requested team confirmation of T23.6 against the merged implementation and existing verified tests. T21/T18/T19 and T01.3 are closed. The PR #39 successful API job (140646145075) records ScoreCalculatorTest 26/26 and ScoreControllerTest 12/12, without failures/errors/skips. Propose T23 done on the strength of that reported confirmation; original approval messages were not independently inspected. No new tests or scoring-policy changes.
 
 ---
 
