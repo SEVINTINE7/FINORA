@@ -57,7 +57,7 @@ class DailyGuideServiceTest {
     }
 
     @Test
-    void validBillsCanProduceAnAggregateThatTheConfirmationFieldRejects() {
+    void validBillsCanProduceAnAggregateAboveTheIndividualLimitThatTheConfirmationFieldAccepts() {
         long owner = 42L;
         var today = LocalDate.now(ZoneId.of("Asia/Colombo"));
         var month = YearMonth.from(today);
@@ -79,12 +79,9 @@ class DailyGuideServiceTest {
             var validator = factory.getValidator();
             assertThat(validator.validate(confirmation(incomeDate, new BigDecimal("9999999999999.99"))))
                     .isEmpty();
+            // PR #28: the confirmation field echoes the exact server aggregate, even above the individual limit
             assertThat(validator.validate(confirmation(incomeDate, quote.trackedUnpaidBills())))
-                    .singleElement().satisfies(v -> {
-                        assertThat(v.getPropertyPath().toString()).isEqualTo("confirmedTrackedUnpaidBills");
-                        assertThat(v.getConstraintDescriptor().getAnnotation().annotationType())
-                                .isEqualTo(jakarta.validation.constraints.Digits.class);
-                    });
+                    .isEmpty();
         }
     }
 
