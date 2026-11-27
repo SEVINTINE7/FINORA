@@ -34,7 +34,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] T25.4 D58 rule-built coaching sections (GOAL_PLAN, CUT_WANTS, NEEDS_BEHAVIOUR, SPENDING_PATTERN, SALARY_PLAN) before the unchanged catalogue; `CoachingQueries` aggregates by built-in label
 
 **Done when**
-- [ ] Tests across budget, savings and debt scenarios; every number traceable to a fact
+- [x] Tests across budget, savings and debt scenarios; every number traceable to a fact
 
 **Handoff notes:**
 - 2026-11-22 Thilina explicitly approved backend T25/T26 continuation before T23 acceptance and the six-action catalogue; formulas/conditions remain D10/D20, no new financial thresholds.
@@ -44,3 +44,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - T30 now delivers canonical rule fallback or verified advice through its [Sahan tracker entry](../sahan/4-screens.md). Budget-specific coverage and Thilina's review remain open.
 - Execution 33 verified fixed-ledger advice and numeric provenance across a budget-limit-only NEAR-to-OVER change. Independent T25 acceptance remains open.
 - 2026-11-25 D58 (Sevindu): coaching sections and policy numbers in `docs/ai-schema.md`; `CoachingAdviceTest` hand-checks every fact. Catalogue tests now filter to T25 actions. Thilina to review the cut/split formulas.
+- 2026-11-27 Thilina formula review: the D58 want cut uses the larger of one quarter of spend and excess above the prior average, bounded by half of spend after whole-rupee rounding. Wants are capped at 40% of income; the selected goal transfer cannot exceed available headroom or the monthly requirement where known. PR #26 covers cap/cent boundaries; PR #19 covers budget invariance and exact provenance. This closes the recorded test criterion. Independent acceptance remains open.

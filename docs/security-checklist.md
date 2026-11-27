@@ -1,5 +1,22 @@
 # FINORA — T53 Security and Privacy Checklist
 
+## 27 November 2026 — D59 staging
+
+The reviewed repository revision is `f52f3163a59e05b47b28e46bbed5c0aa670c2851`. The T56 operator identifies the deployed API as `api-20261127T070942Z.jar`, built from `29e73a91b045c58f9a861d8a4a8d040636e17519`. The synchronized project checkout is older (`e53b8e5`).
+
+| Requirement | Evidence and disposition |
+|---|---|
+| Trusted HTTPS | Execution 71 used the existing staging checker's default certificate trust and hostname verification for one anonymous GET to `https://finorafinance.duckdns.org/actuator/health`. HTTP 200, allowed JSON fields, status UP. Sevindu separately recorded a stock phone health check and a signed V1 Release invalid-login response. Successful signed-release login remains open. |
+| Operations and recovery | Sevindu records loopback-only API/MySQL listeners, port 80 closed outside certificate renewal, restricted service files, schema-scoped application DML grants, and an encrypted backup restored into a separate schema with 34 equal table counts. These are operator observations. See the [T56 handoff](../trackers/sevindu/7-testing-release.md). |
+| Authenticated staging checks | No run. The scoped operator approval, effective disabled-provider/Firebase attestation, two consented synthetic users and their owned account IDs, and a genuine expired token for user A were unavailable. No staging login, financial request or port probe was made by this execution. See the [harness procedure](t53-staging-verification.md). |
+| T53.1 | Trusted public HTTPS, BCrypt and the retained expiry/application-log regressions have evidence. Exact lifetime boundaries and deployed access-log redaction/retention still require verification. |
+| T53.2 | The [emulator screen capture](t53-android-sms-wire-evidence.md) covered six paste/inbox/diagnostic/retry requests. Both provider request builders have [loopback serialization and logging evidence](t53-local-security-evidence.md). The November 27 delta since `bf2af3d` did not change the SMS import or provider request builders. Coverage is synthetic and local. |
+| T53.3 | Gitleaks 8.30.0, verified against the retained archive and checksum, scanned 44 commits in `b48be9b..f52f316` with full redaction. One generic-api-key finding at `StaffProvisioningControllerTest.java:80` in `fdab512` is the literal synthetic password supplied by the mocked activation test. No suppression. The existing eleven Android build-classpath advisory matches remain the retained assessment. The November 27 delta did not change the dependency declarations. OWASP still requires authorized fresh feed access or a trusted populated database. |
+
+Independent security acceptance remains pending. The dated entries below retain their original verification scope.
+
+## Historical baseline
+
 Audit date: 2026-11-22
 Status: PARTIAL — NOT FINAL SECURITY ACCEPTANCE
 Baseline: `2c788c7`, `codex/t53-security-baseline`; existing uncommitted expiry test preserved.

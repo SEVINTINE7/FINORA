@@ -33,7 +33,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Thilina · **Support:** Sevindu · **Depends on:** T14, T27 · **Touches:** `docs/security-checklist.md`
 - [ ] T53.1 Verify HTTPS, BCrypt hashes, token expiry, redacted logs
   - D56 schedules the trusted release HTTPS evidence during T56 deployment. T53 retains its own acceptance and independent review.
-- [ ] T53.2 Capture app traffic (proxy) during SMS import: no SMS body; capture LLM request: no forbidden fields
+- [x] T53.2 Capture app traffic (proxy) during SMS import: no SMS body; capture LLM request: no forbidden fields
 - [ ] T53.3 Run OWASP dependency-check + secret scan (e.g. gitleaks); fix high findings
 
 **Done when**
@@ -54,9 +54,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 Execution 33 verified Groq/Gemini request shape and log privacy on loopback, the Android batch repository wire shape, and differential secret scanning. The complementary OSV query reports 11 Android build-classpath advisory matches. OWASP, deployed HTTPS, UI-level synthetic SMS capture and independent review remain open. See [security evidence](../../docs/t53-local-security-evidence.md#execution-33-security-and-advice-verification).
 
+The [27 November checklist](../../docs/security-checklist.md) reconciles T53.2 on synthetic screen and loopback captures, the live public TLS check, the redacted history scan, and the remaining authenticated and operational checks.
+
 ### T54 · AI and financial correctness tests · `FR06–FR09`
 **Lead:** Thilina · **Depends on:** T29 · **Touches:** `api-test:advice/`
-- [ ] T54.1 Fixture set of user-months with hand-checked metrics and scores
+- [x] T54.1 Fixture set of user-months with hand-checked metrics and scores
 - [ ] T54.2 Run real LLM calls on fixtures; record pass rate of number check
 - [ ] T54.3 Confirm every failure fell back to rule advice
 
@@ -64,6 +66,7 @@ Execution 33 verified Groq/Gemini request shape and log privacy on loopback, the
 - [ ] Pass-rate report from actual runs saved
 
 **Handoff notes:**
+- T54.1 uses the [six hand-calculated user-month oracles](../../docs/t54-financial-fixtures.md) and the retained 6/6 dry evaluation. The focus-goal study and live provider acceptance remain separate.
 - 2026-11-24 reconciliation: PR #11 retains FinancialJourneyTest and six financial fixture oracles. Historical focused 8/8 and verify 265/265. Mocked evidence only. Live acceptance remains open.
 - 2026-11-22 audit: recovered T27-T29 branch contains mocked client/verifier/fallback tests; historical 253-test result is branch-specific and was not rerun here. Real LLM pass-rate testing remains unauthorized; T29 acceptance blocks T54 completion. Do not report mocked results as real pass rates.
 - D44 now authorizes a bounded synthetic live check for T30 once approved models, isolated credentials and a numeric call budget are available. The T54 pass-rate evaluation and its T29 prerequisite remain open.
