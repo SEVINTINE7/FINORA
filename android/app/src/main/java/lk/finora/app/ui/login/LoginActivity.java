@@ -47,11 +47,14 @@ public final class LoginActivity extends SecureActivity {
     private Button createAccount;
     // Set when the user comes back from a successful sign-up; shown instead of an empty state
     private boolean registered;
+    private boolean passwordReset;
     private final ActivityResultLauncher<Intent> recover = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
+                    passwordReset = true;
+                    registered = false;
                     password.setText("");
-                    feedback.success(R.string.reset_success);
+                    showResetSuccess();
                 }
             });
     private final ActivityResultLauncher<Intent> register = registerForActivityResult(
@@ -60,6 +63,7 @@ public final class LoginActivity extends SecureActivity {
                 if (result.getResultCode() != RESULT_OK || data == null) return;
                 email.setText(data.getStringExtra(RegisterActivity.EXTRA_EMAIL));
                 password.requestFocus();
+                passwordReset = false;
                 registered = true;
                 feedback.success(R.string.register_done);
             });
@@ -80,6 +84,7 @@ public final class LoginActivity extends SecureActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        passwordReset = savedInstanceState != null && savedInstanceState.getBoolean("passwordReset");
         getWindow().setBackgroundDrawableResource(R.color.finora_navy);
         setContentView(R.layout.activity_login);
         WindowCompat.getInsetsController(getWindow(), findViewById(R.id.login_root))
@@ -143,6 +148,19 @@ public final class LoginActivity extends SecureActivity {
         });
     }
 
+    @Override protected void onSaveInstanceState(Bundle state) {
+        state.putBoolean("passwordReset", passwordReset);
+        super.onSaveInstanceState(state);
+    }
+
+    private void showResetSuccess() {
+        feedback.success(R.string.reset_success);
+        WindowCompat.getInsetsController(getWindow(), submit).hide(WindowInsetsCompat.Type.ime());
+        View status = findViewById(R.id.login_feedback);
+        status.post(() -> status.requestRectangleOnScreen(
+                new Rect(0, 0, status.getWidth(), status.getHeight()), true));
+    }
+
     private void configureInsets() {
         View root = findViewById(R.id.login_root);
         View sheet = findViewById(R.id.login_sheet);
@@ -201,6 +219,7 @@ public final class LoginActivity extends SecureActivity {
         boolean passwordValid = LoginInput.hasPassword(secret);
         emailFeedback.show(emailValid ? 0 : R.string.invalid_email);
         passwordFeedback.show(passwordValid ? 0 : R.string.required_password);
+        passwordReset = false;
         feedback.clear();
 
         if (!emailValid) {
@@ -242,6 +261,8 @@ public final class LoginActivity extends SecureActivity {
         if (state.loading) {
             registered = false;
             feedback.loading(R.string.signing_in);
+        } else if (passwordReset) {
+            showResetSuccess();
         } else if (state.result == null) {
             if (registered) {
                 feedback.success(R.string.register_done);

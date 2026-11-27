@@ -17,6 +17,12 @@ Execution 73 locally checked normal login issuance at exactly 30 minutes for the
 
 Independent security acceptance remains pending. The dated entries below retain their original verification scope.
 
+## Current merged local verification
+
+[PR #36](https://github.com/SEVINTINE7/FINORA/pull/36) supplies explicit JWT and refresh boundary regressions. Deployed access-log redaction and retention remain operator checks. [PR #37](https://github.com/SEVINTINE7/FINORA/pull/37) pins backend Guava to 33.7.2-jre and the OpenTelemetry BOM to 1.67.0. The retained Android build-classpath observations have a separate scope. The isolated AGP candidate left one critical finding and the Kotlin experiment failed compatibility, so neither experiment supplies an adopted correction. A current trusted OWASP data source remains outstanding.
+
+PR #39 adds one ADMIN-only protected route and exercises response-field allowlisting, unchanged second-owner financial counts and old credential rejection. No new stage traffic, provider calls or scanner pass is claimed.
+
 ## Historical baseline
 
 Audit date: 2026-11-22

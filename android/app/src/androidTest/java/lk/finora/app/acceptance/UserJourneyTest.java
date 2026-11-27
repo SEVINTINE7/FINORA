@@ -903,6 +903,68 @@ public class UserJourneyTest {
         }
     }
 
+    @Test public void successfulResetReturnsToLoginWithConfirmation() {
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            clickId(R.id.forgot_password);
+            awaitActivity(lk.finora.app.ui.login.PasswordResetActivity.class);
+            var instrumentation = InstrumentationRegistry.getInstrumentation();
+            instrumentation.runOnMainSync(() -> {
+                var active = ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(Stage.RESUMED).stream().findFirst().orElseThrow();
+                assertTrue(active instanceof lk.finora.app.ui.login.PasswordResetActivity);
+                var api = (lk.finora.app.data.api.AuthApi) java.lang.reflect.Proxy.newProxyInstance(
+                        lk.finora.app.data.api.AuthApi.class.getClassLoader(),
+                        new Class<?>[]{lk.finora.app.data.api.AuthApi.class}, (proxy, method, ignored) ->
+                                switch (method.getName()) {
+                                    case "requestPasswordReset" -> resetReply(202);
+                                    case "resetPassword" -> resetReply(204);
+                                    default -> throw new AssertionError("Unexpected request in reset fixture");
+                                });
+                try {
+                    var field = active.getClass().getDeclaredField("api");
+                    field.setAccessible(true);
+                    field.set(active, api);
+                } catch (ReflectiveOperationException exception) {
+                    throw new AssertionError("Unable to attach the isolated reset fixture", exception);
+                }
+            });
+            typeFixture(onView(withHint(R.string.admin_new_email)), "synthetic-reset@example.test");
+            clickText(R.string.reset_request);
+            awaitText(app.getString(R.string.reset_check_mail));
+            typeFixture(onView(withHint(R.string.reset_code)), "012345");
+            typeFixture(onView(withHint(R.string.admin_new_password)), "Synthetic2026");
+            onView(allOf(withText(R.string.reset_confirm), isAssignableFrom(android.widget.Button.class)))
+                    .perform(reveal(), activateControl());
+            awaitActivity(LoginActivity.class);
+            onView(withId(R.id.state_message)).check(matches(withText(R.string.reset_success)))
+                    .perform(reveal()).check(matches(isDisplayed()));
+            onView(withId(R.id.password)).check(matches(withText("")));
+        }
+    }
+
+    private static retrofit2.Call<Void> resetReply(int status) {
+        return new retrofit2.Call<>() {
+            private boolean invoked;
+            private boolean cancelled;
+
+            @Override public retrofit2.Response<Void> execute() {
+                invoked = true;
+                return retrofit2.Response.success(status, null);
+            }
+            @Override public void enqueue(retrofit2.Callback<Void> callback) {
+                if (!cancelled) callback.onResponse(this, execute());
+            }
+            @Override public boolean isExecuted() { return invoked; }
+            @Override public void cancel() { cancelled = true; }
+            @Override public boolean isCanceled() { return cancelled; }
+            @Override public retrofit2.Call<Void> clone() { return resetReply(status); }
+            @Override public okhttp3.Request request() {
+                return new okhttp3.Request.Builder().url(BuildConfig.API_BASE_URL).build();
+            }
+            @Override public okio.Timeout timeout() { return okio.Timeout.NONE; }
+        };
+    }
+
     @Test public void adminListsCreatesAndDisablesStaff() {
         var arguments = InstrumentationRegistry.getArguments();
         org.junit.Assume.assumeTrue("Requires a disposable ADMIN bootstrap",
