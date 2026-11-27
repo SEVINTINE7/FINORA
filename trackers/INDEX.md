@@ -28,7 +28,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T20 | Dashboard and charts | Sahan | Sevindu | T10, T17 | [sahan/4-screens.md](sahan/4-screens.md) | review |
 | T21 | Deterministic spending metrics | Thilina | — | T10, T17, T18 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |
 | T22 | Spending-pattern detection | Thilina | — | T21 | [thilina/1-metrics-patterns.md](thilina/1-metrics-patterns.md) | done |
-| T23 | Health-score model (0–100) | Thilina | — | T21, T18, T19, T01.3 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | in-progress |
+| T23 | Health-score model (0–100) | Thilina | — | T21, T18, T19, T01.3 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | done |
 | T24 | Insights and health-score screens | Sahan | Thilina | T22, T23, T38 | [sahan/4-screens.md](sahan/4-screens.md) | review |
 | T25 | Rule-based advice engine | Thilina | — | T21, T22, T23 | [thilina/2-score-rules.md](thilina/2-score-rules.md) | review |
 | T26 | AI-safe fact and response schema | Thilina | — | T21, T25 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
@@ -36,8 +36,8 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T28 | Gemini backup and rule fallback | Thilina | — | T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
 | T29 | Number and claim verification | Thilina | — | T26, T27 | [thilina/3-ai-pipeline.md](thilina/3-ai-pipeline.md) | review |
 | T30 | Advice delivery and ratings | Sahan | Thilina | T25, T29, T38 | [sahan/4-screens.md](sahan/4-screens.md) | review |
-| T31 | Daily spending guide | Thilina | Sahan | T17, T18, T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | in-progress |
-| T32 | Savings goal simulator | Thilina | Sahan | T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | in-progress |
+| T31 | Daily spending guide | Thilina | Sahan | T17, T18, T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | done |
+| T32 | Savings goal simulator | Thilina | Sahan | T19 | [thilina/4-planning-tools.md](thilina/4-planning-tools.md) | done |
 | T33 | Monthly insights and score history | Sevindu | Sahan | T22, T23 | [sevindu/4-planning-data.md](sevindu/4-planning-data.md) | review |
 | T34 | Budget, bill and goal alerts | Sevindu | Sahan | T17, T18, T19, T37 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | done |
 | T35 | Data download | Sevindu | Sahan | T10, T17, T18, T19 | [sevindu/5-alerts-data-rights.md](sevindu/5-alerts-data-rights.md) | review |
@@ -93,3 +93,6 @@ Tracker sync (2026-11-26): T31, T32, T54 and T55 moved from todo to **in-progres
 - **Sevindu:** 1-foundation · 2-auth · 3-records · 4-planning-data · 5-alerts-data-rights · 6-admin-staff · 7-testing-release · 8-admin-accounts
 - **Sahan:** 1-app-skeleton · 2-entry-sms · 3-sms-quality · 4-screens · 5-privacy-staff-tests · 6-ui-redesign
 - **Thilina:** 1-metrics-patterns · 2-score-rules · 3-ai-pipeline · 4-planning-tools · 5-qa · 6-password-reset
+
+
+2026-11-27 acceptance reconciliation: proposed T23, T31 and T32 `done` based on Thilina's report of the requested team confirmations, closed prerequisites and the retained green PR #39 evidence (API job 140646145075; scoring 38/38, daily guide 28/28, simulator 31/31). Original confirmation messages were not independently inspected. Review these proposed changes before merging. T52 retirement semantics are not inferred; T52–T55 and T61 retain their existing statuses. No other ownership or acceptance criteria change.
