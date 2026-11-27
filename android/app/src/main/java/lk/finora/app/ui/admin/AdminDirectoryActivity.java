@@ -10,6 +10,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import java.util.List;
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraScreenBinding;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.AdminDirectoryRepository;
 import lk.finora.app.data.repo.AdminDirectoryRepository.Category;
@@ -41,25 +43,21 @@ public final class AdminDirectoryActivity extends SecureActivity {
         });
         if (!work.isCurrent()) { finish(); return; }
         repository = new AdminDirectoryRepository(work.requests);
-        var scroll = new ScrollView(this);
-        scroll.setFitsSystemWindows(true);
-        var page = column();
-        int padding = Math.round(16 * getResources().getDisplayMetrics().density);
-        page.setPadding(padding, padding, padding, padding);
-        scroll.addView(page);
-        var heading = new TextView(this);
+        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
+        var page = binding.screenPage;
+        var heading = ScreenControls.text(this);
         heading.setText(categories ? R.string.admin_default_categories : R.string.admin_manage_users);
         ViewCompat.setAccessibilityHeading(heading, true);
         page.addView(heading);
         if (!categories) {
             search = field(R.string.admin_user_search, state == null ? "" : state.getString(QUERY, ""));
             search.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(120)});
-            page.addView(search);
+            ScreenControls.addField(page, search);
             button(page, R.string.admin_search, null, this::load);
         }
         rows = column();
         page.addView(rows);
-        setContentView(scroll);
+        setContentView(binding.getRoot());
         work.changes.observe(this, ignored -> render());
     }
 
@@ -123,7 +121,7 @@ public final class AdminDirectoryActivity extends SecureActivity {
         var reasons = new CharSequence[REASON_LABELS.length];
         for (int index = 0; index < reasons.length; index++) reasons[index] = getString(REASON_LABELS[index]);
         var form = column();
-        var target = new TextView(this);
+        var target = ScreenControls.text(this);
         target.setText(user.email());
         form.addView(target);
         var reason = new android.widget.Spinner(this);
@@ -144,8 +142,8 @@ public final class AdminDirectoryActivity extends SecureActivity {
         var form = column();
         var english = field(R.string.admin_category_name_en, category == null ? "" : category.name());
         var sinhala = field(R.string.admin_category_name_si, category == null ? "" : category.nameSi());
-        form.addView(english);
-        form.addView(sinhala);
+        ScreenControls.addField(form, english);
+        ScreenControls.addField(form, sinhala);
         var kind = new android.widget.Spinner(this);
         if (category == null) {
             kind.setContentDescription(getString(R.string.admin_category_kind));
@@ -185,7 +183,7 @@ public final class AdminDirectoryActivity extends SecureActivity {
     }
 
     private EditText field(int hint, String value) {
-        var field = new EditText(this);
+        var field = ScreenControls.field(this);
         field.setHint(hint);
         field.setText(value);
         field.setSingleLine(true);
@@ -195,13 +193,13 @@ public final class AdminDirectoryActivity extends SecureActivity {
     private static String text(EditText field) { return field.getText().toString().trim(); }
 
     private void label(String value) {
-        var text = new TextView(this);
+        var text = ScreenControls.text(this);
         text.setText(value);
         rows.addView(text);
     }
 
     private void button(LinearLayout parent, int title, String description, Runnable run) {
-        var button = new Button(this);
+        var button = ScreenControls.action(this);
         button.setText(title);
         if (description != null) button.setContentDescription(getString(title) + ". " + description);
         button.setOnClickListener(view -> run.run());

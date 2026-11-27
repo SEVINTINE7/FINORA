@@ -1,0 +1,66 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+    <LinearLayout
+        android:id="@+id/faq_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/finora_space_m">
+        <TextView
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_title" />
+        <TextView
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_login" />
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_login_body" />
+        <TextView
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_navigation" />
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/finance_help_text" />
+        <TextView
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_language" />
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_language_body" />
+        <TextView
+            style="@style/FinoraText.Heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_privacy" />
+        <TextView
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/finora_space_s"
+            android:text="@string/faq_privacy_body" />
+    </LinearLayout>
+</ScrollView>

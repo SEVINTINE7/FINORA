@@ -11,6 +11,7 @@ import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 
 public final class DashboardViewModel extends ViewModel {
     final Work work = new Work(() -> snapshot = null);
+    final DashboardHighlights highlights = new DashboardHighlights();
     private final DashboardRepository repository = work.requests == null ? null : new DashboardRepository(work.requests);
     YearMonth month = YearMonth.now(ZoneId.of("Asia/Colombo"));
     Snapshot snapshot;
@@ -26,6 +27,7 @@ public final class DashboardViewModel extends ViewModel {
         snapshot = null;
         work.run(() -> repository.load(selected), response -> DashboardRepository.read(response, selected),
                 value -> { if (!reload) snapshot = value; }, false);
+        highlights.load(selected);
     }
 
     void refreshIfQueued() {
@@ -46,5 +48,8 @@ public final class DashboardViewModel extends ViewModel {
         return year >= 1000 && year <= 9999;
     }
 
-    @Override protected void onCleared() { work.close(); }
+    @Override protected void onCleared() {
+        work.close();
+        highlights.close();
+    }
 }

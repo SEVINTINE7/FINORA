@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 import lk.finora.app.R;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.ui.auth.ProtectedHomeActivity;
 
 public final class StaffHomeActivity extends ProtectedHomeActivity {
@@ -22,16 +23,16 @@ public final class StaffHomeActivity extends ProtectedHomeActivity {
         counts.setTextColor(getColor(R.color.finora_on_navy));
         counts.setTextSize(18);
         layout.addView(counts, 1, new LinearLayout.LayoutParams(-1, -2));
-        var retry = new Button(this);
+        var retry = ScreenControls.homeAction(this);
         retry.setText(R.string.records_retry);
         retry.setOnClickListener(view -> stats.load());
         layout.addView(retry, 2, new LinearLayout.LayoutParams(-1, -2));
-        var diagnostics = new Button(this);
+        var diagnostics = ScreenControls.homeAction(this);
         diagnostics.setText(R.string.sms_diagnostic_queue);
         diagnostics.setOnClickListener(view -> startActivity(new android.content.Intent(this,
                 lk.finora.app.ui.support.DiagnosticQueueActivity.class)));
         layout.addView(diagnostics);
-        var support = new Button(this);
+        var support = ScreenControls.homeAction(this);
         support.setText(R.string.support_tickets);
         bindFocusReturningRoute(support, R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class);
         layout.addView(support);

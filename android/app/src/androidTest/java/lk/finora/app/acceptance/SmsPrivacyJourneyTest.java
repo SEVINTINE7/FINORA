@@ -20,7 +20,6 @@ import android.os.UserManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.test.core.app.ActivityScenario;
@@ -83,8 +82,8 @@ public class SmsPrivacyJourneyTest {
             enter(R.id.email, input.get(0));
             enter(R.id.password, input.get(1));
             click(R.id.sign_in);
-            waitFor(By.text(app.getString(R.string.records_tab)), "Login");
-            action(onView(allOf(isAssignableFrom(RadioButton.class), withText(R.string.records_tab))), View::performClick);
+            waitFor(By.desc(app.getString(R.string.records_tab)), "Login");
+            action(onView(withId(R.string.records_tab)), View::performClick);
             action(onView(allOf(withText(R.string.sms_access_title), isClickable())), View::performClick);
             click(R.id.sms_paste_entry_action);
             for (int i = 0; i < AMOUNTS.length; i++) {

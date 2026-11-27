@@ -64,13 +64,23 @@ public final class LoginActivity extends SecureActivity {
                 else model.exportConsentData(destination);
             });
 
+    @Override protected boolean showsUp() { return false; }
+
+    @Override protected boolean hasScreenInsets() {
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setBackgroundDrawableResource(R.color.finora_navy);
         setContentView(R.layout.activity_login);
         WindowCompat.getInsetsController(getWindow(), findViewById(R.id.login_root))
-                .setAppearanceLightNavigationBars(true);
+                .setAppearanceLightStatusBars(false);
+        WindowCompat.getInsetsController(getWindow(), findViewById(R.id.login_root))
+                .setAppearanceLightNavigationBars((getResources().getConfiguration().uiMode
+                        & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                        != android.content.res.Configuration.UI_MODE_NIGHT_YES);
         configureInsets();
 
         email = findViewById(R.id.email);
@@ -84,11 +94,14 @@ public final class LoginActivity extends SecureActivity {
         languageSelector = LocaleHelper.selector(this, LocaleHelper::apply);
         sheet.addView(languageSelector, ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        var activate = new android.widget.Button(this);
-        activate.setText(R.string.staff_activate);
-        activate.setOnClickListener(view -> startActivity(new android.content.Intent(this,
-                lk.finora.app.ui.staff.StaffAccessActivity.class)));
-        sheet.addView(activate, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        findViewById(R.id.login_sign_in_options).setOnClickListener(view -> showSecure(
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.login_sign_in_options)
+                        .setItems(new CharSequence[]{getText(R.string.staff_activate)}, (dialog, which) ->
+                                startActivity(new android.content.Intent(this,
+                                        lk.finora.app.ui.staff.StaffAccessActivity.class)))
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .create()));
         configureInsets();
         emailFeedback = new FieldFeedback(email, findViewById(R.id.email_field),
                 findViewById(R.id.email_error), null);

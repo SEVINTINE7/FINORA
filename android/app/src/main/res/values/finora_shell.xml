@@ -1,0 +1,7 @@
+<resources>
+    <item type="id" name="shell_navigation" />
+    <item type="id" name="shell_toolbar" />
+    <item type="id" name="shell_add_transaction" />
+    <item type="id" name="record_actions" />
+    <dimen name="finora_card_radius">16dp</dimen>
+</resources>

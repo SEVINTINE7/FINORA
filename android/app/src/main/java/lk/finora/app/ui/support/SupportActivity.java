@@ -9,6 +9,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraScreenBinding;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.data.repo.SupportRepository.Topic;
 import lk.finora.app.ui.SecureActivity;
 
@@ -23,14 +25,9 @@ public final class SupportActivity extends SecureActivity {
             finish();
             return;
         }
-        var scroll = new ScrollView(this);
-        scroll.setFitsSystemWindows(true);
-        rows = new LinearLayout(this);
-        rows.setOrientation(LinearLayout.VERTICAL);
-        int padding = Math.round(16 * getResources().getDisplayMetrics().density);
-        rows.setPadding(padding, padding, padding, padding);
-        scroll.addView(rows);
-        setContentView(scroll);
+        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
+        rows = binding.screenPage;
+        setContentView(binding.getRoot());
         model.work.changes.observe(this, ignored -> render());
         model.load();
     }
@@ -151,14 +148,14 @@ public final class SupportActivity extends SecureActivity {
     }
 
     private TextView label(String text) {
-        var view = new TextView(this);
+        var view = ScreenControls.text(this);
         view.setText(text);
         rows.addView(view);
         return view;
     }
 
     private Button button(int id, Runnable action) {
-        var button = new Button(this);
+        var button = ScreenControls.action(this);
         button.setText(id);
         button.setOnClickListener(view -> action.run());
         rows.addView(button);

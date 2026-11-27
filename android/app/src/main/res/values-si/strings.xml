@@ -490,4 +490,17 @@
     <string name="settings_alert_goal">ඉතිරි කිරීමේ ඉලක්ක දිනය දින 7ක් ඇතුළත</string>
     <string name="settings_notifications_allow">දැනුම්දීම්වලට ඉඩ දෙන්න</string>
     <string name="settings_notifications_off">FINORA සඳහා දැනුම්දීම් අක්‍රියයි. අනෙක් සියල්ල තවමත් ක්‍රියා කරයි.</string>
+    <string name="shell_navigate_up">ඉහළට යන්න</string>
+    <string name="dashboard_monthly_balance">මාසික ශේෂය</string>
+    <string name="dashboard_upcoming_bills">ඉදිරියේදී ගෙවිය යුතු බිල්පත්</string>
+    <string name="dashboard_recent_transactions">මෑත ගනුදෙනු</string>
+    <string name="dashboard_focus_goal">ප්‍රමුඛ ඉලක්කය</string>
+    <string name="records_actions_named">%1$s සඳහා ක්‍රියා</string>
+    <string name="records_actions_collapsed">හකුළා ඇත</string>
+    <string name="records_actions_expanded">විහිදුවා ඇත</string>
+    <string name="transaction_card_details">%1$s · %2$s</string>
+    <string name="transaction_card_credit">+ රු. %1$s</string>
+    <string name="transaction_card_debit">− රු. %1$s</string>
+    <string name="form_rupees_prefix">"රු. "</string>
+    <string name="login_sign_in_options">පිවිසීමේ විකල්ප</string>
 </resources>

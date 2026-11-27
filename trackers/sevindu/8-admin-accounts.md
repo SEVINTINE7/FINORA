@@ -5,15 +5,18 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 
 ### T59 · Admin creates admin accounts · `ADMIN-06`
 **Lead:** Sevindu · **Support:** Thilina (role tests), Sahan (Android) · **Depends on:** T41, T43 · **Touches:** `api:admin/`, `api:staff/`, `and:ui/admin/`
-- [ ] T59.1 [API] `POST /api/v1/admin/admins` `{email, fullName, password}` (D09 rule) → 201 `{id, email, fullName, enabled}` with `Cache-Control: no-store`; duplicate email → 409 `CONFLICT`; audit `ADMIN_CREATED` (actor, target only)
-- [ ] T59.2 [API] `GET /api/v1/admin/admins` (id, email, fullName, enabled, createdAt) and `PATCH /api/v1/admin/admins/{id}` `{enabled}`; disabling yourself or the last active ADMIN → 409 `CONFLICT`; disabling revokes that admin's refresh tokens
+- [x] T59.1 [API] `POST /api/v1/admin/admins` `{email, fullName, password}` (D09 rule) → 201 `{id, email, fullName, enabled}` with `Cache-Control: no-store`; duplicate email → 409 `CONFLICT`; audit `ADMIN_CREATED` (actor, target only)
+- [x] T59.2 [API] `GET /api/v1/admin/admins` (id, email, fullName, enabled, createdAt) and `PATCH /api/v1/admin/admins/{id}` `{enabled}`; disabling yourself or the last active ADMIN → 409 `CONFLICT`; disabling revokes that admin's refresh tokens
 - [ ] T59.3 [AND·Sahan] Admin home → "Admins": list, create form (password + confirm, show/hide), enable/disable with confirm dialog; EN/SI strings
-- [ ] T59.4 [API·Thilina] Add the new routes to the T52 role matrix (none, USER, STAFF, ADMIN, disabled)
+- [x] T59.4 [API·Thilina] Add the new routes to the T52 role matrix (none, USER, STAFF, ADMIN, disabled)
 
 **Done when**
 - [ ] Tests: only ADMIN reaches the routes; weak password 400; duplicate 409; self/last-admin disable 409; new admin signs in and lands on Admin home; password absent from responses and logs
 
 **Handoff notes:**
+- 2026-11-27 Sevindu: `api:admin/AdminAccountController` + `AdminAccountService` (JDBC, no migration). Create lower-cases the email, stores BCrypt only, audits `ADMIN_CREATED` (target_type `ADMIN`). Enable/disable locks every ADMIN row `FOR UPDATE`, checks the actor is still active, refuses self/last-admin (409), bumps `staff_session_generation` and revokes refresh tokens on disable. Contract added to `docs/api-contract.md`.
+- Tests: `AdminAccountControllerTest` 6/6; full `mvnw verify` 519 run, 0 failures/errors, 1 skipped, JaCoCo met.
+- Open: T59.3 Android Admins screen (Sahan), T59.4 matrix routes (Thilina), live check that a created admin lands on Admin home, then Done when.
 
 ---
 

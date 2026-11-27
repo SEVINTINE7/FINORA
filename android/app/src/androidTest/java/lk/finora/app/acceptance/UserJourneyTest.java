@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.test.core.app.ActivityScenario;
@@ -160,7 +159,7 @@ public class UserJourneyTest {
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
-            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
             checkFaqLayout(scale);
         }
     }
@@ -180,7 +179,7 @@ public class UserJourneyTest {
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
-            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
             checkUserRoutes("si", scale, problems);
             signOut();
             checkScreenText(LoginActivity.class, "si", scale, problems);
@@ -391,7 +390,7 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
             enter(R.id.contribution_amount, "250.00");
             clickId(R.id.contribution_add);
-            await(By.descContains("LKR 250.00"));
+            expandActions("LKR 250.00");
             keepAccessibilityFixture = true;
         }
     }
@@ -426,6 +425,7 @@ public class UserJourneyTest {
             awaitText(left);
             awaitText(app.getString(R.string.budget_state_ok));
             await(By.desc("Food. " + left));
+            expandActions("Food");
             onView(withContentDescription(app.getString(R.string.records_edit_named, "Food")))
                     .perform(activateControl());
             awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
@@ -481,7 +481,7 @@ public class UserJourneyTest {
             onView(withContentDescription(paidLabel)).perform(activateControl());
             awaitText(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
             onView(withContentDescription(paidLabel)).check(matches(not(isChecked())));
-            await(By.desc(app.getString(R.string.records_edit_named, "Synthetic rent")));
+            await(By.desc(app.getString(R.string.records_actions_named, "Synthetic rent")));
         }
 
         // T19.3 goals: list → detail, add/remove contributions, progress, rotation on detail
@@ -512,7 +512,7 @@ public class UserJourneyTest {
             device.setOrientationNatural();
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
             String remove = app.getString(R.string.records_remove_named, "");
-            await(By.descContains("LKR 250.00"));
+            expandActions("LKR 250.00");
             onView(allOf(withContentDescription(startsWith(remove)),
                     withContentDescription(containsString("LKR 250.00")))).perform(reveal(), activateControl());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
@@ -773,7 +773,7 @@ public class UserJourneyTest {
             checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
             clickText(R.string.language_selector);
             dialogChoice(app.getString(R.string.language_sinhala));
-            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
             tab(R.string.more_tab);
             checkBackFocus(R.string.finance_help, lk.finora.app.ui.help.FaqActivity.class, MainActivity.class);
             checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
@@ -862,23 +862,32 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
             signOut();
 
-            clickText(R.string.staff_activate);
+            onView(withText(R.string.staff_activate)).check(
+                    androidx.test.espresso.assertion.ViewAssertions.doesNotExist());
+            clickId(R.id.login_sign_in_options);
+            dialogChoice(app.getString(R.string.staff_activate));
             awaitActivity(lk.finora.app.ui.staff.StaffAccessActivity.class);
             typeFixture(onView(withHint(R.string.email)), staffEmail);
             typeFixture(onView(withHint(R.string.staff_temporary)), temporary.getAndSet(null));
             typeFixture(onView(withHint(R.string.staff_new_password)), "Synthetic9-replacement");
             clickText(R.string.staff_activate);
             awaitText(app.getString(R.string.staff_activation_done));
+            assertNull("Activation must not create a session", sessions.session());
             pressBack();
             awaitActivity(LoginActivity.class);
+            signInStaff(staffEmail, "Synthetic9-replacement");
+            signOut();
 
             signInAdmin(adminEmail, adminPassword);
             clickText(R.string.staff_manage);
-            awaitButton(R.string.staff_disable);
-            clickText(R.string.staff_disable);
+            String disable = app.getString(R.string.staff_account_summary,
+                    app.getString(R.string.staff_disable), staffEmail);
+            await(By.desc(disable));
+            onView(withContentDescription(disable)).perform(reveal(), activateControl());
             onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(staffEmail)));
             confirm();
-            awaitButton(R.string.staff_enable);
+            await(By.desc(app.getString(R.string.staff_account_summary,
+                    app.getString(R.string.staff_enable), staffEmail)));
         }
     }
 
@@ -1137,6 +1146,13 @@ public class UserJourneyTest {
                 var params = (WindowManager.LayoutParams) view.getRootView().getLayoutParams();
                 assertTrue((params.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0);
             });
+            pressBack();
+            clickId(R.id.login_sign_in_options);
+            onView(withText(R.string.staff_activate)).inRoot(isDialog()).check((view, failure) -> {
+                if (failure != null) throw failure;
+                var params = (WindowManager.LayoutParams) view.getRootView().getLayoutParams();
+                assertTrue((params.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0);
+            });
         }
     }
 
@@ -1170,9 +1186,9 @@ public class UserJourneyTest {
             enter(R.id.form_amount, "12.34");
             enter(R.id.form_merchant, MERCHANT);
             clickId(R.id.form_date);
-            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.form_save);
-            awaitText(app.getString(R.string.records_tab));
+            await(By.desc(app.getString(R.string.records_tab)));
             tab(R.string.home_tab);
             awaitText("Expenses: LKR 12.34");
 
@@ -1192,7 +1208,7 @@ public class UserJourneyTest {
             tab(R.string.records_tab);
             clickText(R.string.transaction_title);
             String edit = app.getString(R.string.records_edit_named, "");
-            await(By.descContains(MERCHANT));
+            expandActions(MERCHANT);
             onView(allOf(withContentDescription(startsWith(edit)),
                     withContentDescription(containsString(MERCHANT)))).perform(activateControl());
             awaitActivity(lk.finora.app.ui.transactions.TransactionFormActivity.class);
@@ -1201,6 +1217,7 @@ public class UserJourneyTest {
             clickId(R.id.form_save);
             await(By.textContains("15.17"));
             String remove = app.getString(R.string.records_remove_named, "");
+            expandActions(MERCHANT);
             onView(allOf(withContentDescription(startsWith(remove)),
                     withContentDescription(containsString(MERCHANT)))).perform(activateControl());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
@@ -1211,7 +1228,7 @@ public class UserJourneyTest {
             onView(withText(R.string.sms_manual_entry)).check(matches(isDisplayed()));
             clickText(R.string.sms_no_thanks);
             assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
-            awaitText(app.getString(R.string.records_tab));
+            await(By.desc(app.getString(R.string.records_tab)));
         }
     }
 
@@ -1452,7 +1469,7 @@ public class UserJourneyTest {
             select(R.id.form_type, app.getString(R.string.category_income));
             enter(R.id.form_amount, "85000.00");
             clickId(R.id.form_date);
-            onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.form_save);
             awaitActivity(MainActivity.class);
 
@@ -1526,9 +1543,9 @@ public class UserJourneyTest {
             config.setLocale(java.util.Locale.forLanguageTag("si"));
             var sinhala = app.createConfigurationContext(config);
             chooseTestLanguage("si");
-            awaitText(sinhala.getString(R.string.plan_tab));
+            await(By.desc(sinhala.getString(R.string.plan_tab)));
             awaitActivity(MainActivity.class);
-            onView(allOf(isAssignableFrom(RadioButton.class), withText(sinhala.getString(R.string.plan_tab))))
+            onView(withId(R.string.plan_tab))
                     .perform(activateControl());
             onView(allOf(isClickable(), withText(sinhala.getString(R.string.planning_guide))))
                     .perform(reveal(), activateControl());
@@ -1660,7 +1677,7 @@ public class UserJourneyTest {
                 dialogChoice(app.getString(R.string.language_sinhala));
                 var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
                 sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
-                awaitText(app.createConfigurationContext(sinhala).getString(R.string.records_tab));
+                await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.records_tab)));
             }
             tab(R.string.records_tab);
             clickText(R.string.sms_access_title);
@@ -1848,7 +1865,7 @@ public class UserJourneyTest {
         onView(withId(R.id.email)).check(matches(withText("t51-" + identity + "@example.test")));
         enter(R.id.password, "Test-" + identity + "-9");
         clickId(R.id.sign_in);
-        awaitText(app.getString(R.string.more_tab));
+        await(By.desc(app.getString(R.string.more_tab)));
     }
 
     private void awaitId(String id) { await(By.res(app.getPackageName(), id)); }
@@ -1865,6 +1882,12 @@ public class UserJourneyTest {
             SystemClock.sleep(100);
         } while (SystemClock.elapsedRealtime() < deadline);
         fail("Expected resumed activity: " + expected.getSimpleName());
+    }
+
+    private void expandActions(String row) {
+        await(By.descContains(row));
+        onView(allOf(withId(R.id.record_actions), withContentDescription(containsString(row))))
+                .perform(reveal(), activateControl());
     }
 
     private void awaitText(String text) { await(By.text(text)); }
@@ -1890,7 +1913,7 @@ public class UserJourneyTest {
     }
 
     private static void tab(int label) {
-        onView(allOf(withText(label), isAssignableFrom(RadioButton.class))).perform(activateControl());
+        onView(withId(label)).perform(activateControl());
     }
 
     private static void clickText(int label) {
@@ -1914,7 +1937,33 @@ public class UserJourneyTest {
     }
 
     private static void select(int id, String label) {
-        onView(withId(id)).perform(reveal(), selectSpinnerItem(label));
+        onView(withId(id)).perform(reveal(), selectFormChoice(label));
+    }
+
+    private static ViewAction selectFormChoice(String label) {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() { return isEnabled(); }
+            @Override public String getDescription() { return "select the synthetic fixture choice"; }
+            @Override public void perform(UiController controller, View view) {
+                if (view instanceof lk.finora.app.ui.FormChoices choices) {
+                    long deadline = SystemClock.elapsedRealtime() + UI_TIMEOUT_MS;
+                    do {
+                        for (int i = 0; i < choices.getChildCount(); i++) {
+                            var chip = (com.google.android.material.chip.Chip) choices.getChildAt(i);
+                            if (label.contentEquals(chip.getText())) {
+                                chip.performClick();
+                                controller.loopMainThreadUntilIdle();
+                                return;
+                            }
+                        }
+                        controller.loopMainThreadForAtLeast(50);
+                    } while (SystemClock.elapsedRealtime() < deadline);
+                    fail("Expected synthetic fixture chip is unavailable");
+                } else {
+                    selectSpinnerItem(label).perform(controller, view);
+                }
+            }
+        };
     }
 
     private static ViewAction selectSpinnerItem(String label) {

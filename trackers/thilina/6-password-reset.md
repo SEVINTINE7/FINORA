@@ -20,3 +20,4 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 - Four concurrent issuance requests produced three codes; two simultaneous resets produced one success and one audit event. The two original refresh sessions rejected rotation after reset.
 - One additional focused integration test passed through HTTP, the actual worker, transaction commit, fake mail delivery and confirmation. No real email was sent.
 - Sahan owns T61.4. Sevindu owns SMTP provider selection, protected live configuration and actual receipt for T61.5; see [deployment instructions](../../docs/deploy.md). Parent acceptance remains open.
+- 2026-11-27 Thilina: T61.1-3 implemented; 530 tests, 0 failures/errors, 1 existing skip; JaCoCo passed. Android and live SMTP pending.

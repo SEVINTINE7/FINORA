@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.repo.TransactionRepository.Filters;
 import lk.finora.app.data.repo.TransactionRepository.Row;
@@ -67,7 +68,6 @@ public final class TransactionActivity extends SecureActivity {
         androidx.core.view.ViewCompat.setAccessibilityHeading(title, true);
         filter = button(content, R.string.transaction_filters, this::showFilters);
         status = label(content, R.string.records_loading);
-        status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         retry = button(content, R.string.records_retry, () -> {
             if (!verify()) return;
             model.retry();
@@ -96,8 +96,7 @@ public final class TransactionActivity extends SecureActivity {
         var page = model.pagination.page();
         int message = busy ? R.string.records_loading : failed ? model.work.error
                 : page.items().isEmpty() ? R.string.records_empty : 0;
-        status.setText(message == 0 ? "" : getString(message));
-        status.setVisibility(message == 0 ? View.GONE : View.VISIBLE);
+        FinancialCard.showState(status, message, !busy && failed);
         retry.setVisibility(failed ? View.VISIBLE : View.GONE);
         filter.setEnabled(model.ready && !busy);
         previous.setEnabled(!busy && page.page() > 0);
@@ -108,23 +107,60 @@ public final class TransactionActivity extends SecureActivity {
             String description = getString(R.string.transaction_row, row.txnDate(),
                     getString(typeLabel(row.type())), row.amount().toPlainString());
             if (row.merchant() != null) description += "\n" + row.merchant();
-            TextView text = new TextView(this);
-            text.setText(description);
-            rows.addView(text);
-            if (review) continue;
-            Button edit = button(rows, R.string.records_edit, () -> {
+            var body = column();
+            int inset = getResources().getDimensionPixelSize(R.dimen.finora_space_s);
+            body.setPadding(inset, 0, inset, inset);
+            boolean income = "INCOME".equals(row.type());
+            String heading = row.merchant();
+            if (heading == null || heading.isBlank()) heading = getString(typeLabel(row.type()));
+            TextView title = new TextView(this);
+            title.setTextAppearance(R.style.FinoraText_Label);
+            title.setText(heading);
+            androidx.core.view.ViewCompat.setAccessibilityHeading(title, true);
+            body.addView(title);
+            TextView details = new TextView(this);
+            details.setTextAppearance(R.style.FinoraText_Body);
+            details.setText(getString(R.string.transaction_card_details, categoryName(row), row.txnDate()));
+            body.addView(details);
+            TextView amount = new TextView(this);
+            amount.setTextAppearance(R.style.FinoraText_Label);
+            amount.setTextColor(getColor(income ? R.color.finora_green : R.color.finora_error));
+            amount.setGravity(android.view.Gravity.END);
+            amount.setText(getString(income ? R.string.transaction_card_credit : R.string.transaction_card_debit,
+                    row.amount().toPlainString()));
+            amount.setContentDescription(getString(income ? R.string.dashboard_income : R.string.dashboard_expense,
+                    row.amount().toPlainString()));
+            body.addView(amount);
+            int icon = income ? R.drawable.finora_nav_insights : R.drawable.finora_nav_records;
+            if (review) {
+                rows.addView(FinancialCard.wrap(body, description, icon));
+                continue;
+            }
+            Button edit = button(body, R.string.records_edit, () -> {
                 if (verify() && !model.work.busy()) {
                     editForm.launch(new Intent(this, TransactionFormActivity.class)
                             .putExtra(TransactionFormActivity.ID, row.id()));
                 }
             });
             edit.setContentDescription(getString(R.string.records_edit_named, description));
-            Button remove = button(rows, R.string.records_remove, () -> AccountListActivity.confirm(
+            Button remove = button(body, R.string.records_remove, () -> AccountListActivity.confirm(
                     this, model.work, R.string.transaction_remove, () -> model.delete(row.id())));
             remove.setContentDescription(getString(R.string.records_remove_named, description));
             edit.setEnabled(!busy);
             remove.setEnabled(!busy);
+            rows.addView(FinancialCard.wrap(body, description, icon, edit, remove));
         }
+    }
+
+    private String categoryName(Row row) {
+        for (var category : model.categories) {
+            if (row.categoryId() != null && category.id() == row.categoryId()) {
+                boolean sinhala = "si".equals(getResources().getConfiguration().getLocales().get(0).getLanguage());
+                return sinhala && category.nameSi() != null && !category.nameSi().isBlank()
+                        ? category.nameSi() : category.name();
+            }
+        }
+        return getString(R.string.dashboard_uncategorized);
     }
 
     private void showFilters() {

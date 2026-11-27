@@ -36,6 +36,7 @@ Every error, including 401/403 from security and 404 for unknown paths:
 | 400 | `UNDER_18` | Register with `over18=false` |
 | 401 | `INVALID_CREDENTIALS` | Login: wrong password **or** unknown email (same body for both) |
 | 401 | `INVALID_REFRESH_TOKEN` | Refresh token unknown, expired, already used or logged out |
+| 400 | `INVALID_RESET_CODE` | Password reset code incorrect, expired, exhausted, replaced or used; same error for unknown or inactive account |
 | 409 | `CONFLICT` | Duplicate name (account per user; category per user + kind, including defaults) (T09) |
 | 409 | `IN_USE` | Deleting a category used by transactions, budgets or bills (T09) |
 | 413 | `FILE_TOO_LARGE` | Uploaded CSV over 1 MB (T12) |
@@ -73,6 +74,8 @@ Source semantics: consumption = all recorded expense minus default Savings expen
 | POST | `/api/v1/auth/password/forgot` | Public | `{email}` | `202` empty for every valid address, including unknown, disabled and rate-limited accounts. The active account's language selects the code email. | T61/D64 |
 | POST | `/api/v1/auth/password/reset` | Public | `{email, code, newPassword}` (six-digit string, D09 password, at most 72 UTF-8 bytes) | `204` empty on success. `400 INVALID_RESET_CODE` for invalid, used or expired codes. Success revokes every refresh token. Existing access JWTs retain their D07 expiry. | T61/D64 |
 | POST | `/api/v1/auth/logout` | Public | `{refreshToken}` | `204` (always, even if the token was unknown) | T05 |
+| POST | `/api/v1/auth/password/forgot` | Public | `{email}` | `202 {message}` for every valid email request, including unknown, disabled and rate-limited accounts; at most 3 issued codes per account per rolling hour | T61/D64 |
+| POST | `/api/v1/auth/password/reset` | Public | `{email, code, newPassword}` (D09) | `204`; code valid for 15 minutes, single use, invalidated at 5 failed attempts; `400 INVALID_RESET_CODE` or `VALIDATION_ERROR`; all sessions revoked on success | T61/D64 |
 | GET | `/api/v1/me` | USER | — | `200 {email, fullName, language, consentVersion, alerts: {budget, bill, goal}}` (`consentVersion` = `null` after withdrawal, D15; `alerts` all `true` by default, T34) | T07/T34 |
 | PUT | `/api/v1/me` | USER | `{fullName, language: "EN"\|"SI"}` | `200` same as GET · 400 `VALIDATION_ERROR` | T07 |
 | PATCH | `/api/v1/me` | USER | `{language: "EN"\|"SI"}` (other fields ignored) | `200` same as GET · 400 `VALIDATION_ERROR`. Changes only the language, so a newer name is kept (D60). Used by the app's language picker. | T07.5/T39.2 |
@@ -202,6 +205,8 @@ STAFF `GET /api/v1/staff/reply-catalog` returns draft, active and retired versio
 ADMIN can list or create STAFF at `/api/v1/admin/staff`. Creation accepts `{email,fullName}` and returns 201 with `{id,temporaryPassword}` and `Cache-Control: no-store`. The role is fixed to STAFF. A pending account has no active sign-in. The temporary password itself is a single-use password-change credential, valid for 24 hours and accepted only at `POST /api/v1/auth/staff/activate` with `{email,temporaryPassword,password}`. A successful activation returns 204 without tokens. Sign in again with the new password.
 
 ADMIN can replace a pending temporary password at `POST /api/v1/admin/staff/{id}/activation`, which invalidates the previous temporary password. ADMIN can disable or re-enable activated STAFF at `PATCH /api/v1/admin/staff/{id}` with `{enabled}`. Each transition advances a server-side session generation, so prior access and refresh credentials remain invalid after re-enable. No endpoint promotes a user to ADMIN.
+
+T59 (D62): ADMIN can create another ADMIN at `POST /api/v1/admin/admins` with `{email, fullName, password}` (D09 password rule; email lower-cased). It returns 201 `{id, email, fullName, enabled, createdAt}` with `Cache-Control: no-store`; the password is never returned or logged. A registered email returns 409 `CONFLICT`. `GET /api/v1/admin/admins` lists up to 100 admins with the same fields. `PATCH /api/v1/admin/admins/{id}` takes exactly `{enabled}` and returns 204. Disabling yourself, disabling the last active ADMIN, or acting after your own account was disabled returns 409 `CONFLICT`; a non-ADMIN id returns 404. Disabling revokes refresh tokens and ends sessions; after re-enabling, the admin must sign in again. Audit events `ADMIN_CREATED`, `ADMIN_DISABLED`, `ADMIN_ENABLED` hold actor and target IDs only. These are the only routes that grant ADMIN.
 
 ADMIN can activate or disable the hash-pinned D35 NSB bundle via `PATCH /api/v1/admin/sms-formats/NSB/1` with `{active}`. Activation verifies the approved content under a row lock. It returns 204 and preserves D36 distribution behavior. Draft format authoring and rollback remain outside this endpoint.
 

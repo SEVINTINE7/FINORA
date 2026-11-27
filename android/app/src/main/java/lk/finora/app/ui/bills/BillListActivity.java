@@ -19,6 +19,7 @@ import java.time.format.FormatStyle;
 import java.util.Locale;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.BillDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -93,7 +94,8 @@ public final class BillListActivity extends SecureActivity {
         edit.setOnClickListener(view -> open(item.id()));
         remove.setOnClickListener(view -> AccountListActivity.confirm(this, model.work,
                 R.string.bill_remove_message, () -> model.delete(item.id())));
-        return row;
+        return FinancialCard.wrap((android.widget.LinearLayout) row, item.name(),
+                R.drawable.finora_nav_plan, edit, remove);
     }
 
     private void open(long id) {

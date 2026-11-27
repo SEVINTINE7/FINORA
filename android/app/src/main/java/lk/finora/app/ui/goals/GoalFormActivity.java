@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModelProvider;
 import java.math.BigDecimal;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FormFields;
+import lk.finora.app.ui.FinancialDatePicker;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -22,6 +24,7 @@ public final class GoalFormActivity extends SecureActivity {
     private EditText targetDate;
 
     @Override protected void onCreate(Bundle state) {
+        FinancialDatePicker.protect(this);
         super.onCreate(state);
         model = new ViewModelProvider(this).get(GoalFormViewModel.class);
         if (!AccountListActivity.verify(this, model.work)) return;
@@ -31,6 +34,13 @@ public final class GoalFormActivity extends SecureActivity {
         name = findViewById(R.id.form_name);
         target = findViewById(R.id.goal_target);
         targetDate = findViewById(R.id.goal_target_date);
+        FormFields.calendar(targetDate, () -> {
+            if (!canSelectDate()) return;
+            var current = GoalRules.parseDate(targetDate.getText().toString());
+            FinancialDatePicker.show(this, R.string.goal_target_date,
+                    current == null ? GoalRules.today().plusDays(1) : current, this::selectDate);
+        });
+        FinancialDatePicker.restore(this, this::selectDate);
         AccountFormActivity.watch(name, text -> model.name = text);
         AccountFormActivity.watch(target, text -> model.target = text);
         AccountFormActivity.watch(targetDate, text -> model.targetDate = text);
@@ -70,23 +80,31 @@ public final class GoalFormActivity extends SecureActivity {
         targetDate.setEnabled(enabled);
     }
 
+    private boolean canSelectDate() {
+        return AccountListActivity.verify(this, model.work) && model.ready && !model.work.busy();
+    }
+
+    private void selectDate(java.time.LocalDate chosen) {
+        if (canSelectDate()) targetDate.setText(chosen.toString());
+    }
+
     private void save() {
         if (!AccountListActivity.verify(this, model.work) || !model.ready || model.work.busy()) return;
         String goalName = name.getText().toString().trim();
         if (!GoalFormViewModel.validName(goalName)) {
-            name.setError(getString(R.string.records_name_invalid));
+            FormFields.error(name, R.string.records_name_invalid);
             return;
         }
         BigDecimal amount;
         try {
             amount = GoalRules.parseAmount(target.getText().toString());
         } catch (IllegalArgumentException failure) {
-            target.setError(getString(R.string.budget_limit_invalid));
+            FormFields.error(target, R.string.budget_limit_invalid);
             return;
         }
         String date = targetDate.getText().toString();
         if (!GoalRules.validTargetDate(date, GoalRules.today())) {
-            targetDate.setError(getString(R.string.goal_target_date_invalid));
+            FormFields.error(targetDate, R.string.goal_target_date_invalid);
             return;
         }
         model.save(goalName, amount, date);

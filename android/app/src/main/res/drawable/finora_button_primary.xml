@@ -15,7 +15,7 @@
         <shape android:shape="rectangle">
             <solid android:color="@color/finora_green" />
             <corners android:radius="@dimen/finora_control_radius" />
-            <stroke android:width="@dimen/finora_focus_width" android:color="@color/finora_mint" />
+            <stroke android:width="@dimen/finora_focus_width" android:color="@color/finora_primary_focus_ring" />
         </shape>
     </item>
     <item>

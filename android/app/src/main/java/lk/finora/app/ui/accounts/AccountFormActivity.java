@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -17,6 +16,8 @@ import java.math.BigDecimal;
 import java.util.function.Consumer;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FormFields;
+import lk.finora.app.ui.FormChoices;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 
@@ -25,7 +26,7 @@ public final class AccountFormActivity extends SecureActivity {
     private boolean filled;
     private EditText name;
     private EditText amount;
-    private Spinner type;
+    private FormChoices type;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -35,7 +36,7 @@ public final class AccountFormActivity extends SecureActivity {
         setContentView(R.layout.activity_account_form);
         name = findViewById(R.id.form_name);
         amount = findViewById(R.id.account_balance);
-        type = spinner(this, R.id.form_kind, R.string.account_bank, R.string.account_cash,
+        type = choices(this, R.id.form_kind, R.string.account_bank, R.string.account_cash,
                 R.string.account_card, R.string.account_wallet);
         watch(name, value -> model.name = value);
         watch(amount, value -> model.amount = value);
@@ -84,14 +85,14 @@ public final class AccountFormActivity extends SecureActivity {
         if (!AccountListActivity.verify(this, model.work) || !model.ready || model.work.busy()) return;
         String value = name.getText().toString().trim();
         if (value.isEmpty() || value.length() > 60) {
-            name.setError(getString(R.string.records_name_invalid));
+            FormFields.error(name, R.string.records_name_invalid);
             return;
         }
         BigDecimal balance;
         try {
             balance = AccountFormViewModel.parseBalance(amount.getText().toString());
         } catch (IllegalArgumentException failure) {
-            amount.setError(getString(R.string.account_balance_invalid));
+            FormFields.error(amount, R.string.account_balance_invalid);
             return;
         }
         model.type = type.getSelectedItemPosition();
@@ -124,8 +125,8 @@ public final class AccountFormActivity extends SecureActivity {
                 }).create());
     }
 
-    public static Spinner spinner(AppCompatActivity activity, int id, int... labels) {
-        Spinner spinner = activity.findViewById(id);
+    public static FormChoices choices(AppCompatActivity activity, int id, int... labels) {
+        FormChoices spinner = activity.findViewById(id);
         String[] values = new String[labels.length];
         for (int i = 0; i < labels.length; i++) values[i] = activity.getString(labels[i]);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, values);
@@ -138,6 +139,7 @@ public final class AccountFormActivity extends SecureActivity {
         input.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence text, int start, int before, int count) {
+                FormFields.clearError(input);
                 change.accept(text.toString());
             }
             @Override public void afterTextChanged(Editable text) {}

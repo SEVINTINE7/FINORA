@@ -10,6 +10,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import java.io.IOException;
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraScreenBinding;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.AccountRepository.ProtectedRequests;
 import lk.finora.app.data.repo.SmsDiagnosticRepository;
@@ -35,25 +37,22 @@ public final class FormatSampleActivity extends SecureActivity {
         admin = ProtectedRequests.currentAdmin();
         if (!checkSession()) return;
         revision = getIntent().getIntExtra(REVISION, 0);
-        var scroll = new ScrollView(this);
-        var page = new LinearLayout(this);
-        page.setOrientation(LinearLayout.VERTICAL);
+        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
+        var page = binding.screenPage;
         page.setImportantForAutofill(android.view.View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
-        scroll.setFitsSystemWindows(true);
-        scroll.addView(page);
-        var title = new TextView(this);
+        var title = ScreenControls.text(this);
         title.setText(R.string.sms_format_sample_check);
         androidx.core.view.ViewCompat.setAccessibilityHeading(title, true);
         page.addView(title);
         definition = field(R.string.sms_format_candidate, 65536);
         sample = field(R.string.sms_format_synthetic_sample, 2048);
-        page.addView(definition);
-        page.addView(sample);
-        var check = new Button(this);
+        ScreenControls.addField(page, definition);
+        ScreenControls.addField(page, sample);
+        var check = ScreenControls.action(this);
         check.setText(R.string.sms_format_sample_check);
         check.setOnClickListener(view -> checkSample());
         page.addView(check);
-        result = new TextView(this);
+        result = ScreenControls.text(this);
         result.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
         page.addView(result);
         TextWatcher invalidateResult = new TextWatcher() {
@@ -66,7 +65,7 @@ public final class FormatSampleActivity extends SecureActivity {
         definition.addTextChangedListener(invalidateResult);
         sample.addTextChangedListener(invalidateResult);
         if (revision > 0) {
-            save = new Button(this);
+            save = ScreenControls.action(this);
             save.setText(R.string.records_save);
             save.setOnClickListener(view -> saveDraft());
             page.addView(save, 1);
@@ -82,7 +81,7 @@ public final class FormatSampleActivity extends SecureActivity {
                 else if (work.error != 0) result.setText(work.error);
             });
         }
-        setContentView(scroll);
+        setContentView(binding.getRoot());
     }
 
     @Override protected void onStart() {
@@ -138,7 +137,7 @@ public final class FormatSampleActivity extends SecureActivity {
     }
 
     private EditText field(int title, int limit) {
-        var field = new EditText(this);
+        var field = ScreenControls.field(this);
         field.setHint(title);
         field.setSaveEnabled(false);
         field.setImeOptions(android.view.inputmethod.EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);

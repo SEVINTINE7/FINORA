@@ -1,6 +1,7 @@
 package lk.finora.app.ui.admin;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.StaffProvisioningRepository;
 import lk.finora.app.data.repo.StaffProvisioningRepository.AdminCounts;
@@ -23,12 +24,12 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
         layout.addView(scroll, new android.widget.LinearLayout.LayoutParams(-1, 0, 1));
         addDirectory(actions, R.string.admin_manage_users, false);
         addDirectory(actions, R.string.admin_default_categories, true);
-        var diagnostics = new android.widget.Button(this);
+        var diagnostics = ScreenControls.homeAction(this);
         diagnostics.setText(R.string.sms_diagnostic_admin);
         diagnostics.setOnClickListener(view -> startActivity(new android.content.Intent(this,
                 lk.finora.app.ui.support.DiagnosticQueueActivity.class)));
         actions.addView(diagnostics);
-        var staff = new android.widget.Button(this);
+        var staff = ScreenControls.homeAction(this);
         staff.setText(R.string.staff_manage);
         staff.setOnClickListener(view -> {
             var screen = lk.finora.app.ui.staff.StaffAccessActivity.class;
@@ -41,7 +42,7 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
         summary.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
         layout.addView(summary, 1);
         countsWork = new Work(AccountRepository.ProtectedRequests.currentAdmin(), () -> counts = null);
-        var retry = new android.widget.Button(this);
+        var retry = ScreenControls.homeAction(this);
         retry.setText(R.string.records_retry);
         retry.setOnClickListener(view -> loadCounts());
         actions.addView(retry);
@@ -56,7 +57,7 @@ public final class AdminHomeActivity extends ProtectedHomeActivity {
     }
 
     private void addDirectory(android.widget.LinearLayout layout, int label, boolean categories) {
-        var button = new android.widget.Button(this);
+        var button = ScreenControls.homeAction(this);
         button.setText(label);
         button.setOnClickListener(view -> startActivity(new android.content.Intent(this, AdminDirectoryActivity.class)
                 .putExtra(AdminDirectoryActivity.CATEGORIES, categories)));

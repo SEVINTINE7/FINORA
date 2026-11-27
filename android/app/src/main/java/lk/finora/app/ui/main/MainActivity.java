@@ -4,15 +4,18 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationBarView;
 
 import lk.finora.app.R;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -38,6 +41,8 @@ public final class MainActivity extends ProtectedHomeActivity {
     private static final String DESTINATION = "destination";
     private static final int[] LABELS = {R.string.home_tab, R.string.records_tab,
             R.string.plan_tab, R.string.insights_tab, R.string.more_tab};
+    private static final int[] ICONS = {R.drawable.finora_nav_home, R.drawable.finora_nav_records,
+            R.drawable.finora_nav_plan, R.drawable.finora_nav_insights, R.drawable.finora_nav_more};
     private int destination;
     private DashboardViewModel dashboard;
     @Override protected String requiredRole() { return "USER"; }
@@ -90,28 +95,43 @@ public final class MainActivity extends ProtectedHomeActivity {
         }
         layout.addView(actions, 2, new LinearLayout.LayoutParams(-1, 0, 1));
 
-        RadioGroup navigation = new RadioGroup(this);
-        navigation.setOrientation(LinearLayout.HORIZONTAL);
+        FloatingActionButton addTransaction = new FloatingActionButton(this);
+        addTransaction.setId(R.id.shell_add_transaction);
+        addTransaction.setImageResource(R.drawable.finora_nav_add);
+        addTransaction.setContentDescription(getString(R.string.transaction_open_manual));
+        addTransaction.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.finora_green)));
+        addTransaction.setImageTintList(ColorStateList.valueOf(getColor(R.color.finora_action_ink)));
+        addTransaction.setShapeAppearanceModel(addTransaction.getShapeAppearanceModel().toBuilder()
+                .setAllCornerSizes(getResources().getDimension(R.dimen.finora_control_radius)).build());
+        addTransaction.setOnClickListener(view -> startActivity(new Intent(this, TransactionFormActivity.class)));
+        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-2, -2);
+        actionParams.gravity = Gravity.END;
+        actionParams.bottomMargin = getResources().getDimensionPixelSize(R.dimen.finora_space_s);
+        layout.addView(addTransaction, actionParams);
+
+        BottomNavigationView navigation = new BottomNavigationView(this);
+        navigation.setId(R.id.shell_navigation);
+        navigation.setBackgroundColor(getColor(R.color.finora_navy));
+        navigation.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
+        navigation.setItemHorizontalTranslationEnabled(false);
+        navigation.setLabelFontScalingEnabled(true);
+        navigation.setLabelMaxLines(2);
+        navigation.setItemActiveIndicatorEnabled(true);
+        navigation.setItemActiveIndicatorColor(ColorStateList.valueOf(getColor(R.color.finora_mint)));
         int[][] states = {{android.R.attr.state_checked}, {}};
         ColorStateList colors = new ColorStateList(states,
                 new int[]{getColor(R.color.finora_mint), getColor(R.color.finora_on_navy)});
-        int touchHeight = Math.round(48 * getResources().getDisplayMetrics().density);
-        for (int label : LABELS) {
-            RadioButton tab = new RadioButton(this);
-            tab.setId(View.generateViewId());
-            tab.setText(label);
-            tab.setTextColor(colors);
-            tab.setButtonDrawable(null);
-            tab.setPadding(0, 0, 0, 0);
-            tab.setSingleLine(false);
-            tab.setHorizontallyScrolling(false);
-            tab.setGravity(Gravity.CENTER);
-            tab.setMinHeight(touchHeight);
-            navigation.addView(tab, new RadioGroup.LayoutParams(0, -1, 1));
+        navigation.setItemIconTintList(new ColorStateList(states,
+                new int[]{getColor(R.color.finora_navy), getColor(R.color.finora_on_navy)}));
+        navigation.setItemTextColor(colors);
+        for (int index = 0; index < LABELS.length; index++) {
+            int label = LABELS[index];
+            navigation.getMenu().add(0, label, Menu.NONE, label).setIcon(ICONS[index])
+                    .setContentDescription(getString(label));
         }
-        navigation.setOnCheckedChangeListener((group, checkedId) -> {
-            int selected = group.indexOfChild(group.findViewById(checkedId));
-            if (selected < 0) return;
+        navigation.setOnItemSelectedListener(item -> {
+            int selected = 0;
+            while (LABELS[selected] != item.getItemId()) selected++;
             int former = destination;
             destination = selected;
             home.setVisibility(destination == 0 ? View.VISIBLE : View.GONE);
@@ -121,11 +141,14 @@ public final class MainActivity extends ProtectedHomeActivity {
             recordActions.setVisibility(LABELS[destination] == R.string.records_tab ? View.VISIBLE : View.GONE);
             planActions.setVisibility(LABELS[destination] == R.string.plan_tab ? View.VISIBLE : View.GONE);
             insightActions.setVisibility(LABELS[destination] == R.string.insights_tab ? View.VISIBLE : View.GONE);
+            addTransaction.setVisibility(destination == 0 || item.getItemId() == R.string.records_tab
+                    ? View.VISIBLE : View.GONE);
             if (destination == 0 && former != 0) dashboard.refresh();
+            return true;
         });
         int restored = state == null ? 0 : state.getInt(DESTINATION);
         if (restored < 0 || restored >= LABELS.length) restored = 0;
-        navigation.check(navigation.getChildAt(restored).getId());
+        navigation.setSelectedItemId(LABELS[restored]);
         layout.addView(navigation, new LinearLayout.LayoutParams(-1, -2));
     }
 

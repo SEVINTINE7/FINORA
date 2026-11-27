@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 
@@ -64,7 +65,7 @@ public final class AccountListActivity extends SecureActivity {
         TextView status = activity.findViewById(R.id.records_status);
         int message = work.busy() ? R.string.records_loading : work.error != 0 ? work.error
                 : empty ? R.string.records_empty : 0;
-        status.setText(message == 0 ? "" : activity.getString(message));
+        FinancialCard.showState(status, message, !work.busy() && work.error != 0);
         activity.findViewById(R.id.records_add).setEnabled(!work.busy());
         activity.findViewById(R.id.records_retry).setEnabled(!work.busy());
     }

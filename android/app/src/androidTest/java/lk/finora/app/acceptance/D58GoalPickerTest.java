@@ -5,7 +5,6 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -15,7 +14,6 @@ import android.os.Process;
 import android.os.UserManager;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
@@ -76,7 +74,7 @@ public class D58GoalPickerTest {
         try (var scenario = ActivityScenario.launch(LoginActivity.class)) {
             if ("si".equals(args.getString("finoraD58Language"))) {
                 enterCredentials("worker", workerPassword);
-                await(device, By.text("විශ්ලේෂණ"), "Sinhala profile insights tab");
+                await(device, By.desc("විශ්ලේෂණ"), "Sinhala profile insights tab");
                 tab(R.string.insights_tab);
                 activate(withText(R.string.advice_title));
                 scrollTo(device, By.text("ඉලක්කයක් නැත (සාමාන්‍ය උපදෙස්)"), "Sinhala general-advice control");
@@ -158,7 +156,7 @@ public class D58GoalPickerTest {
     }
 
     private static void tab(int label) {
-        activate(allOf(withText(label), isAssignableFrom(RadioButton.class)));
+        activate(withId(label));
     }
 
     private static void replace(int id, String value) {

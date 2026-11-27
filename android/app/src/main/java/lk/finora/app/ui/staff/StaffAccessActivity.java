@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Supplier;
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityFinoraScreenBinding;
+import lk.finora.app.ui.ScreenControls;
 import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.AccountRepository.ProtectedRequests;
@@ -39,14 +41,9 @@ public final class StaffAccessActivity extends SecureActivity {
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
-        var scroll = new ScrollView(this);
-        scroll.setFitsSystemWindows(true);
-        page = new LinearLayout(this);
-        page.setOrientation(LinearLayout.VERTICAL);
-        int padding = Math.round(16 * getResources().getDisplayMetrics().density);
-        page.setPadding(padding, padding, padding, padding);
-        scroll.addView(page);
-        setContentView(scroll);
+        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
+        page = binding.screenPage;
+        setContentView(binding.getRoot());
         if (getIntent().getBooleanExtra(ADMINISTRATION, false)) {
             work = new Work(ProtectedRequests.currentAdmin(), () -> accounts = List.of());
             if (!work.isCurrent()) { finish(); return; }
@@ -91,10 +88,10 @@ public final class StaffAccessActivity extends SecureActivity {
         var email = field(R.string.email, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         temporary = field(R.string.staff_temporary, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         password = field(R.string.staff_new_password, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        page.addView(email);
-        page.addView(temporary);
-        page.addView(password);
-        var status = new TextView(this);
+        ScreenControls.addField(page, email);
+        ScreenControls.addField(page, temporary);
+        ScreenControls.addField(page, password);
+        var status = ScreenControls.text(this);
         status.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
         page.addView(status);
         button(R.string.staff_activate, () -> {
@@ -150,12 +147,12 @@ public final class StaffAccessActivity extends SecureActivity {
         for (var item : accounts) {
             label(getString(R.string.staff_account_summary, item.fullName(), item.email()));
             if (item.pending()) {
-                button(R.string.staff_reissue, () -> confirm(R.string.staff_reissue, item.email(),
+                staffAction(R.string.staff_reissue, item.email(), () -> confirm(R.string.staff_reissue, item.email(),
                         () -> reveal(() -> repository.reissue(item.id()))));
             } else {
                 boolean enable = "DISABLED".equals(item.status());
                 int action = enable ? R.string.staff_enable : R.string.staff_disable;
-                button(action, () -> confirm(action, item.email(), () -> work.run(
+                staffAction(action, item.email(), () -> confirm(action, item.email(), () -> work.run(
                         () -> repository.setEnabled(item.id(), enable), Work::empty, unused -> load(), false)));
             }
         }
@@ -166,8 +163,8 @@ public final class StaffAccessActivity extends SecureActivity {
         form.setOrientation(LinearLayout.VERTICAL);
         var email = field(R.string.email, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         var name = field(R.string.staff_full_name, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        form.addView(email);
-        form.addView(name);
+        ScreenControls.addField(form, email);
+        ScreenControls.addField(form, name);
         dialog = showSecure(new AlertDialog.Builder(this).setTitle(R.string.staff_create).setView(form)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(android.R.string.ok, (prompt, which) ->
@@ -199,7 +196,7 @@ public final class StaffAccessActivity extends SecureActivity {
     }
 
     private EditText field(int name, int inputType) {
-        var edit = new EditText(this);
+        var edit = ScreenControls.field(this);
         edit.setHint(name);
         edit.setInputType(inputType);
         edit.setSaveEnabled(false);
@@ -210,16 +207,22 @@ public final class StaffAccessActivity extends SecureActivity {
 
     private static String text(EditText field) { return field.getText().toString(); }
     private TextView label(String text) {
-        var label = new TextView(this);
+        var label = ScreenControls.text(this);
         label.setText(text);
         page.addView(label);
         return label;
     }
     private void heading(int title) { ViewCompat.setAccessibilityHeading(label(getString(title)), true); }
-    private void button(int title, Runnable action) {
-        var button = new Button(this);
+    private void staffAction(int title, String email, Runnable action) {
+        button(title, action).setContentDescription(
+                getString(R.string.staff_account_summary, getString(title), email));
+    }
+
+    private Button button(int title, Runnable action) {
+        var button = ScreenControls.action(this);
         button.setText(title);
         button.setOnClickListener(view -> action.run());
         page.addView(button);
+        return button;
     }
 }

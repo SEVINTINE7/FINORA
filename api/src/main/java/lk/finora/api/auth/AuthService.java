@@ -104,7 +104,8 @@ public class AuthService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public LoginResponse login(LoginRequest request) {
         String email = request.email().trim().toLowerCase();
-        User user = userRepository.findByEmail(email).orElse(null);
+        // T61: read credentials under the same account-row lock as password reset.
+        User user = userRepository.findByEmailForUpdate(email).orElse(null);
 
         // Same error for unknown email and wrong password, so nobody can find out which emails are registered
         if (user == null || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {

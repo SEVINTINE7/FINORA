@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.data.api.CategoryDto;
 
 final class CategoryListAdapter {
@@ -38,6 +39,9 @@ final class CategoryListAdapter {
             editButton.setOnClickListener(view -> edit.run());
             removeButton.setOnClickListener(view -> remove.run());
         }
-        return row;
+        var body = (android.widget.LinearLayout) row;
+        int icon = "INCOME".equals(item.kind()) ? R.drawable.finora_nav_insights : R.drawable.finora_nav_records;
+        return item.isDefault() ? FinancialCard.wrap(body, name, icon)
+                : FinancialCard.wrap(body, name, icon, editButton, removeButton);
     }
 }

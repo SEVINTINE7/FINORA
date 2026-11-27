@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -47,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:labelFor="@+id/form_type"
                 android:text="@string/transaction_type" />
-            <Spinner
+            <lk.finora.app.ui.FormChoices
                 android:id="@id/form_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:labelFor="@+id/form_category"
                 android:text="@string/transaction_category" />
-            <Spinner
+            <lk.finora.app.ui.FormChoices
                 android:id="@id/form_category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,13 +86,20 @@
                 android:layout_height="wrap_content"
                 android:labelFor="@+id/form_amount"
                 android:text="@string/transaction_amount" />
-            <EditText
-                android:id="@id/form_amount"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/FinoraField.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:saveEnabled="false"
-                android:inputType="numberDecimal" />
+                app:hintEnabled="false"
+                app:prefixText="@string/form_rupees_prefix">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@id/form_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:saveEnabled="false"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
             <TextView
                 android:id="@+id/form_amount_error"
                 android:layout_width="match_parent"
@@ -124,13 +132,18 @@
                 android:layout_height="wrap_content"
                 android:labelFor="@+id/form_merchant"
                 android:text="@string/transaction_merchant" />
-            <EditText
-                android:id="@id/form_merchant"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/FinoraField.Outlined"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:saveEnabled="false"
-                android:inputType="textCapSentences" />
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@id/form_merchant"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:saveEnabled="false"
+                    android:inputType="textCapSentences" />
+            </com.google.android.material.textfield.TextInputLayout>
             <TextView
                 android:id="@+id/form_merchant_error"
                 android:layout_width="match_parent"
@@ -144,13 +157,18 @@
                 android:layout_height="wrap_content"
                 android:labelFor="@+id/form_note"
                 android:text="@string/transaction_note" />
-            <EditText
-                android:id="@id/form_note"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/FinoraField.Outlined"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:saveEnabled="false"
-                android:inputType="textMultiLine" />
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@id/form_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:saveEnabled="false"
+                    android:inputType="textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
             <TextView
                 android:id="@+id/form_note_error"
                 android:layout_width="match_parent"

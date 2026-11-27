@@ -1,0 +1,23 @@
+<resources>
+    <color name="finora_surface">@color/finora_navy</color>
+    <color name="finora_field">#142B29</color>
+    <color name="finora_ink">@color/finora_on_navy</color>
+    <color name="finora_muted">@color/finora_mint</color>
+    <color name="finora_green">@color/finora_mint</color>
+    <color name="finora_pressed">#E1F2E5</color>
+    <color name="finora_focus">@color/finora_mint</color>
+    <color name="finora_error">#FCEDEA</color>
+    <color name="finora_error_surface">#982C30</color>
+    <color name="finora_success_surface">#155744</color>
+    <color name="finora_neutral_surface">#142B29</color>
+    <color name="finora_action_ink">@color/finora_navy</color>
+    <color name="finora_primary_focus_ring">@color/finora_navy</color>
+    <color name="finora_secondary_role">#E1F2E5</color>
+    <color name="finora_secondary_role_ink">@color/finora_navy</color>
+    <color name="finora_tertiary_role">#EAF0EB</color>
+    <color name="finora_tertiary_role_ink">@color/finora_navy</color>
+    <color name="finora_error_ink">@color/finora_navy</color>
+    <color name="finora_inverse_surface">#F8FAF6</color>
+    <color name="finora_inverse_ink">@color/finora_navy</color>
+    <bool name="finora_light_bars">false</bool>
+</resources>
