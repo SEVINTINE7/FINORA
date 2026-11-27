@@ -495,4 +495,10 @@
     <string name="dashboard_upcoming_bills">Upcoming bills</string>
     <string name="dashboard_recent_transactions">Recent transactions</string>
     <string name="dashboard_focus_goal">Focus goal</string>
+    <string name="records_actions_named">Actions for %1$s</string>
+    <string name="records_actions_collapsed">Collapsed</string>
+    <string name="records_actions_expanded">Expanded</string>
+    <string name="transaction_card_details">%1$s · %2$s</string>
+    <string name="transaction_card_credit">+ LKR %1$s</string>
+    <string name="transaction_card_debit">− LKR %1$s</string>
 </resources>

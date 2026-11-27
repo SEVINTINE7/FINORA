@@ -19,6 +19,7 @@ import java.time.format.FormatStyle;
 import java.util.Locale;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -66,7 +67,7 @@ public final class GoalListActivity extends SecureActivity {
                             .putExtra(AccountListActivity.ITEM_ID, goal.id()));
                 }
             });
-            rows.addView(row);
+            rows.addView(FinancialCard.wrap((LinearLayout) row, goal.name(), R.drawable.finora_nav_insights));
         }
     }
 

@@ -390,7 +390,7 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
             enter(R.id.contribution_amount, "250.00");
             clickId(R.id.contribution_add);
-            await(By.descContains("LKR 250.00"));
+            expandActions("LKR 250.00");
             keepAccessibilityFixture = true;
         }
     }
@@ -425,6 +425,7 @@ public class UserJourneyTest {
             awaitText(left);
             awaitText(app.getString(R.string.budget_state_ok));
             await(By.desc("Food. " + left));
+            expandActions("Food");
             onView(withContentDescription(app.getString(R.string.records_edit_named, "Food")))
                     .perform(activateControl());
             awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
@@ -480,7 +481,7 @@ public class UserJourneyTest {
             onView(withContentDescription(paidLabel)).perform(activateControl());
             awaitText(app.getString(R.string.bill_summary, "5000.00", "0.00", "5000.00"));
             onView(withContentDescription(paidLabel)).check(matches(not(isChecked())));
-            await(By.desc(app.getString(R.string.records_edit_named, "Synthetic rent")));
+            await(By.desc(app.getString(R.string.records_actions_named, "Synthetic rent")));
         }
 
         // T19.3 goals: list → detail, add/remove contributions, progress, rotation on detail
@@ -511,7 +512,7 @@ public class UserJourneyTest {
             device.setOrientationNatural();
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
             String remove = app.getString(R.string.records_remove_named, "");
-            await(By.descContains("LKR 250.00"));
+            expandActions("LKR 250.00");
             onView(allOf(withContentDescription(startsWith(remove)),
                     withContentDescription(containsString("LKR 250.00")))).perform(reveal(), activateControl());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
@@ -1191,7 +1192,7 @@ public class UserJourneyTest {
             tab(R.string.records_tab);
             clickText(R.string.transaction_title);
             String edit = app.getString(R.string.records_edit_named, "");
-            await(By.descContains(MERCHANT));
+            expandActions(MERCHANT);
             onView(allOf(withContentDescription(startsWith(edit)),
                     withContentDescription(containsString(MERCHANT)))).perform(activateControl());
             awaitActivity(lk.finora.app.ui.transactions.TransactionFormActivity.class);
@@ -1200,6 +1201,7 @@ public class UserJourneyTest {
             clickId(R.id.form_save);
             await(By.textContains("15.17"));
             String remove = app.getString(R.string.records_remove_named, "");
+            expandActions(MERCHANT);
             onView(allOf(withContentDescription(startsWith(remove)),
                     withContentDescription(containsString(MERCHANT)))).perform(activateControl());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
@@ -1864,6 +1866,12 @@ public class UserJourneyTest {
             SystemClock.sleep(100);
         } while (SystemClock.elapsedRealtime() < deadline);
         fail("Expected resumed activity: " + expected.getSimpleName());
+    }
+
+    private void expandActions(String row) {
+        await(By.descContains(row));
+        onView(allOf(withId(R.id.record_actions), withContentDescription(containsString(row))))
+                .perform(reveal(), activateControl());
     }
 
     private void awaitText(String text) { await(By.text(text)); }

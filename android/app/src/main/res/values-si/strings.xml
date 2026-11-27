@@ -495,4 +495,10 @@
     <string name="dashboard_upcoming_bills">ඉදිරියේදී ගෙවිය යුතු බිල්පත්</string>
     <string name="dashboard_recent_transactions">මෑත ගනුදෙනු</string>
     <string name="dashboard_focus_goal">ප්‍රමුඛ ඉලක්කය</string>
+    <string name="records_actions_named">%1$s සඳහා ක්‍රියා</string>
+    <string name="records_actions_collapsed">හකුළා ඇත</string>
+    <string name="records_actions_expanded">විහිදුවා ඇත</string>
+    <string name="transaction_card_details">%1$s · %2$s</string>
+    <string name="transaction_card_credit">+ රු. %1$s</string>
+    <string name="transaction_card_debit">− රු. %1$s</string>
 </resources>

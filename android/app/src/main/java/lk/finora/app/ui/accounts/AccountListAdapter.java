@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.data.api.AccountDto;
 
 final class AccountListAdapter {
@@ -28,6 +29,7 @@ final class AccountListAdapter {
         removeButton.setContentDescription(context.getString(R.string.records_remove_named, item.name()));
         editButton.setOnClickListener(view -> edit.run());
         removeButton.setOnClickListener(view -> remove.run());
-        return row;
+        return FinancialCard.wrap((android.widget.LinearLayout) row, item.name(),
+                R.drawable.finora_nav_records, editButton, removeButton);
     }
 }

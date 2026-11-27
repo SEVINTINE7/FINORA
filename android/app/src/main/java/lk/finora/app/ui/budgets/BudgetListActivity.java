@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.BudgetDto;
 import lk.finora.app.data.api.CategoryDto;
@@ -91,7 +92,8 @@ public final class BudgetListActivity extends SecureActivity {
         edit.setOnClickListener(view -> open(item.id()));
         remove.setOnClickListener(view -> AccountListActivity.confirm(this, model.work,
                 R.string.budget_remove_message, () -> model.delete(item.id())));
-        return row;
+        return FinancialCard.wrap((android.widget.LinearLayout) row, name,
+                R.drawable.finora_nav_plan, edit, remove);
     }
 
     private void open(long id) {

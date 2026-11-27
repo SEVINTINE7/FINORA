@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import java.math.BigDecimal;
 
 import lk.finora.app.R;
+import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
@@ -142,7 +143,7 @@ public final class GoalDetailActivity extends SecureActivity {
             remove.setContentDescription(getString(R.string.records_remove_named, text));
             remove.setOnClickListener(view -> AccountListActivity.confirm(this, model.work,
                     R.string.goal_contribution_remove, () -> model.deleteContribution(item.id())));
-            rows.addView(row);
+            rows.addView(FinancialCard.wrap((LinearLayout) row, text, R.drawable.finora_nav_insights, remove));
         }
     }
 }
