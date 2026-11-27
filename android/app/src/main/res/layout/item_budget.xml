@@ -1,52 +1,92 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T63.2/D65 budget card: category icon, used of limit, state chip with icon + text, bar, amount left or over. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/budget_card"
+    style="@style/Widget.Finora.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/finora_space_s"
-    android:layout_marginBottom="@dimen/finora_space_s">
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="@dimen/finora_group_radius">
 
-        <TextView
-            android:id="@+id/record_name"
-            style="@style/FinoraText.Label"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:importantForAccessibility="noHideDescendants"
+        android:orientation="vertical"
+        android:paddingStart="14dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <ProgressBar
+            <ImageView
+                android:id="@+id/budget_icon"
+                android:layout_width="@dimen/finora_row_icon"
+                android:layout_height="@dimen/finora_row_icon"
+                android:background="@drawable/finora_circle"
+                android:importantForAccessibility="no"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/record_name"
+                    style="@style/FinoraText.RowTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/record_details"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/finora_muted" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/budget_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/finora_badge"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:maxWidth="132dp"
+                android:minHeight="26dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="10dp"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/budget_progress"
-            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:max="100" />
+            android:layout_marginTop="10dp"
+            android:max="100"
+            app:trackColor="@color/finora_disabled"
+            app:trackCornerRadius="4dp"
+            app:trackThickness="8dp" />
 
         <TextView
-            android:id="@+id/record_details"
-            style="@style/FinoraText.Body"
+            android:id="@+id/budget_left"
+            style="@style/FinoraText.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <TextView
-            android:id="@+id/budget_state"
-            style="@style/FinoraText.Label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <Button
-            android:id="@+id/record_edit"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/records_edit" />
-
-        <Button
-            android:id="@+id/record_remove"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/records_remove" />
-</LinearLayout>
+            android:layout_marginTop="6dp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

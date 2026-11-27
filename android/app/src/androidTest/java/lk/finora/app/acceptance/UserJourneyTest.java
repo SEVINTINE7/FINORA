@@ -433,21 +433,22 @@ public class UserJourneyTest {
             device.setOrientationNatural();
             awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
             clickId(R.id.records_save);
+            // T63.2: the card shows "Rs. 0.00 of Rs. 100.00" and speaks the exact LKR sentence; tap edits.
             String left = app.getString(R.string.budget_left, "0.00", "100.00", "100.00");
-            awaitText(left);
+            String rs = app.getString(R.string.form_rupees_prefix).trim() + " ";
+            awaitText(app.getString(R.string.budget_used_of, rs + "0.00", rs + "100.00"));
             awaitText(app.getString(R.string.budget_state_ok));
             await(By.desc("Food. " + left));
-            expandActions("Food");
-            onView(withContentDescription(app.getString(R.string.records_edit_named, "Food")))
-                    .perform(activateControl());
+            onView(withContentDescription("Food. " + left)).perform(activateControl());
             awaitActivity(lk.finora.app.ui.budgets.BudgetFormActivity.class);
             onView(withId(R.id.budget_limit)).check(matches(withText("100.00")));
             enter(R.id.budget_limit, "250.00");
             clickId(R.id.records_save);
-            awaitText(app.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            String raised = "Food. " + app.getString(R.string.budget_left, "0.00", "250.00", "250.00");
+            await(By.desc(raised));
             device.setOrientationLeft();
             awaitActivity(lk.finora.app.ui.budgets.BudgetListActivity.class);
-            awaitShown(app.getString(R.string.budget_left, "0.00", "250.00", "250.00"));
+            onView(withContentDescription(raised)).perform(reveal()).check(matches(isDisplayed()));
             device.setOrientationNatural();
             pressBack();
             awaitActivity(MainActivity.class);

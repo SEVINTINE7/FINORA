@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,12 +69,63 @@ public final class BudgetListViewModel extends ViewModel {
         }
     }
 
+    /** Ink for the state chip text, icon and amount line; the chip also carries a word and an icon (T63.2). */
     static int stateColor(String state) {
         switch (state) {
             case "OVER": return R.color.finora_error;
-            case "NEAR": return R.color.finora_ink;
+            case "NEAR": return R.color.finora_warn_ink;
             default: return R.color.finora_green;
         }
+    }
+
+    static int stateFill(String state) {
+        switch (state) {
+            case "OVER": return R.color.finora_error_surface;
+            case "NEAR": return R.color.finora_warn_fill;
+            default: return R.color.finora_success_surface;
+        }
+    }
+
+    static int stateBar(String state) {
+        switch (state) {
+            case "OVER": return R.color.finora_error;
+            case "NEAR": return R.color.finora_chart_3;
+            default: return R.color.finora_green;
+        }
+    }
+
+    static int stateChip(String state) {
+        switch (state) {
+            case "OVER": return R.string.budget_chip_over;
+            case "NEAR": return R.string.budget_chip_near;
+            default: return R.string.budget_state_ok;
+        }
+    }
+
+    static int stateIcon(String state) {
+        return "OVER".equals(state) || "NEAR".equals(state) ? R.drawable.finora_ic_alert : R.drawable.finora_ic_check;
+    }
+
+    /** Over-limit budgets first, then near the limit, then on track; the API order is kept inside each group. */
+    static List<BudgetDto> ordered(List<BudgetDto> rows) {
+        List<BudgetDto> sorted = new ArrayList<>(rows);
+        sorted.sort(Comparator.comparingInt(item -> "OVER".equals(item.state()) ? 0 : "NEAR".equals(item.state()) ? 1 : 2));
+        return sorted;
+    }
+
+    /** Sum of the month's limits and spending; {@code left} is negative when spending is over the total. */
+    record Totals(BigDecimal limit, BigDecimal used) {
+        BigDecimal left() { return limit.subtract(used); }
+    }
+
+    static Totals totals(List<BudgetDto> rows) {
+        BigDecimal limit = BigDecimal.ZERO.setScale(2);
+        BigDecimal used = BigDecimal.ZERO.setScale(2);
+        for (BudgetDto item : rows) {
+            limit = limit.add(item.limitAmount());
+            used = used.add(item.used());
+        }
+        return new Totals(limit, used);
     }
 
     private void clear() {
