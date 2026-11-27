@@ -17,7 +17,19 @@
 		<java.version>17</java.version>
 		<springdoc.version>3.2.0</springdoc.version>
 		<jjwt.version>0.13.0</jjwt.version>
+		<!-- T53.3: GHSA-ccrj-gw8r-854m; align the Boot-managed OpenTelemetry BOM. -->
+		<opentelemetry.version>1.67.0</opentelemetry.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- T53.3: GHSA-xxph-c9ww-hj94; retain the backend JRE variant. -->
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>33.7.2-jre</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<!-- T34.3: FCM push via the Firebase Admin SDK (credentials from FIREBASE_CREDENTIALS) -->
 		<dependency>
