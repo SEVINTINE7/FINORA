@@ -64,6 +64,8 @@ public final class LoginActivity extends SecureActivity {
                 else model.exportConsentData(destination);
             });
 
+    @Override protected boolean showsUp() { return false; }
+
     @Override protected boolean hasScreenInsets() {
         return true;
     }

@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.test.core.app.ActivityScenario;
@@ -160,7 +159,7 @@ public class UserJourneyTest {
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
-            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
             checkFaqLayout(scale);
         }
     }
@@ -180,7 +179,7 @@ public class UserJourneyTest {
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
-            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
             checkUserRoutes("si", scale, problems);
             signOut();
             checkScreenText(LoginActivity.class, "si", scale, problems);
@@ -773,7 +772,7 @@ public class UserJourneyTest {
             checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
             clickText(R.string.language_selector);
             dialogChoice(app.getString(R.string.language_sinhala));
-            awaitText(app.createConfigurationContext(sinhala).getString(R.string.more_tab));
+            await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
             tab(R.string.more_tab);
             checkBackFocus(R.string.finance_help, lk.finora.app.ui.help.FaqActivity.class, MainActivity.class);
             checkBackFocus(R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class, MainActivity.class);
@@ -1172,7 +1171,7 @@ public class UserJourneyTest {
             clickId(R.id.form_date);
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.form_save);
-            awaitText(app.getString(R.string.records_tab));
+            await(By.desc(app.getString(R.string.records_tab)));
             tab(R.string.home_tab);
             awaitText("Expenses: LKR 12.34");
 
@@ -1211,7 +1210,7 @@ public class UserJourneyTest {
             onView(withText(R.string.sms_manual_entry)).check(matches(isDisplayed()));
             clickText(R.string.sms_no_thanks);
             assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
-            awaitText(app.getString(R.string.records_tab));
+            await(By.desc(app.getString(R.string.records_tab)));
         }
     }
 
@@ -1526,9 +1525,9 @@ public class UserJourneyTest {
             config.setLocale(java.util.Locale.forLanguageTag("si"));
             var sinhala = app.createConfigurationContext(config);
             chooseTestLanguage("si");
-            awaitText(sinhala.getString(R.string.plan_tab));
+            await(By.desc(sinhala.getString(R.string.plan_tab)));
             awaitActivity(MainActivity.class);
-            onView(allOf(isAssignableFrom(RadioButton.class), withText(sinhala.getString(R.string.plan_tab))))
+            onView(withId(R.string.plan_tab))
                     .perform(activateControl());
             onView(allOf(isClickable(), withText(sinhala.getString(R.string.planning_guide))))
                     .perform(reveal(), activateControl());
@@ -1660,7 +1659,7 @@ public class UserJourneyTest {
                 dialogChoice(app.getString(R.string.language_sinhala));
                 var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
                 sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
-                awaitText(app.createConfigurationContext(sinhala).getString(R.string.records_tab));
+                await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.records_tab)));
             }
             tab(R.string.records_tab);
             clickText(R.string.sms_access_title);
@@ -1848,7 +1847,7 @@ public class UserJourneyTest {
         onView(withId(R.id.email)).check(matches(withText("t51-" + identity + "@example.test")));
         enter(R.id.password, "Test-" + identity + "-9");
         clickId(R.id.sign_in);
-        awaitText(app.getString(R.string.more_tab));
+        await(By.desc(app.getString(R.string.more_tab)));
     }
 
     private void awaitId(String id) { await(By.res(app.getPackageName(), id)); }
@@ -1890,7 +1889,7 @@ public class UserJourneyTest {
     }
 
     private static void tab(int label) {
-        onView(allOf(withText(label), isAssignableFrom(RadioButton.class))).perform(activateControl());
+        onView(withId(label)).perform(activateControl());
     }
 
     private static void clickText(int label) {

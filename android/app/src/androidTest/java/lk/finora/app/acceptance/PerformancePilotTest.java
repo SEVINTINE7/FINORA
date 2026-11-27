@@ -5,7 +5,6 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -18,7 +17,6 @@ import android.os.UserManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
@@ -120,7 +118,7 @@ public class PerformancePilotTest {
                     });
                     sample(app, route, traceCheck ? "trace-check" : n <= 5 ? "warmup" : "warm", n <= 5 ? n : n - 5,
                             started -> onView(route == Route.HOME
-                                    ? allOf(withText(route.button), isAssignableFrom(RadioButton.class))
+                                    ? withId(route.button)
                                     : withText(route.button)).perform(act(view -> { started.run(); view.performClick(); })));
                     if (route != Route.HOME) pressBack();
                 }
@@ -226,7 +224,7 @@ public class PerformancePilotTest {
     }
 
     private static void tab(int label) {
-        onView(allOf(withText(label), isAssignableFrom(RadioButton.class))).perform(act(View::performClick));
+        onView(withId(label)).perform(act(View::performClick));
     }
 
     private static ViewAction act(Consumer<View> operation) {

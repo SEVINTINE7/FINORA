@@ -9,7 +9,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 **Constraints:** Java + XML Views only. Keep every existing view ID, behaviour and API call. Every new string in `values/strings.xml` and `values-si/strings.xml`. `FLAG_SECURE` stays. Use ViewBinding when converting a screen from code-built views to XML.
 - [x] T58.0 Visual direction: colour roles (light/dark), type scale, one Home and one list mockup; Sevindu approves
 - [x] T58.1 Foundation: add `com.google.android.material`; `Theme.Material3.DayNight.NoActionBar` with FINORA colours; edge-to-edge insets; Noto Sans + Noto Sans Sinhala; dark mode
-- [ ] T58.2 Shell: `BottomNavigationView` with icons (Home, Records, Plan, Insights, More) replacing the `RadioGroup`; `MaterialToolbar` with Up on every sub-screen; FAB "Add transaction" on Home and Records
+- [x] T58.2 Shell: `BottomNavigationView` with icons (Home, Records, Plan, Insights, More) replacing the `RadioGroup`; `MaterialToolbar` with Up on every sub-screen; FAB "Add transaction" on Home and Records
 - [ ] T58.3 Dashboard: balance + income/expense card, 0–100 score ring, budget progress bars, upcoming bills, recent transactions, focus goal card; restyled charts with text equivalents
 - [ ] T58.4 Lists: `MaterialCardView` rows with category icon, amount right-aligned (expense/income colours), overflow menu or swipe-to-delete with Undo instead of two buttons per row; empty/loading/error states
 - [ ] T58.5 Forms: outlined `TextInputLayout` with "Rs." prefix, chips for type/category, Material date picker, inline errors
@@ -24,4 +24,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 - Sahan reports that Sevindu personally reviewed and verbally approved the visual direction at `11957ae`. No written approval was independently verified.
 - T58.1 adds Material Components 1.13.0, FINORA light/dark roles, shared secure-window insets and licensed, bundled Noto fonts; Login and FAQ retain their own inset handling.
 - Gradle unit tests passed (152/152), V1 Debug assembled, and lint passed with the same four warnings as the baseline. Login smoke passed EN/SI × light/dark at 130% with its original sign-in ID and `FLAG_SECURE`.
-- No new strings. T58.2 and the full redesign acceptance remain open.
+- T58.1 introduced no new strings.
+- T58.2 replaces the five USER navigation tabs with labeled Material icons, adds shared Up navigation and adds the transaction FAB to Home and Records. Up uses the existing Back dispatcher, including the established return-to-origin behavior. Existing screen and action IDs are retained.
+- T58.2 verification: 152/152 JVM tests, V1 Debug and instrumentation APK builds passed. Lint reported zero errors and the four existing warnings. The isolated emulator shell test passed EN/SI × light/dark at 130% text, covering all five labels, both FAB routes, Up, Records recreation and the shell's secure-window flag.
+- Native-speaker review is pending for the new Navigate up / ඉහළට යන්න pair. The full redesign acceptance remains open.

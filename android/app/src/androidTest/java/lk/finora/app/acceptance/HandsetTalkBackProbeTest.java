@@ -111,9 +111,11 @@ public class HandsetTalkBackProbeTest {
             matching.clear();
             if (root != null && packageName.contentEquals(root.getPackageName())) {
                 for (var candidate : root.findAccessibilityNodeInfosByText(label)) {
-                    if (candidate.isVisibleToUser() && candidate.getText() != null
+                    CharSequence spokenLabel = "records_tab".equals(resource)
+                            ? candidate.getContentDescription() : candidate.getText();
+                    if (candidate.isVisibleToUser() && spokenLabel != null
                             && (!clickableOnly || candidate.isClickable())
-                            && label.equalsIgnoreCase(candidate.getText().toString())) {
+                            && label.equalsIgnoreCase(spokenLabel.toString())) {
                         matching.add(candidate);
                     }
                 }

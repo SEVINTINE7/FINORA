@@ -6,7 +6,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -16,7 +15,6 @@ import android.os.Process;
 import android.os.UserManager;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
@@ -131,7 +129,7 @@ public class EvaluationJourneysTest {
     }
 
     private static void tab(int label) {
-        activate(allOf(withText(label), isAssignableFrom(RadioButton.class)));
+        activate(withId(label));
     }
 
     private static void replace(int id, String value) {

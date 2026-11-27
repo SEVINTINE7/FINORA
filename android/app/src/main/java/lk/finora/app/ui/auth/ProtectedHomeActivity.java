@@ -47,6 +47,8 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
     protected abstract String requiredRole();
     protected abstract int titleResource();
 
+    @Override protected final boolean showsUp() { return false; }
+
     protected boolean showPlaceholder() { return true; }
 
     protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {}
