@@ -69,13 +69,14 @@ SQL
   umask 077
   cat > "$ENV_FILE" <<ENV
 # FINORA API secrets (T56.3). Owner finora, mode 400. Never copy into Git.
-DB_URL=jdbc:mysql://127.0.0.1:3306/finora?sslMode=DISABLED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+DB_URL=jdbc:mysql://127.0.0.1:3306/finora?sslMode=REQUIRED&serverTimezone=UTC
 DB_USER=finora_app
 DB_PASS=$APP_PASS
 SPRING_FLYWAY_USER=finora_migrate
 SPRING_FLYWAY_PASSWORD=$MIGRATE_PASS
 JWT_SECRET=$(openssl rand -hex 32)
 # Fill in before starting the API (T27/T28). Empty values are allowed until then.
+FINORA_LLM_ENABLED=false
 GROQ_API_KEY=
 GEMINI_API_KEY=
 # T34 push alerts (D57): e.g. /etc/finora/firebase.json, owner finora, mode 400. Empty = no push.
@@ -89,6 +90,10 @@ host=localhost
 CNF
   umask 022
 fi
+# V22 uses a guarded temporary table. Reconcile this scoped grant on existing installs too.
+mysql <<'SQL'
+GRANT CREATE TEMPORARY TABLES ON finora.* TO 'finora_migrate'@'localhost';
+SQL
 chown finora:finora "$ENV_FILE";        chmod 400 "$ENV_FILE"
 chown root:root /etc/finora/backup.cnf;  chmod 400 /etc/finora/backup.cnf
 

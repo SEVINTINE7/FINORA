@@ -40,6 +40,13 @@ The script (safe to re-run):
 - installs the systemd units and enables the nightly backup timer
 - gets the Let's Encrypt certificate and enables `deploy/nginx/finora.conf` (TLS 1.2/1.3, HSTS, only `/api/**` and `/actuator/health` are proxied)
 
+For a fresh MySQL 8 account, keep the loopback JDBC URL at `sslMode=REQUIRED`.
+This uses the server's MySQL TLS support for the first `caching_sha2_password` login.
+On an existing installation, update the `sslMode` parameter in the protected operator
+environment file before starting a release that relies on this setting. Setup reconciles
+the V22 temporary-table grant on the migration role without rotating credentials.
+Verify external HTTPS independently using the approved hostname and trusted certificate.
+
 After it finishes:
 1. **Copy `/etc/finora/backup.pass` to the offline store** (password manager entry "FINORA backup passphrase", lead only). Without it the backups can't be decrypted.
 2. When T27/T28 are ready, put the LLM keys in `/etc/finora/finora.env` (`sudo -e /etc/finora/finora.env`), then `sudo systemctl restart finora-api`.
@@ -91,7 +98,8 @@ Record the run here:
 
 | Date | Who | Backup file | Result |
 |---|---|---|---|
-| _not done yet_ | | | |
+| 2026-11-26 | ThilinaW-LK | Synthetic local AES256 drill | 34 table counts matched. Restored dashboards and both USER logins matched on an isolated MySQL 8.0.46 instance. A deliberately failed count returned nonzero. |
+| 2026-11-27 | Sevindu | finora-20261127T070941Z.sql.gz.gpg | Deployed drill passed with equal counts for 34 tables. See the T56 handoff for the release and restore target. |
 
 **Real recovery** (data loss): `sudo systemctl stop finora-api`, then `sudo finora-restore <file> finora --i-know-this-overwrites-production`, then `sudo systemctl start finora-api`.
 
