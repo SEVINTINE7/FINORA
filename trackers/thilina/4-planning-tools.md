@@ -8,7 +8,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 **Lead:** Thilina · **Support:** Sahan · **Depends on:** T17, T18, T19 · **Touches:** `api:planning/`, `and:ui/planning/`
 - [x] T31.1 [API] `(balance until next income − unpaid bills − planned savings) / days left`; next income date from user setting or last income + 1 month
 - [x] T31.2 [API] Return assumptions used; negative → 0 with warning flag
-- [ ] T31.3 [AND·Sahan] Daily guide card + assumptions sheet
+- [x] T31.3 [AND·Sahan] Daily guide card + assumptions sheet
 
 **Done when**
 - [x] Tests: last day of month, income today, no income history, negative balance
@@ -23,12 +23,14 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 
 - 2026-11-27 integration update: merged [PR #30](https://github.com/SEVINTINE7/FINORA/pull/30) includes the Android Daily Guide and assumptions/confirmation controls. Its tested `264c1ae` revision passed the dedicated emulator planning/retry/rotation journeys; the LKR 4,700.00 allowance was observed. T17/T18/T19 are now `done`. Preserve T31.3 as open for Sahan's review and final contract acceptance; implementation is not missing.
 
+- 2026-11-27 acceptance reconciliation: Thilina reports the requested team confirmation of T31.3 against the merged PR #30 implementation and retained emulator/PR #39 handset evidence. T17/T18/T19 are done. Successful API job 140646145075 records DailyGuideServiceTest 2/2, DailyGuideControllerTest 11/11, DailyGuideAggregateConfirmationTest 2/2 and DailyGuideMathTest 13/13. Propose T31 done on the reported confirmation; original approval messages were not independently inspected. No new tests or financial-contract changes.
+
 ---
 
 ### T32 · Savings goal simulator · `FR14`
 **Lead:** Thilina · **Support:** Sahan · **Depends on:** T19 · **Touches:** `api:planning/`, `and:ui/planning/`
 - [x] T32.1 [API] `POST /api/v1/simulate` `{goalId, monthlyChange, categoryCuts[]}` → new finish date, monthly amount; nothing saved
-- [ ] T32.2 [AND·Sahan] Simulator screen, clearly marked "Simulation"
+- [x] T32.2 [AND·Sahan] Simulator screen, clearly marked "Simulation"
 
 **Done when**
 - [x] Tests: rounding, zero change, impossible goal
@@ -42,3 +44,5 @@ Review evidence: T31 draft PR #14 retains 0a1f4e5. The integration run on 2026-1
 - [PR #13](https://github.com/SEVINTINE7/FINORA/pull/13) contains the backend candidate and simulator contract at `d59e94f`. Android T32.2 remains unchecked pending approved savings/cut and date semantics and formal T19 closure or a documented early start. The candidate is separate from draft PR #16.
 - 2026-11-27 tracker sync (Sevindu): simulator code is on `main` (`api:planning/Simulation*`). Simulation tests 31/31 passed locally (Controller 13, DatabaseIntegration 3, Math 8, Service 7), covering rounding, zero capacity and unreachable goals. T32.2 Android screen and team approval of the contract remain open.
 - 2026-11-27 integration update: merged [PR #30](https://github.com/SEVINTINE7/FINORA/pull/30) includes the Android Simulator. Connected evidence at `264c1ae` covers the LKR 20,000.00 hypothetical monthly saving, held-response rotation and recovery after a category-load failure. T19 is now `done`. Keep T32.2 open for Sahan's review and contract acceptance; no physical-handset claim.
+
+- 2026-11-27 acceptance reconciliation: Thilina reports the requested team confirmation of T32.2 against the merged PR #30 implementation and retained emulator/PR #39 handset evidence. T19 is done. Successful API job 140646145075 records SimulationControllerTest 13/13, SimulationDatabaseIntegrationTest 3/3, SimulationMathTest 8/8 and SimulationServiceTest 7/7. Propose T32 done on the reported confirmation; original approval messages were not independently inspected. No new tests or financial-contract changes.
