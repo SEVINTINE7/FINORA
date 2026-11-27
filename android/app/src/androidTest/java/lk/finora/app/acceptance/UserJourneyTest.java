@@ -154,13 +154,15 @@ public class UserJourneyTest {
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             chooseTestLanguage("en");
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
-            checkFaqLayout(scale);
+            var problems = new java.util.ArrayList<String>();
+            checkFaqLayout("en", scale, problems);
             clickText(R.string.language_selector);
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
             await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
-            checkFaqLayout(scale);
+            checkFaqLayout("si", scale, problems);
+            assertTrue(String.join("\n", problems), problems.isEmpty());
         }
     }
 
@@ -173,6 +175,7 @@ public class UserJourneyTest {
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
             chooseTestLanguage("en");
             checkScreenText(LoginActivity.class, "en", scale, problems);
+            checkRecoveryText("en", scale, problems);
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             checkUserRoutes("en", scale, problems);
             clickText(R.string.language_selector);
@@ -183,6 +186,7 @@ public class UserJourneyTest {
             checkUserRoutes("si", scale, problems);
             signOut();
             checkScreenText(LoginActivity.class, "si", scale, problems);
+            checkRecoveryText("si", scale, problems);
         }
         assertTrue(String.join("\n", problems), problems.isEmpty());
     }
@@ -229,7 +233,7 @@ public class UserJourneyTest {
                 awaitActivity(LoginActivity.class);
                 clickId(R.id.create_account);
                 checkScreenText(RegisterActivity.class, language, scale, problems);
-                pressBack();
+                clickId(R.id.register_back);
                 awaitActivity(LoginActivity.class);
             }
         }
@@ -557,6 +561,17 @@ public class UserJourneyTest {
         dialogChoice(sinhala.getString("en".equals(language) ? R.string.language_english : R.string.language_sinhala));
     }
 
+    private void checkRecoveryText(String language, float scale, java.util.List<String> problems) {
+        clickId(R.id.forgot_password);
+        checkScreenText(lk.finora.app.ui.login.PasswordResetActivity.class, language, scale, problems);
+        typeFixture(onView(withHint(R.string.admin_new_email)), "synthetic-layout@example.test");
+        clickText(R.string.reset_request);
+        awaitText(app.getString(R.string.reset_check_mail));
+        checkScreenText(lk.finora.app.ui.login.PasswordResetActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(LoginActivity.class);
+    }
+
     private void checkRoleRoutes(boolean admin, String language, float scale, java.util.List<String> problems) {
         var home = admin ? lk.finora.app.ui.admin.AdminHomeActivity.class
                 : lk.finora.app.ui.staff.StaffHomeActivity.class;
@@ -564,7 +579,7 @@ public class UserJourneyTest {
         checkScreenText(home, language, scale, problems);
         if (admin) {
             for (int label : new int[]{R.string.admin_manage_users, R.string.admin_default_categories,
-                    R.string.staff_manage}) {
+                    R.string.admin_manage_admins, R.string.staff_manage}) {
                 clickText(label);
                 checkScreenText(label == R.string.staff_manage ? lk.finora.app.ui.staff.StaffAccessActivity.class
                         : lk.finora.app.ui.admin.AdminDirectoryActivity.class, language, scale, problems);
@@ -611,6 +626,8 @@ public class UserJourneyTest {
 
         tab(R.string.plan_tab);
         checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.planning_guide, PlanningActivity.class, null, language, scale, problems);
+        checkRoute(R.string.planning_simulator, PlanningActivity.class, null, language, scale, problems);
         checkRoute(R.string.budget_list_title, lk.finora.app.ui.budgets.BudgetListActivity.class,
                 lk.finora.app.ui.budgets.BudgetFormActivity.class, language, scale, problems);
         checkRoute(R.string.bill_list_title, lk.finora.app.ui.bills.BillListActivity.class,
@@ -694,6 +711,12 @@ public class UserJourneyTest {
             var config = activity.getResources().getConfiguration();
             assertEquals(language, config.getLocales().get(0).getLanguage());
             assertEquals(scale, config.fontScale, 0.01f);
+            String night = InstrumentationRegistry.getArguments().getString("finoraExpectedNightMode");
+            if (night != null) {
+                int expected = "yes".equals(night) ? android.content.res.Configuration.UI_MODE_NIGHT_YES
+                        : android.content.res.Configuration.UI_MODE_NIGHT_NO;
+                assertEquals(expected, config.uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK);
+            }
             String context = screen.getSimpleName() + "/" + language + "/" + scale;
             assertTrue("No visible text checked on " + context,
                     checkVisibleText(activity.findViewById(android.R.id.content), context, problems) > 0);
@@ -729,15 +752,14 @@ public class UserJourneyTest {
         return count;
     }
 
-    private void checkFaqLayout(float scale) {
+    private void checkFaqLayout(String language, float scale, java.util.List<String> problems) {
         tab(R.string.more_tab);
         clickText(R.string.finance_help);
-        awaitActivity(lk.finora.app.ui.help.FaqActivity.class);
+        checkScreenText(lk.finora.app.ui.help.FaqActivity.class, language, scale, problems);
         var instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.runOnMainSync(() -> {
             var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
                     .stream().filter(lk.finora.app.ui.help.FaqActivity.class::isInstance).findFirst().orElseThrow();
-            assertEquals(scale, activity.getResources().getConfiguration().fontScale, 0.01f);
             var content = (android.view.ViewGroup) activity.findViewById(android.R.id.content);
             var scroll = (ScrollView) content.getChildAt(0);
             var labels = (android.view.ViewGroup) scroll.getChildAt(0);

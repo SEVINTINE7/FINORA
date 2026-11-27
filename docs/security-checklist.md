@@ -98,3 +98,7 @@ The unsigned V1 release APK was inspected for backup and transfer rules, clearte
 - Deployed HTTPS, external provider runtime evidence and independent acceptance remain open.
 
 See [Execution 33 security evidence](t53-local-security-evidence.md#execution-33-security-and-advice-verification).
+
+### PR #39 integrated candidate follow-up
+
+The unsigned D59 V1 Release passed vital lint and the scoped static package checks in the [integrated acceptance evidence](acceptance.md#integrated-acceptance-follow-up). This adds no authenticated signed-release or deployed evidence. The D59 operator’s signed invalid-login check and earlier anonymous trusted-HTTPS probe remain the observed deployed scope. No staging requests, external provider calls, SMTP sends or physical-device operations were made for this follow-up.

@@ -113,6 +113,18 @@ class AdviceDeliveryControllerTest extends IntegrationTest {
                 List.of(new AdviceItem("REVIEW_SPENDING_DEFICIT", "Synthetic fallback", List.of())));
     }
 
+    @Test void legacyBetaRequestDoesNotDeliverOrPersistAdvice() throws Exception {
+        var owner = createUser(Role.USER);
+        mockMvc.perform(get("/api/v1/advice?month=2026-11&mode=BETA")
+                .header("Authorization", "Bearer " + tokenFor(owner)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("mode must be V1"));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM advice WHERE user_id=?", Integer.class, owner.getId()))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM advice_generation_leases WHERE user_id=?",
+                Integer.class, owner.getId())).isZero();
+    }
+
     @Test void deliveryAndRatingRequireTheUserRole() throws Exception {
         String endpoint = "/api/v1/advice?month=2026-11&mode=V1";
         mockMvc.perform(get(endpoint)).andExpect(status().isUnauthorized());

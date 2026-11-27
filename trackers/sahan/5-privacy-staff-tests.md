@@ -55,3 +55,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [x] `./gradlew connectedV1DebugAndroidTest` output attached
 
 **Handoff notes:** D46/D49/D50. Four Gradle connected tests passed on isolated Android 8 (API 26), and four direct tests passed on HMD Crest (Android 14) in 60.513 s. Reports and the protected-screen capture result are recorded in the MD05 checkpoint. Keep in progress pending formal T38 dependency closure and independent review.
+
+- T40.1 candidate follow-up: the unsigned V1 Release built and passed the scoped static package checks. Authenticated token storage and logs still require the correctly signed release and approved synthetic access. [Exact artifact and static evidence](../../docs/acceptance.md#integrated-acceptance-follow-up).

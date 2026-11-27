@@ -63,3 +63,5 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] `docs/acceptance.md` filled with real results/screenshots
 
 **Handoff notes:** [MD01–MD05 review evidence](../../docs/md05-delivery-handoff.md) is available on draft PR #16. End-to-end acceptance under T57 remains open, including planning integration, deployment verification and owner reconciliation of the historical beta wording with D03.
+
+- T57.3 follow-up: focused verification confirmed canonical V1 delivery and legacy BETA rejection without persistence. D03/D40 define one V1 experience. The historical dual-advice criterion awaits tracker reconciliation. [Integrated acceptance evidence](../../docs/acceptance.md#integrated-acceptance-follow-up).
