@@ -8,7 +8,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisi
 - [x] T59.1 [API] `POST /api/v1/admin/admins` `{email, fullName, password}` (D09 rule) → 201 `{id, email, fullName, enabled}` with `Cache-Control: no-store`; duplicate email → 409 `CONFLICT`; audit `ADMIN_CREATED` (actor, target only)
 - [x] T59.2 [API] `GET /api/v1/admin/admins` (id, email, fullName, enabled, createdAt) and `PATCH /api/v1/admin/admins/{id}` `{enabled}`; disabling yourself or the last active ADMIN → 409 `CONFLICT`; disabling revokes that admin's refresh tokens
 - [ ] T59.3 [AND·Sahan] Admin home → "Admins": list, create form (password + confirm, show/hide), enable/disable with confirm dialog; EN/SI strings
-- [ ] T59.4 [API·Thilina] Add the new routes to the T52 role matrix (none, USER, STAFF, ADMIN, disabled)
+- [x] T59.4 [API·Thilina] Add the new routes to the T52 role matrix (none, USER, STAFF, ADMIN, disabled)
 
 **Done when**
 - [ ] Tests: only ADMIN reaches the routes; weak password 400; duplicate 409; self/last-admin disable 409; new admin signs in and lands on Admin home; password absent from responses and logs

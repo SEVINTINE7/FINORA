@@ -17,6 +17,7 @@ public final class ErrorCodes {
     public static final String INVALID_CREDENTIALS = "INVALID_CREDENTIALS";
     public static final String ACCOUNT_DISABLED = "ACCOUNT_DISABLED";
     public static final String INVALID_REFRESH_TOKEN = "INVALID_REFRESH_TOKEN";
+    public static final String INVALID_RESET_CODE = "INVALID_RESET_CODE";
 
     // Records (T09)
     public static final String IN_USE = "IN_USE";

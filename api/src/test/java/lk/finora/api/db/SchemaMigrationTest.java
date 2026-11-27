@@ -26,6 +26,7 @@ class SchemaMigrationTest {
 
     private static final List<String> TABLES = List.of(
             "users", "consents", "refresh_tokens",
+            "password_reset_codes", "password_reset_issuances",
             "accounts", "categories", "transactions",
             "budgets", "bills", "bill_payments", "goals", "goal_contributions",
             "insights", "health_scores", "advice", "advice_ratings",
