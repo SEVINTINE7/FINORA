@@ -129,4 +129,25 @@ class AdminDependencyControllerTest extends IntegrationTest {
         return mockMvc.perform(put("/api/v1/admin/users/" + id + "/status").header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(json(Map.of("status", state, "reason", "POLICY"))));
     }
+
+    @Test
+    void defaultCategoryWritesCannotTargetAnOwnersPrivateCategory() throws Exception {
+        var owner = createUser(Role.USER);
+        entities.flush();
+        jdbc.update("INSERT INTO categories (user_id, kind, name) VALUES (?, 'EXPENSE', 'Private transport')", owner.getId());
+        var row = jdbc.queryForMap("SELECT * FROM categories WHERE user_id = ?", owner.getId());
+        long privateId = ((Number) row.get("id")).longValue();
+        String admin = "Bearer " + tokenFor(createUser(Role.ADMIN));
+        for (long id : new long[] {privateId, Long.MAX_VALUE}) {
+            String path = "/api/v1/admin/categories/" + id;
+            var rename = put(path).contentType(MediaType.APPLICATION_JSON)
+                    .content(json(Map.of("name", "Changed", "nameSi", "වෙනස්")));
+            for (var request : java.util.List.of(rename, delete(path))) {
+                mockMvc.perform(request.header("Authorization", admin)).andExpect(status().isNotFound())
+                        .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                        .andExpect(jsonPath("$.message").value("Default category not found"));
+                assertEquals(row, jdbc.queryForMap("SELECT * FROM categories WHERE id = ?", privateId));
+            }
+        }
+    }
 }

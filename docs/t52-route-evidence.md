@@ -1,5 +1,26 @@
 # T52 authorization coverage inventory
 
+## Current inventory — 27 November 2026
+
+A method-and-path set comparison against the [hosted PR #30 API job](https://github.com/SEVINTINE7/FINORA/actions/runs/45964499693/job/140389834750) at `8305d4b346d836067931aa46a403092e9d6ecb52` found all 102 historical rows below and exactly four additions. Together the two route tables account for **106 mappings, 98 protected and eight authentication-protocol mappings**.
+
+| Added method and path | Direct positive evidence | Reference, privacy and rejected-write evidence |
+|---|---|---|
+| `POST /api/v1/devices` | DeviceControllerTest.registerTwiceKeepsOneRow and tokenMovesWhenAnotherAccountSignsInOnThePhone verify 204, idempotency and the intentional transfer to the second signed-in USER. keepsOnlyTheNewestTenTokens verifies the cap. | The token is a body reference. invalidTokensGive400 proves malformed tokens leave no row. onlyUsersMayRegister verifies anonymous/privileged denial. privilegedRequestsCannotMoveOrRemoveAnAlreadyRegisteredToken checks an existing binding survives both privileged roles, exact error keys, absence of the token and the empty successful response. |
+| `DELETE /api/v1/devices` | DeviceControllerTest.deleteOwnTokenButAnotherUsersTokenIs404 verifies owner 204 and removal. | Foreign and missing tokens return 404. The foreign attempt preserves the legitimate binding. privilegedRequestsCannotMoveOrRemoveAnAlreadyRegisteredToken checks STAFF/ADMIN cannot delete the binding or view its token and checks the empty 204. |
+| `PATCH /api/v1/me` | MeControllerTest.patchMeKeepsNameSavedByAnotherSessionAfterTheLanguagePickerRead and patchMeIgnoresAName verify language-only updates. | No path, query or body owner selector. patchMeNeedsAValidUserSession checks missing and withdrawn credentials. patchMeRejectsMissingOrUnknownLanguage verifies validation. preferenceWritesReturnOnlyOwnProfileAndLeaveOtherOwnerIntact verifies the full profile and nested alerts field allowlists, persisted owner changes and the second user’s unchanged profile. |
+| `PUT /api/v1/me/alerts` | MeControllerTest.alertsStartOnAndCanBeTurnedOffPerType verifies defaults, 200 and the persisted three-flag update. | No owner selector. alertSettingsNeedAllThreeFlags checks incomplete input and anonymous denial. preferenceWritesReturnOnlyOwnProfileAndLeaveOtherOwnerIntact verifies both profiles after rejected writes, preserving language and flags and excluding extra fields in successful responses. |
+
+All four routes require USER. EndpointAuthTest discovers and directly dispatches anonymous, malformed, signed-expired, disabled and wrong-role requests. RestrictedConsentAuthorizationTest recorded 294 denials over the 98 protected routes using a Consent grant, a grant as bearer and withdrawn access. Its state snapshot covers consents, accounts, grant rows and credential state. The feature tests above supply the positive and route-specific persistent-state evidence.
+
+The hosted baseline passed EndpointAuthTest 7/7, RestrictedConsentAuthorizationTest 3/3, FinancialResponsePrivacyTest 4/4, Md05FinancialPrivacyTest 6/6, MeControllerTest 16/16 and DeviceControllerTest 6/6. The backend passed 508 tests with one intentional skip. These counts precede the new assertions on PR #32. The four new methods named above and below passed in two focused Java 17 runs on guarded disposable loopback MySQL schemas (2/2 each, zero failures, errors or skips).
+
+For the historical inventory’s ADMIN category question, AdminDependencyControllerTest.defaultCategoryWritesCannotTargetAnOwnersPrivateCategory checks the same generic 404 for a private or missing ID on PUT and DELETE, and compares the owner's complete category row after each rejection. The existing ADMIN default-category tests supply the authorized controls. SupportTicketControllerTest.missingSharedRevisionCannotChangeTheReplyCatalog checks missing revision IDs on approval and retirement against a populated catalogue. An absent revision exercises no retirement actor or state policy.
+
+T52.2 covers owner-scoped ID guessing and applicable shared-resource boundaries. T52.3 has passing privileged denial and permitted operational-response allowlists with populated financial data. T52.1 remains open for the approved actor/state expectation on STAFF retirement. The implemented role matrix passed hosted CI. Independent acceptance remains pending; T41 and T46 are in review.
+
+## Historical baseline
+
 Source baseline: upstream 60aba102bb2935db6be97d14eac6331501429cd6 plus the reconciliation tests.
 Paths are relative to /api/v1. EndpointAuthTest discovers Spring MVC mappings by HTTP method and
 path for the non-auth routes. It exercises absent, malformed and disabled bearer credentials and

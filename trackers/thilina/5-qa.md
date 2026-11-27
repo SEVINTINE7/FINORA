@@ -7,11 +7,11 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 ### T52 · Three-role authorization tests · `ROLE-CR`
 **Lead:** Thilina · **Support:** Sevindu · **Depends on:** T06, T41, T46 · **Touches:** `api-test:security/`
 - [ ] T52.1 Matrix test: every endpoint × {none, USER, other USER, STAFF, ADMIN, disabled} → expected status
-- [ ] T52.2 ID-guessing tests on every `{id}` endpoint
-- [ ] T52.3 Confirm Admin/Staff responses never include amounts or transactions
+- [x] T52.2 ID-guessing tests on every `{id}` endpoint
+- [x] T52.3 Confirm Admin/Staff responses never include amounts or transactions
 
 **Done when**
-- [ ] Matrix test green in CI
+- [x] Matrix test green in CI
 
 **Handoff notes:**
 - 2026-11-24 reconciliation: PR #10 retains FinancialResponsePrivacyTest, four historical focused passes, 19 read and 23 write mappings per privileged role, and unchanged financial rows. Prior combined verify 261/261. T41/T46 remain acceptance dependencies.
@@ -24,6 +24,8 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - Execution 29 preserves upstream denials and reconciles concrete contribution IDs, MD05 ownership and restricted consent tests. See [route coverage](../../docs/t52-route-evidence.md). Positive endpoint matrix and independent CI remain open.
 
 - Execution 31 discovered 102 API mappings (94 protected and eight protocol). Seven focused methods passed. Added signed-expiry, foreign query, activation, SMS format and privileged response assertions. [Exact route inventory](../../docs/t52-route-evidence.md) records coverage and remaining request variants. T41/T46 and independent CI acceptance remain open.
+
+- Execution 72 reconciles all 106 hosted mappings (98 protected). Owner-scoped ID probes and privileged financial privacy are verified for the implemented routes. The [current inventory](../../docs/t52-route-evidence.md) identifies exact tests and the outstanding STAFF retirement policy. T41/T46 are in review; T52 awaits independent acceptance.
 
 - Execution 32 focused methods passed 6/6. Bill and budget category writes, CSV name/ID resolution, HTTP simulation cuts, nested contributions, and support reply/privacy boundaries now have direct evidence. [Scenario dispositions](../../docs/t52-route-evidence.md) retain the open STAFF retirement decision, T41/T46 and independent CI acceptance.
 

@@ -187,4 +187,18 @@ class SupportTicketControllerTest extends IntegrationTest {
         return mockMvc.perform(post(path).header("Authorization", "Bearer " + token)
                 .contentType("application/json").content(body));
     }
+
+    @Test
+    void missingSharedRevisionCannotChangeTheReplyCatalog() throws Exception {
+        String proposer = tokenFor(createUser(Role.STAFF));
+        String reviewer = tokenFor(createUser(Role.STAFF));
+        send(CATALOG, proposer, "{\"topic\":\"SIGN_IN\"}").andExpect(status().isNoContent());
+        var before = jdbc.queryForList("SELECT * FROM support_reply_revisions ORDER BY id");
+        for (String action : java.util.List.of("approve", "retire")) {
+            send(CATALOG + "/" + Long.MAX_VALUE + "/" + action, reviewer, "")
+                    .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                    .andExpect(jsonPath("$.message").value("Support item unavailable"));
+            assertThat(jdbc.queryForList("SELECT * FROM support_reply_revisions ORDER BY id")).isEqualTo(before);
+        }
+    }
 }
