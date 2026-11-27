@@ -16,7 +16,22 @@ import org.springframework.web.bind.annotation.*;
 final class AdminUserController {
     private final AdminUserService users;
 
-    AdminUserController(AdminUserService users) { this.users = users; }
+    private final UserPromotionService promotions;
+
+    AdminUserController(AdminUserService users, UserPromotionService promotions) {
+        this.users = users;
+        this.promotions = promotions;
+    }
+
+    @PostMapping("/{id}/promote-to-staff")
+    org.springframework.http.ResponseEntity<UserPromotionService.StaffSummary> promote(
+            @PathVariable long id, @RequestBody Promotion request) {
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(org.springframework.http.CacheControl.noStore())
+                .body(promotions.promote(CurrentUser.id(), id, request.confirm()));
+    }
+
+    record Promotion(String confirm) {}
 
     @GetMapping
     List<UserSummary> list(@RequestParam(defaultValue = "") String q) { return users.search(q); }

@@ -63,6 +63,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
@@ -90,8 +91,8 @@ public class UserJourneyTest {
         assertEquals("http://127.0.0.1:8080/", BuildConfig.API_BASE_URL);
         boolean emulator = "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE);
         if ("true".equals(arguments.getString("finoraIsolatedHandset"))) {
-            assertEquals("Handset mode requires the separate acceptance package",
-                    "lk.finora.app.acceptance", app.getPackageName());
+            assertFalse("Handset mode requires physical hardware", emulator);
+            assertTrue("Handset mode requires an isolated acceptance package", isAcceptancePackage());
             long serial = app.getSystemService(UserManager.class).getSerialNumberForUser(Process.myUserHandle());
             assertTrue("Handset mode requires a known Android user serial", serial > 0);
             assertEquals("Wrong Android test profile", Long.toString(serial),
@@ -107,6 +108,11 @@ public class UserJourneyTest {
         sessions = TokenStore.open(app);
         clearSession();
         instrumentation.runOnMainSync(() -> LocaleHelper.apply("EN"));
+    }
+
+    private boolean isAcceptancePackage() {
+        return "lk.finora.app.acceptance".equals(app.getPackageName())
+                || "lk.finora.app.t57handset".equals(app.getPackageName());
     }
 
     @After public void clearSession() throws Exception {
@@ -154,13 +160,15 @@ public class UserJourneyTest {
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             chooseTestLanguage("en");
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
-            checkFaqLayout(scale);
+            var problems = new java.util.ArrayList<String>();
+            checkFaqLayout("en", scale, problems);
             clickText(R.string.language_selector);
             dialogChoice(app.getString(R.string.language_sinhala));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
             await(By.desc(app.createConfigurationContext(sinhala).getString(R.string.more_tab)));
-            checkFaqLayout(scale);
+            checkFaqLayout("si", scale, problems);
+            assertTrue(String.join("\n", problems), problems.isEmpty());
         }
     }
 
@@ -173,6 +181,7 @@ public class UserJourneyTest {
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
             chooseTestLanguage("en");
             checkScreenText(LoginActivity.class, "en", scale, problems);
+            checkRecoveryText("en", scale, problems);
             signInNewUser(UUID.randomUUID().toString().replace("-", ""));
             checkUserRoutes("en", scale, problems);
             clickText(R.string.language_selector);
@@ -183,6 +192,7 @@ public class UserJourneyTest {
             checkUserRoutes("si", scale, problems);
             signOut();
             checkScreenText(LoginActivity.class, "si", scale, problems);
+            checkRecoveryText("si", scale, problems);
         }
         assertTrue(String.join("\n", problems), problems.isEmpty());
     }
@@ -229,7 +239,7 @@ public class UserJourneyTest {
                 awaitActivity(LoginActivity.class);
                 clickId(R.id.create_account);
                 checkScreenText(RegisterActivity.class, language, scale, problems);
-                pressBack();
+                clickId(R.id.register_back);
                 awaitActivity(LoginActivity.class);
             }
         }
@@ -557,6 +567,17 @@ public class UserJourneyTest {
         dialogChoice(sinhala.getString("en".equals(language) ? R.string.language_english : R.string.language_sinhala));
     }
 
+    private void checkRecoveryText(String language, float scale, java.util.List<String> problems) {
+        clickId(R.id.forgot_password);
+        checkScreenText(lk.finora.app.ui.login.PasswordResetActivity.class, language, scale, problems);
+        typeFixture(onView(withHint(R.string.admin_new_email)), "synthetic-layout@example.test");
+        clickText(R.string.reset_request);
+        awaitText(app.getString(R.string.reset_check_mail));
+        checkScreenText(lk.finora.app.ui.login.PasswordResetActivity.class, language, scale, problems);
+        pressBack();
+        awaitActivity(LoginActivity.class);
+    }
+
     private void checkRoleRoutes(boolean admin, String language, float scale, java.util.List<String> problems) {
         var home = admin ? lk.finora.app.ui.admin.AdminHomeActivity.class
                 : lk.finora.app.ui.staff.StaffHomeActivity.class;
@@ -564,7 +585,7 @@ public class UserJourneyTest {
         checkScreenText(home, language, scale, problems);
         if (admin) {
             for (int label : new int[]{R.string.admin_manage_users, R.string.admin_default_categories,
-                    R.string.staff_manage}) {
+                    R.string.admin_manage_admins, R.string.staff_manage}) {
                 clickText(label);
                 checkScreenText(label == R.string.staff_manage ? lk.finora.app.ui.staff.StaffAccessActivity.class
                         : lk.finora.app.ui.admin.AdminDirectoryActivity.class, language, scale, problems);
@@ -611,6 +632,8 @@ public class UserJourneyTest {
 
         tab(R.string.plan_tab);
         checkScreenText(MainActivity.class, language, scale, problems);
+        checkRoute(R.string.planning_guide, PlanningActivity.class, null, language, scale, problems);
+        checkRoute(R.string.planning_simulator, PlanningActivity.class, null, language, scale, problems);
         checkRoute(R.string.budget_list_title, lk.finora.app.ui.budgets.BudgetListActivity.class,
                 lk.finora.app.ui.budgets.BudgetFormActivity.class, language, scale, problems);
         checkRoute(R.string.bill_list_title, lk.finora.app.ui.bills.BillListActivity.class,
@@ -694,6 +717,12 @@ public class UserJourneyTest {
             var config = activity.getResources().getConfiguration();
             assertEquals(language, config.getLocales().get(0).getLanguage());
             assertEquals(scale, config.fontScale, 0.01f);
+            String night = InstrumentationRegistry.getArguments().getString("finoraExpectedNightMode");
+            if (night != null) {
+                int expected = "yes".equals(night) ? android.content.res.Configuration.UI_MODE_NIGHT_YES
+                        : android.content.res.Configuration.UI_MODE_NIGHT_NO;
+                assertEquals(expected, config.uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK);
+            }
             String context = screen.getSimpleName() + "/" + language + "/" + scale;
             assertTrue("No visible text checked on " + context,
                     checkVisibleText(activity.findViewById(android.R.id.content), context, problems) > 0);
@@ -729,15 +758,14 @@ public class UserJourneyTest {
         return count;
     }
 
-    private void checkFaqLayout(float scale) {
+    private void checkFaqLayout(String language, float scale, java.util.List<String> problems) {
         tab(R.string.more_tab);
         clickText(R.string.finance_help);
-        awaitActivity(lk.finora.app.ui.help.FaqActivity.class);
+        checkScreenText(lk.finora.app.ui.help.FaqActivity.class, language, scale, problems);
         var instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.runOnMainSync(() -> {
             var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
                     .stream().filter(lk.finora.app.ui.help.FaqActivity.class::isInstance).findFirst().orElseThrow();
-            assertEquals(scale, activity.getResources().getConfiguration().fontScale, 0.01f);
             var content = (android.view.ViewGroup) activity.findViewById(android.R.id.content);
             var scroll = (ScrollView) content.getChildAt(0);
             var labels = (android.view.ViewGroup) scroll.getChildAt(0);
@@ -829,6 +857,140 @@ public class UserJourneyTest {
             SystemClock.sleep(100);
         } while (SystemClock.elapsedRealtime() < deadline);
         fail("Expected restored focus " + expected + ", observed " + actual);
+    }
+
+    @Test public void adminManagesAdminsAndPromotesAnIsolatedSyntheticUser() {
+        org.junit.Assume.assumeTrue("Requires the disposable ADMIN fixture",
+                "true".equals(InstrumentationRegistry.getArguments().getString("finoraAdminFixture")));
+        String identity = UUID.randomUUID().toString().replace("-", "");
+        String userEmail = "t51-" + identity + "@example.test";
+        String createdEmail = "admin-" + identity + "@example.test";
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            signInNewUser(identity);
+            signOut();
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.admin_manage_admins);
+            awaitButton(R.string.admin_create_admin);
+            clickText(R.string.admin_create_admin);
+            typeFixture(onView(withHint(R.string.admin_new_email)).inRoot(isDialog()), createdEmail);
+            typeFixture(onView(withHint(R.string.admin_new_name)).inRoot(isDialog()), "Synthetic new administrator");
+            typeFixture(onView(withHint(R.string.admin_new_password)).inRoot(isDialog()), "Synthetic2026");
+            typeFixture(onView(withHint(R.string.admin_confirm_password)).inRoot(isDialog()), "Synthetic2026");
+            confirm();
+            await(By.textContains(createdEmail));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            signOut();
+            signInAdmin(createdEmail, "Synthetic2026");
+            signOut();
+            signInAdmin("delivery-admin@example.test", "Synthetic9-delivery-admin");
+            clickText(R.string.admin_manage_admins);
+            await(By.textContains(createdEmail));
+            String disable = app.getString(R.string.admin_disable_user) + ". Synthetic new administrator · "
+                    + createdEmail + " · " + app.getString(R.string.support_active);
+            onView(withContentDescription(disable)).perform(reveal(), activateControl());
+            confirm();
+            await(By.descContains(createdEmail + " · " + app.getString(R.string.admin_inactive)));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            clickText(R.string.admin_manage_users);
+            await(By.textContains(userEmail));
+            String makeStaff = app.getString(R.string.admin_make_staff) + ". Synthetic UI user · "
+                    + userEmail + " · " + app.getString(R.string.support_active);
+            onView(withContentDescription(makeStaff)).perform(reveal(), activateControl());
+            typeFixture(onView(withHint(R.string.admin_promote_confirmation)).inRoot(isDialog()), "DELETE_FINANCIAL_DATA");
+            confirm();
+            assertTrue(device.wait(Until.gone(By.textContains(userEmail)), UI_TIMEOUT_MS));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.admin.AdminHomeActivity.class);
+            signOut();
+            signInStaff(userEmail, "Test-" + identity + "-9");
+        }
+    }
+
+    @Test public void recoveryOpensInBothLanguagesAndRejectsAnInvalidCode() {
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            clickId(R.id.forgot_password);
+            awaitActivity(lk.finora.app.ui.login.PasswordResetActivity.class);
+            typeFixture(onView(withHint(R.string.admin_new_email)), "unknown-" + UUID.randomUUID() + "@example.test");
+            clickText(R.string.reset_request);
+            awaitText(app.getString(R.string.reset_check_mail));
+            typeFixture(onView(withHint(R.string.reset_code)), "012345");
+            typeFixture(onView(withHint(R.string.admin_new_password)), "Synthetic2026");
+            onView(allOf(withText(R.string.reset_confirm), isAssignableFrom(android.widget.Button.class)))
+                    .perform(reveal(), activateControl());
+            awaitText(app.getString(R.string.reset_code_invalid));
+            pressBack();
+            awaitActivity(LoginActivity.class);
+            chooseTestLanguage("si");
+            clickId(R.id.forgot_password);
+            awaitActivity(lk.finora.app.ui.login.PasswordResetActivity.class);
+            var config = new android.content.res.Configuration(app.getResources().getConfiguration());
+            config.setLocale(java.util.Locale.forLanguageTag("si"));
+            awaitText(app.createConfigurationContext(config).getString(R.string.reset_request));
+        }
+    }
+
+    @Test public void successfulResetReturnsToLoginWithConfirmation() {
+        try (var screen = ActivityScenario.launch(LoginActivity.class)) {
+            clickId(R.id.forgot_password);
+            awaitActivity(lk.finora.app.ui.login.PasswordResetActivity.class);
+            var instrumentation = InstrumentationRegistry.getInstrumentation();
+            instrumentation.runOnMainSync(() -> {
+                var active = ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(Stage.RESUMED).stream().findFirst().orElseThrow();
+                assertTrue(active instanceof lk.finora.app.ui.login.PasswordResetActivity);
+                var api = (lk.finora.app.data.api.AuthApi) java.lang.reflect.Proxy.newProxyInstance(
+                        lk.finora.app.data.api.AuthApi.class.getClassLoader(),
+                        new Class<?>[]{lk.finora.app.data.api.AuthApi.class}, (proxy, method, ignored) ->
+                                switch (method.getName()) {
+                                    case "requestPasswordReset" -> resetReply(202);
+                                    case "resetPassword" -> resetReply(204);
+                                    default -> throw new AssertionError("Unexpected request in reset fixture");
+                                });
+                try {
+                    var field = active.getClass().getDeclaredField("api");
+                    field.setAccessible(true);
+                    field.set(active, api);
+                } catch (ReflectiveOperationException exception) {
+                    throw new AssertionError("Unable to attach the isolated reset fixture", exception);
+                }
+            });
+            typeFixture(onView(withHint(R.string.admin_new_email)), "synthetic-reset@example.test");
+            clickText(R.string.reset_request);
+            awaitText(app.getString(R.string.reset_check_mail));
+            typeFixture(onView(withHint(R.string.reset_code)), "012345");
+            typeFixture(onView(withHint(R.string.admin_new_password)), "Synthetic2026");
+            onView(allOf(withText(R.string.reset_confirm), isAssignableFrom(android.widget.Button.class)))
+                    .perform(reveal(), activateControl());
+            awaitActivity(LoginActivity.class);
+            onView(withId(R.id.state_message)).check(matches(withText(R.string.reset_success)))
+                    .perform(reveal()).check(matches(isDisplayed()));
+            onView(withId(R.id.password)).check(matches(withText("")));
+        }
+    }
+
+    private static retrofit2.Call<Void> resetReply(int status) {
+        return new retrofit2.Call<>() {
+            private boolean invoked;
+            private boolean cancelled;
+
+            @Override public retrofit2.Response<Void> execute() {
+                invoked = true;
+                return retrofit2.Response.success(status, null);
+            }
+            @Override public void enqueue(retrofit2.Callback<Void> callback) {
+                if (!cancelled) callback.onResponse(this, execute());
+            }
+            @Override public boolean isExecuted() { return invoked; }
+            @Override public void cancel() { cancelled = true; }
+            @Override public boolean isCanceled() { return cancelled; }
+            @Override public retrofit2.Call<Void> clone() { return resetReply(status); }
+            @Override public okhttp3.Request request() {
+                return new okhttp3.Request.Builder().url(BuildConfig.API_BASE_URL).build();
+            }
+            @Override public okio.Timeout timeout() { return okio.Timeout.NONE; }
+        };
     }
 
     @Test public void adminListsCreatesAndDisablesStaff() {
@@ -1234,7 +1396,7 @@ public class UserJourneyTest {
 
     @Test public void dailyGuideAndGoalSimulationFromPlanUseTheSignedInOwner() throws Exception {
         org.junit.Assume.assumeTrue("Planning integration requires the acceptance APK",
-                "lk.finora.app.acceptance".equals(app.getPackageName()));
+                isAcceptancePackage());
         String identity = UUID.randomUUID().toString().replace("-", "");
         var today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo"));
         try (var ignored = ActivityScenario.launch(LoginActivity.class)) {
@@ -1445,7 +1607,7 @@ public class UserJourneyTest {
 
     @Test public void syntheticPasteFeedsInsightsAndPlanningSupportsSinhala() {
         org.junit.Assume.assumeTrue("Integrated journey requires the acceptance APK",
-                "lk.finora.app.acceptance".equals(app.getPackageName()));
+                isAcceptancePackage());
         var runner = InstrumentationRegistry.getInstrumentation();
         var clipboard = app.getSystemService(ClipboardManager.class);
         var today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo"));
@@ -1490,9 +1652,9 @@ public class UserJourneyTest {
                     + "\n" + app.getString(R.string.sms_extracted_merchant, "TEST SUPERMARKET");
             awaitText(extracted);
             clickId(R.id.sms_paste_preview);
-            var row = By.text(app.getString(R.string.sms_preview_selected, extracted));
-            await(row);
-            device.findObject(row).click();
+            String selectedRow = app.getString(R.string.sms_preview_selected, extracted);
+            await(By.text(selectedRow));
+            onData(equalTo(selectedRow)).inRoot(isDialog()).perform(click());
             onView(new org.hamcrest.TypeSafeMatcher<View>() {
                 @Override protected boolean matchesSafely(View view) {
                     if (!(view instanceof android.widget.Spinner) || !(view.getParent() instanceof ViewGroup parent)) {

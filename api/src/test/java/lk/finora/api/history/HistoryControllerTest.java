@@ -38,7 +38,8 @@ class HistoryControllerTest extends IntegrationTest {
                     int waiting = jdbc.queryForObject("""
                             SELECT COUNT(*) FROM information_schema.PROCESSLIST
                             WHERE ID <> CONNECTION_ID() AND INFO = ?
-                            """, Integer.class, "SELECT id FROM users WHERE id = " + userId + " FOR UPDATE");
+                            """, Integer.class, "SELECT id FROM users WHERE id = " + userId
+                                    + " AND role = 'USER' FOR UPDATE");
                     if (waiting == 1) {
                         jdbc.update("""
                                 INSERT INTO transactions (user_id,account_id,type,amount,txn_date)

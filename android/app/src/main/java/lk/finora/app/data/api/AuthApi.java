@@ -33,6 +33,28 @@ public interface AuthApi {
     record ConsentAcceptance(String consentVersion, boolean accepted) {}
     record Deletion(String password) {}
 
+    @POST("/api/v1/auth/password/forgot")
+    Call<Void> requestPasswordReset(@Body ForgotPassword request);
+
+    @POST("/api/v1/auth/password/reset")
+    Call<Void> resetPassword(@Body ResetPassword request);
+
+    final class ForgotPassword {
+        private final String email;
+        public ForgotPassword(String email) { this.email = email; }
+    }
+
+    final class ResetPassword {
+        private final String email;
+        private final String code;
+        private final String newPassword;
+        public ResetPassword(String email, String code, String newPassword) {
+            this.email = email;
+            this.code = code;
+            this.newPassword = newPassword;
+        }
+    }
+
     final class RefreshRequest {
         private final String refreshToken;
 

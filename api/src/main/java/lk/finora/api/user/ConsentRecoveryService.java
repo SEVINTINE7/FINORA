@@ -109,7 +109,7 @@ public class ConsentRecoveryService {
         var ids = jdbc.queryForList("SELECT user_id FROM consent_recovery_grants WHERE token_hash = ?", Long.class, digest);
         if (ids.isEmpty()) throw invalid();
         long id = ids.get(0);
-        owners.acquire(id);
+        owners.acquireIdentity(id);
         var validAccounts = jdbc.queryForList("SELECT id FROM users WHERE id = ? AND role = 'USER' AND status = 'ACTIVE'",
                 Long.class, id);
         if (validAccounts.isEmpty() || !withdrawn(id) || jdbc.update("""

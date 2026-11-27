@@ -63,3 +63,7 @@ Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`.
 - [ ] `docs/acceptance.md` filled with real results/screenshots
 
 **Handoff notes:** [MD01–MD05 review evidence](../../docs/md05-delivery-handoff.md) is available on draft PR #16. End-to-end acceptance under T57 remains open, including planning integration, deployment verification and owner reconciliation of the historical beta wording with D03.
+
+- T57.3 follow-up: focused verification confirmed canonical V1 delivery and legacy BETA rejection without persistence. D03/D40 define one V1 experience. The historical dual-advice criterion awaits tracker reconciliation. [Integrated acceptance evidence](../../docs/acceptance.md#integrated-acceptance-follow-up).
+
+- T57 handset follow-up: nine isolated HMD Crest cases passed across the main batch and focused SMS/V1 rerun. USER financial records and planning, STAFF bilingual support and ADMIN user, staff, category and NSB management were exercised. Prior diagnostics evidence is kept separate. The temporary profile and candidate packages are gone. Signed-release authentication and independent T57 review remain open. [Physical results and exact APK/API identities](../../docs/acceptance.md#t57-physical-v1-acceptance).

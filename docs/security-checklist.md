@@ -17,6 +17,12 @@ Execution 73 locally checked normal login issuance at exactly 30 minutes for the
 
 Independent security acceptance remains pending. The dated entries below retain their original verification scope.
 
+## Current merged local verification
+
+[PR #36](https://github.com/SEVINTINE7/FINORA/pull/36) supplies explicit JWT and refresh boundary regressions. Deployed access-log redaction and retention remain operator checks. [PR #37](https://github.com/SEVINTINE7/FINORA/pull/37) pins backend Guava to 33.7.2-jre and the OpenTelemetry BOM to 1.67.0. The retained Android build-classpath observations have a separate scope. The isolated AGP candidate left one critical finding and the Kotlin experiment failed compatibility, so neither experiment supplies an adopted correction. A current trusted OWASP data source remains outstanding.
+
+PR #39 adds one ADMIN-only protected route and exercises response-field allowlisting, unchanged second-owner financial counts and old credential rejection. No new stage traffic, provider calls or scanner pass is claimed.
+
 ## Historical baseline
 
 Audit date: 2026-11-22
@@ -92,3 +98,7 @@ The unsigned V1 release APK was inspected for backup and transfer rules, clearte
 - Deployed HTTPS, external provider runtime evidence and independent acceptance remain open.
 
 See [Execution 33 security evidence](t53-local-security-evidence.md#execution-33-security-and-advice-verification).
+
+### PR #39 integrated candidate follow-up
+
+The unsigned D59 V1 Release passed vital lint and the scoped static package checks in the [integrated acceptance evidence](acceptance.md#integrated-acceptance-follow-up). This adds no authenticated signed-release or deployed evidence. The D59 operator’s signed invalid-login check and earlier anonymous trusted-HTTPS probe remain the observed deployed scope. No staging requests, external provider calls, SMTP sends or physical-device operations were made for this follow-up.

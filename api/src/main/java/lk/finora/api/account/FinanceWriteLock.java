@@ -17,8 +17,16 @@ public class FinanceWriteLock {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void acquire(Long userId) {
+    public void acquireIdentity(Long userId) {
         if (jdbc.queryForList("SELECT id FROM users WHERE id = ? FOR UPDATE", Long.class, userId).isEmpty()) {
+            throw ApiException.notFound("User not found");
+        }
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void acquire(Long userId) {
+        if (jdbc.queryForList("SELECT id FROM users WHERE id = ? AND role = 'USER' FOR UPDATE",
+                Long.class, userId).isEmpty()) {
             throw ApiException.notFound("User not found");
         }
     }

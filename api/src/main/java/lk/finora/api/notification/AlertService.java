@@ -144,8 +144,10 @@ public class AlertService {
         int created = 0;
         for (Event event : events) {
             try {
-                created += jdbc.update("INSERT INTO alert_events (user_id, type, ref_id, period) VALUES (?, ?, ?, ?)",
-                        user.id(), event.type().name(), event.refId(), event.period());
+                created += jdbc.update("""
+                        INSERT INTO alert_events (user_id, type, ref_id, period)
+                        SELECT id,?,?,? FROM users WHERE id=? AND role='USER' FOR UPDATE
+                        """, event.type().name(), event.refId(), event.period(), user.id());
             } catch (DuplicateKeyException alreadyRecorded) {
                 // The unique key holds this event already, so a repeated run adds (and sends) nothing
             }

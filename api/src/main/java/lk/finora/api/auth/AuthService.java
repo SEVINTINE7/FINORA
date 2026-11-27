@@ -132,7 +132,7 @@ public class AuthService {
                     "Refresh token is invalid or expired. Please log in again");
         }
 
-        owners.acquire(stored.getUserId());
+        owners.acquireIdentity(stored.getUserId());
         if (jdbc.update("UPDATE refresh_tokens SET revoked_at = UTC_TIMESTAMP(6) WHERE id = ? AND revoked_at IS NULL "
                 + "AND expires_at > UTC_TIMESTAMP(6)", stored.getId()) != 1) {
             throw invalidRefresh();

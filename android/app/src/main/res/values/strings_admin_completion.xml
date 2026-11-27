@@ -1,0 +1,13 @@
+<resources>
+    <string name="admin_manage_admins">Admins</string>
+    <string name="admin_create_admin">Create admin</string>
+    <string name="admin_new_email">Email address</string>
+    <string name="admin_new_name">Full name</string>
+    <string name="admin_new_password">New password</string>
+    <string name="admin_confirm_password">Confirm password</string>
+    <string name="admin_password_rule">Use at least eight characters, including a letter and a digit.</string>
+    <string name="admin_password_mismatch">Passwords must match.</string>
+    <string name="admin_make_staff">Make staff</string>
+    <string name="admin_promote_warning">All financial data for %1$s will be permanently erased. This cannot be undone.</string>
+    <string name="admin_promote_confirmation">Type DELETE_FINANCIAL_DATA to confirm</string>
+</resources>

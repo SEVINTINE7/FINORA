@@ -197,6 +197,13 @@
                 android:layout_marginTop="@dimen/finora_space_l"
                 android:text="@string/sign_in" />
 
+            <Button
+                android:id="@+id/forgot_password"
+                style="@style/FinoraButton.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/reset_open" />
+
             <include android:id="@+id/login_feedback" layout="@layout/view_state" />
 
             <Button

@@ -1,0 +1,13 @@
+<resources>
+    <string name="admin_manage_admins">පරිපාලකවරු</string>
+    <string name="admin_create_admin">පරිපාලකයෙකු සාදන්න</string>
+    <string name="admin_new_email">විද්‍යුත් තැපැල් ලිපිනය</string>
+    <string name="admin_new_name">සම්පූර්ණ නම</string>
+    <string name="admin_new_password">නව මුරපදය</string>
+    <string name="admin_confirm_password">මුරපදය තහවුරු කරන්න</string>
+    <string name="admin_password_rule">අකුරක් සහ ඉලක්කමක් ඇතුළුව අවම වශයෙන් අක්ෂර අටක් භාවිත කරන්න.</string>
+    <string name="admin_password_mismatch">මුරපද දෙක ගැළපිය යුතුය.</string>
+    <string name="admin_make_staff">කාර්ය මණ්ඩලයට එක් කරන්න</string>
+    <string name="admin_promote_warning">%1$s ගිණුමේ සියලු මූල්‍ය දත්ත ස්ථිරව මැකෙනු ඇත. මෙය ආපසු හැරවිය නොහැක.</string>
+    <string name="admin_promote_confirmation">තහවුරු කිරීමට DELETE_FINANCIAL_DATA ටයිප් කරන්න</string>
+</resources>
