@@ -2,6 +2,7 @@ package lk.finora.api.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -115,6 +116,60 @@ class MeControllerTest extends IntegrationTest {
                         .content(json(Map.of("fullName", "", "language", "TA"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    // ---------- D60 PATCH /me (language only) ----------
+
+    private ResultActions patchMe(String token, Object body) throws Exception {
+        var request = patch("/api/v1/me").contentType(MediaType.APPLICATION_JSON).content(json(body));
+        return mockMvc.perform(token == null ? request : request.header("Authorization", "Bearer " + token));
+    }
+
+    @Test
+    void patchMeKeepsNameSavedByAnotherSessionAfterTheLanguagePickerRead() throws Exception {
+        // Session A (language picker) reads the profile with the original name
+        mockMvc.perform(get("/api/v1/me").header("Authorization", bearer()))
+                .andExpect(jsonPath("$.fullName").value("Kamala Silva"));
+        // Session B renames the user through the full PUT
+        String second = jsonMapper.readTree(postJson("/api/v1/auth/login",
+                        Map.of("email", EMAIL, "password", PASSWORD)).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()).get("accessToken").asString();
+        mockMvc.perform(put("/api/v1/me").header("Authorization", "Bearer " + second)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("fullName", "Kamala Perera", "language", "EN"))))
+                .andExpect(status().isOk());
+        // Session A now saves Sinhala: the newer name must survive
+        patchMe(accessToken, Map.of("language", "SI")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.fullName").value("Kamala Perera"))
+                .andExpect(jsonPath("$.language").value("SI"));
+        mockMvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + second))
+                .andExpect(jsonPath("$.fullName").value("Kamala Perera"))
+                .andExpect(jsonPath("$.language").value("SI"));
+    }
+
+    @Test
+    void patchMeIgnoresAName() throws Exception {
+        patchMe(accessToken, Map.of("fullName", "Someone Else", "language", "SI")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.fullName").value("Kamala Silva"))
+                .andExpect(jsonPath("$.language").value("SI"));
+    }
+
+    @Test
+    void patchMeRejectsMissingOrUnknownLanguage() throws Exception {
+        patchMe(accessToken, Map.of()).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+        patchMe(accessToken, Map.of("language", "TA")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+        mockMvc.perform(get("/api/v1/me").header("Authorization", bearer()))
+                .andExpect(jsonPath("$.language").value("EN"));
+    }
+
+    @Test
+    void patchMeNeedsAValidUserSession() throws Exception {
+        patchMe(null, Map.of("language", "SI")).andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/api/v1/me/consent/withdraw").header("Authorization", bearer()))
+                .andExpect(status().isNoContent());
+        patchMe(accessToken, Map.of("language", "SI")).andExpect(status().isUnauthorized());
     }
 
     // ---------- T07.3 withdraw consent ----------

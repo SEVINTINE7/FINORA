@@ -48,7 +48,7 @@ public class LocaleHelperTest {
     }
 
     @Test
-    public void updateReadsProfileFirstAndPreservesTheFullName() throws IOException {
+    public void updateReadsProfileFirstAndSendsOnlyTheLanguage() throws IOException {
         List<LocaleHelper.LanguageUpdate> calls = new ArrayList<>();
         String language = LocaleHelper.synchronize("SI", update -> {
             calls.add(update);
@@ -57,8 +57,8 @@ public class LocaleHelperTest {
         assertEquals("SI", language);
         assertEquals(2, calls.size());
         assertNull(calls.get(0));
-        assertEquals("Test Name", calls.get(1).fullName);
         assertEquals("SI", calls.get(1).language);
+        assertEquals("{\"language\":\"SI\"}", new com.google.gson.Gson().toJson(calls.get(1)));
     }
 
     @Test

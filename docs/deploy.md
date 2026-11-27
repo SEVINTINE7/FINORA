@@ -1,6 +1,6 @@
 # FINORA — Deployment, backups and rollback (T56)
 
-One Ubuntu 22.04 server runs everything. Files live in `deploy/`.
+One Ubuntu 24.04 LTS server (22.04 also works; D59) runs everything. Files live in `deploy/`.
 
 ```
 Phone ──HTTPS 443──▶ Nginx (Let's Encrypt) ──▶ 127.0.0.1:8080 API (systemd, user finora) ──▶ 127.0.0.1:3306 MySQL 8
@@ -19,7 +19,7 @@ Phone ──HTTPS 443──▶ Nginx (Let's Encrypt) ──▶ 127.0.0.1:8080 AP
 
 ## 1. First-time server setup (T56.1–T56.3)
 
-Prerequisites: an Ubuntu 22.04 server you can SSH into with a key, and a DNS **A record** for the API domain (e.g. `api.finora.lk`) pointing at the server.
+Prerequisites: an Ubuntu 24.04 (or 22.04) server you can SSH into with a key, and a DNS **A record** for the API domain (e.g. `api.finora.lk`) pointing at the server.
 
 ```bash
 # on your PC
@@ -34,7 +34,7 @@ The script (safe to re-run):
 - firewall: deny all incoming except **22 and 443**. Port 80 is opened only for the few seconds certbot needs (pre/post hooks), then closed again
 - MySQL: `bind-address = 127.0.0.1` (`deploy/mysql/99-finora.cnf`) and three users, all limited to the `finora` schema:
   - `finora_app`: SELECT/INSERT/UPDATE/DELETE only (used by the running API)
-  - `finora_migrate`: adds CREATE/ALTER/DROP/INDEX/REFERENCES and CREATE TEMPORARY TABLES (used by Flyway at start-up, via `SPRING_FLYWAY_USER`)
+  - `finora_migrate`: adds CREATE/ALTER/DROP/INDEX/REFERENCES/CREATE TEMPORARY TABLES (used by Flyway at start-up, via `SPRING_FLYWAY_USER`)
   - `finora_backup`: SELECT/SHOW VIEW/TRIGGER/LOCK TABLES (used by backups)
 - generates random passwords and a JWT secret into `/etc/finora/finora.env` (never printed, never in Git). Template: `deploy/finora.env.example`
 - installs the systemd units and enables the nightly backup timer
@@ -90,7 +90,7 @@ Expected: padlock shown, body `{"status":"UP"}` (it may also list `groups`). Als
 **Restore drill.** Do this once after setup and after big schema changes. It restores into a separate database and leaves the live one alone:
 ```bash
 sudo systemctl start finora-backup
-latest=$(ls -1t /var/backups/finora/finora-*.sql.gz.gpg | head -n 1)
+latest=$(sudo sh -c 'ls -1t /var/backups/finora/finora-*.sql.gz.gpg | head -n 1')   # the folder is root-only (700)
 sudo finora-restore "$latest" finora_restore_drill --compare finora   # must end with RESTORE DRILL PASSED
 sudo mysql -e "DROP DATABASE finora_restore_drill"
 ```
@@ -99,7 +99,7 @@ Record the run here:
 | Date | Who | Backup file | Result |
 |---|---|---|---|
 | 2026-11-26 | ThilinaW-LK | Synthetic local AES256 drill | 34 table counts matched. Restored dashboards and both USER logins matched on an isolated MySQL 8.0.46 instance. A deliberately failed count returned nonzero. |
-| _deployed environment pending_ | | | |
+| 2026-11-27 | Sevindu | finora-20261127T070941Z.sql.gz.gpg | Deployed drill passed with equal counts for 34 tables. See the T56 handoff for the release and restore target. |
 
 **Real recovery** (data loss): `sudo systemctl stop finora-api`, then `sudo finora-restore <file> finora --i-know-this-overwrites-production`, then `sudo systemctl start finora-api`.
 

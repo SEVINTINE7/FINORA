@@ -26,7 +26,7 @@ import lk.finora.app.ui.auth.ProfileLanguageButton;
 import lk.finora.app.ui.auth.SessionNavigation;
 
 /**
- * Account settings for a USER (T07.5): language (applies at once, saved via PUT /me), withdraw consent,
+ * Account settings for a USER (T07.5): language (applies at once, saved via PATCH /me, D60), withdraw consent,
  * and the entries to data download and deletion.
  */
 public final class SettingsActivity extends SecureActivity {

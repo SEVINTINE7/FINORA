@@ -21,7 +21,10 @@ mkdir -p "$BACKUP_DIR"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 out="$BACKUP_DIR/finora-$stamp.sql.gz.gpg"
 part="$out.part"
-trap 'rm -f "$part"' EXIT
+# gpg needs a writable home; the systemd unit has ProtectHome=true (/root is read-only),
+# so use a throwaway one. Symmetric encryption needs no keyring.
+export GNUPGHOME="$(mktemp -d)"
+trap 'rm -f "$part"; rm -rf "$GNUPGHOME"' EXIT
 
 gpg_args=(--batch --yes --quiet --pinentry-mode loopback --passphrase-file "$PASSPHRASE_FILE")
 
@@ -39,7 +42,7 @@ if ! gpg "${gpg_args[@]}" --decrypt "$part" | gunzip | tail -n 1 | grep -q '^-- 
   exit 1
 fi
 mv "$part" "$out"
-trap - EXIT
+trap 'rm -rf "$GNUPGHOME"' EXIT
 echo "Backup OK: $out ($(wc -c < "$out") bytes)"
 
 # D21: keep 30 days. -mmin is exact (-mtime rounds to whole days).

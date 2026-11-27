@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# T56.1–T56.4 · First-time setup of the FINORA API server (Ubuntu 22.04).
+# T56.1–T56.4 · First-time setup of the FINORA API server (Ubuntu 22.04 or 24.04, D59).
 # Usage (as root, from a copy of the repo's deploy/ folder):
 #   sudo ./server-setup.sh api.example.lk admin@example.lk
 # Safe to re-run: existing secrets, users and certificates are kept.
@@ -10,8 +10,8 @@ EMAIL="${2:?usage: server-setup.sh <domain> <letsencrypt-email>}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 [[ $EUID -eq 0 ]] || { echo "Run as root (sudo)." >&2; exit 1; }
-if ! grep -q 'VERSION_ID="22.04"' /etc/os-release; then
-  echo "WARNING: written for Ubuntu 22.04; continuing anyway." >&2
+if ! grep -qE 'VERSION_ID="(22.04|24.04)"' /etc/os-release; then
+  echo "WARNING: written for Ubuntu 22.04/24.04; continuing anyway." >&2
 fi
 log() { printf '\n== %s\n' "$*"; }
 
@@ -57,7 +57,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON finora.* TO 'finora_app'@'localhost';
 -- Flyway user: schema changes on the finora schema only (used at API start-up).
 CREATE USER IF NOT EXISTS 'finora_migrate'@'localhost' IDENTIFIED BY '$MIGRATE_PASS';
 ALTER USER 'finora_migrate'@'localhost' IDENTIFIED BY '$MIGRATE_PASS';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON finora.* TO 'finora_migrate'@'localhost';
+-- CREATE TEMPORARY TABLES: V22 uses a temporary guard table.
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES, CREATE TEMPORARY TABLES ON finora.* TO 'finora_migrate'@'localhost';
 -- Backup user: read-only dump rights.
 CREATE USER IF NOT EXISTS 'finora_backup'@'localhost' IDENTIFIED BY '$BACKUP_PASS';
 ALTER USER 'finora_backup'@'localhost' IDENTIFIED BY '$BACKUP_PASS';
