@@ -1,10 +1,21 @@
 # T52 authorization coverage inventory
 
-## D63 candidate delta
+## Merged inventory delta — 27 November 2026
 
-Local dynamic discovery for PR #39 reported 112 mappings, including 102 protected routes and 10 auth routes. The added mapping is POST /api/v1/admin/users/{id}/promote-to-staff. UserPromotionControllerTest asserts the successful ADMIN scenario, response allowlist, non-ADMIN refusals, exact confirmation, invalid targets, purge scope and invalidated old access/refresh tokens. The separate STAFF retirement policy remains open.
+The tested PR #39 tree matches merged main `b457d46e61bec0ade0164d26446ea24844943929`. Comparing the complete hosted method-and-path sets from [PR #30](https://github.com/SEVINTINE7/FINORA/actions/runs/45964499693/job/140389834750) and [PR #39](https://github.com/SEVINTINE7/FINORA/actions/runs/46039086735/job/140646145075) found six additions and no removals. The merged inventory is **112 mappings, 102 protected and ten authentication-protocol mappings**.
 
-## Current inventory — 27 November 2026
+| Added method and path | Approved access and test evidence |
+| --- | --- |
+| `GET /api/v1/admin/admins` | D62 ADMIN only. `AdminAccountControllerTest` checks list success with a newly created ADMIN and rejects anonymous, USER and STAFF access. |
+| `POST /api/v1/admin/admins` | D62 ADMIN only. The same suite verifies account creation and sign-in, rejection of weak passwords and duplicate emails, and response and log privacy. |
+| `PATCH /api/v1/admin/admins/{id}` | D62 ADMIN only. The suite checks missing and non-ADMIN targets, self-disable and last-active-ADMIN restrictions, session revocation and fresh sign-in after re-enable. |
+| `POST /api/v1/admin/users/{id}/promote-to-staff` | D63 ADMIN only. `UserPromotionControllerTest` covers confirmation, invalid and unauthorized targets, response allowlisting, target-only financial erasure and prior credential rejection. |
+| `POST /api/v1/auth/password/forgot` | D64 public protocol. `PasswordResetControllerTest` verifies the generic accepted response, hash-only storage, replacement and the hourly limit. |
+| `POST /api/v1/auth/password/reset` | D64 public protocol. The same suite verifies expiry, invalid and consumed code handling, five-attempt invalidation, concurrent use, revocation and unchanged second-owner data. |
+
+Hosted passes with zero failures, errors or skips were `EndpointAuthTest` 7/7, `RestrictedConsentAuthorizationTest` 3/3, `AdminAccountControllerTest` 6/6, `UserPromotionControllerTest` 2/2 and `PasswordResetControllerTest` 8/8. T41 is done. T52.1 still needs the recorded STAFF retirement actor/state rule, T46 closure and independent acceptance. The existing retirement characterization below is retained.
+
+## 106-mapping baseline — 27 November 2026
 
 A method-and-path set comparison against the [hosted PR #30 API job](https://github.com/SEVINTINE7/FINORA/actions/runs/45964499693/job/140389834750) at `8305d4b346d836067931aa46a403092e9d6ecb52` found all 102 historical rows below and exactly four additions. Together the two route tables account for **106 mappings, 98 protected and eight authentication-protocol mappings**.
 
@@ -245,7 +256,7 @@ extend the fixture and assertion coverage for selected existing mappings.
 | Nested contribution ID | VERIFIED | `GoalControllerTest.contributionCannotBeDeletedThroughDifferentGoalOfSameOwner` combines a real contribution with the same user's wrong parent. Both contribution lists retain exactly the same JSON structure and values. The correct parent works, then the deleted ID returns 404. Execution 31 covers foreign owner combinations. |
 | STAFF unassigned queue row and reply list | VERIFIED | `SupportTicketControllerTest.ownerAndAssigneeAreIsolatedAndApprovedReplySurvivesRetirement` asserts the exact queue row keys, null sensitive content before claim, and a strict one-field reply object. Assigned ticket details remain available to the assignee. |
 | STAFF reply revision body reference | VERIFIED | The same test sends a valid active revision, then checks retired and missing IDs yield the same generic 404 without appending a reply. It retains the approved reply after retirement. |
-| STAFF catalog retirement actor scope | CONTRACT_DECISION_REQUIRED | The API contract says STAFF may retire a revision. The D47 architecture decision defers backend policy. Approval expressly requires a different STAFF member. Retirement passes no actor to the service. Ask Sevindu to confirm any STAFF versus a narrower rule, including whether DRAFT retirement is intended. The test keeps the existing approved workflow and adds no narrower actor assumption. |
+| STAFF catalog retirement actor scope | CONTRACT_DECISION_REQUIRED | The API contract says STAFF may retire a revision. The D47 architecture decision defers backend policy. Approval expressly requires a different STAFF member. Retirement passes no actor to the service. The recorded actor and state decision remains outstanding, including whether DRAFT retirement is intended. The test keeps the existing approved workflow and adds no narrower actor assumption. |
 | Privileged paginated finance response | NOT_APPLICABLE | Reviewed privileged routes use operational lists, bounded queues, or fixed DTOs. The finance transaction page is USER-only. `EndpointAuthTest.wrongRoleGives403Everywhere` and `FinancialResponsePrivacyTest` exercise privileged denial. Where an allowed privileged list has row objects, the existing allowlists remain applicable. |
 | Privileged user export or export metadata | NOT_APPLICABLE | No ADMIN or STAFF export route exists. Bearer export is USER owner-scoped and restricted export is grant-owner-scoped. Existing denial and grant-consumption tests verify those boundaries. Count aggregates expressly permitted by the operational contracts remain in their allowed DTOs. |
 | Session and consent branches already covered | VERIFIED | Existing `EndpointAuthTest`, `AuthControllerTest`, `MeControllerTest`, `RestrictedConsentAuthorizationTest` and STAFF activation tests retain malformed, expired, disabled, replaced, revoked and restricted credentials, public protocol checks, expiry and consumption. |
