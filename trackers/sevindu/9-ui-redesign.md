@@ -50,12 +50,14 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 
 ### T64 · Goals and planning tools · `UX-04`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/goals/`, `and:ui/planning/`, `res:layout/`
-- [ ] T64.1 Mockups of Goal list, Goal detail, Goal form and Planning (daily guide + simulator) approved by Sevindu
+- [x] T64.1 Mockups of Goal list, Goal detail, Goal form and Planning (daily guide + simulator) approved by Sevindu on 2026-11-28 (design canvas row "T64 · Goals and planning"; D68)
 - [ ] T64.2 Goal list (progress cards, focus-goal marker), Goal detail (contributions list) and Goal form
 - [ ] T64.3 Planning screen: daily guide card and simulator inputs/results
 - [ ] T64.4 Screenshots approved
 
 **Handoff notes:**
+- T64.1 (2026-11-28): 5 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 — GoalList, GoalDetail, GoalForm, PlanGuide, PlanSimulator (Planning is one activity, two modes). Approved with all four D68 changes: focus badge, date pickers + deadline toggle, More/Less adjustment + Simulate shortcut, monthly hint on Add goal.
+- Mockup numbers are synthetic and consistent (guide: Rs. 40,051.00 ÷ 10 days = Rs. 4,005.10; simulation: 25,000 − 5,000 + 2,000 = 22,000/month, 56,000 left → 3 months). Guide shows the confirmed-bills state; T64.3 still needs the unconfirmed/changed-bills states and every status message.
 
 ### T65 · Accounts and categories · `UX-05`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/accounts/`, `and:ui/categories/`, `res:layout/`
