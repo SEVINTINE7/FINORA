@@ -76,13 +76,11 @@
     <string name="records_edit_named">Edit %1$s</string>
     <string name="records_remove_named">Remove %1$s</string>
     <string name="account_list_title">Accounts</string>
-    <string name="account_form_title">Account details</string>
     <string name="account_type">Account type</string>
     <string name="account_bank">Bank</string>
     <string name="account_cash">Cash</string>
     <string name="account_card">Card</string>
     <string name="account_wallet">Wallet</string>
-    <string name="account_opening_balance">Opening balance (LKR)</string>
     <string name="account_balance_invalid">Enter a balance with up to 13 whole digits and two decimal places.</string>
     <string name="account_summary">%1$s · Opening balance LKR %2$s</string>
     <string name="account_archived">Archived</string>
@@ -573,4 +571,20 @@
     <string name="goal_contribution_amount">Amount saved</string>
     <string name="goal_save">Save goal</string>
     <string name="goal_monthly_hint">About %1$s a month to reach this by %2$s.</string>
+    <!-- T65.2/D65/D69 accounts -->
+    <string name="account_intro">Tap an account to edit it. The opening balance is what it held before your first record.</string>
+    <string name="account_in_use">In use</string>
+    <string name="account_archived_heading">Archived</string>
+    <plurals name="account_count">
+        <item quantity="one">%1$d account</item>
+        <item quantity="other">%1$d accounts</item>
+    </plurals>
+    <string name="account_archived_note">Accounts with records are archived instead of removed, so no records are lost. You can still edit them.</string>
+    <string name="account_row">%1$s · Opening balance %2$s</string>
+    <string name="account_add">Add account</string>
+    <string name="account_edit">Edit account</string>
+    <string name="account_name">Account name</string>
+    <string name="account_opening">Opening balance</string>
+    <string name="account_opening_help">What this account held before your first record in FINORA. Enter 0.00 for a new account.</string>
+    <string name="account_save">Save account</string>
 </resources>

@@ -69,13 +69,16 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 ### T65 · Accounts and categories · `UX-05`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/accounts/`, `and:ui/categories/`, `res:layout/`
 - [x] T65.1 Mockups of Account list, Account form, Category list and Category form approved by Sevindu
-- [ ] T65.2 Account list (archived state) and Account form
+- [x] T65.2 Account list (archived state) and Account form
 - [ ] T65.3 Category list (income/expense sections, EN/SI names) and Category form (EN/SI name, income/expense, need/want chips). Category icons are a client-side mapping; no API change
 - [ ] T65.4 Screenshots approved
 
 **Handoff notes:**
 - T65.1 (2026-11-28): 4 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v11) — AccountList, AccountForm, CategoryList (full scroll), CategoryForm. Approved with all four D69 changes: tap to edit, Archived section, grouped category rows, form controls.
 - Mockup data: demo accounts Commercial Bank / Cash wallet plus synthetic Debit card and archived "Old savings"; the real 14 expense + 4 income default categories with their Sinhala names and need/want; a custom "Gym" (Want, no Sinhala name) shows the editable row and the tag icon for unmapped names.
+- T65.2 (2026-11-28, verified on Pixel_8): `activity_account_list.xml`, `item_account.xml`, `activity_account_form.xml` rewritten; list uses ViewBinding, rules in `AccountRules` (+2 unit tests). In use / Archived sections with counts; archived cards get an icon + word chip and no remove button; the whole card opens the form (TalkBack: old `account_summary` sentence, action "Edit <name>"). Form: Add/Edit heading, type tiles via new `FormChoices.setColumns(2)` (chosen tile shows a tick + bold, not colour alone), large signed Rs. opening balance with help.
+- New icons bank/cash/wallet/archive; `account_form_title`/`account_opening_balance` removed. Demo account seeded 28 Nov with "Debit card" and archived "Old savings" (id 6, one synthetic Sept record).
+- Checks: 178 unit tests, lint 4 = baseline; FinancialForm + Dashboard fixtures pass; FinancialListCard and ShellNavigation failed once in a batch while another app (com.printxpress.app) took focus on the emulator, both pass alone. Guarded `T65ScreenshotTest` passed EN/SI × light/dark + EN 130%. UserJourney account steps pass; the two journeys then fail on the T62 Home amounts (`Expenses: LKR 12.34` text / `dashboard_expense` desc) — stale since T62, not touched here.
 
 ### T66 · Insights, advice and history · `UX-06`
 **Lead:** Sevindu · **Support:** Sahan (review), Thilina (advice wording) · **Depends on:** T62 · **Touches:** `and:ui/insights/`, `and:ui/advice/`, `and:ui/history/`, `res:layout/`

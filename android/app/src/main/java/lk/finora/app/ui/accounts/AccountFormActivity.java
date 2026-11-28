@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -36,8 +37,14 @@ public final class AccountFormActivity extends SecureActivity {
         setContentView(R.layout.activity_account_form);
         name = findViewById(R.id.form_name);
         amount = findViewById(R.id.account_balance);
-        type = choices(this, R.id.form_kind, R.string.account_bank, R.string.account_cash,
-                R.string.account_card, R.string.account_wallet);
+        type = choices(this, R.id.form_kind, AccountRules.LABELS);
+        // T65.2/D69: the four account types as icon tiles, two per row.
+        for (int i = 0; i < AccountRules.ICONS.length; i++) type.setChoiceIcon(i, AccountRules.ICONS[i]);
+        type.setColumns(2);
+        TextView heading = findViewById(R.id.account_form_heading);
+        heading.setText(getIntent().getLongExtra(AccountListActivity.ITEM_ID, 0) == 0
+                ? R.string.account_add : R.string.account_edit);
+        androidx.core.view.ViewCompat.setAccessibilityHeading(heading, true);
         watch(name, value -> model.name = value);
         watch(amount, value -> model.amount = value);
         findViewById(R.id.records_save).setOnClickListener(view -> save());
@@ -76,6 +83,10 @@ public final class AccountFormActivity extends SecureActivity {
             filled = true;
         }
         boolean enabled = formState(this, model.work, model.ready);
+        TextView status = findViewById(R.id.records_status);
+        status.setVisibility(status.getText().length() == 0 ? View.GONE : View.VISIBLE);
+        boolean retry = !model.work.busy() && (model.work.error != 0 || model.work.ambiguousCreate);
+        findViewById(R.id.records_retry).setVisibility(retry ? View.VISIBLE : View.GONE);
         name.setEnabled(enabled);
         amount.setEnabled(enabled);
         type.setEnabled(enabled);

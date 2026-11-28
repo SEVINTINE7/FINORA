@@ -2,15 +2,18 @@ package lk.finora.app.ui.accounts;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityAccountListBinding;
 import lk.finora.app.ui.FinancialCard;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
@@ -18,15 +21,20 @@ import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 public final class AccountListActivity extends SecureActivity {
     public static final String ITEM_ID = "record_id";
     private AccountListViewModel model;
+    private ActivityAccountListBinding view;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         model = new ViewModelProvider(this).get(AccountListViewModel.class);
         if (!verify(this, model.work)) return;
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
-        setContentView(R.layout.activity_account_list);
-        findViewById(R.id.records_add).setOnClickListener(view -> open(0));
-        findViewById(R.id.records_retry).setOnClickListener(view -> model.load());
+        view = ActivityAccountListBinding.inflate(getLayoutInflater());
+        setContentView(view.getRoot());
+        ViewCompat.setAccessibilityHeading(view.accountHeading, true);
+        ViewCompat.setAccessibilityHeading(view.accountInUseHeading, true);
+        ViewCompat.setAccessibilityHeading(view.accountArchivedHeading, true);
+        view.recordsAdd.setOnClickListener(ignored -> open(0));
+        view.recordsRetry.setOnClickListener(ignored -> model.load());
         model.work.changes.observe(this, ignored -> render());
     }
 
@@ -38,9 +46,23 @@ public final class AccountListActivity extends SecureActivity {
     private void render() {
         if (!verify(this, model.work)) return;
         showListState(this, model.work, model.rows.isEmpty());
-        LinearLayout rows = findViewById(R.id.records_rows);
+        boolean failed = !model.work.busy() && model.work.error != 0;
+        view.recordsRetry.setVisibility(failed ? View.VISIBLE : View.GONE);
+        var inUse = AccountRules.inUse(model.rows);
+        var archived = AccountRules.archived(model.rows);
+        view.accountInUseHeader.setVisibility(inUse.isEmpty() ? View.GONE : View.VISIBLE);
+        view.accountInUseCount.setText(getResources().getQuantityString(R.plurals.account_count, inUse.size(), inUse.size()));
+        view.accountArchivedHeader.setVisibility(archived.isEmpty() ? View.GONE : View.VISIBLE);
+        view.accountArchivedNote.setVisibility(archived.isEmpty() ? View.GONE : View.VISIBLE);
+        view.accountArchivedCount.setText(getResources().getQuantityString(R.plurals.account_count,
+                archived.size(), archived.size()));
+        fill(view.recordsRows, inUse);
+        fill(view.accountArchivedRows, archived);
+    }
+
+    private void fill(LinearLayout rows, java.util.List<lk.finora.app.data.api.AccountDto> items) {
         rows.removeAllViews();
-        for (var item : model.rows) {
+        for (var item : items) {
             rows.addView(AccountListAdapter.row(this, rows, item, () -> open(item.id()),
                     () -> confirm(this, model.work, R.string.account_remove_message,
                         () -> model.delete(item.id()))));

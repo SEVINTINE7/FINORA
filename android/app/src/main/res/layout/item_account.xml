@@ -1,37 +1,92 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T65.2/D69 account card: tap to edit; type icon, name, type and opening balance, Archived chip or a remove button. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Finora.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/finora_space_s"
-    android:layout_marginBottom="@dimen/finora_space_s">
-        <TextView
-            android:id="@+id/record_name"
-            style="@style/FinoraText.Label"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="@dimen/finora_group_radius">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/account_open"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="68dp"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="56dp"
+            android:paddingBottom="10dp">
 
-        <TextView
-            android:id="@+id/record_details"
-            android:gravity="end"
-            style="@style/FinoraText.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            <ImageView
+                android:id="@+id/account_icon"
+                android:layout_width="@dimen/finora_row_icon"
+                android:layout_height="@dimen/finora_row_icon"
+                android:background="@drawable/finora_circle"
+                android:importantForAccessibility="no"
+                android:padding="10dp" />
 
-        <Button
-            android:id="@+id/record_edit"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/records_edit" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:importantForAccessibility="noHideDescendants"
+                android:orientation="vertical">
 
-        <Button
+                <TextView
+                    android:id="@+id/record_name"
+                    style="@style/FinoraText.RowTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/record_details"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/finora_muted" />
+
+                <TextView
+                    android:id="@+id/account_archived"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/finora_badge"
+                    android:backgroundTint="@color/finora_neutral_surface"
+                    android:drawablePadding="4dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="24dp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/account_archived"
+                    android:textColor="@color/finora_ink"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/finora_ic_archive"
+                    app:drawableTint="@color/finora_ink" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageButton
             android:id="@+id/record_remove"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/records_remove" />
-</LinearLayout>
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/records_remove"
+            android:src="@drawable/finora_ic_delete"
+            app:tint="@color/finora_muted" />
+    </FrameLayout>
+</com.google.android.material.card.MaterialCardView>
