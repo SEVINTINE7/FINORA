@@ -48,6 +48,11 @@ public final class SmsAccessActivity extends SecureActivity {
     private Button scan;
     private TextView scanResult;
     private Button previewButton;
+    private View noThanks;
+    private View scanCard;
+    private View found;
+    private android.widget.LinearLayout foundRows;
+    private TextView foundCount;
     private SmsTransactionPreview preview;
     private SmsReportAction report;
     private final SmsLocalTask scanTask = new SmsLocalTask();
@@ -68,11 +73,30 @@ public final class SmsAccessActivity extends SecureActivity {
         setContentView(R.layout.activity_sms_access);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_title), true);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_alternatives_title), true);
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_intro_title), true);
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_scan_title), true);
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_found_heading), true);
+        android.widget.LinearLayout points = findViewById(R.id.sms_points);
+        ImportRows.point(this, points, R.drawable.finora_ic_cat_phone, R.string.sms_point_phone_title, R.string.sms_point_phone);
+        ImportRows.point(this, points, R.drawable.finora_ic_tick, R.string.sms_point_choose_title, R.string.sms_point_choose);
+        ImportRows.point(this, points, R.drawable.finora_ic_lock, R.string.sms_point_logins_title, R.string.sms_point_logins);
+        ImportRows.link(findViewById(R.id.sms_paste_entry_action), R.drawable.finora_ic_clip, R.string.sms_paste,
+                R.string.sms_alt_sms_paste_sub);
+        ImportRows.link(findViewById(R.id.sms_csv_import_action), R.drawable.finora_ic_file, R.string.sms_csv_import,
+                R.string.sms_alt_csv_sub);
+        ImportRows.link(findViewById(R.id.sms_manual_entry_action), R.drawable.finora_ic_edit, R.string.sms_manual_entry,
+                R.string.sms_alt_manual_sub);
+        noThanks = findViewById(R.id.sms_no_thanks_action);
+        scanCard = findViewById(R.id.sms_scan_card);
+        found = findViewById(R.id.sms_found);
+        foundRows = findViewById(R.id.sms_found_rows);
+        foundCount = findViewById(R.id.sms_found_count);
         allow = findViewById(R.id.sms_allow);
         settings = findViewById(R.id.sms_settings);
         status = findViewById(R.id.sms_status);
         scan = findViewById(R.id.sms_scan);
         scanResult = findViewById(R.id.sms_scan_result);
+        showWhenText(scanResult);
         report = new SmsReportAction(this, findViewById(R.id.sms_diagnostic_report),
                 () -> verifySession() && canScan(), scanResult::setText);
         preview = new SmsTransactionPreview(this, store, entryIdentity, "SMS");
@@ -160,9 +184,19 @@ public final class SmsAccessActivity extends SecureActivity {
             return;
         }
         SmsPermissionState state = permissionState();
+        boolean granted = state == SmsPermissionState.GRANTED;
         allow.setEnabled(state.canRequest());
+        allow.setVisibility(granted ? View.GONE : View.VISIBLE);
+        noThanks.setVisibility(granted ? View.GONE : View.VISIBLE);
         settings.setVisibility(state == SmsPermissionState.SETTINGS_AVAILABLE ? View.VISIBLE : View.GONE);
-        scan.setVisibility(state == SmsPermissionState.GRANTED ? View.VISIBLE : View.GONE);
+        scan.setVisibility(granted ? View.VISIBLE : View.GONE);
+        scanCard.setVisibility(granted ? View.VISIBLE : View.GONE);
+        findViewById(R.id.sms_status_box).setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                getColor(granted ? R.color.finora_success_surface : R.color.finora_neutral_surface)));
+        android.widget.ImageView statusIcon = findViewById(R.id.sms_status_icon);
+        statusIcon.setImageResource(granted ? R.drawable.finora_ic_tick : R.drawable.finora_ic_info);
+        statusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
+                getColor(granted ? R.color.finora_green : R.color.finora_ink)));
         if (state != SmsPermissionState.GRANTED) clearScan();
         else if (preview.hasPending()) previewButton.setVisibility(View.VISIBLE);
         status.setText(switch (state) {
@@ -213,23 +247,25 @@ public final class SmsAccessActivity extends SecureActivity {
                     if (result.results().isEmpty()) {
                         scanResult.setText(R.string.sms_no_matching_messages);
                     } else {
-                        var text = new StringBuilder();
-                        for (var parsed : result.results()) {
-                            if (text.length() != 0) text.append("\n\n");
-                            text.append(SmsLocalResults.text(this, parsed));
-                        }
-                        scanResult.setText(text);
                         var parsedRows = new java.util.ArrayList<lk.finora.app.sms.SmsParseResult.Parsed>();
                         for (var row : result.results()) {
                             if (row instanceof lk.finora.app.sms.SmsParseResult.Parsed parsed) parsedRows.add(parsed);
                         }
+                        // T67/D71: found messages as rows; anything the parser could not read is one line below.
+                        scanResult.setText(parsedRows.size() < result.results().size()
+                                ? getString(R.string.sms_needs_review) : "");
+                        showFound(parsedRows);
                         if (result.diagnostic() != null) {
                             var review = result.diagnostic();
                             report.set(lk.finora.app.data.repo.SmsDiagnosticRepository.Code.from(review.result()),
                                     review.approvedBank());
                         }
                         preview.replace(parsedRows);
-                        if (!parsedRows.isEmpty()) previewButton.setVisibility(View.VISIBLE);
+                        if (!parsedRows.isEmpty()) {
+                            previewButton.setText(getResources().getQuantityString(R.plurals.sms_review_count,
+                                    parsedRows.size(), parsedRows.size()));
+                            previewButton.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
                 default -> scanResult.setText(R.string.sms_scan_failed);
@@ -248,9 +284,32 @@ public final class SmsAccessActivity extends SecureActivity {
         if (report != null) report.reset();
         if (preview != null) preview.stop(changingConfiguration);
         if (previewButton != null) previewButton.setVisibility(View.GONE);
+        if (found != null) {
+            found.setVisibility(View.GONE);
+            foundRows.removeAllViews();
+        }
         scanTask.cancel();
         if (scan != null) scan.setEnabled(true);
         if (scanResult != null) scanResult.setText("");
+    }
+
+    private void showFound(java.util.List<lk.finora.app.sms.SmsParseResult.Parsed> rows) {
+        foundRows.removeAllViews();
+        for (var row : rows) ImportRows.add(foundRows, ImportRows.parsed(this, foundRows, row));
+        foundCount.setText(getResources().getQuantityString(R.plurals.sms_found_count, rows.size(), rows.size()));
+        found.setVisibility(rows.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    /** Status lines take no space while empty. */
+    static void showWhenText(TextView view) {
+        view.setVisibility(view.length() == 0 ? View.GONE : View.VISIBLE);
+        view.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable text) {
+                view.setVisibility(text.length() == 0 ? View.GONE : View.VISIBLE);
+            }
+        });
     }
 
     private void requestInboxAccess() {

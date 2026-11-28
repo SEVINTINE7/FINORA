@@ -37,8 +37,7 @@
     <string name="language_save_failed">Could not save your account language. Try again when connected.</string>
     <string name="language_syncing">Saving language…</string>
     <string name="sms_access_title">SMS access</string>
-    <string name="sms_access_explanation">FINORA asks for access so it can identify bank transaction messages. Any future parsing happens on this phone. SMS access is optional.</string>
-    <string name="sms_allow_access">Allow access</string>
+    <string name="sms_allow_access">Allow SMS access</string>
     <string name="sms_no_thanks">No thanks</string>
     <string name="sms_access_optional">You can continue without giving SMS access.</string>
     <string name="sms_access_granted">SMS access is allowed.</string>
@@ -49,9 +48,8 @@
     <string name="sms_settings_unavailable">App settings could not be opened.</string>
     <string name="sms_alternatives">Other ways to add records</string>
     <string name="sms_paste">Paste SMS text</string>
-    <string name="sms_csv_import">CSV import</string>
-    <string name="sms_manual_entry">Manual transaction entry</string>
-    <string name="sms_paste_hint">Copy one bank message, then choose Paste and check. The message is checked on this phone.</string>
+    <string name="sms_csv_import">Import a CSV file</string>
+    <string name="sms_manual_entry">Add manually</string>
     <string name="sms_paste_parse">Paste and check</string>
     <string name="sms_paste_plain_text">Copy one plain-text message to check.</string>
     <string name="records_add">Add</string>
@@ -100,7 +98,6 @@
     <string name="transaction_amount">Amount (LKR)</string>
     <string name="transaction_merchant">Merchant (optional)</string>
     <string name="transaction_note">Note (optional)</string>
-    <string name="transaction_row">%1$s · %2$s · LKR %3$s</string>
     <string name="transaction_archived_name">%1$s (archived)</string>
     <string name="transaction_remove">Permanently remove this transaction?</string>
     <string name="transaction_open_manual">Add transaction</string>
@@ -236,8 +233,6 @@
     <string name="csv_pick_help">Choose a FINORA CSV file to preview. Only confirmed rows are saved.</string>
     <string name="csv_choose">Choose CSV file</string>
     <string name="csv_refresh">Refresh preview</string>
-    <string name="csv_review">Review import</string>
-    <string name="csv_review_count">Review selected rows (%1$d)</string>
     <string name="csv_confirm_message">Import the selected rows (%1$d) into your account?</string>
     <string name="csv_confirm_action">Import selected rows</string>
     <string name="csv_file_invalid">Choose a readable UTF-8 file with the FINORA CSV header.</string>
@@ -246,10 +241,6 @@
     <string name="csv_confirm_rejected">No rows were imported. Refresh the preview and check your selections.</string>
     <string name="csv_uncertain">The import outcome is unknown. Refresh the preview to identify rows already imported before trying again.</string>
     <string name="csv_result">Imported: %1$d · Duplicates skipped: %2$d</string>
-    <string name="csv_summary">Rows: %1$d · Invalid: %2$d · Duplicates: %3$d</string>
-    <string name="csv_line">Line %1$d</string>
-    <string name="csv_line_duplicate">%1$s · Already imported</string>
-    <string name="csv_line_invalid">%1$s · Invalid row. Check the CSV template and your account and category names.</string>
     <string name="sms_scan_range">Scan the last 31 days</string>
     <string name="sms_scan_failed">Could not finish the local scan.</string>
     <string name="sms_no_formats">No approved bank SMS formats are available yet.</string>
@@ -262,12 +253,8 @@
     <string name="sms_transaction_preview">Review SMS transactions</string>
     <string name="sms_preview_choices_unavailable">Could not load accounts or categories. Reopen the preview to try again.</string>
     <string name="sms_preview_date">Date: %1$s</string>
-    <string name="sms_preview_no_selection">None selected</string>
-    <string name="sms_preview_include">Include this transaction</string>
+    <string name="sms_preview_no_selection">Choose</string>
     <string name="sms_preview_apply">Apply to preview</string>
-    <string name="sms_preview_selected">Selected: %1$s</string>
-    <string name="sms_preview_deselected">Not selected: %1$s</string>
-    <string name="sms_batch_review">Check selected rows before saving. Equal fingerprints can represent distinct transactions.</string>
     <string name="sms_batch_invalid_selection">Select at least one row and choose an account and valid date for each selected row.</string>
     <string name="sms_batch_save">Save SMS transactions</string>
     <plurals name="sms_batch_confirm">
@@ -382,7 +369,7 @@
     <string name="advice_section_salary">How to use your salary this month</string>
     <string name="advice_unit_percent">%1$s%%</string>
     <string name="advice_unit_months">%1$s months</string>
-    <string name="sms_report_problem">Report problem</string>
+    <string name="sms_report_problem">Report a message FINORA could not read</string>
     <string name="sms_report_preview">Bank: %1$s\nFormat version: unknown\nError code: %2$s\n\nOnly these details will be sent in this report. Your original SMS and financial details will not be included.</string>
     <string name="sms_report_send">Send report</string>
     <string name="sms_report_sent">Report sent.</string>
@@ -647,4 +634,74 @@
     </plurals>
     <string name="history_point">%1$s: %2$s</string>
     <string name="history_point_none">%1$s: no score</string>
+    <string name="sms_intro_title">Add bank messages faster</string>
+    <string name="sms_intro_text">FINORA can find bank transaction messages and fill in the details for you. This is optional.</string>
+    <string name="sms_point_phone_title">Messages stay on this phone</string>
+    <string name="sms_point_phone">The full SMS text is read and checked here. It is never uploaded.</string>
+    <string name="sms_point_choose_title">You choose what is saved</string>
+    <string name="sms_point_choose">Only the amount, date, merchant and type you confirm are sent to your account.</string>
+    <string name="sms_point_logins_title">No bank logins</string>
+    <string name="sms_point_logins">FINORA never asks for bank passwords or card numbers.</string>
+    <string name="sms_scan_title">Scan bank messages</string>
+    <string name="sms_scan_help">Looks at the last 31 days for approved bank formats.</string>
+    <string name="sms_found">Found on this phone</string>
+    <string name="sms_found_note">Nothing is saved yet. Review each transaction, choose an account, then save.</string>
+    <string name="sms_money_received">Money received</string>
+    <string name="sms_money_spent">Payment</string>
+    <string name="sms_paste_step_1">Copy one bank message in your SMS app.</string>
+    <string name="sms_paste_step_2">Come back and choose Paste and check.</string>
+    <string name="sms_paste_step_3">Confirm the details, then save.</string>
+    <string name="sms_details_found">Details found</string>
+    <string name="sms_details_local">Checked on this phone</string>
+    <string name="sms_field_amount">Amount</string>
+    <string name="sms_field_date">Date</string>
+    <string name="sms_field_type">Type</string>
+    <string name="sms_field_merchant">Merchant</string>
+    <string name="sms_field_none">Not in the message</string>
+    <string name="sms_type_expense">Expense (debit)</string>
+    <string name="sms_type_income">Income (credit)</string>
+    <string name="sms_details_note">Only these four details are sent when you save. The message text stays on this phone.</string>
+    <string name="sms_review_intro">Check each transaction and choose an account. Untick any you do not want to save.</string>
+    <string name="sms_review_selected">Selected: %1$d of %2$d · Transactions you already saved are skipped.</string>
+    <string name="sms_review_edit">Edit amount, date or merchant</string>
+    <string name="sms_review_account_needed">Choose an account to save this one.</string>
+    <string name="sms_review_include">Save %1$s</string>
+    <string name="csv_file_none">No file chosen yet</string>
+    <string name="csv_choose_other">Choose another file</string>
+    <string name="csv_format_help">Use the FINORA header below. Up to 1 MB and 2,000 rows. Account and category names must match yours.</string>
+    <string name="csv_ready">Ready</string>
+    <string name="csv_fix">Need fixing</string>
+    <string name="csv_done">Already imported</string>
+    <string name="csv_summary_spoken">Ready: %1$d. Need fixing: %2$d. Already imported: %3$d.</string>
+    <string name="csv_preview">Preview</string>
+    <string name="csv_preview_hint">Tick the rows to import</string>
+    <string name="csv_row_meta">Line %1$d · %2$s</string>
+    <string name="csv_row_fix">Check this row in the file.</string>
+    <string name="csv_fix_note">Fix rows that need fixing in the file, then choose it again.</string>
+    <string name="csv_nothing_saved">Nothing is saved until you confirm.</string>
+    <string name="csv_no_merchant">No merchant</string>
+    <string name="sms_alt_sms_paste_sub">Copy one bank message and check it here</string>
+    <string name="sms_alt_csv_sub">Preview rows before anything is saved</string>
+    <string name="sms_alt_manual_sub">Type the transaction yourself</string>
+    <plurals name="sms_found_count">
+        <item quantity="one">%1$d transaction</item>
+        <item quantity="other">%1$d transactions</item>
+    </plurals>
+    <plurals name="sms_review_count">
+        <item quantity="one">Review %1$d transaction</item>
+        <item quantity="other">Review %1$d transactions</item>
+    </plurals>
+    <plurals name="sms_review_save">
+        <item quantity="one">Save %1$d transaction</item>
+        <item quantity="other">Save %1$d transactions</item>
+    </plurals>
+    <plurals name="csv_rows_checked">
+        <item quantity="one">%1$d row checked by FINORA</item>
+        <item quantity="other">%1$d rows checked by FINORA</item>
+    </plurals>
+    <plurals name="csv_import_count">
+        <item quantity="one">Import %1$d selected row</item>
+        <item quantity="other">Import %1$d selected rows</item>
+    </plurals>
+    <string name="csv_header_format" translatable="false">date,type,amount,category,account,merchant,note</string>
 </resources>

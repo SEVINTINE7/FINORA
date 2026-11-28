@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T67.2: text buttons on the SMS review sheet; muted while Save has nothing selected. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/finora_muted" android:state_enabled="false" />
+    <item android:color="@color/finora_green" />
+</selector>

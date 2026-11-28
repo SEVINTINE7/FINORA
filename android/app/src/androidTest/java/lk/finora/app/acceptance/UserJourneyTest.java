@@ -1656,21 +1656,12 @@ public class UserJourneyTest {
             String extracted = app.getString(R.string.sms_extracted_record, "1250.75", today.toString(),
                     app.getString(R.string.sms_direction_debit))
                     + "\n" + app.getString(R.string.sms_extracted_merchant, "TEST SUPERMARKET");
-            awaitText(extracted);
+            await(By.desc(extracted));
             clickId(R.id.sms_paste_preview);
-            String selectedRow = app.getString(R.string.sms_preview_selected, extracted);
-            await(By.text(selectedRow));
-            onData(equalTo(selectedRow)).inRoot(isDialog()).perform(click());
+            awaitText(app.getString(R.string.sms_review_intro));
             onView(new org.hamcrest.TypeSafeMatcher<View>() {
                 @Override protected boolean matchesSafely(View view) {
-                    if (!(view instanceof android.widget.Spinner) || !(view.getParent() instanceof ViewGroup parent)) {
-                        return false;
-                    }
-                    for (int i = 0; i < parent.getChildCount(); i++) {
-                        if (parent.getChildAt(i) instanceof TextView label && label.getLabelFor() == view.getId()
-                                && app.getString(R.string.transaction_account).contentEquals(label.getText())) return true;
-                    }
-                    return false;
+                    return view instanceof android.widget.Spinner && view.getId() == R.id.review_account;
                 }
                 @Override public void describeTo(org.hamcrest.Description description) {
                     description.appendText("SMS preview account selector");
@@ -1684,7 +1675,6 @@ public class UserJourneyTest {
                     picker.setSelection(1);
                 }
             });
-            onView(withText(R.string.sms_preview_apply)).inRoot(isDialog()).perform(activateControl());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
             awaitButton(R.string.sms_batch_save);
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
@@ -1742,7 +1732,7 @@ public class UserJourneyTest {
             tab(R.string.records_tab);
             openImport(R.string.sms_access_title);
             awaitActivity(lk.finora.app.ui.sms.SmsAccessActivity.class);
-            onView(withText(R.string.sms_access_explanation)).perform(reveal()).check(matches(isDisplayed()));
+            onView(withText(R.string.sms_point_phone)).perform(reveal()).check(matches(isDisplayed()));
             assertEquals(PackageManager.PERMISSION_DENIED, app.checkSelfPermission(Manifest.permission.READ_SMS));
 
             clickId(R.id.sms_paste_entry_action);

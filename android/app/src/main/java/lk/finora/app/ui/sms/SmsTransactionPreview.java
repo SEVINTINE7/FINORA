@@ -6,12 +6,10 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +31,8 @@ import lk.finora.app.data.repo.TransactionRepository;
 import lk.finora.app.data.repo.TransactionRepository.SmsBatchItem;
 import lk.finora.app.data.repo.TransactionRepository.SmsBatchResult;
 import lk.finora.app.data.repo.TransactionRepository.SmsTransaction;
+import lk.finora.app.databinding.ItemSmsReviewBinding;
+import lk.finora.app.databinding.ViewSmsReviewBinding;
 import lk.finora.app.sms.SmsParseResult.Parsed;
 import okhttp3.Call;
 import okhttp3.Response;
@@ -106,24 +106,114 @@ final class SmsTransactionPreview {
         }
     }
 
+    /** T67.2/D71: one full-screen sheet with a card per transaction; account, category and tick are chosen in place. */
     private void showRows(ProtectedRequests requests, Choices choices) {
         if (!requests.isCurrent() || drafts.isEmpty()) return;
-        var list = panel();
-        text(list, R.string.sms_transaction_preview);
-        text(list, R.string.sms_batch_review);
-        if (!choices.available()) text(list, R.string.sms_preview_choices_unavailable);
-        String[] rows = new String[drafts.size()];
-        for (int index = 0; index < rows.length; index++) {
-            var draft = drafts.get(index);
-            rows[index] = activity.getString(draft.selected() ? R.string.sms_preview_selected
-                    : R.string.sms_preview_deselected, SmsLocalResults.text(activity, draft.fields()));
-        }
-        display(new AlertDialog.Builder(activity).setCustomTitle(list)
-                .setItems(rows, (ignored, index) -> {
-                    if (requests.isCurrent() && index < drafts.size()) edit(requests, choices, index);
-                }).setNegativeButton(android.R.string.cancel, null)
+        var inflater = activity.getLayoutInflater();
+        var sheet = ViewSmsReviewBinding.inflate(inflater);
+        androidx.core.view.ViewCompat.setAccessibilityHeading(sheet.reviewTitle, true);
+        sheet.reviewUnavailable.setVisibility(choices.available() ? View.GONE : View.VISIBLE);
+        var accounts = choices.accounts().stream().filter(item -> !item.archived())
+                .collect(java.util.stream.Collectors.toList());
+        boolean sinhala = "si".equals(activity.getResources().getConfiguration().getLocales().get(0).getLanguage());
+        var review = new AlertDialog.Builder(activity).setView(sheet.getRoot())
+                .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.sms_batch_save, (ignored, which) -> confirmSelection(requests, choices))
-                .create());
+                .create();
+        var warnings = new ArrayList<View>();
+        Runnable counts = () -> {
+            int selected = 0;
+            for (int i = 0; i < drafts.size(); i++) {
+                var draft = drafts.get(i);
+                if (draft.selected()) selected++;
+                warnings.get(i).setVisibility(choices.available() && draft.selected() && draft.accountId() == null
+                        ? View.VISIBLE : View.GONE);
+            }
+            sheet.reviewCount.setText(activity.getString(R.string.sms_review_selected, selected, drafts.size()));
+            var save = review.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (save != null) {
+                save.setText(activity.getResources().getQuantityString(R.plurals.sms_review_save, selected, selected));
+                save.setEnabled(selected > 0);
+            }
+        };
+        for (int index = 0; index < drafts.size(); index++) {
+            final int at = index;
+            var draft = drafts.get(at);
+            var card = ItemSmsReviewBinding.inflate(inflater, sheet.reviewCards, false);
+            var fields = draft.fields();
+            String title = ImportRows.title(activity, fields);
+            ImportRows.bind(card.reviewRow, activity, ImportRows.income(fields), title,
+                    ImportRows.date(activity, fields.date()), fields.amount());
+            card.reviewRow.importCheck.setVisibility(View.VISIBLE);
+            card.reviewRow.importCheck.setChecked(draft.selected());
+            card.reviewRow.importCheck.setContentDescription(activity.getString(R.string.sms_review_include, title));
+            card.reviewRow.importCheck.setOnCheckedChangeListener((button, checked) -> {
+                if (!requests.isCurrent() || at >= drafts.size()) return;
+                var current = drafts.get(at);
+                drafts.set(at, current.edit(current.fields().amount(), current.fields().date(),
+                        current.fields().merchant() == null ? "" : current.fields().merchant(),
+                        current.accountId(), current.categoryId(), checked));
+                counts.run();
+            });
+            var categories = choices.categories().stream().filter(item -> draft.categoryKind().equals(item.kind()))
+                    .collect(java.util.stream.Collectors.toList());
+            choose(card.reviewAccount, accounts.stream().map(AccountDto::name).collect(java.util.stream.Collectors.toList()),
+                    accounts.stream().map(AccountDto::id).collect(java.util.stream.Collectors.toList()), draft.accountId(),
+                    choices.available(), id -> {
+                        var current = drafts.get(at);
+                        drafts.set(at, current.edit(current.fields().amount(), current.fields().date(),
+                                current.fields().merchant() == null ? "" : current.fields().merchant(),
+                                id, current.categoryId(), current.selected()));
+                        counts.run();
+                    }, requests, at);
+            choose(card.reviewCategory, categories.stream().map(item -> sinhala && item.nameSi() != null
+                            && !item.nameSi().isBlank() ? item.nameSi() : item.name())
+                            .collect(java.util.stream.Collectors.toList()),
+                    categories.stream().map(CategoryDto::id).collect(java.util.stream.Collectors.toList()), draft.categoryId(),
+                    choices.available(), id -> {
+                        var current = drafts.get(at);
+                        drafts.set(at, current.edit(current.fields().amount(), current.fields().date(),
+                                current.fields().merchant() == null ? "" : current.fields().merchant(),
+                                current.accountId(), id, current.selected()));
+                    }, requests, at);
+            card.reviewEdit.setOnClickListener(view -> {
+                if (requests.isCurrent() && at < drafts.size()) edit(requests, choices, at);
+            });
+            warnings.add(card.reviewWarning);
+            sheet.reviewCards.addView(card.getRoot());
+        }
+        display(review);
+        var window = review.getWindow();
+        if (window != null) {
+            window.setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT);
+            window.setBackgroundDrawableResource(R.color.finora_surface);
+        }
+        for (int which : new int[]{AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE}) {
+            var button = review.getButton(which);
+            if (button != null) button.setTextColor(activity.getColorStateList(R.color.finora_dialog_action));
+        }
+        counts.run();
+    }
+
+    /** Fills a picker with "None selected" plus the names, selects the current id and reports changes. */
+    private void choose(Spinner picker, List<String> names, List<Long> ids, Long current, boolean enabled,
+                        java.util.function.Consumer<Long> changed, ProtectedRequests requests, int at) {
+        var values = new ArrayList<String>();
+        values.add(activity.getString(R.string.sms_preview_no_selection));
+        values.addAll(names);
+        var adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, values);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        picker.setAdapter(adapter);
+        int position = ids.indexOf(current) + 1;
+        picker.setSelection(Math.max(position, 0), false);
+        picker.setEnabled(enabled);
+        picker.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int index, long id) {
+                if (!requests.isCurrent() || at >= drafts.size() || !enabled) return;
+                changed.accept(index == 0 ? null : ids.get(index - 1));
+            }
+            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
     }
 
     private void confirmSelection(ProtectedRequests requests, Choices choices) {
@@ -215,47 +305,31 @@ final class SmsTransactionPreview {
                 .setMessage(summary.toString()).setPositiveButton(android.R.string.ok, null).create());
     }
 
+    /** Amount, date and merchant; account, category and the tick are on the review card. */
     private void edit(ProtectedRequests requests, Choices choices, int index) {
         var draft = drafts.get(index);
         var fields = draft.fields();
         var form = panel();
         var amount = editText(form, R.string.transaction_amount, fields.amount().toPlainString(),
                 InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL, 16);
-        var date = new android.widget.Button(activity);
+        var date = new com.google.android.material.button.MaterialButton(activity, null,
+                com.google.android.material.R.attr.materialButtonOutlinedStyle);
         var selectedDate = new LocalDate[]{fields.date()};
-        date.setText(activity.getString(R.string.sms_preview_date, fields.date().toString()));
+        date.setText(activity.getString(R.string.sms_preview_date, ImportRows.date(activity, fields.date())));
+        date.setIconResource(R.drawable.finora_ic_calendar);
+        date.setMinHeight(ImportRows.dp(activity, 48));
         date.setOnClickListener(view -> {
             var day = selectedDate[0];
             datePicker = new DatePickerDialog(activity, (ignored, year, month, selection) -> {
                 if (!requests.isCurrent()) return;
                 selectedDate[0] = LocalDate.of(year, month + 1, selection);
-                date.setText(activity.getString(R.string.sms_preview_date, selectedDate[0].toString()));
+                date.setText(activity.getString(R.string.sms_preview_date, ImportRows.date(activity, selectedDate[0])));
             }, day.getYear(), day.getMonthValue() - 1, day.getDayOfMonth());
             SecureActivity.showSecure(datePicker);
         });
         form.addView(date);
         var merchant = editText(form, R.string.transaction_merchant, fields.merchant(),
                 InputType.TYPE_CLASS_TEXT, 100);
-        var accounts = choices.accounts().stream().filter(item -> !item.archived()).collect(java.util.stream.Collectors.toList());
-        var categories = choices.categories().stream()
-                .filter(item -> draft.categoryKind().equals(item.kind())).collect(java.util.stream.Collectors.toList());
-        boolean sinhala = "si".equals(activity.getResources().getConfiguration().getLocales().get(0).getLanguage());
-        var account = spinner(form, R.string.transaction_account, accounts.stream().map(AccountDto::name).collect(java.util.stream.Collectors.toList()));
-        var category = spinner(form, R.string.transaction_category, categories.stream()
-                .map(item -> sinhala && item.nameSi() != null && !item.nameSi().isBlank()
-                        ? item.nameSi() : item.name()).collect(java.util.stream.Collectors.toList()));
-        for (int i = 0; i < accounts.size(); i++) {
-            if (java.util.Objects.equals(draft.accountId(), accounts.get(i).id())) account.setSelection(i + 1);
-        }
-        for (int i = 0; i < categories.size(); i++) {
-            if (java.util.Objects.equals(draft.categoryId(), categories.get(i).id())) category.setSelection(i + 1);
-        }
-        account.setEnabled(choices.available());
-        category.setEnabled(choices.available());
-        var select = new CheckBox(activity);
-        select.setText(R.string.sms_preview_include);
-        select.setChecked(draft.selected());
-        form.addView(select);
         var scroll = new ScrollView(activity);
         scroll.addView(form);
         var editor = new AlertDialog.Builder(activity).setTitle(R.string.records_edit).setView(scroll)
@@ -270,13 +344,9 @@ final class SmsTransactionPreview {
                 amount.setError(activity.getString(R.string.transaction_amount_invalid));
                 return;
             }
-            int a = account.getSelectedItemPosition() - 1;
-            int c = category.getSelectedItemPosition() - 1;
-            Long accountId = a < 0 ? null : accounts.get(a).id();
-            Long categoryId = c < 0 ? null : categories.get(c).id();
-            drafts.set(index, draft.edit(value, selectedDate[0], merchant.getText().toString().trim(),
-                    choices.available() ? accountId : draft.accountId(),
-                    choices.available() ? categoryId : draft.categoryId(), select.isChecked()));
+            var current = drafts.get(index);
+            drafts.set(index, current.edit(value, selectedDate[0], merchant.getText().toString().trim(),
+                    current.accountId(), current.categoryId(), current.selected()));
             showRows(requests, choices);
         });
     }
@@ -290,12 +360,6 @@ final class SmsTransactionPreview {
         return panel;
     }
 
-    private void text(LinearLayout parent, int label) {
-        var text = new TextView(activity);
-        text.setText(label);
-        parent.addView(text);
-    }
-
     private EditText editText(LinearLayout parent, int hint, String value, int inputType, int maxLength) {
         var field = new EditText(activity);
         field.setSaveEnabled(false);
@@ -305,24 +369,6 @@ final class SmsTransactionPreview {
         field.setText(value);
         parent.addView(field);
         return field;
-    }
-
-    private Spinner spinner(LinearLayout parent, int label, List<String> names) {
-        var values = new ArrayList<String>();
-        values.add(activity.getString(R.string.sms_preview_no_selection));
-        values.addAll(names);
-        var spinner = new Spinner(activity);
-        spinner.setId(View.generateViewId());
-        spinner.setSaveEnabled(false);
-        var title = new TextView(activity);
-        title.setText(label);
-        title.setLabelFor(spinner.getId());
-        parent.addView(title);
-        var adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, values);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        parent.addView(spinner);
-        return spinner;
     }
 
     private void display(AlertDialog next) {

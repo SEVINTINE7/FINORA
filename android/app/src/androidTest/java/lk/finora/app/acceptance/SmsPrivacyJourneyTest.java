@@ -91,7 +91,7 @@ public class SmsPrivacyJourneyTest {
             click(R.id.sms_paste_entry_action);
             for (int i = 0; i < AMOUNTS.length; i++) {
                 paste(input.get(i + 2));
-                waitFor(By.text(expected(i)), "Paste extracted fields " + i);
+                waitFor(By.desc(expected(i)), "Paste extracted fields " + i);
                 if (i == 0) {
                     openPreview(R.id.sms_paste_preview);
                     action(onView(withId(android.R.id.button2)).inRoot(isDialog()), View::performClick);
@@ -116,7 +116,7 @@ public class SmsPrivacyJourneyTest {
             pressBack();
             click(R.id.sms_scan);
             for (int i = 0; i < AMOUNTS.length; i++) {
-                waitFor(By.textContains(expected(i)), "Inbox extracted fields " + i);
+                waitFor(By.desc(expected(i)), "Inbox extracted fields " + i);
             }
             openPreview(R.id.sms_scan_preview);
             for (int i = 0; i < AMOUNTS.length; i++) selectRow(i);
@@ -145,22 +145,23 @@ public class SmsPrivacyJourneyTest {
 
     private void openPreview(int id) {
         click(id);
-        waitFor(button(R.string.sms_batch_save), "Preview ready");
+        waitFor(By.text(app.getString(R.string.sms_review_intro)), "Preview ready");
     }
 
+    /** T67/D71: each review card has its own account picker; find the one on the card with this amount. */
     private void selectRow(int index) {
-        var row = By.text(app.getString(R.string.sms_preview_selected, expected(index)));
-        waitFor(row, "Preview row " + index);
-        device.findObject(row).click();
-        waitFor(button(R.string.sms_preview_apply), "Preview editor");
+        String amount = lk.finora.app.ui.Money.amount(new java.math.BigDecimal(AMOUNTS[index]));
+        waitFor(By.textContains(amount), "Preview row " + index);
         action(onView(new TypeSafeMatcher<View>() {
             @Override protected boolean matchesSafely(View view) {
-                if (!(view instanceof Spinner) || !(view.getParent() instanceof ViewGroup parent)) return false;
-                for (int i = 0; i < parent.getChildCount(); i++) {
-                    if (parent.getChildAt(i) instanceof TextView label && label.getLabelFor() == view.getId()
-                            && app.getString(R.string.transaction_account).contentEquals(label.getText())) return true;
+                if (!(view instanceof Spinner) || view.getId() != R.id.review_account) return false;
+                View card = view;
+                while (card != null && !(card instanceof com.google.android.material.card.MaterialCardView)) {
+                    card = card.getParent() instanceof View parent ? parent : null;
                 }
-                return false;
+                if (card == null) return false;
+                TextView shown = card.findViewById(R.id.import_amount);
+                return shown != null && shown.getText().toString().contains(amount);
             }
             @Override public void describeTo(Description description) { description.appendText("account selector"); }
         }).inRoot(isDialog()), view -> {
@@ -169,7 +170,6 @@ public class SmsPrivacyJourneyTest {
             assertEquals(ACCOUNT, spinner.getItemAtPosition(1));
             spinner.setSelection(1);
         });
-        action(onView(withText(R.string.sms_preview_apply)).inRoot(isDialog()), View::performClick);
     }
 
     private void save() {

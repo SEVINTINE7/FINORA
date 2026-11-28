@@ -37,8 +37,7 @@
     <string name="language_save_failed">ගිණුමේ භාෂාව සුරැකිය නොහැකි විය. සම්බන්ධතාවය ඇති විට නැවත උත්සාහ කරන්න.</string>
     <string name="language_syncing">භාෂාව සුරකිමින්…</string>
     <string name="sms_access_title">SMS ප්‍රවේශය</string>
-    <string name="sms_access_explanation">බැංකු ගනුදෙනු පණිවිඩ හඳුනා ගැනීමට FINORA ප්‍රවේශය ඉල්ලයි. පණිවිඩ විශ්ලේෂණය කරන්නේ මෙම දුරකථනයේමයි. SMS ප්‍රවේශය ලබා දීම අනිවාර්ය නැත.</string>
-    <string name="sms_allow_access">ප්‍රවේශය ලබා දෙන්න</string>
+    <string name="sms_allow_access">SMS ප්‍රවේශය ලබා දෙන්න</string>
     <string name="sms_no_thanks">දැනට එපා</string>
     <string name="sms_access_optional">SMS ප්‍රවේශය ලබා නොදී ඉදිරියට යා හැක.</string>
     <string name="sms_access_granted">SMS ප්‍රවේශයට අවසර ඇත.</string>
@@ -49,9 +48,8 @@
     <string name="sms_settings_unavailable">යෙදුම් සැකසීම් විවෘත කළ නොහැකි විය.</string>
     <string name="sms_alternatives">වාර්තා එක් කිරීමට වෙනත් ක්‍රම</string>
     <string name="sms_paste">SMS පණිවිඩ පෙළ අලවන්න</string>
-    <string name="sms_csv_import">CSV ආයාතය</string>
-    <string name="sms_manual_entry">ගනුදෙනුව අතින් ඇතුළත් කිරීම</string>
-    <string name="sms_paste_hint">එක් බැංකු පණිවිඩයක් පිටපත් කර ඇලවීම සහ පරීක්ෂා කිරීම තෝරන්න. පණිවිඩය මෙම දුරකථනය තුළ පරීක්ෂා කෙරේ.</string>
+    <string name="sms_csv_import">CSV ගොනුවක් ආයාත කරන්න</string>
+    <string name="sms_manual_entry">අතින් එක් කරන්න</string>
     <string name="sms_paste_parse">අලවා පරීක්ෂා කරන්න</string>
     <string name="sms_paste_plain_text">පරීක්ෂා කිරීමට එක් සරල පෙළ පණිවිඩයක් පිටපත් කරන්න.</string>
     <string name="records_add">එක් කරන්න</string>
@@ -100,7 +98,6 @@
     <string name="transaction_amount">මුදල (රු.)</string>
     <string name="transaction_merchant">වෙළෙන්දාගේ නම (අත්‍යවශ්‍ය නොවේ)</string>
     <string name="transaction_note">සටහන (අත්‍යවශ්‍ය නොවේ)</string>
-    <string name="transaction_row">%1$s · %2$s · රු. %3$s</string>
     <string name="transaction_archived_name">%1$s (සංරක්ෂිත)</string>
     <string name="transaction_remove">මෙම ගනුදෙනුව ස්ථිරව ඉවත් කරන්නද?</string>
     <string name="transaction_open_manual">ගනුදෙනුවක් එක් කරන්න</string>
@@ -235,8 +232,6 @@
     <string name="csv_pick_help">පෙරදසුන සඳහා FINORA CSV ගොනුවක් තෝරන්න. තහවුරු කළ පේළි පමණක් සුරැකේ.</string>
     <string name="csv_choose">CSV ගොනුව තෝරන්න</string>
     <string name="csv_refresh">පෙරදසුන යාවත්කාලීන කරන්න</string>
-    <string name="csv_review">ආයාතය පරීක්ෂා කරන්න</string>
-    <string name="csv_review_count">තෝරාගත් පේළි පරීක්ෂා කරන්න (%1$d)</string>
     <string name="csv_confirm_message">තෝරාගත් පේළි (%1$d) ඔබේ ගිණුමට ආයාත කරන්නද?</string>
     <string name="csv_confirm_action">තෝරාගත් පේළි ආයාත කරන්න</string>
     <string name="csv_file_invalid">FINORA CSV ශීර්ෂ පේළිය සහිත කියවිය හැකි UTF-8 ගොනුවක් තෝරන්න.</string>
@@ -245,10 +240,6 @@
     <string name="csv_confirm_rejected">කිසිදු පේළියක් ආයාත කළේ නැත. පෙරදසුන යාවත්කාලීන කර තේරීම් පරීක්ෂා කරන්න.</string>
     <string name="csv_uncertain">ආයාතයේ ප්‍රතිඵලය තහවුරු කළ නොහැක. නැවත උත්සාහ කිරීමට පෙර ආයාත වී ඇති පේළි හඳුනා ගැනීමට පෙරදසුන යාවත්කාලීන කරන්න.</string>
     <string name="csv_result">ආයාත කළ පේළි: %1$d · මඟහැරුණු අනුපිටපත්: %2$d</string>
-    <string name="csv_summary">පේළි: %1$d · වලංගු නොවන: %2$d · අනුපිටපත්: %3$d</string>
-    <string name="csv_line">පේළිය %1$d</string>
-    <string name="csv_line_duplicate">%1$s · දැනටමත් ආයාත කර ඇත</string>
-    <string name="csv_line_invalid">%1$s · වලංගු නොවන පේළියකි. CSV ආකෘතිය සහ ගිණුම් හා කාණ්ඩ නම් පරීක්ෂා කරන්න.</string>
     <string name="sms_scan_range">පසුගිය දින 31 පරීක්ෂා කරන්න</string>
     <string name="sms_scan_failed">දුරකථනය තුළ පරීක්ෂාව අවසන් කළ නොහැකි විය.</string>
     <string name="sms_no_formats">අනුමත බැංකු SMS ආකෘති තවම ලබා ගත නොහැක.</string>
@@ -261,12 +252,8 @@
     <string name="sms_transaction_preview">SMS ගනුදෙනු පරීක්ෂා කරන්න</string>
     <string name="sms_preview_choices_unavailable">ගිණුම් හෝ කාණ්ඩ ලබා ගත නොහැකි විය. නැවත උත්සාහ කිරීමට පෙරදසුන විවෘත කරන්න.</string>
     <string name="sms_preview_date">දිනය: %1$s</string>
-    <string name="sms_preview_no_selection">තෝරා නැත</string>
-    <string name="sms_preview_include">මෙම ගනුදෙනුව ඇතුළත් කරන්න</string>
+    <string name="sms_preview_no_selection">තෝරන්න</string>
     <string name="sms_preview_apply">පෙරදසුනට යොදන්න</string>
-    <string name="sms_preview_selected">තෝරා ඇත: %1$s</string>
-    <string name="sms_preview_deselected">තෝරා නැත: %1$s</string>
-    <string name="sms_batch_review">සුරැකීමට පෙර තෝරාගත් පේළි පරීක්ෂා කරන්න. එකම විස්තර සහිත ගනුදෙනු වෙන වෙනම සිදු වූ ගනුදෙනු විය හැක.</string>
     <string name="sms_batch_invalid_selection">අවම වශයෙන් එක් පේළියක් තෝරා එක් එක් පේළියට ගිණුමක් හා වලංගු දිනයක් තෝරන්න.</string>
     <string name="sms_batch_save">SMS ගනුදෙනු සුරකින්න</string>
     <plurals name="sms_batch_confirm">
@@ -381,7 +368,7 @@
     <string name="advice_section_salary">මෙම මාසයේ වැටුප භාවිත කරන ආකාරය</string>
     <string name="advice_unit_percent">%1$s%%</string>
     <string name="advice_unit_months">මාස %1$s</string>
-    <string name="sms_report_problem">ගැටලුව වාර්තා කරන්න</string>
+    <string name="sms_report_problem">FINORA හට කියවිය නොහැකි වූ පණිවිඩයක් වාර්තා කරන්න</string>
     <string name="sms_report_preview">බැංකුව: %1$s\nආකෘති අනුවාදය: නොදනී\nදෝෂ කේතය: %2$s\n\nමෙම වාර්තාව සමඟ යවනු ලබන්නේ මෙම තොරතුරු පමණි. ඔබේ මුල් SMS පණිවිඩය සහ මූල්‍ය තොරතුරු මෙම වාර්තාවට ඇතුළත් නොවේ.</string>
     <string name="sms_report_send">වාර්තාව යවන්න</string>
     <string name="sms_report_sent">වාර්තාව යවන ලදී.</string>
@@ -646,4 +633,73 @@
     </plurals>
     <string name="history_point">%1$s: %2$s</string>
     <string name="history_point_none">%1$s: ලකුණක් නැත</string>
+    <string name="sms_intro_title">බැංකු පණිවිඩ ඉක්මනින් එක් කරන්න</string>
+    <string name="sms_intro_text">FINORA හට බැංකු ගනුදෙනු පණිවිඩ සොයා විස්තර ඔබ වෙනුවෙන් පුරවිය හැක. මෙය අනිවාර්ය නොවේ.</string>
+    <string name="sms_point_phone_title">පණිවිඩ මෙම දුරකථනයේම පවතී</string>
+    <string name="sms_point_phone">සම්පූර්ණ SMS පෙළ කියවා පරීක්ෂා කරන්නේ මෙහිදීය. එය කිසි විටෙක උඩුගත නොකෙරේ.</string>
+    <string name="sms_point_choose_title">සුරකින දේ ඔබ තෝරයි</string>
+    <string name="sms_point_choose">ඔබ තහවුරු කරන මුදල, දිනය, වෙළෙන්දා සහ වර්ගය පමණක් ඔබේ ගිණුමට යවනු ලැබේ.</string>
+    <string name="sms_point_logins_title">බැංකු පිවිසුම් නැත</string>
+    <string name="sms_point_logins">FINORA කිසි විටෙක බැංකු මුරපද හෝ කාඩ්පත් අංක ඉල්ලන්නේ නැත.</string>
+    <string name="sms_scan_title">බැංකු පණිවිඩ පරීක්ෂා කරන්න</string>
+    <string name="sms_scan_help">අනුමත බැංකු ආකෘති සඳහා පසුගිය දින 31 පරීක්ෂා කරයි.</string>
+    <string name="sms_found">මෙම දුරකථනයේ හමු විය</string>
+    <string name="sms_found_note">තවම කිසිවක් සුරැකී නැත. සෑම ගනුදෙනුවක්ම පරීක්ෂා කර ගිණුමක් තෝරා සුරකින්න.</string>
+    <string name="sms_money_received">ලැබුණු මුදල්</string>
+    <string name="sms_money_spent">ගෙවීම</string>
+    <string name="sms_paste_step_1">ඔබේ SMS යෙදුමේ එක් බැංකු පණිවිඩයක් පිටපත් කරන්න.</string>
+    <string name="sms_paste_step_2">නැවත පැමිණ ඇලවීම සහ පරීක්ෂා කිරීම තෝරන්න.</string>
+    <string name="sms_paste_step_3">විස්තර තහවුරු කර සුරකින්න.</string>
+    <string name="sms_details_found">හමු වූ විස්තර</string>
+    <string name="sms_details_local">මෙම දුරකථනයේ පරීක්ෂා කළා</string>
+    <string name="sms_field_amount">මුදල</string>
+    <string name="sms_field_date">දිනය</string>
+    <string name="sms_field_type">වර්ගය</string>
+    <string name="sms_field_merchant">වෙළෙන්දා</string>
+    <string name="sms_field_none">පණිවිඩයේ නැත</string>
+    <string name="sms_type_expense">වියදම (හර)</string>
+    <string name="sms_type_income">ආදායම (බැර)</string>
+    <string name="sms_details_note">සුරකින විට යවන්නේ මෙම විස්තර හතර පමණි. පණිවිඩ පෙළ මෙම දුරකථනයේම පවතී.</string>
+    <string name="sms_review_intro">සෑම ගනුදෙනුවක්ම පරීක්ෂා කර ගිණුමක් තෝරන්න. සුරැකීමට අවශ්‍ය නැති ඒවායේ සලකුණ ඉවත් කරන්න.</string>
+    <string name="sms_review_selected">තෝරා ඇත: %2$d න් %1$d · ඔබ දැනටමත් සුරැකි ගනුදෙනු මඟ හරිනු ලැබේ.</string>
+    <string name="sms_review_edit">මුදල, දිනය හෝ වෙළෙන්දා සංස්කරණය කරන්න</string>
+    <string name="sms_review_account_needed">මෙය සුරැකීමට ගිණුමක් තෝරන්න.</string>
+    <string name="sms_review_include">%1$s සුරකින්න</string>
+    <string name="csv_file_none">තවම ගොනුවක් තෝරා නැත</string>
+    <string name="csv_choose_other">වෙනත් ගොනුවක් තෝරන්න</string>
+    <string name="csv_format_help">පහත FINORA ශීර්ෂය භාවිත කරන්න. උපරිමය 1 MB සහ පේළි 2,000. ගිණුම් සහ කාණ්ඩ නම් ඔබේ නම්වලට ගැළපිය යුතුය.</string>
+    <string name="csv_ready">සූදානම්</string>
+    <string name="csv_fix">නිවැරදි කළ යුතුය</string>
+    <string name="csv_done">දැනටමත් ආයාත කර ඇත</string>
+    <string name="csv_summary_spoken">සූදානම්: %1$d. නිවැරදි කළ යුතුය: %2$d. දැනටමත් ආයාත කර ඇත: %3$d.</string>
+    <string name="csv_preview">පෙරදසුන</string>
+    <string name="csv_preview_hint">ආයාත කිරීමට පේළි සලකුණු කරන්න</string>
+    <string name="csv_row_meta">පේළිය %1$d · %2$s</string>
+    <string name="csv_row_fix">ගොනුවේ මෙම පේළිය පරීක්ෂා කරන්න.</string>
+    <string name="csv_fix_note">නිවැරදි කළ යුතු පේළි ගොනුවේ නිවැරදි කර නැවත තෝරන්න.</string>
+    <string name="csv_nothing_saved">ඔබ තහවුරු කරන තුරු කිසිවක් සුරැකෙන්නේ නැත.</string>
+    <string name="csv_no_merchant">වෙළෙන්දා නැත</string>
+    <string name="sms_alt_sms_paste_sub">එක් බැංකු පණිවිඩයක් පිටපත් කර මෙහි පරීක්ෂා කරන්න</string>
+    <string name="sms_alt_csv_sub">කිසිවක් සුරැකීමට පෙර පේළි පෙරදසුන් කරන්න</string>
+    <string name="sms_alt_manual_sub">ගනුදෙනුව ඔබම ටයිප් කරන්න</string>
+    <plurals name="sms_found_count">
+        <item quantity="one">ගනුදෙනු %1$d</item>
+        <item quantity="other">ගනුදෙනු %1$d</item>
+    </plurals>
+    <plurals name="sms_review_count">
+        <item quantity="one">ගනුදෙනු %1$d පරීක්ෂා කරන්න</item>
+        <item quantity="other">ගනුදෙනු %1$d පරීක්ෂා කරන්න</item>
+    </plurals>
+    <plurals name="sms_review_save">
+        <item quantity="one">ගනුදෙනු %1$d සුරකින්න</item>
+        <item quantity="other">ගනුදෙනු %1$d සුරකින්න</item>
+    </plurals>
+    <plurals name="csv_rows_checked">
+        <item quantity="one">FINORA මගින් පේළි %1$d ක් පරීක්ෂා කළා</item>
+        <item quantity="other">FINORA මගින් පේළි %1$d ක් පරීක්ෂා කළා</item>
+    </plurals>
+    <plurals name="csv_import_count">
+        <item quantity="one">තෝරාගත් පේළි %1$d ආයාත කරන්න</item>
+        <item quantity="other">තෝරාගත් පේළි %1$d ආයාත කරන්න</item>
+    </plurals>
 </resources>

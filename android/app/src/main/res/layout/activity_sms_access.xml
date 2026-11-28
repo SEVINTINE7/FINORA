@@ -1,124 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T67.2/D65/D71 SMS access: privacy panel, permission status and actions, the local scan with its results as
+     transaction rows, then the other ways to add records. Rule 1: only confirmed fields leave the phone. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sms_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/finora_outer_margin">
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingTop="4dp"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:paddingBottom="32dp">
 
         <TextView
             android:id="@+id/sms_title"
-            style="@style/FinoraText.Heading"
+            style="@style/FinoraText.Greeting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sms_access_title"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:tag="@string/finora_heading_tag"
+            android:text="@string/sms_access_title" />
 
-        <TextView
-            style="@style/FinoraText.Body"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/sms_intro_card"
+            style="@style/Widget.Finora.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sms_access_explanation"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:layout_marginTop="12dp"
+            app:cardCornerRadius="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/finora_circle"
+                        android:backgroundTint="@color/finora_success_surface"
+                        android:importantForAccessibility="no"
+                        android:padding="12dp"
+                        android:src="@drawable/finora_ic_shield"
+                        app:tint="@color/finora_green" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/sms_intro_title"
+                            style="@style/FinoraText.RowTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="@string/finora_heading_tag"
+                            android:text="@string/sms_intro_title"
+                            android:textSize="18sp" />
+                        <TextView
+                            style="@style/FinoraText.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/sms_intro_text"
+                            android:textColor="@color/finora_muted" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/sms_points"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/sms_status"
-            style="@style/FinoraText.Body"
+        <LinearLayout
+            android:id="@+id/sms_status_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:accessibilityLiveRegion="polite"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:layout_marginTop="16dp"
+            android:background="@drawable/finora_badge"
+            android:gravity="center_vertical"
+            android:minHeight="44dp"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="10dp">
+            <ImageView
+                android:id="@+id/sms_status_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/finora_ic_info" />
+            <TextView
+                android:id="@+id/sms_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:accessibilityLiveRegion="polite"
+                android:textColor="@color/finora_ink"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/sms_allow"
-            style="@style/FinoraButton.Primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:minHeight="56dp"
             android:text="@string/sms_allow_access"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:textSize="16sp"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/finora_ic_shield"
+            app:iconGravity="textStart" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/sms_settings"
-            style="@style/FinoraButton.Secondary"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
             android:text="@string/sms_open_settings"
-            android:visibility="gone"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:visibility="gone" />
 
-        <Button
-            android:id="@+id/sms_scan"
-            style="@style/FinoraButton.Secondary"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sms_no_thanks_action"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sms_scan_range"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="@string/sms_no_thanks" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/sms_scan_card"
+            style="@style/Widget.Finora.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:visibility="gone"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            app:cardCornerRadius="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/finora_circle"
+                        android:backgroundTint="@color/finora_success_surface"
+                        android:importantForAccessibility="no"
+                        android:padding="10dp"
+                        android:src="@drawable/finora_ic_scan"
+                        app:tint="@color/finora_green" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/sms_scan_title"
+                            style="@style/FinoraText.RowTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="@string/finora_heading_tag"
+                            android:text="@string/sms_scan_title" />
+                        <TextView
+                            style="@style/FinoraText.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sms_scan_help"
+                            android:textColor="@color/finora_muted" />
+                    </LinearLayout>
+                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sms_scan"
+                    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="48dp"
+                    android:text="@string/sms_scan_range"
+                    app:icon="@drawable/finora_ic_scan"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/sms_scan_result"
             style="@style/FinoraText.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:accessibilityLiveRegion="polite"
-            android:saveEnabled="false" />
-
-        <Button
-            android:id="@+id/sms_scan_preview"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_transaction_preview"
+            android:saveEnabled="false"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/sms_no_thanks_action"
-            style="@style/FinoraButton.Secondary"
+        <LinearLayout
+            android:id="@+id/sms_found"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sms_no_thanks"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:orientation="vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+                <TextView
+                    android:id="@+id/sms_found_heading"
+                    style="@style/FinoraText.Section"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/sms_found"
+                    android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/sms_found_count"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/finora_muted" />
+            </LinearLayout>
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Finora.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp">
+                <LinearLayout
+                    android:id="@+id/sms_found_rows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="16dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="4dp" />
+            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                style="@style/FinoraText.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/sms_found_note"
+                android:textColor="@color/finora_muted" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sms_scan_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:minHeight="56dp"
+            android:text="@string/sms_transaction_preview"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/finora_ic_chevron_right"
+            app:iconGravity="textEnd" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sms_diagnostic_report"
+            style="@style/Widget.Finora.TextAction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:minHeight="48dp"
+            android:text="@string/sms_report_problem"
+            android:visibility="gone"
+            app:icon="@drawable/finora_ic_flag"
+            app:iconGravity="textStart" />
 
         <TextView
-            style="@style/FinoraText.Heading"
             android:id="@+id/sms_alternatives_title"
+            style="@style/FinoraText.Section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
             android:text="@string/sms_alternatives"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:textSize="16sp" />
 
-        <Button
-            android:id="@+id/sms_paste_entry_action"
-            style="@style/FinoraButton.Secondary"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Finora.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sms_paste"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <Button
-            android:id="@+id/sms_csv_import_action"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_csv_import"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <Button
-            android:id="@+id/sms_manual_entry_action"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_manual_entry"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-        <Button
-            android:id="@+id/sms_diagnostic_report"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sms_report_problem"
-            android:visibility="gone" />
+            app:cardCornerRadius="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <include
+                    android:id="@+id/sms_paste_entry_action"
+                    layout="@layout/item_import_link" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="68dp"
+                    android:background="@color/finora_card_line" />
+                <include
+                    android:id="@+id/sms_csv_import_action"
+                    layout="@layout/item_import_link" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="68dp"
+                    android:background="@color/finora_card_line" />
+                <include
+                    android:id="@+id/sms_manual_entry_action"
+                    layout="@layout/item_import_link" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

@@ -26,6 +26,8 @@ public final class PasteSmsActivity extends SecureActivity {
     private Button previewButton;
     private SmsTransactionPreview preview;
     private SmsReportAction report;
+    private android.view.View found;
+    private android.widget.LinearLayout fields;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -39,7 +41,15 @@ public final class PasteSmsActivity extends SecureActivity {
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
         setContentView(R.layout.activity_paste_sms);
         ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_paste_title), true);
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.sms_paste_found_heading), true);
+        android.widget.LinearLayout steps = findViewById(R.id.sms_paste_steps);
+        ImportRows.step(this, steps, 1, R.string.sms_paste_step_1);
+        ImportRows.step(this, steps, 2, R.string.sms_paste_step_2);
+        ImportRows.step(this, steps, 3, R.string.sms_paste_step_3);
+        found = findViewById(R.id.sms_paste_found);
+        fields = findViewById(R.id.sms_paste_fields);
         result = findViewById(R.id.sms_paste_result);
+        SmsAccessActivity.showWhenText(result);
         paste = findViewById(R.id.sms_paste_action);
         preview = new SmsTransactionPreview(this, store, loginIdentity, "PASTE");
         previewButton = findViewById(R.id.sms_paste_preview);
@@ -89,6 +99,7 @@ public final class PasteSmsActivity extends SecureActivity {
         preview.clear();
         if (report != null) report.reset();
         previewButton.setVisibility(android.view.View.GONE);
+        showFields(null);
         var clipboard = getSystemService(ClipboardManager.class);
         CharSequence message;
         try {
@@ -122,7 +133,7 @@ public final class PasteSmsActivity extends SecureActivity {
                             + getString(R.string.sms_needs_review), null, Code.FORMAT_UNAVAILABLE);
                 }
                 var parsed = SmsPasteInput.parse(parser, raw, cancelled);
-                return new PasteResult(SmsLocalResults.text(this, parsed),
+                return new PasteResult(parsed instanceof SmsParseResult.Parsed ? "" : SmsLocalResults.text(this, parsed),
                         parsed instanceof SmsParseResult.Parsed value ? value : null,
                         parsed instanceof SmsParseResult.ManualReview review ? Code.from(review) : null);
             } catch (IOException invalidBundle) {
@@ -133,7 +144,9 @@ public final class PasteSmsActivity extends SecureActivity {
             result.setText(text.label());
             report.set(text.code());
             if (text.parsed() != null) {
+                showFields(text.parsed());
                 preview.replace(java.util.List.of(text.parsed()));
+                previewButton.setText(getResources().getQuantityString(R.plurals.sms_review_count, 1, 1));
                 previewButton.setVisibility(android.view.View.VISIBLE);
             }
             paste.setEnabled(true);
@@ -144,6 +157,20 @@ public final class PasteSmsActivity extends SecureActivity {
         });
     }
 
+    /** T67/D71: the parsed fields as Amount/Date/Type/Merchant rows; spoken as the same one-line summary. */
+    private void showFields(SmsParseResult.Parsed parsed) {
+        fields.removeAllViews();
+        found.setVisibility(parsed == null ? android.view.View.GONE : android.view.View.VISIBLE);
+        if (parsed == null) return;
+        ImportRows.field(this, fields, R.string.sms_field_amount, lk.finora.app.ui.Money.rupees(this, parsed.amount()));
+        ImportRows.field(this, fields, R.string.sms_field_date, ImportRows.date(this, parsed.date()));
+        ImportRows.field(this, fields, R.string.sms_field_type, getString(ImportRows.income(parsed)
+                ? R.string.sms_type_income : R.string.sms_type_expense));
+        ImportRows.field(this, fields, R.string.sms_field_merchant, parsed.merchant() == null
+                ? getString(R.string.sms_field_none) : parsed.merchant());
+        findViewById(R.id.sms_paste_fields_card).setContentDescription(SmsLocalResults.text(this, parsed));
+    }
+
     private record PasteResult(String label, SmsParseResult.Parsed parsed, Code code) {}
 
     private void clear() { clear(false); }
@@ -152,6 +179,7 @@ public final class PasteSmsActivity extends SecureActivity {
         if (report != null) report.reset();
         if (preview != null) preview.stop(changingConfiguration);
         if (previewButton != null) previewButton.setVisibility(android.view.View.GONE);
+        if (found != null) showFields(null);
         task.cancel();
         if (result != null) result.setText("");
         if (paste != null) paste.setEnabled(true);
