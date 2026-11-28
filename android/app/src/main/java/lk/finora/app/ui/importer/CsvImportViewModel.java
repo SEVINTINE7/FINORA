@@ -33,6 +33,8 @@ public final class CsvImportViewModel extends ViewModel {
     boolean needsPreview;
     boolean uncertain;
     Preview preview;
+    /** T67.3/D71: the chosen file's display name, read on the phone; never sent. */
+    String fileName;
     Result result;
 
     boolean busy() { return reading || work.busy(); }
@@ -43,6 +45,7 @@ public final class CsvImportViewModel extends ViewModel {
     void choose(ContentResolver resolver, Uri uri) {
         if (!work.isCurrent() || busy()) return;
         file = null;
+        fileName = null;
         preview = null;
         result = null;
         uncertain = false;
@@ -54,6 +57,14 @@ public final class CsvImportViewModel extends ViewModel {
         reader.execute(() -> {
             byte[] content = null;
             int error = 0;
+            String name = null;
+            try (var cursor = resolver.query(uri, new String[]{android.provider.OpenableColumns.DISPLAY_NAME},
+                    null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) name = cursor.getString(0);
+            } catch (RuntimeException unavailable) {
+                name = null;
+            }
+            String label = name;
             try (var stream = resolver.openInputStream(uri)) {
                 content = CsvImportFile.read(stream);
             } catch (CsvImportFile.TooLarge tooLarge) {
@@ -71,6 +82,7 @@ public final class CsvImportViewModel extends ViewModel {
                     work.changed();
                 } else {
                     file = bytes;
+                    fileName = label;
                     refresh();
                 }
             });
@@ -128,6 +140,7 @@ public final class CsvImportViewModel extends ViewModel {
     private void clear() {
         reader.shutdownNow();
         file = null;
+        fileName = null;
         preview = null;
         result = null;
         selected.clear();

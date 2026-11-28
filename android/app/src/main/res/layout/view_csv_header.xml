@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T67.3/D71 top of the CSV list: title, file card with the format, status and refresh, the ready / need fixing /
+     already imported summary and the preview heading. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="4dp">
+
+    <TextView
+        android:id="@+id/csv_heading"
+        style="@style/FinoraText.Greeting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:tag="@string/finora_heading_tag"
+        android:text="@string/sms_csv_import" />
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Finora.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="20dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/finora_circle"
+                    android:backgroundTint="@color/finora_success_surface"
+                    android:importantForAccessibility="no"
+                    android:padding="10dp"
+                    android:src="@drawable/finora_ic_file"
+                    app:tint="@color/finora_green" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/csv_file_name"
+                        style="@style/FinoraText.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="middle"
+                        android:singleLine="true" />
+                    <TextView
+                        android:id="@+id/csv_file_meta"
+                        style="@style/FinoraText.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/finora_muted" />
+                </LinearLayout>
+            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/csv_choose"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minHeight="48dp"
+                app:icon="@drawable/finora_ic_file"
+                app:iconGravity="textStart" />
+            <TextView
+                style="@style/FinoraText.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/csv_format_help"
+                android:textColor="@color/finora_muted" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/finora_badge"
+                android:backgroundTint="@color/finora_neutral_surface">
+                <TextView
+                    android:id="@+id/csv_header_format"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:padding="10dp"
+                    android:text="@string/csv_header_format"
+                    android:textColor="@color/finora_ink"
+                    android:textIsSelectable="true"
+                    android:textSize="12sp" />
+            </HorizontalScrollView>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/csv_status"
+        style="@style/FinoraText.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:accessibilityLiveRegion="polite"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/csv_refresh"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:minHeight="48dp"
+        android:text="@string/csv_refresh"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/csv_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:baselineAligned="false"
+        android:focusable="true"
+        android:orientation="horizontal"
+        android:visibility="gone">
+        <include
+            android:id="@+id/csv_ready"
+            layout="@layout/item_csv_tile" />
+        <include
+            android:id="@+id/csv_fix"
+            layout="@layout/item_csv_tile" />
+        <include
+            android:id="@+id/csv_done"
+            layout="@layout/item_csv_tile" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/csv_preview_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/csv_preview_heading"
+            style="@style/FinoraText.Section"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/csv_preview"
+            android:textSize="16sp" />
+        <TextView
+            style="@style/FinoraText.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/csv_preview_hint"
+            android:textColor="@color/finora_muted" />
+    </LinearLayout>
+</LinearLayout>

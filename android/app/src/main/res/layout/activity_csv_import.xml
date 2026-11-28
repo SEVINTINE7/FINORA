@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T67.3/D65/D71 CSV import: one scrolling list (file card, summary, preview rows) and the import button pinned
+     at the bottom. Nothing is saved until the user confirms. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/csv_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:paddingBottom="16dp" />
+
+    <LinearLayout
+        android:id="@+id/csv_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/finora_surface"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingTop="8dp"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:paddingBottom="16dp"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/csv_fix_note"
+            style="@style/FinoraText.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="4dp"
+            android:text="@string/csv_fix_note"
+            android:textColor="@color/finora_error"
+            android:visibility="gone" />
+        <TextView
+            style="@style/FinoraText.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="8dp"
+            android:text="@string/csv_nothing_saved"
+            android:textColor="@color/finora_muted" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/csv_import"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:textSize="16sp"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/finora_ic_tick"
+            app:iconGravity="textStart" />
+    </LinearLayout>
+</LinearLayout>
