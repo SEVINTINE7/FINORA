@@ -68,7 +68,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T60 | Promote a USER to STAFF | Sevindu | Thilina, Sahan | T36, T42, T43 | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | in-progress |
 | T61 | Forgot password by emailed code | Thilina | Sevindu, Sahan | T05 | [thilina/6-password-reset.md](thilina/6-password-reset.md) | in-progress |
 | T62 | Redesign Home, Records, Add transaction | Sevindu | Sahan | T58.1–T58.2 (D65) | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | done |
-| T63 | Redesign budgets and bills | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | in-progress |
+| T63 | Redesign budgets and bills | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | done |
 | T64 | Redesign goals and planning tools | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
 | T65 | Redesign accounts and categories | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
 | T66 | Redesign insights, advice, history | Sevindu | Sahan, Thilina | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |

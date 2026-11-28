@@ -37,7 +37,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [x] T63.1 Mockups of Budget list, Budget form, Bill list and Bill form approved by Sevindu on 2026-11-28 (design canvas, row "T63 · Budgets and bills")
 - [x] T63.2 Budget list (progress cards, over-limit state) and Budget form (category chips, amount field, month)
 - [x] T63.3 Bill list (due-day badges, paid-this-month state and "Mark paid") and Bill form (name, amount, due day 1–31, category)
-- [ ] T63.4 Screenshots approved
+- [x] T63.4 Screenshots approved by Sevindu on 2026-11-28 — 29 captures (EN/SI × light/dark + EN 130% font) on the review page https://claude.ai/artifact/NqTXhC94wu1bsxLiTmVXBi
 
 **Handoff notes:**
 - T63.2 (2026-11-28, verified on Pixel_8): `res:layout/activity_budget_list.xml`, `item_budget.xml`, `activity_budget_form.xml` rewritten; `BudgetListActivity`/`BudgetFormActivity` use ViewBinding. Cards sort OVER → NEAR → OK (`BudgetListViewModel.ordered`), summary card from `totals()`. Tap edits; long-press or the TalkBack action "Remove …" opens the existing confirm. Card speaks the old exact LKR sentence; state is its state description.
@@ -46,6 +46,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - Device fixes: summary bar stop dot removed; amount fields (budget and T62 transaction) always show "Rs." with a 0.00 placeholder; dark over-limit bar `finora_bar_over`, tracks `finora_card_line`. SI chips wrap to 2 lines.
 - T63.3 (2026-11-28, verified on Pixel_8): `activity_bill_list.xml` (summary card, "To pay" and "Paid this month" sections), `item_bill.xml` (date tile, status with icon, checkable "Mark paid"), new `item_bill_paid.xml` and `activity_bill_form.xml` rewritten; new `and:ui/bills/DueDayPicker` (31 round buttons, 7 columns) replaces the typed due day. `BillListViewModel` gains `toPay`, `paidOnes`, `daysLate`, `percentPaid` (+3 unit tests). Tap edits; long-press or TalkBack action removes; row and summary still speak the old LKR sentences.
 - T63.3 checks: 166 unit tests, lint 4 = baseline, fixture tests 4/4; `T63ScreenshotTest.billScreens` (live API, demo bills from 28 Nov) checks order, overdue days, Mark paid ↔ Paid, long-press confirm, tap-to-edit, no-day error. UserJourneyTest bill steps now tap "Day 31"; not run. SI "Mark paid" is "ගෙව්වා" (native review).
+- T63.4 (2026-11-28): reused the T63.3 captures (no Android source changed after them); re-ran 166 unit tests, assemble, lint 0 errors / 4 warnings = baseline. Edit screens captured EN light (+ budget EN dark) only. Open: Sinhala native review, SI budget chips wrap to 2 lines.
 
 ### T64 · Goals and planning tools · `UX-04`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/goals/`, `and:ui/planning/`, `res:layout/`
