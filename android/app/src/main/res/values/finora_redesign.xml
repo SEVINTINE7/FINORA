@@ -135,4 +135,5 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+    <color name="finora_on_navy_muted">#C9D8D0</color>
 </resources>

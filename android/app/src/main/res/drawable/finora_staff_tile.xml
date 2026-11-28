@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T70.2 count tile on the navy Staff header. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#14FFFFFF" />
+    <corners android:radius="16dp" />
+</shape>

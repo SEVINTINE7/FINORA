@@ -327,7 +327,6 @@
     <string name="score_save_uncertain">සුරැකීම තහවුරු කළ නොහැක. නැවත සුරැකීමට පෙර ලකුණ ගණනය කිරීමට අවශ්‍ය මාසික තොරතුරු යළි පූරණය කර පරීක්ෂා කරන්න.</string>
     <string name="finance_help">උදව්</string>
     <string name="faq_title">නිතර අසන ප්‍රශ්න</string>
-    <string name="staff_queue_counts">මට පැවරූ විවෘත සහාය ඉල්ලීම්: %1$d\nකිසිවෙකුට පවරා නැති සහාය ඉල්ලීම්: %2$d</string>
     <string name="faq_login">මගේ ගිණුමට පිවිසෙන්නේ කෙසේද?</string>
     <string name="faq_login_body">ඔබේ FINORA ගිණුමේ විද්‍යුත් තැපැල් ලිපිනය සහ මුරපදය භාවිත කර පිවිසෙන්න. පිවිසීමට නොහැකි නම් අන්තර්ජාල සම්බන්ධතාව සහ ගිණුම් විස්තර පරීක්ෂා කරන්න. මුරපදය හෝ එක් වරක් භාවිත කරන කේත කිසිවෙකු සමඟ බෙදා නොගන්න.</string>
     <string name="faq_navigation">වාර්තා සහ සැලසුම් කළමනාකරණය කරන්නේ කොතැනින්ද?</string>
@@ -791,4 +790,15 @@
     <string name="reset_code_sent">%1$s භාවිත කරන ගිණුමක් තිබේ නම්, ඉලක්කම් 6ක කේතයක් එවනු ලැබේ. එය මිනිත්තු 15ක් වලංගුයි.</string>
     <string name="reset_resend">නව කේතයක් යවන්න</string>
     <string name="reset_resent">ගිණුම තිබේ නම්, නව කේතයක් එවනු ලැබේ.</string>
+    <!-- T70.2 Staff home -->
+    <string name="staff_home_title">සහාය මේසය</string>
+    <string name="staff_home_today">අද පෝලිම</string>
+    <string name="staff_count_mine">ඔබට පවරා ඇත</string>
+    <string name="staff_count_waiting">භාර ගැනීමට රැඳී ඇත</string>
+    <string name="staff_counts_description">ඔබට පවරා ඇත: %1$d. භාර ගැනීමට රැඳී ඇත: %2$d.</string>
+    <string name="staff_work">වැඩ</string>
+    <string name="staff_requests_text">ඉල්ලීම් භාර ගන්න, පිළිතුරු දෙන්න සහ වසන්න</string>
+    <string name="staff_replies_text">සම්මත පිළිතුරු කෙටුම්පත් කර අනුමත කරන්න</string>
+    <string name="staff_diagnostics_text">කාණ්ඩගත කළ කියවීම් දෝෂ, ගණන් පමණි</string>
+    <string name="staff_privacy_note">කාර්ය මණ්ඩලයට පරිශීලකයන්ගේ ගනුදෙනු, SMS පණිවිඩ, නම් හෝ ඊමේල් ලිපින කිසිවිට නොපෙනේ.</string>
 </resources>

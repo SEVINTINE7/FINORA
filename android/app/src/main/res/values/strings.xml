@@ -328,7 +328,6 @@
     <string name="score_save_uncertain">Could not confirm the save. Reload and review the monthly declarations before saving again.</string>
     <string name="finance_help">Help</string>
     <string name="faq_title">Frequently asked questions</string>
-    <string name="staff_queue_counts">My open tickets: %1$d\nUnassigned tickets: %2$d</string>
     <string name="faq_login">How do I sign in?</string>
     <string name="faq_login_body">Sign in using the email address and password for your FINORA account. If sign-in fails, check your connection and account details. Never share your password or a one-time code.</string>
     <string name="faq_navigation">Where do I manage records and plans?</string>
@@ -793,4 +792,16 @@
     <string name="reset_code_sent">If an account uses %1$s, a 6-digit code is on its way. It works for 15 minutes.</string>
     <string name="reset_resend">Send a new code</string>
     <string name="reset_resent">If the account exists, a new code is on its way.</string>
+    <!-- T70.2 Staff home -->
+    <string name="staff_home_title">Support desk</string>
+    <string name="staff_home_today">Today’s queue</string>
+    <string name="staff_count_none" translatable="false">–</string>
+    <string name="staff_count_mine">Assigned to you</string>
+    <string name="staff_count_waiting">Waiting to be claimed</string>
+    <string name="staff_counts_description">Assigned to you: %1$d. Waiting to be claimed: %2$d.</string>
+    <string name="staff_work">Work</string>
+    <string name="staff_requests_text">Claim, reply and close requests</string>
+    <string name="staff_replies_text">Draft and approve standard answers</string>
+    <string name="staff_diagnostics_text">Grouped parser failures, counts only</string>
+    <string name="staff_privacy_note">Staff never see users’ transactions, SMS messages, names or email addresses.</string>
 </resources>

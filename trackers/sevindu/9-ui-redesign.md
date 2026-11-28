@@ -145,12 +145,15 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 
 ### T70 · Staff screens · `UX-10`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/staff/`, `and:ui/support/DiagnosticQueueActivity`, `and:ui/support/FormatSampleActivity`, `res:layout/`
-- [ ] T70.1 Mockups of Staff home, Diagnostic queue and Format sample approved by Sevindu (Staff activation is removed by T72, D66)
-- [ ] T70.2 Staff home
+- [x] T70.1 Mockups of Staff home, Diagnostic queue and Format sample approved by Sevindu (Staff activation is removed by T72, D66)
+- [x] T70.2 Staff home
 - [ ] T70.3 Diagnostic queue and Format sample; rule 4 unchanged: STAFF never see user transactions
 - [ ] T70.4 Screenshots approved
 
 **Handoff notes:**
+- T70.1 (2026-11-28): six boards (Staff home, requests, send reply, saved replies, diagnostics, Test a format) on the design canvas, approved by Sevindu. T70.3 also restyles the STAFF side of `SupportActivity`; admin format-revision controls stay for T71.
+- T70.2 (2026-11-28): `res:layout/panel_staff_home.xml`, `StaffHomeActivity` rewritten (navy header with count tiles + retry, Work and Account rows via `SettingsRows`, rule 4 note). `SupportActivity.CATALOG` extra opens Saved replies directly. `staff_queue_counts` removed; 10 new EN/SI strings.
+- Checks: 199 unit tests, lint 4 = baseline. `T70ScreenshotTest` (arg finoraT70Shots; throwaway local STAFF session, no API, no adb reverse) EN/SI light+dark and 130% pass. Live staff journeys not run: local DB has no STAFF fixture (needs `Start-FinoraLocalEvaluation.ps1 -Mode Handset`).
 
 ### T71 · Admin screens · `UX-11`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/admin/`, `res:layout/`

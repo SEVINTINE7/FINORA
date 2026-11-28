@@ -21,6 +21,8 @@ import lk.finora.app.data.repo.SupportRepository.Topic;
 import lk.finora.app.ui.SecureActivity;
 
 public final class SupportActivity extends SecureActivity {
+    /** Staff home "Saved replies" opens the catalog directly (T70.2). */
+    public static final String CATALOG = "catalog";
     private SupportViewModel model;
     private LinearLayout rows;
 
@@ -39,6 +41,7 @@ public final class SupportActivity extends SecureActivity {
         } else {
             bindUser();
         }
+        if (state == null && model.staff && getIntent().getBooleanExtra(CATALOG, false)) model.showCatalog = true;
         model.work.changes.observe(this, ignored -> render());
         model.load();
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T70.2 Staff home window: navy behind the status bar (the page draws its own header), sheet colour behind the navigation bar. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/finora_surface" />
+    <item android:drawable="@color/finora_navy" android:gravity="top" android:height="120dp" />
+</layer-list>
