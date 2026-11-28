@@ -71,7 +71,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T63 | Redesign budgets and bills | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | done |
 | T64 | Redesign goals and planning tools | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | done |
 | T65 | Redesign accounts and categories | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | done |
-| T66 | Redesign insights, advice, history | Sevindu | Sahan, Thilina | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
+| T66 | Redesign insights, advice, history | Sevindu | Sahan, Thilina | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | in-progress |
 | T67 | Redesign import screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
 | T68 | Redesign settings, help, support | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
 | T69 | Redesign register and password reset | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |

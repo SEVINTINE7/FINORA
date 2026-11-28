@@ -85,12 +85,14 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 
 ### T66 · Insights, advice and history · `UX-06`
 **Lead:** Sevindu · **Support:** Sahan (review), Thilina (advice wording) · **Depends on:** T62 · **Touches:** `and:ui/insights/`, `and:ui/advice/`, `and:ui/history/`, `res:layout/`
-- [ ] T66.1 Mockups of Insights, Advice and History approved by Sevindu
+- [x] T66.1 Mockups of Insights, Advice and History approved by Sevindu
 - [ ] T66.2 Insights (pattern cards with charts and text equivalents) and Advice (advice cards, rating control; `beta`/`v1` flavour behaviour kept)
 - [ ] T66.3 History (score/month timeline)
 - [ ] T66.4 Screenshots approved
 
 **Handoff notes:**
+- T66.1 (2026-11-28): 4 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v12) — Insights (full scroll), Score details, Advice (full scroll), Monthly history (full scroll). Approved with all four D70 changes: score first, Score details page, advice controls, history newest first.
+- Mockup numbers are synthetic but follow `ScoreCalculator`/`PatternRules`: October 2026 income 85,000, expense 63,400 (the demo account's real totals), savings 2,000 → parts 45 + 20 + 6.30 + 4.71 + 7.65 = 83.66 → 84; wants 36,550 (43%), weekend 27,000 over 9 days vs 36,400 over 22 weekdays, income days 21,500 (33.91%). Goal plan uses the demo "Laptop for study" (99,000 left, 8 months → 12,375). The demo account currently has no patterns and no score (declarations missing) — T66.2 screenshots need seeded data.
 
 ### T67 · Import screens · `UX-07`
 **Lead:** Sevindu · **Support:** Sahan (review; SMS owner) · **Depends on:** T62 · **Touches:** `and:ui/sms/`, `and:ui/importer/`, `res:layout/`
