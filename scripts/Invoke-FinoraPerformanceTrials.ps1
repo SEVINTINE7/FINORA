@@ -64,7 +64,7 @@ function Send-WorkerPassword {
         if ($LASTEXITCODE) { throw 'Synthetic credential could not be delivered to the test-only app.' }
     } finally { $plain = $null }
 }
-function Capture-Cohort([string]$name, [string]$route, [bool]$calibration) {
+function Capture-Cohort([string]$name, [string]$route, [bool]$calibration, [switch]$ExternalCold) {
     Confirm-Profile
     $remote = "/data/misc/perfetto-traces/$prefix-$name.perfetto-trace"
     $path = Join-Path $Evidence "$name.perfetto-trace"
@@ -76,21 +76,33 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$calibration) {
         Start-Sleep -Seconds 3
         if ($traceProcess.HasExited) { throw 'Perfetto exited before the first measurement.' }
         Confirm-Profile
-        $invocation = @('shell','am','instrument','--user',"$UserId",'-w','-r','-e','class',$suite,
-            '-e','finoraPerformancePilot','true','-e','finoraPerformanceHandset','true',
-            '-e','finoraBuildFingerprint',$fingerprint,'-e','finoraTestUserSerial',$UserSerial)
-        Send-WorkerPassword
-        $invocation += @('-e','finoraTraceRoute',$route)
-        if ($calibration) { $invocation += @('-e','finoraTraceCheck','true') }
-        $testResult = @(& $AdbPath -s $Serial @invocation $runner)
-        $testExit = $LASTEXITCODE
-        Set-Content -LiteralPath (Join-Path $Evidence "$name-test-1.log") -Value (@("ADB_EXIT=$testExit") + $testResult)
-        if ($testExit) { throw 'Instrumented transport failed before a complete test result.' }
-        foreach ($status in ($testResult -cmatch '^INSTRUMENTATION_STATUS: finoraTiming=')) { $timingStatus.Add($status) }
+        if ($ExternalCold) {
+            foreach ($attempt in 1..5) {
+                Confirm-Profile
+                Target shell am force-stop --user $UserId $app | Out-Null
+                $launch = @(& $AdbPath -s $Serial shell am start -W --user $UserId -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n "$app/lk.finora.app.ui.login.LoginActivity")
+                $result = $LASTEXITCODE
+                Set-Content -LiteralPath (Join-Path $Evidence "external-cold-$attempt.log") -Value (@("ADB_EXIT=$result")+$launch)
+                Start-Sleep -Seconds 5
+            }
+        } else {
+            $invocation = @('shell','am','instrument','--user',"$UserId",'-w','-r','-e','class',$suite,
+                '-e','finoraPerformancePilot','true','-e','finoraPerformanceHandset','true',
+                '-e','finoraBuildFingerprint',$fingerprint,'-e','finoraTestUserSerial',$UserSerial)
+            Send-WorkerPassword
+            $invocation += @('-e','finoraTraceRoute',$route)
+            if ($calibration) { $invocation += @('-e','finoraTraceCheck','true') }
+            $testResult = @(& $AdbPath -s $Serial @invocation $runner)
+            $testExit = $LASTEXITCODE
+            Set-Content -LiteralPath (Join-Path $Evidence "$name-test-1.log") -Value (@("ADB_EXIT=$testExit") + $testResult)
+            if ($testExit) { throw 'Instrumented transport failed before a complete test result.' }
+            foreach ($status in ($testResult -cmatch '^INSTRUMENTATION_STATUS: finoraTiming=')) { $timingStatus.Add($status) }
+        }
     } finally {
         if (!$traceProcess.HasExited) {
             $needle = '^\s*([1-9][0-9]*)\s+.*\bperfetto\b.*' + [regex]::Escape($remote) + '\s*$'
-            $traceOwners = @(Target shell ps -A -o PID,CMDLINE | ForEach-Object { if ($_ -cmatch $needle) { $Matches[1] } })
+            # Quote the field list so the PowerShell function passes ADB one argument.
+            $traceOwners = @(Target shell ps -A -o 'PID,CMDLINE' | ForEach-Object { if ($_ -cmatch $needle) { $Matches[1] } })
             if ($traceOwners.Count -eq 1) { Target shell kill -INT $traceOwners[0] | Out-Null }
             if (!$traceProcess.WaitForExit(30000)) { throw 'Perfetto did not finish flushing the session trace.' }
         }
@@ -98,6 +110,15 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$calibration) {
         Confirm-Profile
         Target pull $remote $path | Out-Null
         Target shell rm -- $remote | Out-Null
+        Target shell test '!' -e $remote | Out-Null
+    }
+    if ($ExternalCold) {
+        $coldSql = Join-Path (Split-Path $PSScriptRoot -Parent) 'docs/t55-performance/handset-external-cold.sql'
+        $coldRows = @(& $TraceProcessor -q $coldSql $path 2> (Join-Path $Evidence 'external-cold-query.log'))
+        if ($LASTEXITCODE) { throw 'External cold frame trace query failed.' }
+        $coldRows | Set-Content -LiteralPath (Join-Path $Evidence 'external-cold-frames.csv')
+        Write-Host 'External cold launch logs and completed trace retained.'
+        return
     }
     $traceRows = @(& $TraceProcessor -q $sql $path 2> (Join-Path $Evidence "$name-trace-processor.log"))
     if ($LASTEXITCODE) { throw 'Displayed-frame qualification query failed.' }
@@ -148,4 +169,5 @@ foreach ($route in 'HOME','INSIGHTS','PLAN') {
         $incomplete.Add($route)
     }
 }
+Capture-Cohort 'external-cold' 'HOME' $false -ExternalCold
 if ($incomplete.Count) { throw ('Incomplete displayed cohorts: ' + ($incomplete -join ', ')) }

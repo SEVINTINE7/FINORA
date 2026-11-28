@@ -595,3 +595,44 @@ The launcher now uses `PID,CMDLINE` to verify the exact Perfetto command. It pre
 The retained cold trace supplies five unique Android `system_server` `Start proc` operations, each after the previous Home presentation and before the next measured launch action. The [SQL](t55-performance/handset-cold-process-request.sql) joins each to its qualified displayed Home frame and [retains all five timings](t55-performance/handset-cold-process-request.csv). Process-start request to displayed Home had median **2,151.854 ms**, nearest-rank p95 **2,251.399 ms**, and maximum **2,251.399 ms**. This interval includes instrumentation startup. It does not establish kernel fork time or launcher-tap latency. The earlier activity-action statistic remains separately valid. No formal two-second verdict was assigned.
 
 The disposable V25 copy matched all eight canonical-owner counts and the 826-transaction fingerprint before and after the session. Read-back confirmed the temporary profile and candidate packages were absent, Owner and Sahan's two QA packages were preserved, and no session Perfetto, USB reverse, API, MySQL or ADB processes or mappings remained. The frozen database was untouched.
+
+## HMD Crest trace finalizer recovery, 28 November 2026
+
+The one approved temporary-profile session used PR #43 head
+`2a9e761e44d7e709967f900a90852f5d93015127`. Upstream
+`0e175d8a776b69ad6b656f8e387640edcab65ebf` changed only decisions and
+trackers since the previously inspected baseline. The qualified Records
+cohort is retained (30/30, median 87.597 ms, p95 150.135 ms, max 163.762 ms).
+
+Home's three rehearsal attempts committed and all three qualified on replay of
+the recovered Perfetto trace (168.890, 180.206 and 181.542 ms). The
+[raw timing rows](t55-performance/handset-home-finalizer-recovery.csv) use the
+ready marker's traversal and the corresponding SurfaceFlinger presentations.
+The callback timestamp can be later than presentation, so it is corroborating
+diagnostic evidence and is excluded from the duration.
+
+The direct ADB trace-finalization preflight succeeded. The full launcher
+failed during Home calibration finalization with `ps: bad CMDLINE` because
+PowerShell constructs an array from the unquoted field list at the wrapper
+boundary. Passing the quoted field through that same wrapper identified the
+exact trace PID, allowed an interrupt and flush, and recovered the trace.
+The runner and preflight now both pass a single quoted argument. No warm
+measured cohort (Home, Insights or Budgets) started. No measured attempts
+were discarded. The launcher correction was verified at the argument and
+trace-recovery boundaries, with a complete connected rerun still pending.
+
+The prepared external cold route force-stops the app and starts the real launcher
+activity through Android's activity manager, without an instrumentation runner.
+Its query reports system-server process-start request to first MainActivity
+presentation, which may contain placeholder content. A replay on the retained
+instrumentation-mediated trace exercised the query and returned three observed
+presentations and two unmatched starts. That replay does not establish independent
+cold startup. The new external route did not run after the warm capture fault,
+and there is no newly confirmed production performance defect.
+
+The disposable database matched the frozen 826-transaction digest before and
+after the session. Cleanup returned to Owner, removed the temporary user,
+preserved FINORA-T10-QA and its installed packages, restored the reverse
+mapping baseline, and removed the recovered remote trace. The session-owned
+ADB, API and database listeners were gone. T55.2 remains open, including the
+formal device classification and measurement acceptance decision.

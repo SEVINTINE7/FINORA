@@ -25,7 +25,7 @@ git -C $repo diff --quiet $ApiRevision -- api/src/main api/pom.xml
 if ($LASTEXITCODE) {throw 'API production source differs from executable provenance.'}
 $adb=Join-Path $Sdk 'platform-tools/adb.exe'
 if ($Serial -cnotmatch '^[A-Za-z0-9]+$') { throw 'Invalid authorized handset serial.' }
-$psFields=@(& $adb -s $Serial shell ps -p 1 -o PID,CMDLINE)
+$psFields=@(& $adb -s $Serial shell ps -p 1 -o 'PID,CMDLINE')
 if ($LASTEXITCODE -or -not ($psFields -match '^\s*PID\s+CMDLINE\s*$')) {
     throw 'Handset does not support the exact Perfetto process-identity check.'
 }
