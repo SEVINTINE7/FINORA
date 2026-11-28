@@ -71,7 +71,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [x] T65.1 Mockups of Account list, Account form, Category list and Category form approved by Sevindu
 - [x] T65.2 Account list (archived state) and Account form
 - [x] T65.3 Category list (income/expense sections, EN/SI names) and Category form (EN/SI name, income/expense, need/want chips). Category icons are a client-side mapping; no API change
-- [ ] T65.4 Screenshots approved
+- [x] T65.4 Screenshots approved
 
 **Handoff notes:**
 - T65.1 (2026-11-28): 4 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v11) — AccountList, AccountForm, CategoryList (full scroll), CategoryForm. Approved with all four D69 changes: tap to edit, Archived section, grouped category rows, form controls.
@@ -81,6 +81,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - Checks: 178 unit tests, lint 4 = baseline; FinancialForm + Dashboard fixtures pass; FinancialListCard and ShellNavigation failed once in a batch while another app (com.printxpress.app) took focus on the emulator, both pass alone. Guarded `T65ScreenshotTest` passed EN/SI × light/dark + EN 130%. UserJourney account steps pass; the two journeys then fail on the T62 Home amounts (`Expenses: LKR 12.34` text / `dashboard_expense` desc) — stale since T62, not touched here.
 - T65.3 (2026-11-28, Pixel_8): `activity_category_list.xml`, `item_category.xml`, `activity_category_form.xml` rewritten; rules in `CategoryRules` (+4 unit tests). Expense then Income grouped cards with counts, own categories first; defaults show a lock (TalkBack state "Default category · read-only"), own ones open on tap and keep the remove button. Rows show the other-language name and a Need/Want word chip. Form: Expense/Income and Need/Want/Not set tiles (form order changed in `CategoryFormViewModel.KINDS/NEEDS`; new categories default to Not set), type locked when editing, live preview using `CategoryIcons`. `FormChoices` now drops to fewer tiles per row when a label would be cut (Sinhala). Removed `category_form_title`, `category_classification`, `records_name`.
 - T65.3 checks: 182 unit tests, lint 4 = baseline; FinancialForm + FinancialListCard fixtures pass; `T65ScreenshotTest` (now also categories, demo "Gym" id 18 seeded) passed EN/SI × light/dark + EN 130%.
+- T65.4 (2026-11-28): Sevindu approved the 50 T65 screenshots (EN/SI, light/dark, EN 130%) from the review sheet. Sinhala strings still need a native-speaker read.
 
 ### T66 · Insights, advice and history · `UX-06`
 **Lead:** Sevindu · **Support:** Sahan (review), Thilina (advice wording) · **Depends on:** T62 · **Touches:** `and:ui/insights/`, `and:ui/advice/`, `and:ui/history/`, `res:layout/`
