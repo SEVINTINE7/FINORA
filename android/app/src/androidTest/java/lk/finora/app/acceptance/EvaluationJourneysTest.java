@@ -105,12 +105,12 @@ public class EvaluationJourneysTest {
         activate(withText(R.string.goal_list_title));
         String goal = "SYNTHETIC " + profile + " goal";
         await(device, By.text(goal), profile + " goal");
-        activate(withContentDescription(app.getString(R.string.goal_open_named, goal)));
+        activate(withContentDescription(org.hamcrest.Matchers.startsWith(goal + ". ")));
         String date = java.time.LocalDate.of(2026, profile.equals("worker") ? 11 : 10, 20)
                 .format(java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM)
                         .withLocale(java.util.Locale.getDefault()));
         String amount = profile.equals("worker") ? "2000.00" : "500.00";
-        await(device, By.text(app.getString(R.string.goal_contribution_row, date, amount)),
+        await(device, By.desc(app.getString(R.string.goal_contribution_row, date, amount)),
                 profile + " contribution");
         pressBack();
         pressBack();

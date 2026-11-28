@@ -4,30 +4,32 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import lk.finora.app.R;
-import lk.finora.app.ui.FinancialCard;
+import lk.finora.app.data.api.GoalDto;
+import lk.finora.app.databinding.ActivityGoalDetailBinding;
+import lk.finora.app.databinding.ItemContributionBinding;
 import lk.finora.app.ui.FinancialDatePicker;
 import lk.finora.app.ui.FormFields;
+import lk.finora.app.ui.Money;
 import lk.finora.app.ui.SecureActivity;
-import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.ui.accounts.AccountListActivity;
+import lk.finora.app.ui.transactions.TransactionRows;
 
-/** One goal: progress, add a contribution, contribution history with remove, edit/cancel/resume/delete. */
+/**
+ * T64.2/D65 one goal: progress ring, add a contribution (date from the calendar, D68), money saved so far with
+ * remove, edit/cancel/resume/delete (T19.3).
+ */
 public final class GoalDetailActivity extends SecureActivity {
     private GoalDetailViewModel model;
-    private EditText amount;
-    private EditText date;
+    private ActivityGoalDetailBinding view;
 
     @Override protected void onCreate(Bundle state) {
         FinancialDatePicker.protect(this);
@@ -35,39 +37,36 @@ public final class GoalDetailActivity extends SecureActivity {
         model = new ViewModelProvider(this).get(GoalDetailViewModel.class);
         if (!AccountListActivity.verify(this, model.work)) return;
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
-        setContentView(R.layout.activity_goal_detail);
-        for (int heading : new int[]{R.id.goal_name, R.id.goal_add_heading, R.id.goal_history_heading}) {
-            ViewCompat.setAccessibilityHeading(findViewById(heading), true);
+        view = ActivityGoalDetailBinding.inflate(getLayoutInflater());
+        setContentView(view.getRoot());
+        for (View heading : new View[]{view.goalName, view.goalAddHeading, view.goalHistoryHeading}) {
+            ViewCompat.setAccessibilityHeading(heading, true);
         }
-        amount = findViewById(R.id.contribution_amount);
-        date = findViewById(R.id.contribution_date);
-        for (EditText field : new EditText[]{amount, date}) {
-            lk.finora.app.ui.accounts.AccountFormActivity.watch(field, ignored -> {});
-        }
-        FormFields.calendar(date, () -> {
+        lk.finora.app.ui.accounts.AccountFormActivity.watch(view.contributionAmount, ignored -> {});
+        view.contributionDate.setOnClickListener(ignored -> {
             if (!canSelectDate()) return;
-            var current = GoalRules.parseDate(date.getText().toString());
+            var current = GoalRules.parseDate(model.contributionDate);
             FinancialDatePicker.show(this, R.string.goal_contribution_date,
                     current == null ? GoalRules.today() : current, this::selectDate);
         });
         FinancialDatePicker.restore(this, this::selectDate);
-        if (state == null) date.setText(GoalRules.today().toString());
         model.id = getIntent().getLongExtra(AccountListActivity.ITEM_ID, 0);
+        showDate();
 
-        findViewById(R.id.contribution_add).setOnClickListener(view -> addContribution());
-        findViewById(R.id.records_retry).setOnClickListener(view -> {
+        view.contributionAdd.setOnClickListener(ignored -> addContribution());
+        view.recordsRetry.setOnClickListener(ignored -> {
             // After an unclear save, reloading shows whether the contribution is in the history
             model.work.ambiguousCreate = false;
             model.load(model.id);
         });
-        findViewById(R.id.goal_edit).setOnClickListener(view -> {
+        view.goalEdit.setOnClickListener(ignored -> {
             if (!model.work.busy()) {
                 startActivity(new Intent(this, GoalFormActivity.class)
                         .putExtra(AccountListActivity.ITEM_ID, model.id));
             }
         });
-        findViewById(R.id.goal_cancel).setOnClickListener(view -> toggleCancelled());
-        findViewById(R.id.goal_delete).setOnClickListener(view -> AccountListActivity.confirm(this, model.work,
+        view.goalCancel.setOnClickListener(ignored -> toggleCancelled());
+        view.goalDelete.setOnClickListener(ignored -> AccountListActivity.confirm(this, model.work,
                 R.string.goal_delete_message, model::delete));
         model.work.changes.observe(this, ignored -> render());
     }
@@ -81,22 +80,38 @@ public final class GoalDetailActivity extends SecureActivity {
         return AccountListActivity.verify(this, model.work) && !model.work.busy() && model.goal != null;
     }
 
-    private void selectDate(java.time.LocalDate value) {
-        if (canSelectDate()) date.setText(value.toString());
+    private void selectDate(LocalDate value) {
+        if (!canSelectDate()) return;
+        model.contributionDate = value.toString();
+        view.contributionDateError.setVisibility(View.GONE);
+        showDate();
+    }
+
+    /** "Today" or the chosen date; TalkBack hears "Date saved: <date>. Change date". */
+    private void showDate() {
+        LocalDate chosen = GoalRules.parseDate(model.contributionDate);
+        String label = chosen == null ? getString(R.string.transaction_choose_date)
+                : chosen.equals(GoalRules.today()) ? getString(R.string.goal_today)
+                : TransactionRows.fullDate(this, chosen);
+        view.contributionDate.setText(label);
+        String spoken = chosen == null ? label : TransactionRows.fullDate(this, chosen);
+        view.contributionDate.setContentDescription(getString(R.string.goal_date_spoken,
+                getString(R.string.goal_contribution_date), spoken));
     }
 
     private void addContribution() {
         if (!AccountListActivity.verify(this, model.work) || model.work.busy() || model.goal == null) return;
         BigDecimal value;
         try {
-            value = GoalRules.parseAmount(amount.getText().toString());
+            value = GoalRules.parseAmount(view.contributionAmount.getText().toString());
         } catch (IllegalArgumentException failure) {
-            FormFields.error(amount, R.string.budget_limit_invalid);
+            FormFields.error(view.contributionAmount, R.string.budget_limit_invalid);
             return;
         }
-        String day = date.getText().toString().trim();
+        String day = model.contributionDate;
         if (!GoalRules.validContributionDate(day, GoalRules.today())) {
-            FormFields.error(date, R.string.goal_contribution_date_invalid);
+            view.contributionDateError.setText(R.string.goal_contribution_date_invalid);
+            view.contributionDateError.setVisibility(View.VISIBLE);
             return;
         }
         model.addContribution(value, day);
@@ -127,44 +142,90 @@ public final class GoalDetailActivity extends SecureActivity {
         if (model.deleted) { finish(); return; }
         if (model.contributionAdded) {
             model.contributionAdded = false;
-            amount.getText().clear();
+            view.contributionAmount.getText().clear();
         }
         boolean busy = model.work.busy();
         GoalDto goal = model.goal;
-        if (goal != null) {
-            ((TextView) findViewById(R.id.goal_name)).setText(goal.name());
-            GoalListActivity.show(this, goal, findViewById(R.id.goal_progress), findViewById(R.id.goal_details),
-                    findViewById(R.id.goal_status));
-            ((Button) findViewById(R.id.goal_cancel)).setText("CANCELLED".equals(goal.status())
-                    ? R.string.goal_resume : R.string.goal_cancel);
-        }
+        if (goal != null) renderGoal(goal);
         boolean ready = goal != null && !busy;
-        findViewById(R.id.contribution_add).setEnabled(ready && !model.work.ambiguousCreate);
-        findViewById(R.id.goal_edit).setEnabled(ready);
-        findViewById(R.id.goal_cancel).setEnabled(ready);
-        findViewById(R.id.goal_delete).setEnabled(ready);
-        findViewById(R.id.records_retry).setEnabled(!busy && model.work.error != 0);
-        ((TextView) findViewById(R.id.records_retry)).setText(model.work.ambiguousCreate
-                ? R.string.records_reconcile : R.string.records_retry);
-        TextView status = findViewById(R.id.records_status);
-        int message = busy ? R.string.records_loading : model.work.error;
-        status.setText(message == 0 ? "" : getString(message));
+        view.contributionAdd.setEnabled(ready && !model.work.ambiguousCreate);
+        view.contributionDate.setEnabled(ready);
+        view.goalEdit.setEnabled(ready);
+        view.goalCancel.setEnabled(ready);
+        view.goalDelete.setEnabled(ready);
 
-        findViewById(R.id.goal_no_contributions).setVisibility(
-                goal != null && model.contributions.isEmpty() ? View.VISIBLE : View.GONE);
-        LinearLayout rows = findViewById(R.id.records_rows);
-        rows.removeAllViews();
-        for (GoalDto.Contribution item : model.contributions) {
-            View row = LayoutInflater.from(this).inflate(R.layout.item_contribution, rows, false);
-            String text = getString(R.string.goal_contribution_row, GoalListActivity.readableDate(item.date()),
-                    GoalRules.plain(item.amount()));
-            ((TextView) row.findViewById(R.id.record_name)).setText(text);
-            View remove = row.findViewById(R.id.record_remove);
-            remove.setEnabled(!busy);
-            remove.setContentDescription(getString(R.string.records_remove_named, text));
-            remove.setOnClickListener(view -> AccountListActivity.confirm(this, model.work,
+        boolean failed = !busy && model.work.error != 0;
+        view.recordsRetry.setVisibility(failed ? View.VISIBLE : View.GONE);
+        view.recordsRetry.setEnabled(failed);
+        view.recordsRetry.setText(model.work.ambiguousCreate ? R.string.records_reconcile : R.string.records_retry);
+        int message = busy ? R.string.records_loading : model.work.error;
+        view.recordsStatus.setText(message == 0 ? "" : getString(message));
+        view.recordsStatus.setVisibility(message == 0 ? View.GONE : View.VISIBLE);
+
+        renderHistory(goal, busy);
+    }
+
+    private void renderGoal(GoalDto goal) {
+        String status = goal.status();
+        boolean focus = isFocus(goal);
+        view.goalName.setText(goal.name());
+        view.goalPercent.setText(GoalListActivity.percent(this, goal.progressPercent()));
+        view.goalProgress.setIndicatorColor(getColor("CANCELLED".equals(status)
+                ? R.color.finora_chart_5 : R.color.finora_mint));
+        view.goalProgress.setProgressCompat(Math.max(0, Math.min(100, goal.progressPercent())), false);
+        view.goalFocus.setVisibility(focus ? View.VISIBLE : View.GONE);
+        GoalListActivity.statusChip(this, view.goalStatus, status);
+        String saved = Money.rupees(this, goal.saved());
+        String of = getString(R.string.goal_of_target, Money.rupees(this, goal.targetAmount()));
+        view.goalSaved.setText(saved);
+        view.goalDetails.setText(of);
+        String spokenState = getString(GoalRules.statusLabel(status));
+        if (focus) spokenState = getString(R.string.goal_focus_spoken) + ", " + spokenState;
+        view.goalHero.setContentDescription(goal.name() + ". " + GoalListActivity.sentence(this, goal));
+        ViewCompat.setStateDescription(view.goalHero, spokenState);
+
+        String toGo = Money.rupees(this, goal.remaining());
+        view.goalToGo.setText(toGo);
+        view.goalToGoTile.setContentDescription(getString(R.string.goal_still_to_save) + ", " + toGo);
+        String date = goal.targetDate() == null ? getString(R.string.goal_no_deadline)
+                : GoalListActivity.readableDate(goal.targetDate());
+        view.goalDateValue.setText(date);
+        view.goalDateTile.setContentDescription(getString(R.string.goal_target_date) + ", " + date);
+        view.goalCancel.setText("CANCELLED".equals(status) ? R.string.goal_resume : R.string.goal_cancel);
+    }
+
+    /**
+     * D68 focus mark. Choosing the focus goal needs every goal, so the list passes the focus id it showed; a goal
+     * cancelled here loses the mark. Opened without that id, no badge is shown.
+     */
+    private boolean isFocus(GoalDto goal) {
+        return getIntent().getLongExtra(FOCUS_ID, 0) == goal.id() && "ACTIVE".equals(goal.status());
+    }
+
+    static final String FOCUS_ID = "goal_focus_id";
+
+    private void renderHistory(GoalDto goal, boolean busy) {
+        int count = model.contributions.size();
+        boolean empty = goal != null && count == 0;
+        view.goalNoContributions.setVisibility(empty ? View.VISIBLE : View.GONE);
+        view.goalHistoryCard.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
+        view.goalHistoryCount.setText(count == 0 ? ""
+                : getResources().getQuantityString(R.plurals.goal_history_count, count, count));
+        view.recordsRows.removeAllViews();
+        for (int i = 0; i < count; i++) {
+            GoalDto.Contribution item = model.contributions.get(i);
+            var row = ItemContributionBinding.inflate(LayoutInflater.from(this), view.recordsRows, false);
+            String date = GoalListActivity.readableDate(item.date());
+            String text = getString(R.string.goal_contribution_row, date, GoalRules.plain(item.amount()));
+            row.contributionDivider.setVisibility(i == 0 ? View.GONE : View.VISIBLE);
+            row.recordName.setText(date);
+            row.recordAmount.setText(Money.rupees(this, item.amount()));
+            row.contributionRow.setContentDescription(text);
+            row.recordRemove.setEnabled(!busy);
+            row.recordRemove.setContentDescription(getString(R.string.records_remove_named, text));
+            row.recordRemove.setOnClickListener(ignored -> AccountListActivity.confirm(this, model.work,
                     R.string.goal_contribution_remove, () -> model.deleteContribution(item.id())));
-            rows.addView(FinancialCard.wrap((LinearLayout) row, text, R.drawable.finora_nav_insights, remove));
+            view.recordsRows.addView(row.getRoot());
         }
     }
 }

@@ -213,8 +213,6 @@
         <item quantity="other">Overdue by %1$d days</item>
     </plurals>
     <string name="goal_list_title">Savings goals</string>
-    <string name="goal_form_title">Savings goal</string>
-    <string name="goal_open">Open</string>
     <string name="goal_open_named">Open %1$s</string>
     <string name="goal_progress_text">Saved LKR %1$s of LKR %2$s (%4$d%%) · LKR %3$s to go</string>
     <string name="goal_by_date">by %1$s</string>
@@ -222,8 +220,8 @@
     <string name="goal_done">Reached</string>
     <string name="goal_cancelled">Cancelled</string>
     <string name="goal_add_contribution">Add money saved</string>
-    <string name="goal_contribution_date">Date saved (YYYY-MM-DD)</string>
-    <string name="goal_contribution_date_invalid">Enter a real date, today or earlier, as YYYY-MM-DD.</string>
+    <string name="goal_contribution_date">Date saved</string>
+    <string name="goal_contribution_date_invalid">Choose today or an earlier date.</string>
     <string name="goal_add">Add to goal</string>
     <string name="goal_contributions">Money saved so far</string>
     <string name="goal_no_contributions">Nothing saved toward this goal yet.</string>
@@ -236,10 +234,10 @@
     <string name="goal_delete">Delete goal</string>
     <string name="goal_delete_message">Delete this goal and everything saved toward it? Your transactions are not changed.</string>
     <string name="goal_date_passed">The target date of this goal has passed. Edit the goal to choose a new date or clear it first.</string>
-    <string name="goal_target">Target amount (LKR)</string>
-    <string name="goal_target_date">Target date (YYYY-MM-DD, optional)</string>
-    <string name="goal_target_date_hint">Leave empty for no deadline. A date must be after today.</string>
-    <string name="goal_target_date_invalid">Enter a real date after today as YYYY-MM-DD, or leave it empty.</string>
+    <string name="goal_target">Target amount</string>
+    <string name="goal_target_date">Target date</string>
+    <string name="goal_target_date_hint">Pick a date after today.</string>
+    <string name="goal_target_date_invalid">Choose a date after today.</string>
     <string name="csv_pick_help">Choose a FINORA CSV file to preview. Only confirmed rows are saved.</string>
     <string name="csv_choose">Choose CSV file</string>
     <string name="csv_refresh">Refresh preview</string>
@@ -545,4 +543,34 @@
     <string name="transaction_row_spoken">%1$s, %2$s, %3$s</string>
     <string name="form_date_label">Date</string>
     <string name="shell_add">Add</string>
+    <!-- T64.2/D65/D68 goal screens -->
+    <string name="goal_add_goal">Add goal</string>
+    <string name="goal_simulate">Simulate</string>
+    <string name="goal_summary_label">Saved toward goals in progress</string>
+    <plurals name="goal_summary_count">
+        <item quantity="one">%1$d in progress · %2$s still to save</item>
+        <item quantity="other">%1$d in progress · %2$s still to save</item>
+    </plurals>
+    <string name="goal_meta_to_go">%1$s · %2$s to go</string>
+    <string name="goal_no_deadline_short">no deadline</string>
+    <string name="goal_meta_reached">%1$s · reached</string>
+    <string name="goal_meta_kept">%1$s · saved amounts kept</string>
+    <string name="goal_focus">Focus</string>
+    <string name="goal_focus_spoken">Focus goal</string>
+    <string name="goal_saved_label">Saved</string>
+    <string name="goal_of_target">of %1$s</string>
+    <string name="goal_still_to_save">Still to save</string>
+    <string name="goal_no_deadline">No deadline</string>
+    <plurals name="goal_history_count">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
+    <string name="goal_today">Today</string>
+    <string name="goal_date_spoken">%1$s: %2$s. Change date</string>
+    <string name="goal_name_label">Goal name</string>
+    <string name="goal_deadline">Deadline</string>
+    <string name="goal_deadline_date">By a date</string>
+    <string name="goal_contribution_amount">Amount saved</string>
+    <string name="goal_save">Save goal</string>
+    <string name="goal_monthly_hint">About %1$s a month to reach this by %2$s.</string>
 </resources>

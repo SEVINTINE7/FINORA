@@ -393,11 +393,11 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.goals.GoalFormActivity.class);
             enter(R.id.form_name, "Synthetic laptop");
             enter(R.id.goal_target, "1000.00");
-            enter(R.id.goal_target_date,
-                    java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo")).plusDays(60).toString());
+            clickId(R.id.goal_deadline_date);
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.records_save);
             awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
-            onView(withContentDescription(app.getString(R.string.goal_open_named, "Synthetic laptop")))
+            onView(withContentDescription(startsWith("Synthetic laptop. ")))
                     .perform(activateControl());
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
             enter(R.id.contribution_amount, "250.00");
@@ -498,30 +498,30 @@ public class UserJourneyTest {
         }
 
         // T19.3 goals: list → detail, add/remove contributions, progress, rotation on detail
-        String target = java.time.LocalDate.now(colombo).plusDays(60).toString();
         try (var ignored = ActivityScenario.launch(lk.finora.app.ui.goals.GoalListActivity.class)) {
             awaitText(app.getString(R.string.records_empty));
             clickId(R.id.records_add);
             awaitActivity(lk.finora.app.ui.goals.GoalFormActivity.class);
             enter(R.id.form_name, "Synthetic laptop");
             enter(R.id.goal_target, "1000.00");
-            enter(R.id.goal_target_date, target);
+            clickId(R.id.goal_deadline_date);
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.records_save);
             awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
-            await(By.textContains(app.getString(R.string.goal_progress_text, "0.00", "1000.00", "1000.00", 0)));
-            onView(withContentDescription(app.getString(R.string.goal_open_named, "Synthetic laptop")))
+            await(By.descContains(app.getString(R.string.goal_progress_text, "0.00", "1000.00", "1000.00", 0)));
+            onView(withContentDescription(startsWith("Synthetic laptop. ")))
                     .perform(activateControl());
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
             awaitText(app.getString(R.string.goal_no_contributions));
             enter(R.id.contribution_amount, "250.00");
             clickId(R.id.contribution_add);
-            await(By.textContains(app.getString(R.string.goal_progress_text, "250.00", "1000.00", "750.00", 25)));
+            await(By.descContains(app.getString(R.string.goal_progress_text, "250.00", "1000.00", "750.00", 25)));
             enter(R.id.contribution_amount, "100.00");
             clickId(R.id.contribution_add);
-            await(By.textContains(app.getString(R.string.goal_progress_text, "350.00", "1000.00", "650.00", 35)));
+            await(By.descContains(app.getString(R.string.goal_progress_text, "350.00", "1000.00", "650.00", 35)));
             device.setOrientationLeft();
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
-            await(By.textContains(app.getString(R.string.goal_progress_text, "350.00", "1000.00", "650.00", 35)));
+            await(By.descContains(app.getString(R.string.goal_progress_text, "350.00", "1000.00", "650.00", 35)));
             device.setOrientationNatural();
             awaitActivity(lk.finora.app.ui.goals.GoalDetailActivity.class);
             String remove = app.getString(R.string.records_remove_named, "");
@@ -529,10 +529,10 @@ public class UserJourneyTest {
             onView(allOf(withContentDescription(startsWith(remove)),
                     withContentDescription(containsString("LKR 250.00")))).perform(reveal(), activateControl());
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
-            await(By.textContains(app.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
+            await(By.descContains(app.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
             pressBack();
             awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
-            await(By.textContains(app.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
+            await(By.descContains(app.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
         }
 
         // Sinhala: switch while the budget list is open (as the Settings picker does), then the other lists
@@ -551,8 +551,8 @@ public class UserJourneyTest {
             await(By.desc(si.getString(R.string.bill_paid_named, "Synthetic rent")));
         }
         try (var ignored = ActivityScenario.launch(lk.finora.app.ui.goals.GoalListActivity.class)) {
-            await(By.textContains(si.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
-            await(By.desc(si.getString(R.string.goal_open_named, "Synthetic laptop")));
+            await(By.descContains(si.getString(R.string.goal_progress_text, "100.00", "1000.00", "900.00", 10)));
+            await(By.descStartsWith("Synthetic laptop. "));
         } finally {
             device.setOrientationNatural();
             InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("EN"));
@@ -1425,7 +1425,8 @@ public class UserJourneyTest {
             clickId(R.id.records_add);
             enter(R.id.form_name, "Synthetic emergency reserve");
             enter(R.id.goal_target, "120000.00");
-            enter(R.id.goal_target_date, today.plusMonths(8).toString());
+            clickId(R.id.goal_deadline_date);
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickId(R.id.records_save);
             awaitActivity(lk.finora.app.ui.goals.GoalListActivity.class);
             awaitText("Synthetic emergency reserve");

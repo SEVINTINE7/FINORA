@@ -56,4 +56,24 @@ public class GoalRulesTest {
         assertEquals(Boolean.TRUE, keep.cancelled());
         assertNull(GoalFormViewModel.body("Laptop", new BigDecimal("1.00"), "2027-01-01", false).cancelled());
     }
+
+    @Test public void monthlyHintDividesWhatIsLeftByWholeMonthsAndRoundsUp() {
+        LocalDate today = LocalDate.of(2026, 11, 28);
+        // 28 Nov to 31 Mar is 4 whole months: 120,000.00 / 4
+        assertEquals(new BigDecimal("30000.00"),
+                GoalRules.monthlyNeed(new BigDecimal("120000.00"), today, LocalDate.of(2027, 3, 31)));
+        // 100.00 / 3 rounds up to the cent so the plan reaches the target
+        assertEquals(new BigDecimal("33.34"),
+                GoalRules.monthlyNeed(new BigDecimal("100.00"), today, LocalDate.of(2027, 2, 28)));
+        assertNull(GoalRules.monthlyNeed(new BigDecimal("100.00"), today, LocalDate.of(2026, 12, 27)));
+        assertNull(GoalRules.monthlyNeed(BigDecimal.ZERO.setScale(2), today, LocalDate.of(2027, 3, 31)));
+        assertNull(GoalRules.monthlyNeed(new BigDecimal("-5.00"), today, LocalDate.of(2027, 3, 31)));
+        assertNull(GoalRules.monthlyNeed(new BigDecimal("100.00"), today, null));
+    }
+
+    @Test public void statusChipsCarryAnIconAsWellAsColour() {
+        assertEquals(R.drawable.finora_ic_check, GoalRules.statusIcon("DONE"));
+        assertEquals(R.drawable.finora_ic_pause, GoalRules.statusIcon("CANCELLED"));
+        assertEquals(R.drawable.finora_ic_clock, GoalRules.statusIcon("ACTIVE"));
+    }
 }

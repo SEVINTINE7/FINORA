@@ -23,7 +23,7 @@ import lk.finora.app.data.repo.TransactionRepository;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
 import okhttp3.Call;
 
-final class DashboardHighlights {
+public final class DashboardHighlights {
     final Section<InsightsRepository.Score> score = new Section<>();
     final Section<List<BudgetDto>> budgets = new Section<>();
     final Section<List<CategoryDto>> categories = new Section<>();
@@ -81,7 +81,8 @@ final class DashboardHighlights {
                 .limit(3).collect(java.util.stream.Collectors.toList());
     }
 
-    static GoalDto focus(List<GoalDto> rows) {
+    /** The active goal with the nearest target date (no date last), oldest id first; also marked on Goals (D68). */
+    public static GoalDto focus(List<GoalDto> rows) {
         return rows.stream().filter(goal -> "ACTIVE".equals(goal.status()))
                 .min(Comparator.comparing(GoalDto::targetDate, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparingLong(GoalDto::id)).orElse(null);

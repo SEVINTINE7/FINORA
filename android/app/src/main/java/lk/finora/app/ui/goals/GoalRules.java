@@ -63,12 +63,45 @@ final class GoalRules {
         }
     }
 
+    /** Ink for the status chip text and icon; the chip always carries a word and an icon too (T64.2). */
     static int statusColor(String status) {
         switch (status) {
             case "DONE": return R.color.finora_green;
             case "CANCELLED": return R.color.finora_muted;
             default: return R.color.finora_ink;
         }
+    }
+
+    static int statusFill(String status) {
+        switch (status) {
+            case "DONE": return R.color.finora_success_surface;
+            default: return R.color.finora_neutral_surface;
+        }
+    }
+
+    static int statusIcon(String status) {
+        switch (status) {
+            case "DONE": return R.drawable.finora_ic_check;
+            case "CANCELLED": return R.drawable.finora_ic_pause;
+            default: return R.drawable.finora_ic_clock;
+        }
+    }
+
+    /** Bar colour: green while saving or reached, grey once cancelled. */
+    static int statusBar(String status) {
+        return "CANCELLED".equals(status) ? R.color.finora_chart_5 : R.color.finora_green;
+    }
+
+    /**
+     * D68 hint on the goal form: the amount still to save divided by the whole months between today and the target
+     * date, rounded up to the cent so the plan reaches the target. Null when there is nothing to save, no date, or
+     * less than one whole month left.
+     */
+    static BigDecimal monthlyNeed(BigDecimal toGo, LocalDate today, LocalDate target) {
+        if (toGo == null || target == null || toGo.signum() <= 0) return null;
+        long months = java.time.Period.between(today, target).toTotalMonths();
+        if (months < 1) return null;
+        return toGo.divide(BigDecimal.valueOf(months), 2, java.math.RoundingMode.UP);
     }
 
     static String plain(BigDecimal value) {

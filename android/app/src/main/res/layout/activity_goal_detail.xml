@@ -1,150 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T64.2/D65 Goal detail: progress ring card with Focus and status, to-go and date tiles, add money saved,
+     money saved so far, then Cancel/Resume and Delete. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/goal_scroll"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:importantForAutofill="noExcludeDescendants"
         android:orientation="vertical"
-        android:padding="@dimen/finora_outer_margin">
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingTop="4dp"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:paddingBottom="24dp">
 
-        <TextView
-            android:id="@+id/goal_name"
-            style="@style/FinoraText.Heading"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <ProgressBar
-            android:id="@+id/goal_progress"
-            style="?android:attr/progressBarStyleHorizontal"
+            <TextView
+                android:id="@+id/goal_name"
+                style="@style/FinoraText.Greeting"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:tag="@string/finora_heading_tag" />
+
+            <ImageButton
+                android:id="@+id/goal_edit"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/goal_edit"
+                android:src="@drawable/finora_ic_edit"
+                android:tooltipText="@string/goal_edit"
+                app:tint="@color/finora_ink" />
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/goal_hero"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:max="100" />
+            android:layout_marginTop="12dp"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/finora_hero"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
 
-        <TextView
-            android:id="@+id/goal_details"
-            style="@style/FinoraText.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s" />
-
-        <TextView
-            android:id="@+id/goal_status"
-            style="@style/FinoraText.Label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_l" />
-
-        <TextView
-            android:id="@+id/goal_add_heading"
-            style="@style/FinoraText.Label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/goal_add_contribution" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/FinoraField.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            app:prefixText="@string/form_rupees_prefix">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/contribution_amount"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/bill_amount"
-                android:importantForAutofill="no"
-                android:inputType="numberDecimal"
-                android:minHeight="@dimen/finora_touch" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:baselineAligned="false"
+                android:gravity="center_vertical"
+                android:importantForAccessibility="noHideDescendants"
+                android:orientation="horizontal"
+                android:padding="20dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/FinoraField.Outlined"
+                <FrameLayout
+                    android:layout_width="104dp"
+                    android:layout_height="104dp">
+
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/goal_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:max="100"
+                        app:indicatorColor="@color/finora_mint"
+                        app:indicatorSize="100dp"
+                        app:trackColor="@color/finora_hero_tile"
+                        app:trackCornerRadius="5dp"
+                        app:trackThickness="10dp" />
+
+                    <TextView
+                        android:id="@+id/goal_percent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textColor="@color/finora_hero_ink"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:chipSpacingHorizontal="6dp"
+                        app:chipSpacingVertical="4dp">
+
+                        <TextView
+                            android:id="@+id/goal_focus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/finora_badge"
+                            android:backgroundTint="@color/finora_mint"
+                            android:drawablePadding="3dp"
+                            android:gravity="center_vertical"
+                            android:minHeight="24dp"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="8dp"
+                            android:text="@string/goal_focus"
+                            android:textColor="@color/finora_navy"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:visibility="gone"
+                            app:drawableStartCompat="@drawable/finora_ic_star"
+                            app:drawableTint="@color/finora_navy" />
+
+                        <TextView
+                            android:id="@+id/goal_status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/finora_badge"
+                            android:drawablePadding="4dp"
+                            android:gravity="center_vertical"
+                            android:minHeight="24dp"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="8dp"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/goal_saved_label"
+                        android:textColor="@color/finora_hero_muted"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/goal_saved"
+                        style="@style/FinoraText.Hero"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autoSizeMaxTextSize="26sp"
+                        android:autoSizeMinTextSize="16sp"
+                        android:autoSizeTextType="uniform"
+                        android:maxLines="1" />
+
+                    <TextView
+                        android:id="@+id/goal_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/finora_hero_ink"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/contribution_date"
+            android:layout_marginTop="12dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/goal_to_go_tile"
+                style="@style/Widget.Finora.Card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:focusable="true"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="noHideDescendants"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        style="@style/FinoraText.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/goal_still_to_save"
+                        android:textColor="@color/finora_muted" />
+
+                    <TextView
+                        android:id="@+id/goal_to_go"
+                        style="@style/FinoraText.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/goal_date_tile"
+                style="@style/Widget.Finora.Card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:focusable="true"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="noHideDescendants"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        style="@style/FinoraText.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/goal_target_date"
+                        android:textColor="@color/finora_muted" />
+
+                    <TextView
+                        android:id="@+id/goal_date_value"
+                        style="@style/FinoraText.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Finora.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="@dimen/finora_group_radius">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/goal_contribution_date"
-                android:importantForAutofill="no"
-                android:inputType="date"
-                android:minHeight="@dimen/finora_touch" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical"
+                android:padding="14dp">
 
-        <Button
-            android:id="@+id/contribution_add"
-            style="@style/FinoraButton.Primary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_l"
-            android:text="@string/goal_add" />
+                <TextView
+                    android:id="@+id/goal_add_heading"
+                    style="@style/FinoraText.Section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/goal_add_contribution"
+                    android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/goal_history_heading"
-            style="@style/FinoraText.Label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/goal_contributions" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:baselineAligned="false"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/FinoraField.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:layout_weight="1"
+                        app:placeholderText="@string/form_amount_placeholder"
+                        app:prefixText="@string/form_rupees_prefix">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/contribution_amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/goal_contribution_amount"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
+                            android:minHeight="@dimen/finora_touch" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/contribution_date"
+                        style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:maxWidth="150dp"
+                        android:minHeight="56dp"
+                        android:saveEnabled="false"
+                        android:textColor="@color/finora_ink"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/finora_ic_calendar"
+                        app:iconPadding="6dp"
+                        app:iconTint="@color/finora_muted"
+                        app:strokeColor="@color/finora_outline" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/contribution_date_error"
+                    style="@style/Finora.FormError" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/contribution_add"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="48dp"
+                    android:text="@string/goal_add"
+                    app:cornerRadius="24dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            style="@style/Finora.SectionHeader"
+            android:layout_marginTop="12dp"
+            android:baselineAligned="true">
+
+            <TextView
+                android:id="@+id/goal_history_heading"
+                style="@style/FinoraText.Section"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/goal_contributions"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/goal_history_count"
+                style="@style/FinoraText.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/finora_muted" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/goal_no_contributions"
             style="@style/FinoraText.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/goal_no_contributions" />
+            android:text="@string/goal_no_contributions"
+            android:textColor="@color/finora_muted"
+            android:visibility="gone" />
 
-        <LinearLayout
-            android:id="@+id/records_rows"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/goal_history_card"
+            style="@style/Widget.Finora.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_l"
-            android:orientation="vertical" />
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/finora_group_radius">
+
+            <LinearLayout
+                android:id="@+id/records_rows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/records_status"
             style="@style/FinoraText.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:accessibilityLiveRegion="polite" />
+            android:layout_marginTop="12dp"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/records_retry"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/records_retry" />
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="@string/records_retry"
+            android:visibility="gone" />
 
-        <Button
-            android:id="@+id/goal_edit"
-            style="@style/FinoraButton.Secondary"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/goal_edit" />
+            android:layout_marginTop="20dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            tools:ignore="ButtonStyle">
 
-        <Button
-            android:id="@+id/goal_cancel"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/goal_cancel" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/goal_cancel"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:text="@string/goal_cancel"
+                android:textColor="@color/finora_ink"
+                app:strokeColor="@color/finora_outline" />
 
-        <Button
-            android:id="@+id/goal_delete"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/goal_delete" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/goal_delete"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:text="@string/goal_delete"
+                android:textColor="@color/finora_error"
+                app:strokeColor="@color/finora_error" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

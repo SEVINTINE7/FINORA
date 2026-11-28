@@ -18,6 +18,10 @@ public final class GoalFormViewModel extends ViewModel {
     String name = "";
     String target = "";
     String targetDate = "";
+    /** D68 toggle: true for "By a date". A new goal starts with no deadline. */
+    boolean hasDeadline;
+    /** Already saved toward the goal being edited; zero for a new goal (monthly hint only). */
+    BigDecimal savedSoFar = BigDecimal.ZERO;
     private boolean cancelled;
 
     void load(long goalId) {
@@ -30,6 +34,8 @@ public final class GoalFormViewModel extends ViewModel {
                 name = goal.name();
                 target = goal.targetAmount().setScale(2).toPlainString();
                 targetDate = goal.targetDate() == null ? "" : goal.targetDate();
+                hasDeadline = goal.targetDate() != null;
+                savedSoFar = goal.saved();
                 cancelled = "CANCELLED".equals(goal.status());
                 ready = true;
             }, false);
@@ -59,6 +65,8 @@ public final class GoalFormViewModel extends ViewModel {
         name = "";
         target = "";
         targetDate = "";
+        hasDeadline = false;
+        savedSoFar = BigDecimal.ZERO;
         ready = false;
     }
 

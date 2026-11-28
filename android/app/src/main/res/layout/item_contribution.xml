@@ -1,22 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T64.2/D65 one amount saved toward a goal: divider, icon, date, amount and a remove button. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/finora_space_s"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/contribution_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="14dp"
+        android:background="@color/finora_card_line" />
+
+    <LinearLayout
+        android:id="@+id/contribution_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingEnd="4dp">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/finora_circle"
+            android:backgroundTint="@color/finora_success_surface"
+            android:importantForAccessibility="no"
+            android:padding="8dp"
+            android:src="@drawable/finora_ic_add"
+            app:tint="@color/finora_green" />
 
         <TextView
             android:id="@+id/record_name"
-            android:gravity="end"
             style="@style/FinoraText.Body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:importantForAccessibility="no"
+            android:textColor="@color/finora_muted" />
 
-        <Button
-            android:id="@+id/record_remove"
-            style="@style/FinoraButton.Secondary"
+        <TextView
+            android:id="@+id/record_amount"
+            style="@style/FinoraText.RowTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/records_remove" />
+            android:layout_marginStart="8dp"
+            android:importantForAccessibility="no" />
+
+        <ImageButton
+            android:id="@+id/record_remove"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/records_remove"
+            android:src="@drawable/finora_ic_delete"
+            app:tint="@color/finora_muted" />
+    </LinearLayout>
 </LinearLayout>

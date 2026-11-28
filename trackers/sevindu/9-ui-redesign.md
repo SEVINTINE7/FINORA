@@ -51,13 +51,16 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 ### T64 · Goals and planning tools · `UX-04`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/goals/`, `and:ui/planning/`, `res:layout/`
 - [x] T64.1 Mockups of Goal list, Goal detail, Goal form and Planning (daily guide + simulator) approved by Sevindu on 2026-11-28 (design canvas row "T64 · Goals and planning"; D68)
-- [ ] T64.2 Goal list (progress cards, focus-goal marker), Goal detail (contributions list) and Goal form
+- [x] T64.2 Goal list (progress cards, focus-goal marker), Goal detail (contributions list) and Goal form
 - [ ] T64.3 Planning screen: daily guide card and simulator inputs/results
 - [ ] T64.4 Screenshots approved
 
 **Handoff notes:**
 - T64.1 (2026-11-28): 5 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 — GoalList, GoalDetail, GoalForm, PlanGuide, PlanSimulator (Planning is one activity, two modes). Approved with all four D68 changes: focus badge, date pickers + deadline toggle, More/Less adjustment + Simulate shortcut, monthly hint on Add goal.
 - Mockup numbers are synthetic and consistent (guide: Rs. 40,051.00 ÷ 10 days = Rs. 4,005.10; simulation: 25,000 − 5,000 + 2,000 = 22,000/month, 56,000 left → 3 months). Guide shows the confirmed-bills state; T64.3 still needs the unconfirmed/changed-bills states and every status message.
+- T64.2 (2026-11-28, verified on Pixel_8): `activity_goal_list.xml`, `item_goal.xml`, `activity_goal_detail.xml`, `item_contribution.xml`, `activity_goal_form.xml` rewritten; goal activities use ViewBinding. List: summary of goals in progress, focus first → in progress → reached → cancelled (`GoalListViewModel.ordered/totals`), Focus badge from the now-public `DashboardHighlights.focus`, Simulate opens `PlanningActivity.simulation`. Detail gets the focus id from the list (`GoalDetailActivity.FOCUS_ID`).
+- D68 in code: contribution and target dates are calendar buttons (ISO kept in the view models); form has No deadline / By a date (`goal_deadline`) and the monthly hint `GoalRules.monthlyNeed` (to go ÷ whole months, rounded up). Cards and hero still speak the old LKR `goal_progress_text` sentence; status chips have icon + word. New icons pause/clock/star/edit/trend; `goal_form_title`/`goal_open` removed.
+- Checks: 171 unit tests (+5), assemble, lint 4 = baseline; Form/Shell/Dashboard/Records fixture tests 4/4 on Pixel_8. Guarded `T64ScreenshotTest` (live dev API, synthetic demo goals seeded 28 Nov) passed in EN/SI × light/dark + EN 130% and checks order, focus badge, tap-to-open, calendar buttons, deadline toggle and the 14,142.86 hint. UserJourney/Evaluation goal steps updated (pick date via calendar, descriptions), not run. SI goal strings need native review.
 
 ### T65 · Accounts and categories · `UX-05`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/accounts/`, `and:ui/categories/`, `res:layout/`

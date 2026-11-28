@@ -20,6 +20,8 @@ public final class GoalDetailViewModel extends ViewModel {
     boolean deleted;
     /** Set after a contribution is saved so the screen can clear the amount field once. */
     boolean contributionAdded;
+    /** T64.2/D68 date chosen with the calendar for the next contribution (YYYY-MM-DD); today until changed. */
+    String contributionDate = GoalRules.today().toString();
 
     void load(long goalId) {
         id = goalId;
