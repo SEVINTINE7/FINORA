@@ -23,10 +23,12 @@ public final class PlanningViewModel extends ViewModel {
     PlanningRepository.SimulationInput simulationInput;
     GuideDraft guideDraft;
     SimulationDraft simulationDraft;
+    /** T64.3/D68: the next income date chosen on the calendar (ISO), or null to let the API estimate it. */
+    String incomeDate;
 
-    record GuideDraft(String funds, String savings, String arrears, String date) {}
+    record GuideDraft(String funds, String savings, String arrears) {}
     record CutDraft(int category, String amount) {}
-    record SimulationDraft(int goal, String baseline, String adjustment, List<CutDraft> cuts) {}
+    record SimulationDraft(int goal, String baseline, String adjustment, boolean less, List<CutDraft> cuts) {}
 
     void loadChoices() {
         if (choicesLoaded || work.busy() || !work.isCurrent()) return;
@@ -76,6 +78,7 @@ public final class PlanningViewModel extends ViewModel {
     private void clear() {
         simulationInput = null;
         guideDraft = null;
+        incomeDate = null;
         simulationDraft = null;
         guideInput = null;
         guide = null;

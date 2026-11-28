@@ -67,6 +67,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
+import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -1406,9 +1407,11 @@ public class UserJourneyTest {
             typeFixture(onView(withHint(R.string.planning_funds)), "55000.00");
             typeFixture(onView(withHint(R.string.planning_savings)), "5000.00");
             typeFixture(onView(withHint(R.string.planning_arrears)), "3000.00");
-            typeFixture(onView(withHint(R.string.planning_income_date)), today.plusDays(10).toString());
+            // D68: the next income date comes from the calendar, which opens at tomorrow (one spending day).
+            clickId(R.id.planning_income_date);
+            onView(withId(com.google.android.material.R.id.confirm_button)).inRoot(isDialog()).perform(activateControl());
             clickText(R.string.planning_calculate);
-            await(By.textContains(app.getString(R.string.planning_tracked, "0.00", 0)));
+            await(By.descContains(app.getString(R.string.planning_tracked, "0.00", 0)));
             device.setOrientationLeft();
             awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
             onView(withHint(R.string.planning_funds)).check(matches(withText("55000.00")));
@@ -1416,7 +1419,7 @@ public class UserJourneyTest {
             awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
             clickText(R.string.planning_confirm_bills);
             onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(activateControl());
-            await(By.textContains(app.getString(R.string.planning_allowance, "4700.00", 10)));
+            await(By.descContains(app.getString(R.string.planning_allowance, "47000.00", 1)));
             pressBack();
             awaitActivity(MainActivity.class);
 
@@ -1436,18 +1439,20 @@ public class UserJourneyTest {
             clickText(R.string.planning_simulator);
             awaitText("Synthetic emergency reserve");
             typeFixture(onView(withHint(R.string.planning_baseline)), "25000.00");
-            typeFixture(onView(withHint(R.string.planning_adjustment)), "-5000.00");
+            clickId(R.id.planning_less);
+            typeFixture(onView(withHint(R.string.planning_adjustment)), "5000.00");
             clickText(R.string.planning_calculate);
-            await(By.textContains(app.getString(R.string.planning_monthly, "20000.00")));
-            await(By.textContains(app.getString(R.string.planning_finish,
+            await(By.descContains(app.getString(R.string.planning_monthly, "20000.00")));
+            await(By.descContains(app.getString(R.string.planning_finish,
                     java.time.YearMonth.from(today).plusMonths(6).atEndOfMonth().toString(), 6)));
             device.setOrientationLeft();
             awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
-            onView(withHint(R.string.planning_adjustment)).check(matches(withText("-5000.00")));
+            onView(withHint(R.string.planning_adjustment)).check(matches(withText("5000.00")));
+            onView(withId(R.id.planning_less)).check(matches(isChecked()));
             device.setOrientationNatural();
             awaitActivity(lk.finora.app.ui.planning.PlanningActivity.class);
-            await(By.textContains(app.getString(R.string.planning_monthly, "20000.00")));
-            typeFixture(onView(withHint(R.string.planning_adjustment)), "-25000.00");
+            await(By.descContains(app.getString(R.string.planning_monthly, "20000.00")));
+            typeFixture(onView(withHint(R.string.planning_adjustment)), "25000.00");
             clickText(R.string.planning_calculate);
             await(By.textContains(app.getString(R.string.planning_no_capacity)));
             pressBack();
@@ -1493,7 +1498,8 @@ public class UserJourneyTest {
             }); var planning = ActivityScenario.<PlanningActivity>launch(PlanningActivity.simulation(app))) {
                 awaitText("Synthetic planning reserve");
                 typeFixture(onView(withHint(R.string.planning_baseline)), "25000.00");
-                typeFixture(onView(withHint(R.string.planning_adjustment)), "-5000.00");
+                clickId(R.id.planning_less);
+                typeFixture(onView(withHint(R.string.planning_adjustment)), "5000.00");
                 clickText(R.string.planning_add_cut);
                 onView(withContentDescription(R.string.planning_category))
                         .perform(selectSpinnerItem("Food"));
@@ -1514,11 +1520,12 @@ public class UserJourneyTest {
                     } while (!recreated.get() && SystemClock.elapsedRealtime() < deadline);
                     assertTrue("Rotation must recreate the landscape screen", recreated.get());
                     onView(withHint(R.string.planning_baseline)).check(matches(allOf(withText("25000.00"), not(isEnabled()))));
-                    onView(withHint(R.string.planning_adjustment)).check(matches(allOf(withText("-5000.00"), not(isEnabled()))));
+                    onView(withHint(R.string.planning_adjustment)).check(matches(allOf(withText("5000.00"), not(isEnabled()))));
+                    onView(withId(R.id.planning_less)).check(matches(allOf(isChecked(), not(isEnabled()))));
                     onView(withContentDescription(R.string.planning_goal)).check(matches(not(isEnabled())));
                     onView(withContentDescription(R.string.planning_category)).check(matches(not(isEnabled())));
                     onView(withHint(R.string.planning_reduction)).check(matches(allOf(withText("1500.00"), not(isEnabled()))));
-                    onView(withText(R.string.planning_remove_cut)).check(matches(not(isEnabled())));
+                    onView(withContentDescription(R.string.planning_remove_cut)).check(matches(not(isEnabled())));
                     onView(withText(R.string.planning_add_cut)).check(matches(not(isEnabled())));
                     onView(withText(R.string.planning_calculate)).check(matches(not(isEnabled())));
                     assertFalse(completed.get());
@@ -1539,9 +1546,9 @@ public class UserJourneyTest {
                 assertTrue(completed.get());
                 onView(withHint(R.string.planning_reduction)).check(matches(isEnabled()));
                 onView(withContentDescription(R.string.planning_category)).check(matches(isEnabled()));
-                onView(withText(R.string.planning_remove_cut)).check(matches(isEnabled()));
+                onView(withContentDescription(R.string.planning_remove_cut)).check(matches(isEnabled()));
                 device.setOrientationNatural();
-                await(By.textContains(app.getString(R.string.planning_monthly, "21500.00")));
+                await(By.descContains(app.getString(R.string.planning_monthly, "21500.00")));
             }
         } finally {
             release.countDown();
