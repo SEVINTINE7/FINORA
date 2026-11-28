@@ -31,7 +31,7 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
     private static final String RETURN_FOCUS = "returnFocus";
     private static final String ROUTE_RETURNED = "routeReturned";
     private static final long TALKBACK_WINDOW_SETTLE_MS = 500;
-    private final Map<Integer, Button> focusRoutes = new HashMap<>();
+    private final Map<Integer, View> focusRoutes = new HashMap<>();
     private int returnFocus;
     private boolean routeReturned;
     private Runnable pendingFocusRestore;
@@ -122,7 +122,7 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
         });
     }
 
-    protected final void bindFocusReturningRoute(Button button, int routeId, Class<?> screen) {
+    protected final void bindFocusReturningRoute(View button, int routeId, Class<?> screen) {
         focusRoutes.put(routeId, button);
         button.setOnClickListener(view -> {
             returnFocus = routeId;
@@ -163,7 +163,7 @@ public abstract class ProtectedHomeActivity extends SecureActivity {
     @android.annotation.SuppressLint("AccessibilityFocus")
     private void restoreRouteFocus() {
         if (!routeReturned || !hasWindowFocus() || isFinishing()) return;
-        Button route = focusRoutes.get(returnFocus);
+        View route = focusRoutes.get(returnFocus);
         routeReturned = false;
         returnFocus = 0;
         AccessibilityManager accessibility = getSystemService(AccessibilityManager.class);

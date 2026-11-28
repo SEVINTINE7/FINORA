@@ -115,4 +115,11 @@
     <color name="finora_warn_fill">#FDF0D5</color>
     <color name="finora_warn_ink">#7A4B00</color>
     <color name="finora_bar_over">#982C30</color>
+    <!-- T68: hairline between rows in a grouped card, starting after the 40dp row icon. -->
+    <style name="Finora.RowLine" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginStart">68dp</item>
+        <item name="android:background">@color/finora_card_line</item>
+    </style>
 </resources>

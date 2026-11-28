@@ -33,7 +33,10 @@ import lk.finora.app.ui.help.FaqActivity;
 import lk.finora.app.ui.history.HistoryActivity;
 import lk.finora.app.ui.insights.InsightsActivity;
 import lk.finora.app.ui.planning.PlanningActivity;
+import lk.finora.app.databinding.PanelMoreBinding;
+import lk.finora.app.ui.settings.ProfileViewModel;
 import lk.finora.app.ui.settings.SettingsActivity;
+import lk.finora.app.ui.settings.SettingsRows;
 import lk.finora.app.ui.transactions.TransactionFormActivity;
 import lk.finora.app.ui.transactions.TransactionListPanel;
 import lk.finora.app.ui.transactions.TransactionViewModel;
@@ -46,6 +49,7 @@ public final class MainActivity extends ProtectedHomeActivity {
             R.drawable.finora_nav_plan, R.drawable.finora_nav_insights, R.drawable.finora_nav_more};
     private int destination;
     private DashboardViewModel dashboard;
+    private ProfileViewModel profile;
     private TransactionListPanel records;
     private BottomNavigationView navigation;
     private View language;
@@ -57,14 +61,7 @@ public final class MainActivity extends ProtectedHomeActivity {
 
     @Override
     protected void addNavigation(LinearLayout layout, TextView title, Bundle state) {
-        LinearLayout moreActions = new LinearLayout(this);
-        moreActions.setOrientation(LinearLayout.VERTICAL);
-        addMoreAction(moreActions, R.string.account_list_title, AccountListActivity.class);
-        addMoreAction(moreActions, R.string.category_list_title, CategoryListActivity.class);
-        addMoreAction(moreActions, R.string.settings_title, SettingsActivity.class);
-        addFocusableRoute(moreActions, R.string.history_title, HistoryActivity.class);
-        addFocusableRoute(moreActions, R.string.finance_help, FaqActivity.class);
-        addFocusableRoute(moreActions, R.string.support_tickets, lk.finora.app.ui.support.SupportActivity.class);
+        View moreActions = bindMore();
         LinearLayout planActions = new LinearLayout(this);
         planActions.setOrientation(LinearLayout.VERTICAL);
         addMoreAction(planActions, R.string.budget_list_title, BudgetListActivity.class);
@@ -97,11 +94,9 @@ public final class MainActivity extends ProtectedHomeActivity {
         tabs.setOrientation(LinearLayout.VERTICAL);
         tabs.setPadding(margin, margin / 2, margin, margin);
         actions.addView(tabs);
-        for (LinearLayout section : new LinearLayout[]{moreActions, planActions, insightActions}) {
+        for (View section : new View[]{moreActions, planActions, insightActions}) {
             tabs.addView(section);
         }
-        if (language != null) moreActions.addView(language, new LinearLayout.LayoutParams(-1, -2));
-        if (logout != null) moreActions.addView(logout, new LinearLayout.LayoutParams(-1, -2));
 
         FrameLayout stack = new FrameLayout(this);
         stack.addView(home, new FrameLayout.LayoutParams(-1, -1));
@@ -158,6 +153,7 @@ public final class MainActivity extends ProtectedHomeActivity {
             planActions.setVisibility(tab == R.string.plan_tab ? View.VISIBLE : View.GONE);
             insightActions.setVisibility(tab == R.string.insights_tab ? View.VISIBLE : View.GONE);
             addTransaction.setVisibility(panel ? View.VISIBLE : View.GONE);
+            if (tab == R.string.more_tab && former != destination) profile.load();
             if (destination == 0 && former > 0) dashboard.refresh();
             if (tab == R.string.records_tab && former != destination) records.show();
             return true;
@@ -187,9 +183,67 @@ public final class MainActivity extends ProtectedHomeActivity {
     @Override protected void onResume() {
         super.onResume();
         if (dashboard != null && destination == 0) dashboard.refresh();
+        // A name or email changed in Settings shows on the card when the More tab is visible again.
+        if (profile != null && destination == LABELS.length - 1 && resumedOnce) profile.load();
         // Rows added from the form or edited elsewhere appear when returning to the Records tab.
         if (records != null && destination == 1 && resumedOnce) records.show();
         resumedOnce = true;
+    }
+
+    /** T68.2/D72 More tab: profile card and grouped rows; Language and Sign out reuse the shell's controls. */
+    private View bindMore() {
+        profile = new ViewModelProvider(this).get(ProfileViewModel.class);
+        var more = PanelMoreBinding.inflate(getLayoutInflater());
+        View card = more.moreProfile.getRoot();
+        card.findViewById(R.id.profile_chevron).setVisibility(View.VISIBLE);
+        card.setOnClickListener(view -> startActivity(new Intent(this, SettingsActivity.class)));
+        for (TextView heading : new TextView[]{more.moreMoneyHeading, more.moreReportsHeading,
+                more.moreHelpHeading, more.moreAccountHeading}) {
+            androidx.core.view.ViewCompat.setAccessibilityHeading(heading, true);
+        }
+        SettingsRows.bind(more.moreAccounts.getRoot(), R.drawable.finora_ic_bank, R.string.account_list_title,
+                R.string.more_accounts_text, SettingsRows.Tone.ACCENT);
+        SettingsRows.bind(more.moreCategories.getRoot(), R.drawable.finora_ic_cat_other,
+                R.string.category_list_title, R.string.more_categories_text, SettingsRows.Tone.ACCENT);
+        SettingsRows.bind(more.moreHistory.getRoot(), R.drawable.finora_ic_clock, R.string.history_title,
+                R.string.more_history_text, SettingsRows.Tone.ACCENT);
+        SettingsRows.bind(more.moreHelp.getRoot(), R.drawable.finora_ic_info, R.string.finance_help,
+                R.string.more_help_text, SettingsRows.Tone.NEUTRAL);
+        SettingsRows.bind(more.moreSupport.getRoot(), R.drawable.finora_ic_mail, R.string.support_tickets,
+                R.string.more_support_text, SettingsRows.Tone.NEUTRAL);
+        SettingsRows.bind(more.moreSettings.getRoot(), R.drawable.finora_ic_settings, R.string.settings_title,
+                R.string.more_settings_text, SettingsRows.Tone.NEUTRAL);
+        SettingsRows.bind(more.moreLanguage.getRoot(), R.drawable.finora_ic_language, R.string.language_selector,
+                0, SettingsRows.Tone.NEUTRAL);
+        SettingsRows.bind(more.moreSignOut.getRoot(), R.drawable.finora_ic_sign_out, R.string.sign_out,
+                0, SettingsRows.Tone.DANGER);
+        open(more.moreAccounts.getRoot(), AccountListActivity.class);
+        open(more.moreCategories.getRoot(), CategoryListActivity.class);
+        open(more.moreSettings.getRoot(), SettingsActivity.class);
+        bindFocusReturningRoute(more.moreHistory.getRoot(), R.string.history_title, HistoryActivity.class);
+        bindFocusReturningRoute(more.moreHelp.getRoot(), R.string.finance_help, FaqActivity.class);
+        bindFocusReturningRoute(more.moreSupport.getRoot(), R.string.support_tickets,
+                lk.finora.app.ui.support.SupportActivity.class);
+        // The shell built the language picker and sign-out button (placeAccountControls); the rows trigger them.
+        View languageRow = more.moreLanguage.getRoot();
+        languageRow.setOnClickListener(view -> { if (language != null) language.performClick(); });
+        more.moreSignOut.getRoot().setOnClickListener(view -> { if (logout != null) logout.performClick(); });
+        var languageState = new ViewModelProvider(this).get(lk.finora.app.util.LocaleHelper.ProfileLanguage.class);
+        languageState.state().observe(this, selection -> {
+            SettingsRows.subtitle(languageRow, getString(selection.busy ? R.string.language_syncing
+                    : "SI".equals(selection.language) ? R.string.language_sinhala : R.string.language_english));
+            SettingsRows.enable(languageRow, !selection.busy);
+        });
+        profile.work.changes.observe(this, ignored -> {
+            SettingsRows.profile(card, profile.details);
+            card.setContentDescription(getString(R.string.profile_open_settings,
+                    ((TextView) card.findViewById(R.id.profile_name)).getText()));
+        });
+        return more.getRoot();
+    }
+
+    private void open(View row, Class<?> screen) {
+        row.setOnClickListener(view -> startActivity(new Intent(this, screen)));
     }
 
     private void addMoreAction(LinearLayout actions, int label, Class<?> screen) {

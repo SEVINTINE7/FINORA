@@ -2,7 +2,6 @@ package lk.finora.app.ui.settings;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,11 +26,12 @@ import lk.finora.app.ui.auth.ProfileLanguageButton;
 import lk.finora.app.ui.auth.SessionNavigation;
 
 /**
- * Account settings for a USER (T07.5): language (applies at once, saved via PATCH /me, D60), withdraw consent,
- * and the entries to data download and deletion.
+ * Account settings for a USER (T07.5, T68/D72): profile card with Edit profile and Change password, language
+ * (applies at once, saved via PATCH /me, D60), alerts, withdraw consent, and data download and deletion.
  */
 public final class SettingsActivity extends SecureActivity {
     private SettingsViewModel model;
+    private ProfileViewModel profile;
     private HomeViewModel session;
     private Session entry;
     private AlertDialog sensitiveDialog;
@@ -60,16 +60,24 @@ public final class SettingsActivity extends SecureActivity {
         if (!AccountListActivity.verify(this, model.work)) return;
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
         var binding = ActivitySettingsBinding.inflate(getLayoutInflater());
+        // T68: View rows replace the old buttons; IDs used by tests stay the same.
         setContentView(binding.getRoot());
-        for (int heading : new int[]{R.id.settings_heading, R.id.settings_language_heading,
-                R.id.settings_privacy_heading}) {
+        for (int heading : new int[]{R.id.settings_heading, R.id.settings_profile_heading,
+                R.id.settings_language_heading, R.id.settings_privacy_heading}) {
             ViewCompat.setAccessibilityHeading(findViewById(heading), true);
         }
-        ((FrameLayout) findViewById(R.id.settings_language))
-                .addView(ProfileLanguageButton.create(this, entry, session::signingOut));
+        bindProfile();
+        ProfileLanguageButton.bindToggle(this, entry, session::signingOut, findViewById(R.id.settings_language),
+                R.id.settings_language_en, R.id.settings_language_si, findViewById(R.id.settings_language_status));
         bindAlerts();
+        SettingsRows.bind(findViewById(R.id.settings_export), R.drawable.finora_ic_import,
+                R.string.settings_export_data, R.string.settings_export_text, SettingsRows.Tone.ACCENT);
+        SettingsRows.bind(findViewById(R.id.settings_withdraw), R.drawable.finora_ic_shield,
+                R.string.settings_withdraw, R.string.settings_withdraw_info, SettingsRows.Tone.NEUTRAL);
+        SettingsRows.bind(findViewById(R.id.settings_delete), R.drawable.finora_ic_delete,
+                R.string.settings_delete, R.string.settings_delete_text, SettingsRows.Tone.DANGER);
         findViewById(R.id.settings_withdraw).setOnClickListener(view -> confirmWithdraw());
-        var export = binding.settingsExport;
+        var export = findViewById(R.id.settings_export);
         export.setOnClickListener(view -> {
             if (!AccountListActivity.verify(this, model.work) || model.work.busy()
                     || model.awaitingExportDestination) return;
@@ -82,6 +90,22 @@ public final class SettingsActivity extends SecureActivity {
         });
         model.work.changes.observe(this, ignored -> render());
         model.alertWork.changes.observe(this, ignored -> render());
+    }
+
+    /** T68.2/D72: profile card plus Edit profile and Change password (their API calls are planned in T74). */
+    private void bindProfile() {
+        profile = new ViewModelProvider(this).get(ProfileViewModel.class);
+        View card = findViewById(R.id.settings_profile_card);
+        SettingsRows.bind(findViewById(R.id.settings_edit_profile), R.drawable.finora_ic_person,
+                R.string.settings_edit_profile, R.string.settings_edit_profile_text, SettingsRows.Tone.ACCENT);
+        SettingsRows.bind(findViewById(R.id.settings_change_password), R.drawable.finora_ic_lock,
+                R.string.settings_change_password, R.string.settings_change_password_text, SettingsRows.Tone.ACCENT);
+        findViewById(R.id.settings_edit_profile).setOnClickListener(view ->
+                startActivity(new android.content.Intent(this, EditProfileActivity.class)));
+        findViewById(R.id.settings_change_password).setOnClickListener(view ->
+                startActivity(new android.content.Intent(this, ChangePasswordActivity.class)));
+        card.setFocusable(true);
+        profile.work.changes.observe(this, ignored -> SettingsRows.profile(card, profile.details));
     }
 
     /** T34.5: three alert switches and the Android 13+ notification permission. */
@@ -136,6 +160,7 @@ public final class SettingsActivity extends SecureActivity {
 
     private void renderNotifications() {
         int visibility = AlertNotifications.allowed(this) ? View.GONE : View.VISIBLE;
+        findViewById(R.id.settings_notifications).setVisibility(visibility);
         findViewById(R.id.settings_notifications_status).setVisibility(visibility);
         findViewById(R.id.settings_notifications_allow).setVisibility(visibility);
     }
@@ -144,6 +169,7 @@ public final class SettingsActivity extends SecureActivity {
         super.onResume();
         if (model != null && !model.withdrawn && !model.deleted && !session.signingOut()) {
             AccountListActivity.verify(this, model.work);
+            if (profile != null) profile.load();
             if (findViewById(R.id.settings_notifications_allow) != null) {
                 renderNotifications();
                 model.loadAlerts();
@@ -206,8 +232,9 @@ public final class SettingsActivity extends SecureActivity {
         }
         if (!AccountListActivity.verify(this, model.work)) return;
         boolean busy = model.work.busy();
-        findViewById(R.id.settings_withdraw).setEnabled(!busy);
-        findViewById(R.id.settings_delete).setEnabled(!busy);
+        SettingsRows.enable(findViewById(R.id.settings_withdraw), !busy);
+        SettingsRows.enable(findViewById(R.id.settings_delete), !busy);
+        SettingsRows.enable(findViewById(R.id.settings_export), !busy);
         renderAlerts();
         TextView status = findViewById(R.id.records_status);
         int message = busy ? R.string.records_loading : model.work.error != 0 ? model.work.error

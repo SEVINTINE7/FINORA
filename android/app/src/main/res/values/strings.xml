@@ -173,7 +173,6 @@
     <string name="settings_withdraw">Withdraw consent</string>
     <string name="settings_withdraw_confirm">Withdraw your consent and sign out on all devices?</string>
     <string name="settings_withdraw_action">Withdraw</string>
-    <string name="settings_delete_info">You can ask FINORA to delete all of your data.</string>
     <string name="settings_delete">Delete my data</string>
     <string name="bill_list_title">Bills</string>
     <string name="bill_summary">This month: LKR %1$s in bills · LKR %2$s paid · LKR %3$s still to pay</string>
@@ -704,4 +703,51 @@
         <item quantity="other">Import %1$d selected rows</item>
     </plurals>
     <string name="csv_header_format" translatable="false">date,type,amount,category,account,merchant,note</string>
+    <!-- T68.2/D72 More tab, Settings, Edit profile, Change password -->
+    <string name="more_money_setup">Money setup</string>
+    <string name="more_reports">Reports</string>
+    <string name="more_help_group">Help</string>
+    <string name="more_account">Account</string>
+    <string name="more_accounts_text">Bank, cash and card accounts</string>
+    <string name="more_categories_text">Group your spending and income</string>
+    <string name="more_history_text">Scores and totals from past months</string>
+    <string name="more_help_text">Answers to common questions</string>
+    <string name="more_support_text">Ask the FINORA team for help</string>
+    <string name="more_settings_text">Profile, alerts, privacy and data</string>
+    <string name="profile_unknown">Your profile</string>
+    <string name="profile_open_settings">%1$s. Open settings</string>
+    <string name="settings_profile">Profile</string>
+    <string name="settings_edit_profile">Edit profile</string>
+    <string name="settings_edit_profile_text">Change your name and email address</string>
+    <string name="settings_change_password">Change password</string>
+    <string name="settings_change_password_text">Enter your current password, then a new one</string>
+    <string name="settings_language_info">Changes at once and is saved to your account. Connect to the internet to save it.</string>
+    <string name="settings_export_text">Save a copy of your FINORA data as a file on this phone.</string>
+    <string name="settings_delete_text">Permanently delete your account and its data. You confirm with your password.</string>
+    <string name="settings_privacy_note">FINORA never asks for bank logins. Only you can see your records.</string>
+    <string name="profile_email">Email address</string>
+    <string name="profile_email_help">To change it, FINORA sends a code to the new address.</string>
+    <string name="password_current">Current password</string>
+    <string name="profile_password_help">Needed to change your email address.</string>
+    <string name="profile_password_needed">Enter your current password to change your email.</string>
+    <string name="profile_save">Save changes</string>
+    <string name="profile_code">Code from the email</string>
+    <string name="profile_code_help">We sent a 6-digit code to %1$s. Enter it to finish changing your email.</string>
+    <string name="profile_confirm">Confirm email</string>
+    <string name="profile_code_invalid">Enter the 6-digit code.</string>
+    <string name="profile_saved">Profile saved.</string>
+    <string name="profile_email_changed">Email address changed.</string>
+    <string name="profile_unchanged">Nothing to save.</string>
+    <string name="profile_not_available">This change is not available yet. Try again later.</string>
+    <string name="profile_wrong_password">The current password is wrong.</string>
+    <string name="profile_email_taken">That email address is already used by another account.</string>
+    <string name="profile_code_wrong">That code is wrong or has expired. Try again, or leave this page and change the email again.</string>
+    <string name="profile_too_many">Too many tries. Wait a few minutes and try again.</string>
+    <string name="password_new">New password</string>
+    <string name="password_repeat">Repeat new password</string>
+    <string name="password_current_needed">Enter your current password.</string>
+    <string name="password_same">Choose a password different from the current one.</string>
+    <string name="password_mismatch">The new passwords do not match.</string>
+    <string name="password_changed">Password changed. Sign in again with your new password.</string>
+    <string name="password_signout_note">Changing your password signs you out on every device.</string>
 </resources>

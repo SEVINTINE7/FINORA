@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T68.2/D72 More tab: profile card, then grouped rows (Money setup, Reports, Help, Account). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/more_panel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="16dp">
+
+    <include
+        android:id="@+id/more_profile"
+        layout="@layout/view_profile_card" />
+
+    <TextView
+        android:id="@+id/more_money_heading"
+        style="@style/FinoraText.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:text="@string/more_money_setup" />
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Finora.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <include
+                android:id="@+id/more_accounts"
+                layout="@layout/item_import_link" />
+            <View style="@style/Finora.RowLine" />
+            <include
+                android:id="@+id/more_categories"
+                layout="@layout/item_import_link" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/more_reports_heading"
+        style="@style/FinoraText.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:text="@string/more_reports" />
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Finora.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <include
+            android:id="@+id/more_history"
+            layout="@layout/item_import_link" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/more_help_heading"
+        style="@style/FinoraText.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:text="@string/more_help_group" />
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Finora.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <include
+                android:id="@+id/more_help"
+                layout="@layout/item_import_link" />
+            <View style="@style/Finora.RowLine" />
+            <include
+                android:id="@+id/more_support"
+                layout="@layout/item_import_link" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/more_account_heading"
+        style="@style/FinoraText.Label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:text="@string/more_account" />
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Finora.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <include
+                android:id="@+id/more_settings"
+                layout="@layout/item_import_link" />
+            <View style="@style/Finora.RowLine" />
+            <include
+                android:id="@+id/more_language"
+                layout="@layout/item_import_link" />
+            <View style="@style/Finora.RowLine" />
+            <include
+                android:id="@+id/more_sign_out"
+                layout="@layout/item_import_link" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

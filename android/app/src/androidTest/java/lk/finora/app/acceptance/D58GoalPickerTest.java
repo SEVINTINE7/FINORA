@@ -177,7 +177,7 @@ public class D58GoalPickerTest {
     private static void signOut() {
         // T62: user sign-out lives in the More tab.
         tab(R.string.more_tab);
-        activate(withText(R.string.sign_out));
+        activate(SettingsRowMatchers.control(R.string.sign_out));
     }
 
     private static void tab(int label) {

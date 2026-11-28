@@ -130,7 +130,7 @@ public class EvaluationJourneysTest {
 
     private static void signOut() {
         tab(R.string.more_tab);
-        activate(withText(R.string.sign_out));
+        activate(SettingsRowMatchers.control(R.string.sign_out));
     }
 
     private static void tab(int label) {

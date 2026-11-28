@@ -43,6 +43,8 @@
         <activity android:name=".ui.advice.AdviceActivity" android:exported="false" />
         <activity android:name=".ui.register.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.settings.EditProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.settings.ChangePasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.admin.AdminHomeActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminDirectoryActivity" android:exported="false" />
         <activity android:name=".ui.support.FormatSampleActivity" android:exported="false" />

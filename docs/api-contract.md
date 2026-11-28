@@ -238,3 +238,15 @@ Password sign-in for a withdrawn active USER returns `200` with `{restrictedToke
 - The FCM message is data-only `{type}`. It holds no amounts, names, merchants or text; the app shows a fixed message per type in the user's language.
 - Push needs `FIREBASE_CREDENTIALS` (path to the service-account JSON). Without it events are recorded but nothing is pushed.
 - The T35 export adds `profile.alert_budget/alert_bill/alert_goal` and the `alertEvents` family (`type, period, created_at, sent_at`). Push tokens stay excluded.
+
+## Profile, email and password changes — planned (T74, D72)
+The Android app already calls these endpoints (T68.2). Until T74 adds them the API answers 404 `NOT_FOUND`, and the app shows "This change is not available yet". The shapes below are fixed so the app does not change when T74 lands.
+
+| Method | Path | Role | Body | Response | Task |
+|---|---|---|---|---|---|
+| PUT | `/api/v1/me` | USER | `{fullName, language}` | Exists (T07). Edit profile uses it for the name and sends the saved language back unchanged. | T07/T68 |
+| POST | `/api/v1/me/password` | USER | `{currentPassword, newPassword}` (new password: D09 rules, 8–72 chars, a letter and a digit, different from the current one) | `204`; revokes every refresh token of the user, including this device, so the app signs out · 400 `INVALID_CREDENTIALS` (wrong current password, same as `DELETE /me`) · 400 `VALIDATION_ERROR` · 429 `TOO_MANY_REQUESTS` after 5 wrong current passwords in 15 minutes. Passwords never appear in logs or audit events. | T74 |
+| POST | `/api/v1/me/email` | USER | `{newEmail, password}` | `202`; emails a 6-digit code to `newEmail`, valid 15 minutes, single use, at most 3 codes per hour · 400 `INVALID_CREDENTIALS` · 400 `VALIDATION_ERROR` · 409 `EMAIL_TAKEN` · 429 `TOO_MANY_REQUESTS` | T74 |
+| POST | `/api/v1/me/email/confirm` | USER | `{newEmail, code}` | `200` same as `GET /me` with the new email; the old address gets a notice of the change; sessions stay valid · 400 `INVALID_EMAIL_CODE` (wrong, expired, used or replaced; invalidated after 5 failed tries) · 409 `EMAIL_TAKEN` | T74 |
+
+New codes for the error table when T74 is built: 400 `INVALID_EMAIL_CODE`, 429 `TOO_MANY_REQUESTS`. Wrong passwords use 400, not 401, so the app does not treat them as an expired sign-in.

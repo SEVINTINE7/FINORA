@@ -117,13 +117,16 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 
 ### T68 · Settings, help and support · `UX-08`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/settings/`, `and:ui/help/`, `and:ui/support/SupportActivity`, `and:ui/main/` (More tab), `res:layout/`
-- [ ] T68.1 Mockups of More tab, Settings, Help (FAQ) and Support tickets approved by Sevindu
-- [ ] T68.2 More tab as a grouped list and Settings (profile card, Profile group with "Edit profile" and "Change password" rows shown disabled with "Available soon" until T74 (D72), language, alerts, data rights)
+- [x] T68.1 Mockups of More tab, Settings, Help (FAQ) and Support tickets approved by Sevindu
+- [x] T68.2 More tab as a grouped list and Settings (profile card, Profile group with working Edit profile and Change password screens that call the T74 endpoints (D72), language, alerts, data rights)
 - [ ] T68.3 Help (expandable FAQ) and Support (ticket list, ticket thread, new ticket as a full screen with topic tiles and no confirm dialog, D72)
 - [ ] T68.4 Screenshots approved
 
 **Handoff notes:**
-- T68.1 (2026-11-28): 6 artboards on https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v16): More tab, Settings, Help, Support requests, Request thread, New support request. Sevindu dropped the new-request confirm and asked for profile/password buttons (D72, new task T74). Waiting for final approval before T68.2.
+- T68.1 (2026-11-28): 6 artboards on https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v16): More tab, Settings, Help, Support requests, Request thread, New support request. Sevindu dropped the new-request confirm and asked for profile/password buttons (D72, new task T74). Approved by Sevindu on 2026-11-28.
+- T68.2 (2026-11-28): More tab = `res:layout/panel_more.xml` + `MainActivity.bindMore()` (rows reuse item_import_link via `ui/settings/SettingsRows`; Language/Sign out rows trigger the shell's controls). Settings rebuilt (ids kept, MaterialSwitch alerts, EN/SI toggle via `ProfileLanguageButton.bindToggle`). New `EditProfileActivity`/`ChangePasswordActivity` + `ProfileRules`; `MeRepository` has the planned T74 calls (contract in `docs/api-contract.md`).
+- Checks: 196 unit tests pass (new ProfileRulesTest, MeRepositoryTest), assemble OK, lint 4 = baseline (Gradle on the Android Studio JDK 25; JDK 17 crashes lint). Pixel_8 acceptance package: alert switches, export + delete, consent withdrawal pass; ShellNavigation passes without the API mapping (with it, its fake token is rejected — pre-existing). Tests click rows via `SettingsRowMatchers`.
+- `T68ScreenshotTest` (arg finoraT68Shots, registers a disposable user) captured EN light + SI dark. Sinhala strings need a native read; FAQ check expects 9 children (T68.3 must update it).
 
 ### T69 · Register and password reset · `UX-09`
 **Lead:** Sevindu · **Support:** Sahan (review; T61.4 owner) · **Depends on:** T62 · **Touches:** `and:ui/register/`, `and:ui/login/PasswordResetActivity`, `res:layout/`
@@ -169,10 +172,10 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 **Detail: outline** — expand before coding (exact fields, endpoints, error codes, tests) and show to Sevindu.
 
 New requirement from Sevindu on 2026-11-28 (D72): a signed-in USER cannot change their password, email or other profile details. `PATCH /api/v1/me` already accepts `fullName` and `language`, but the app only uses it for language, and there are no endpoints for email or password changes.
-- [ ] T74.1 Outline expanded and approved: fields, endpoints, validation, error JSON, which sessions are revoked, audit events
+- [ ] T74.1 Outline expanded and approved: fields, endpoints, validation, error JSON, which sessions are revoked, audit events (draft contract already in `docs/api-contract.md`, "planned (T74)" — the app calls exactly these shapes)
 - [ ] T74.2 API change password: current password + new password (same rules as Register), wrong current password → 400 without saying which part failed, rate-limited, other refresh tokens revoked, no password in logs; tests
 - [ ] T74.3 API change email: password confirmation + code emailed to the new address (reuses the T61 mail sender), `CONFLICT` if the email is taken, old address told of the change; tests
-- [ ] T74.4 Android Edit profile (name, email with code step) and Change password screens, `FLAG_SECURE`, inline errors, EN + SI strings; enable the T68 Settings rows
+- [x] T74.4 Android Edit profile (name, email with code step) and Change password screens, `FLAG_SECURE`, inline errors, EN + SI strings — built early in T68.2 against the planned contract (D72); recheck against the API once T74.2–T74.3 land
 - [ ] T74.5 `docs/api-contract.md` updated; unit + Espresso tests; screenshots approved
 
 **Handoff notes:**

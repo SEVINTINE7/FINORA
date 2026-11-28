@@ -2092,7 +2092,7 @@ public class UserJourneyTest {
     }
 
     private static void clickText(int label) {
-        onView(allOf(withText(label), isClickable())).perform(reveal(), activateControl());
+        onView(SettingsRowMatchers.control(label)).perform(reveal(), activateControl());
     }
 
     private static void clickId(int id) {
