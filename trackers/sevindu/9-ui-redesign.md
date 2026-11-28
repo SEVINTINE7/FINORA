@@ -102,12 +102,13 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 
 ### T67 · Import screens · `UX-07`
 **Lead:** Sevindu · **Support:** Sahan (review; SMS owner) · **Depends on:** T62 · **Touches:** `and:ui/sms/`, `and:ui/importer/`, `res:layout/`
-- [ ] T67.1 Mockups of SMS access, Paste SMS and CSV import approved by Sevindu
+- [x] T67.1 Mockups of SMS access, Paste SMS and CSV import approved by Sevindu
 - [ ] T67.2 SMS access (permission explanation) and Paste SMS (parsed-field confirmation rows); rule 1 unchanged: only confirmed amount/date/merchant/type leave the phone
 - [ ] T67.3 CSV import (file pick, preview table, confirm)
 - [ ] T67.4 Screenshots approved
 
 **Handoff notes:**
+- T67.1 (2026-11-28): 5 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v13): SMS access (first visit), SMS access after a scan, Paste SMS, Review SMS transactions (full-screen sheet), CSV import preview. Approved as D71; CSV problem rows show the API reason as sent.
 
 ### T68 · Settings, help and support · `UX-08`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/settings/`, `and:ui/help/`, `and:ui/support/SupportActivity`, `and:ui/main/` (More tab), `res:layout/`
