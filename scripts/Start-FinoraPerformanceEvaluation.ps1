@@ -23,6 +23,12 @@ if ($original -notmatch [regex]::Escape($frozenUuid)) {throw 'Frozen server iden
 if ((Get-FileHash -LiteralPath $jar).Hash -ine $ApiSha256 -or $ApiRevision -cnotmatch '^[a-f0-9]{40}$') {throw 'API executable provenance mismatch.'}
 git -C $repo diff --quiet $ApiRevision -- api/src/main api/pom.xml
 if ($LASTEXITCODE) {throw 'API production source differs from executable provenance.'}
+$adb=Join-Path $Sdk 'platform-tools/adb.exe'
+if ($Serial -cnotmatch '^[A-Za-z0-9]+$') { throw 'Invalid authorized handset serial.' }
+$psFields=@(& $adb -s $Serial shell ps -p 1 -o PID,CMDLINE)
+if ($LASTEXITCODE -or -not ($psFields -match '^\s*PID\s+CMDLINE\s*$')) {
+    throw 'Handset does not support the exact Perfetto process-identity check.'
+}
 $keys=Import-Clixml -LiteralPath (Join-Path $RetainedEvaluation 'connection.xml')
 foreach ($key in 'root','api','loader','worker') { if ($keys[$key] -isnot [SecureString]) {throw 'Protected evaluation credentials are unavailable.'} }
 $session=Join-Path ([IO.Path]::GetTempPath()) ('finora-t55-redesign-'+[guid]::NewGuid().ToString('N'))

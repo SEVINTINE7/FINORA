@@ -578,3 +578,20 @@ The cold samples forced a process stop before each instrumentation launch. The r
 The follow-up test matches the clickable navigation button and streams each timing status directly through instrumentation. The host runner waits for the foreground Perfetto capture to finish before retrieving it. The updated instrumentation built offline and the SQL replayed on retained traces. The post-run fixes still need handset requalification under a separately authorized session. The formal device classification, acceptance statistic, routes and cohort decision, T16/T38 closure, and independent review remain open. No two-second acceptance verdict was assigned.
 
 Android returned to Owner. The temporary user and candidate packages were removed, both Sahan QA packages remained, and the USB reverse, API, MySQL and session-started ADB listeners were removed or stopped. The isolated database copy and traces were retained locally as evidence. No provider traffic or participant data collection occurred.
+### Targeted warm follow-up and retained cold replay (28 November 2026)
+
+This additional HMD Crest session used the same application APK from the earlier D65–D71 run, SHA-256 `caf79c69163dbb87ada05853a6106eecd455615ebd5ee305431b49d6bdc32881`. The corrected instrumentation APK SHA-256 was `e8854ef5ffa9d36b992f423c74918a039ea13b563695eb9bed7e0fdd5e5c4b78`. Both installed bytes and the matching debug signer were verified. The PR #43 base added tracker changes only. Records retains 30 qualified warm observations from the same source and dataset. No additional Records or cold launch was run.
+
+| Warm route | Capture rehearsal | Full warm cohort |
+| --- | --- | --- |
+| Home | 3/3 displayed frames recovered at 138.375, 179.770 and 211.580 ms, listed in ascending order | Not started |
+| Insights | 3/3 displayed frames recovered at 211.349, 214.790 and 267.398 ms, listed in ascending order | Not started |
+| Plan to Budgets | ADB transport failed before instrumentation. No rehearsal action was recorded. | Not started |
+
+The automated gate stopped on the handset's unsupported `ps -o ARGS` field at trace finalization. The exact session-owned traces were recovered, replayed, and removed from the handset after capture. The [sanitized calibration rows](t55-performance/handset-targeted-warm-calibration.csv) include the Budget transport failure and unstarted slots. Rehearsals remain outside measured warm cohorts.
+
+The launcher now uses `PID,CMDLINE` to verify the exact Perfetto command. It preflights this field before any profile change, retains the ADB exit status, and reports incomplete cohorts as a failure. The device accepted the corrected field and the exact trace-owner match during recovery. The amended launcher still needs a connected end-to-end run for the three missing warm cohorts.
+
+The retained cold trace supplies five unique Android `system_server` `Start proc` operations, each after the previous Home presentation and before the next measured launch action. The [SQL](t55-performance/handset-cold-process-request.sql) joins each to its qualified displayed Home frame and [retains all five timings](t55-performance/handset-cold-process-request.csv). Process-start request to displayed Home had median **2,151.854 ms**, nearest-rank p95 **2,251.399 ms**, and maximum **2,251.399 ms**. This interval includes instrumentation startup. It does not establish kernel fork time or launcher-tap latency. The earlier activity-action statistic remains separately valid. No formal two-second verdict was assigned.
+
+The disposable V25 copy matched all eight canonical-owner counts and the 826-transaction fingerprint before and after the session. Read-back confirmed the temporary profile and candidate packages were absent, Owner and Sahan's two QA packages were preserved, and no session Perfetto, USB reverse, API, MySQL or ADB processes or mappings remained. The frozen database was untouched.

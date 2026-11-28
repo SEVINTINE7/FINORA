@@ -35,7 +35,7 @@ $metadata = [ordered]@{
     resolution=((Target shell wm size) -join '; ').Trim()
     memory=(@(Target shell head -n 1 /proc/meminfo) -join '').Trim()
     classification='HMD Crest; formal mid-range classification unapproved'
-    cohort='Provisional, five warm-ups and 30 warm attempts per route, five instrumented fresh-process Home attempts'
+    cohort='Targeted warm Home, Insights and Budgets; three trace checks, five warm-ups and 30 measured attempts per qualifying route'
 }
 $metadata | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $Evidence 'device.json')
 $cfg = @"
@@ -64,7 +64,7 @@ function Send-WorkerPassword {
         if ($LASTEXITCODE) { throw 'Synthetic credential could not be delivered to the test-only app.' }
     } finally { $plain = $null }
 }
-function Capture-Cohort([string]$name, [string]$route, [bool]$cold) {
+function Capture-Cohort([string]$name, [string]$route, [bool]$calibration) {
     Confirm-Profile
     $remote = "/data/misc/perfetto-traces/$prefix-$name.perfetto-trace"
     $path = Join-Path $Evidence "$name.perfetto-trace"
@@ -75,27 +75,22 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$cold) {
     try {
         Start-Sleep -Seconds 3
         if ($traceProcess.HasExited) { throw 'Perfetto exited before the first measurement.' }
-        $runs = if ($cold) { 1..5 } else { 1 }
-        foreach ($n in $runs) {
-            Confirm-Profile
-            $invocation = @('shell','am','instrument','--user',"$UserId",'-w','-r','-e','class',$suite,
-                '-e','finoraPerformancePilot','true','-e','finoraPerformanceHandset','true',
-                '-e','finoraBuildFingerprint',$fingerprint,'-e','finoraTestUserSerial',$UserSerial)
-            if ($cold) {
-                Target shell am force-stop --user $UserId $app | Out-Null
-                $invocation += @('-e','finoraFreshIndex',"$n")
-            } else {
-                Send-WorkerPassword
-                $invocation += @('-e','finoraTraceRoute',$route)
-            }
-            $testResult = @(& $AdbPath -s $Serial @invocation $runner)
-            $testResult | Set-Content -LiteralPath (Join-Path $Evidence "$name-test-$n.log")
-            foreach ($status in ($testResult -cmatch '^INSTRUMENTATION_STATUS: finoraTiming=')) { $timingStatus.Add($status) }
-        }
+        Confirm-Profile
+        $invocation = @('shell','am','instrument','--user',"$UserId",'-w','-r','-e','class',$suite,
+            '-e','finoraPerformancePilot','true','-e','finoraPerformanceHandset','true',
+            '-e','finoraBuildFingerprint',$fingerprint,'-e','finoraTestUserSerial',$UserSerial)
+        Send-WorkerPassword
+        $invocation += @('-e','finoraTraceRoute',$route)
+        if ($calibration) { $invocation += @('-e','finoraTraceCheck','true') }
+        $testResult = @(& $AdbPath -s $Serial @invocation $runner)
+        $testExit = $LASTEXITCODE
+        Set-Content -LiteralPath (Join-Path $Evidence "$name-test-1.log") -Value (@("ADB_EXIT=$testExit") + $testResult)
+        if ($testExit) { throw 'Instrumented transport failed before a complete test result.' }
+        foreach ($status in ($testResult -cmatch '^INSTRUMENTATION_STATUS: finoraTiming=')) { $timingStatus.Add($status) }
     } finally {
         if (!$traceProcess.HasExited) {
             $needle = '^\s*([1-9][0-9]*)\s+.*\bperfetto\b.*' + [regex]::Escape($remote) + '\s*$'
-            $traceOwners = @(Target shell ps -A -o PID,ARGS | ForEach-Object { if ($_ -cmatch $needle) { $Matches[1] } })
+            $traceOwners = @(Target shell ps -A -o PID,CMDLINE | ForEach-Object { if ($_ -cmatch $needle) { $Matches[1] } })
             if ($traceOwners.Count -eq 1) { Target shell kill -INT $traceOwners[0] | Out-Null }
             if (!$traceProcess.WaitForExit(30000)) { throw 'Perfetto did not finish flushing the session trace.' }
         }
@@ -108,7 +103,7 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$cold) {
     if ($LASTEXITCODE) { throw 'Displayed-frame qualification query failed.' }
     $traceRows | Set-Content -LiteralPath (Join-Path $Evidence "$name-traversals.csv")
     $frames = @($traceRows | ConvertFrom-Csv)
-    $logPattern = '(HOME|RECORDS|PLAN|INSIGHTS),(warmup|warm|fresh-process-launch),(\d+),(COMMITTED|FAILED|TIMED_OUT),(\d+),(\d+),(\d+)\s*$'
+    $logPattern = '(HOME|RECORDS|PLAN|INSIGHTS),(trace-check|warmup|warm),(\d+),(COMMITTED|FAILED|TIMED_OUT),(\d+),(\d+),(\d+)\s*$'
     $observed = @{}
     foreach ($line in $timingStatus) {
         if ($line -match $logPattern) {
@@ -117,7 +112,8 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$cold) {
             else { $observed[$key] = @($Matches[4],$Matches[5],$Matches[6],$Matches[7]) }
         }
     }
-    $cohorts = if ($cold) { @{'fresh-process-launch'=5} } else { [ordered]@{warmup=5;warm=30} }
+    $cohorts = if ($calibration) { @{'trace-check'=3} } else { [ordered]@{warmup=5;warm=30} }
+    $qualified = 0
     $sha=(Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant()
     foreach ($cohort in $cohorts.Keys) {
         for ($i=1;$i -le $cohorts[$cohort];$i++) {
@@ -127,19 +123,29 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$cold) {
             $outcome=if ($null -eq $event) {'UNRECORDED'} else {$event[0]}
             if ($null -eq $event) { $event = @($outcome,$null,$null,$null) }
             $render = $null
-            $coldStart = $null
             if ($outcome -eq 'COMMITTED' -and $frame.Count -eq 1 -and $frame[0].qualified_ms -cmatch '^\d+(?:\.\d+)?$') {
-                if ($cold -and $frame[0].process_to_display_ms -cmatch '^\d+(?:\.\d+)?$') { $coldStart = $frame[0].process_to_display_ms }
                 $render=$frame[0].qualified_ms
-                $outcome=if (!$cold -or $coldStart) {'QUALIFIED'} else {'UNQUALIFIED'}
+                $outcome='QUALIFIED'
+                $qualified++
             } elseif ($outcome -eq 'COMMITTED') {$outcome='UNQUALIFIED'}
             $rows.Add([pscustomobject]@{Route=$route;Cohort=$cohort;Attempt=$i;Outcome=$outcome;
                 ActionNs=$event[1];ReadyNs=$event[2];SubmissionNs=$event[3];PresentationNs=$frame[0].display_end_ns;
-                ActionToDisplayMs=$render;ProcessToDisplayMs=$coldStart;TraceSha256=$sha})
+                ActionToDisplayMs=$render;TraceSha256=$sha})
         }
     }
     $rows | Export-Csv -NoTypeInformation -LiteralPath (Join-Path $Evidence 'handset-measurements.csv')
-    Write-Host "$name completed; $($rows.Count) attempts recorded."
+    Write-Host "$name completed; $qualified displayed frames qualified."
+    if (!$calibration) { return ($qualified -eq 35) }
+    return ($qualified -ge 1 -and $timingStatus.Count -eq 3 -and @($frames | Select-Object -ExpandProperty sample -Unique).Count -eq 3)
 }
-foreach ($route in 'HOME','RECORDS','PLAN','INSIGHTS') { Capture-Cohort ($route.ToLowerInvariant()) $route $false }
-Capture-Cohort 'cold-home' 'HOME' $true
+$incomplete = [Collections.Generic.List[string]]::new()
+foreach ($route in 'HOME','INSIGHTS','PLAN') {
+    $name=$route.ToLowerInvariant()
+    if (!(Capture-Cohort "$name-calibration" $route $true)) {
+        Write-Warning "$route capture rehearsal did not qualify. Full cohort not started."
+        $incomplete.Add($route)
+    } elseif (!(Capture-Cohort $name $route $false)) {
+        $incomplete.Add($route)
+    }
+}
+if ($incomplete.Count) { throw ('Incomplete displayed cohorts: ' + ($incomplete -join ', ')) }
