@@ -1,7 +1,10 @@
 package lk.finora.app.ui.categories;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
 
@@ -19,6 +22,7 @@ public final class CategoryFormActivity extends SecureActivity {
     private EditText nameSi;
     private FormChoices kind;
     private FormChoices need;
+    private boolean editing;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -28,10 +32,21 @@ public final class CategoryFormActivity extends SecureActivity {
         setContentView(R.layout.activity_category_form);
         name = findViewById(R.id.form_name);
         nameSi = findViewById(R.id.category_name_si);
-        kind = AccountFormActivity.choices(this, R.id.form_kind, R.string.category_income, R.string.category_expense);
-        need = AccountFormActivity.choices(this, R.id.category_classification, R.string.category_unspecified,
-                R.string.category_need, R.string.category_want);
-        AccountFormActivity.watch(name, text -> model.name = text);
+        kind = AccountFormActivity.choices(this, R.id.form_kind, R.string.category_expense, R.string.category_income);
+        need = AccountFormActivity.choices(this, R.id.category_classification, R.string.category_need,
+                R.string.category_want, R.string.category_unspecified);
+        // T65.3/D69: both choices as tiles; the chosen tile shows a tick.
+        kind.setColumns(2);
+        need.setColumns(3);
+        kind.onSelectionChanged(this::preview);
+        need.onSelectionChanged(this::preview);
+        editing = getIntent().getLongExtra(AccountListActivity.ITEM_ID, 0) != 0;
+        TextView heading = findViewById(R.id.category_form_heading);
+        heading.setText(editing ? R.string.category_edit : R.string.category_add);
+        androidx.core.view.ViewCompat.setAccessibilityHeading(heading, true);
+        ((TextView) findViewById(R.id.category_type_note)).setText(editing
+                ? R.string.category_type_fixed : R.string.category_type_note);
+        AccountFormActivity.watch(name, text -> { model.name = text; preview(); });
         AccountFormActivity.watch(nameSi, text -> model.nameSi = text);
         findViewById(R.id.records_save).setOnClickListener(view -> save());
         findViewById(R.id.records_retry).setOnClickListener(view -> {
@@ -73,10 +88,34 @@ public final class CategoryFormActivity extends SecureActivity {
             filled = true;
         }
         boolean enabled = AccountFormActivity.formState(this, model.work, model.ready);
+        TextView status = findViewById(R.id.records_status);
+        status.setVisibility(status.getText().length() == 0 ? View.GONE : View.VISIBLE);
+        boolean retry = !model.work.busy() && (model.work.error != 0 || model.work.ambiguousCreate);
+        findViewById(R.id.records_retry).setVisibility(retry ? View.VISIBLE : View.GONE);
+        preview();
         name.setEnabled(enabled);
         nameSi.setEnabled(enabled);
         kind.setEnabled(enabled && model.id == 0);
         need.setEnabled(enabled);
+    }
+
+    /** Live preview of the row as the list will show it. */
+    private void preview() {
+        if (name == null || kind == null || need == null) return;
+        String text = name.getText().toString().trim();
+        int kindIndex = kind.getSelectedItemPosition();
+        int needIndex = need.getSelectedItemPosition();
+        boolean income = kindIndex >= 0 && "INCOME".equals(CategoryFormViewModel.KINDS[kindIndex]);
+        String needOrWant = needIndex < 0 ? null : CategoryFormViewModel.NEEDS[needIndex];
+        int kindLabel = income ? R.string.category_income : R.string.category_expense;
+        ((TextView) findViewById(R.id.category_preview_name)).setText(text);
+        ((TextView) findViewById(R.id.category_preview_kind)).setText(kindLabel);
+        ImageView icon = findViewById(R.id.category_preview_icon);
+        CategoryListAdapter.icon(this, icon, text, income);
+        CategoryListAdapter.needChip(this, findViewById(R.id.category_preview_need), needOrWant);
+        int needLabel = CategoryRules.needLabel(needOrWant);
+        findViewById(R.id.category_preview).setContentDescription(getString(R.string.category_preview) + ": "
+                + text + ", " + getString(kindLabel) + (needLabel == 0 ? "" : ", " + getString(needLabel)));
     }
 
     private void save() {

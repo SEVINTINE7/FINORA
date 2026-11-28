@@ -105,8 +105,17 @@ public final class FormChoices extends ChipGroup {
         for (int i = 0; i < getChildCount(); i++) {
             var chip = (Chip) getChildAt(i);
             Object icon = chip.getTag(R.id.form_kind);
-            if (chip.isChecked()) chip.setChipIconResource(R.drawable.finora_ic_tick);
-            else if (icon instanceof Integer resource) chip.setChipIconResource(resource);
+            if (chip.isChecked()) {
+                chip.setChipIconResource(R.drawable.finora_ic_tick);
+                chip.setChipIconVisible(true);
+                chip.setChipIconSize(getResources().getDisplayMetrics().density * 18);
+                chip.setChipIconTint(ColorStateList.valueOf(getContext().getColor(R.color.finora_navy)));
+            } else if (icon instanceof Integer resource) {
+                chip.setChipIconResource(resource);
+                chip.setChipIconTint(ColorStateList.valueOf(getContext().getColor(R.color.finora_muted)));
+            } else {
+                chip.setChipIconVisible(false);
+            }
             chip.setTypeface(null, chip.isChecked() ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         }
     }
@@ -114,7 +123,12 @@ public final class FormChoices extends ChipGroup {
     private void sizeColumns() {
         if (columns <= 0 || getWidth() == 0) return;
         int available = getWidth() - getPaddingStart() - getPaddingEnd();
-        int width = (available - getChipSpacingHorizontal() * (columns - 1)) / columns;
+        // Fewer tiles per row when a label (bold, with the tick) would not fit, e.g. long Sinhala words.
+        int needed = 0;
+        for (int i = 0; i < getChildCount(); i++) needed = Math.max(needed, tileWidth((Chip) getChildAt(i)));
+        int fit = columns;
+        while (fit > 1 && (available - getChipSpacingHorizontal() * (fit - 1)) / fit < needed) fit--;
+        int width = (available - getChipSpacingHorizontal() * (fit - 1)) / fit;
         boolean changed = false;
         for (int i = 0; i < getChildCount(); i++) {
             var params = getChildAt(i).getLayoutParams();
@@ -124,6 +138,15 @@ public final class FormChoices extends ChipGroup {
             }
         }
         if (changed) post(this::requestLayout);
+    }
+
+    private int tileWidth(Chip chip) {
+        var paint = new android.text.TextPaint(chip.getPaint());
+        paint.setTypeface(android.graphics.Typeface.create(paint.getTypeface(), android.graphics.Typeface.BOLD));
+        float icon = getResources().getDisplayMetrics().density * 18;
+        return (int) Math.ceil(paint.measureText(String.valueOf(chip.getText())) + chip.getChipStartPadding()
+                + chip.getIconStartPadding() + icon + chip.getIconEndPadding() + chip.getTextStartPadding()
+                + chip.getTextEndPadding() + chip.getChipEndPadding()) + 2;
     }
 
     public void onSelectionChanged(Runnable listener) {

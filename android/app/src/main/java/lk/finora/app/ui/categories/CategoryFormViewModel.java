@@ -19,12 +19,15 @@ public final class CategoryFormViewModel extends ViewModel {
     private String originalNameSi;
     int kind;
     int need;
-    private static final String[] KINDS = {"INCOME", "EXPENSE"};
-    private static final String[] NEEDS = {null, "NEED", "WANT"};
+    /** T65.3/D69: Expense first, as on the list. */
+    static final String[] KINDS = {"EXPENSE", "INCOME"};
+    /** T65.3/D69: Need, Want, Not set. */
+    static final String[] NEEDS = {"NEED", "WANT", null};
 
     void load(long recordId) {
         id = recordId;
         if (id == 0) {
+            need = 2;
             ready = true;
             work.changed();
         } else if (repository != null) {

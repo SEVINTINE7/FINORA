@@ -2,6 +2,7 @@ package lk.finora.app.ui.categories;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -9,20 +10,26 @@ import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import lk.finora.app.R;
+import lk.finora.app.databinding.ActivityCategoryListBinding;
 import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 
 public final class CategoryListActivity extends SecureActivity {
     private CategoryListViewModel model;
+    private ActivityCategoryListBinding view;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         model = new ViewModelProvider(this).get(CategoryListViewModel.class);
         if (!AccountListActivity.verify(this, model.work)) return;
         getWindow().setBackgroundDrawableResource(R.color.finora_surface);
-        setContentView(R.layout.activity_category_list);
-        findViewById(R.id.records_add).setOnClickListener(view -> open(0));
-        findViewById(R.id.records_retry).setOnClickListener(view -> model.load());
+        view = ActivityCategoryListBinding.inflate(getLayoutInflater());
+        setContentView(view.getRoot());
+        ViewCompat.setAccessibilityHeading(view.categoryHeading, true);
+        ViewCompat.setAccessibilityHeading(view.categoryExpenseHeading, true);
+        ViewCompat.setAccessibilityHeading(view.categoryIncomeHeading, true);
+        view.recordsAdd.setOnClickListener(ignored -> open(0));
+        view.recordsRetry.setOnClickListener(ignored -> model.load());
         model.work.changes.observe(this, ignored -> render());
     }
 
@@ -34,22 +41,23 @@ public final class CategoryListActivity extends SecureActivity {
     private void render() {
         if (!AccountListActivity.verify(this, model.work)) return;
         AccountListActivity.showListState(this, model.work, model.rows.isEmpty());
-        LinearLayout rows = findViewById(R.id.records_rows);
-        rows.removeAllViews();
-        addGroup(rows, "INCOME", R.string.category_income);
-        addGroup(rows, "EXPENSE", R.string.category_expense);
+        boolean failed = !model.work.busy() && model.work.error != 0;
+        view.recordsRetry.setVisibility(failed ? View.VISIBLE : View.GONE);
+        fill("EXPENSE", view.categoryExpenseHeader, view.categoryExpenseCount, view.categoryExpenseCard,
+                view.categoryExpenseRows);
+        fill("INCOME", view.categoryIncomeHeader, view.categoryIncomeCount, view.categoryIncomeCard,
+                view.categoryIncomeRows);
     }
 
-    private void addGroup(LinearLayout rows, String kind, int title) {
-        var group = CategoryListViewModel.group(model.rows, kind);
-        if (group.isEmpty()) return;
-        TextView heading = new TextView(this);
-        heading.setText(title);
-        heading.setTextAppearance(android.R.style.TextAppearance_Material_Title);
-        ViewCompat.setAccessibilityHeading(heading, true);
-        rows.addView(heading);
-        for (var item : group) {
-            rows.addView(CategoryListAdapter.row(this, rows, item,
+    private void fill(String kind, View header, TextView count, View card, LinearLayout rows) {
+        var items = CategoryRules.ordered(model.rows, kind);
+        header.setVisibility(items.isEmpty() ? View.GONE : View.VISIBLE);
+        card.setVisibility(items.isEmpty() ? View.GONE : View.VISIBLE);
+        count.setText(getResources().getQuantityString(R.plurals.category_count, items.size(), items.size()));
+        rows.removeAllViews();
+        for (int i = 0; i < items.size(); i++) {
+            var item = items.get(i);
+            rows.addView(CategoryListAdapter.row(this, rows, item, i == 0,
                     () -> { if (!item.isDefault()) open(item.id()); },
                     () -> AccountListActivity.confirm(this, model.work, R.string.category_remove_message,
                             () -> model.delete(item))));

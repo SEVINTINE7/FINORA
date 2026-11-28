@@ -35,12 +35,16 @@ import lk.finora.app.data.local.TokenStore;
 import lk.finora.app.ui.FormChoices;
 import lk.finora.app.ui.accounts.AccountFormActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
+import lk.finora.app.ui.categories.CategoryFormActivity;
+import lk.finora.app.ui.categories.CategoryListActivity;
 
 /**
  * T65 review run against a local dev API and a synthetic account (finoraShotEmail / finoraShotPassword) holding
  * the T65 demo accounts: Commercial Bank, Cash wallet, Debit card in use and "Old savings" archived. Checks the
  * In use / Archived sections, the archived chip without a remove button, tap-to-edit, the remove confirmation and
- * the two-column type tiles, and captures screenshots. Never runs by default.
+ * the two-column type tiles. T65.3: the custom "Gym" (Expense, Want, no Sinhala name) category is listed first
+ * in its group, defaults show a lock and no remove button, tapping Gym opens Edit with the type locked, and the
+ * Add form shows tiles and a live preview. Captures screenshots. Never runs by default.
  */
 @RunWith(AndroidJUnit4.class)
 public final class T65ScreenshotTest {
@@ -66,6 +70,7 @@ public final class T65ScreenshotTest {
         assertNotNull(out);
         try {
             accounts(out, tag, checks);
+            categories(out, tag, checks);
         } finally {
             var session = tokens.session();
             if (session != null) tokens.clear(session);
@@ -183,6 +188,131 @@ public final class T65ScreenshotTest {
                     assertEquals("Old savings", ((EditText) activity.findViewById(R.id.form_name)).getText().toString());
                     assertTrue(activity.findViewById(R.id.records_save).isEnabled());
                 }
+            });
+        }
+    }
+
+    private void categories(File out, String tag, boolean checks) throws Exception {
+        var instrumentation = InstrumentationRegistry.getInstrumentation();
+        var app = instrumentation.getTargetContext();
+        var device = UiDevice.getInstance(instrumentation);
+        var monitor = instrumentation.addMonitor(CategoryFormActivity.class.getName(), null, false);
+        try (var list = ActivityScenario.launch(CategoryListActivity.class)) {
+            T62ScreenshotTest.settle();
+            list.onActivity(activity -> T62ScreenshotTest.capture(activity, new File(out, tag + "-categories.png")));
+            if (checks) {
+                list.onActivity(activity -> {
+                    ViewGroup expense = activity.findViewById(R.id.category_expense_rows);
+                    View gym = expense.getChildAt(0);
+                    assertEquals("Gym", ((TextView) gym.findViewById(R.id.record_name)).getText().toString());
+                    assertEquals(View.VISIBLE, gym.findViewById(R.id.record_remove).getVisibility());
+                    assertEquals(View.GONE, gym.findViewById(R.id.category_lock).getVisibility());
+                    assertEquals(app.getString(R.string.category_want),
+                            ((TextView) gym.findViewById(R.id.category_need)).getText().toString());
+                    assertEquals(View.GONE, gym.findViewById(R.id.category_divider).getVisibility());
+                    View firstDefault = expense.getChildAt(1);
+                    assertEquals(View.GONE, firstDefault.findViewById(R.id.record_remove).getVisibility());
+                    assertEquals(View.VISIBLE, firstDefault.findViewById(R.id.category_lock).getVisibility());
+                    assertEquals(View.VISIBLE, firstDefault.findViewById(R.id.category_divider).getVisibility());
+                    assertTrue(!firstDefault.findViewById(R.id.category_open).isClickable());
+                    assertEquals(app.getString(R.string.category_default),
+                            String.valueOf(androidx.core.view.ViewCompat.getStateDescription(
+                                    firstDefault.findViewById(R.id.category_open))));
+                    String count = ((TextView) activity.findViewById(R.id.category_expense_count)).getText().toString();
+                    assertEquals(activity.getResources().getQuantityString(R.plurals.category_count,
+                            expense.getChildCount(), expense.getChildCount()), count);
+                    assertTrue(((ViewGroup) activity.findViewById(R.id.category_income_rows)).getChildCount() > 0);
+                    // Expense group comes before Income.
+                    assertTrue(activity.findViewById(R.id.category_expense_card).getTop()
+                            < activity.findViewById(R.id.category_income_card).getTop());
+                });
+                // Remove asks first; cancelling keeps Gym.
+                list.onActivity(activity -> ((ViewGroup) activity.findViewById(R.id.category_expense_rows)).getChildAt(0)
+                        .findViewById(R.id.record_remove).performClick());
+                var cancel = device.wait(Until.findObject(By.res("android:id/button2")), 5_000);
+                assertNotNull("Remove asks for confirmation", cancel);
+                cancel.click();
+                T62ScreenshotTest.settle();
+                list.onActivity(activity -> assertEquals("Gym", ((TextView) ((ViewGroup) activity
+                        .findViewById(R.id.category_expense_rows)).getChildAt(0).findViewById(R.id.record_name))
+                        .getText().toString()));
+            }
+            list.onActivity(activity -> ((ScrollView) activity.findViewById(R.id.category_scroll)).fullScroll(View.FOCUS_DOWN));
+            T62ScreenshotTest.settle();
+            list.onActivity(activity -> T62ScreenshotTest.capture(activity, new File(out, tag + "-categories-end.png")));
+            list.onActivity(activity -> ((ScrollView) activity.findViewById(R.id.category_scroll)).fullScroll(View.FOCUS_UP));
+            T62ScreenshotTest.settle();
+
+            list.onActivity(activity -> ((ViewGroup) activity.findViewById(R.id.category_expense_rows)).getChildAt(0)
+                    .findViewById(R.id.category_open).performClick());
+            var form = instrumentation.waitForMonitorWithTimeout(monitor, 10_000);
+            assertNotNull("Tapping your own category opens it", form);
+            T62ScreenshotTest.settle();
+            instrumentation.runOnMainSync(() -> {
+                if (checks) {
+                    assertEquals(app.getString(R.string.category_edit),
+                            ((TextView) form.findViewById(R.id.category_form_heading)).getText().toString());
+                    assertEquals("Gym", ((EditText) form.findViewById(R.id.form_name)).getText().toString());
+                    FormChoices kind = form.findViewById(R.id.form_kind);
+                    FormChoices need = form.findViewById(R.id.category_classification);
+                    assertEquals(0, kind.getSelectedItemPosition());
+                    assertTrue("Type is locked when editing", !kind.isEnabled());
+                    assertEquals(1, need.getSelectedItemPosition());
+                    assertEquals(app.getString(R.string.category_type_fixed),
+                            ((TextView) form.findViewById(R.id.category_type_note)).getText().toString());
+                    // Equal Need/Want/Not set tiles; fewer per row rather than cutting a label short.
+                    View a = need.getChildAt(0);
+                    View c = need.getChildAt(2);
+                    assertEquals(a.getWidth(), c.getWidth());
+                    for (FormChoices group : List.of(kind, need)) {
+                        for (int i = 0; i < group.getChildCount(); i++) {
+                            var tile = (TextView) group.getChildAt(i);
+                            assertEquals("Tile label fits: " + tile.getText(), 0, tile.getLayout().getEllipsisCount(0));
+                        }
+                    }
+                    assertEquals("Gym", ((TextView) form.findViewById(R.id.category_preview_name)).getText().toString());
+                    assertEquals(View.VISIBLE, form.findViewById(R.id.category_preview_need).getVisibility());
+                }
+                T62ScreenshotTest.capture(form, new File(out, tag + "-category-edit.png"));
+                form.finish();
+            });
+        } finally {
+            instrumentation.removeMonitor(monitor);
+        }
+
+        try (var add = ActivityScenario.launch(CategoryFormActivity.class)) {
+            T62ScreenshotTest.settle();
+            add.onActivity(activity -> {
+                if (checks) {
+                    assertEquals(app.getString(R.string.category_add),
+                            ((TextView) activity.findViewById(R.id.category_form_heading)).getText().toString());
+                    FormChoices kind = activity.findViewById(R.id.form_kind);
+                    FormChoices need = activity.findViewById(R.id.category_classification);
+                    assertTrue(kind.isEnabled());
+                    assertEquals(0, kind.getSelectedItemPosition());
+                    assertEquals("New categories start as Not set", 2, need.getSelectedItemPosition());
+                    assertEquals(View.GONE, activity.findViewById(R.id.records_retry).getVisibility());
+                }
+                // Live preview follows the name, type and need/want.
+                ((EditText) activity.findViewById(R.id.form_name)).setText("Transport");
+                ((FormChoices) activity.findViewById(R.id.category_classification)).setSelection(0);
+            });
+            T62ScreenshotTest.settle();
+            add.onActivity(activity -> {
+                if (checks) {
+                    assertEquals("Transport",
+                            ((TextView) activity.findViewById(R.id.category_preview_name)).getText().toString());
+                    assertEquals(app.getString(R.string.category_need),
+                            ((TextView) activity.findViewById(R.id.category_preview_need)).getText().toString());
+                }
+                T62ScreenshotTest.capture(activity, new File(out, tag + "-category-add.png"));
+                ((EditText) activity.findViewById(R.id.form_name)).setText("");
+                activity.findViewById(R.id.records_save).performClick();
+            });
+            T62ScreenshotTest.settle();
+            add.onActivity(activity -> {
+                if (checks) assertTrue("Empty name stays on the form", !activity.isFinishing());
+                T62ScreenshotTest.capture(activity, new File(out, tag + "-category-add-error.png"));
             });
         }
     }

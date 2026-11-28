@@ -59,7 +59,6 @@
     <string name="records_remove">Remove</string>
     <string name="records_edit">Edit</string>
     <string name="records_save">Save</string>
-    <string name="records_name">Name</string>
     <string name="records_loading">Please wait…</string>
     <string name="records_empty">Nothing to show yet.</string>
     <string name="records_uncertain">The save result is unknown. Check the list before trying to create this item again.</string>
@@ -86,14 +85,12 @@
     <string name="account_archived">Archived</string>
     <string name="account_remove_message">Remove this account? Accounts with transactions are archived.</string>
     <string name="category_list_title">Categories</string>
-    <string name="category_form_title">Category details</string>
-    <string name="category_kind">Category type</string>
+    <string name="category_kind">Type</string>
     <string name="category_income">Income</string>
     <string name="category_expense">Expense</string>
-    <string name="category_name_si">Sinhala name (optional)</string>
+    <string name="category_name_si">Name in Sinhala (optional)</string>
     <string name="category_name_si_invalid">Use up to 60 characters for the Sinhala name.</string>
-    <string name="category_classification">Classification</string>
-    <string name="category_unspecified">Unspecified</string>
+    <string name="category_unspecified">Not set</string>
     <string name="category_need">Need</string>
     <string name="category_want">Want</string>
     <string name="category_default">Default category · read-only</string>
@@ -587,4 +584,22 @@
     <string name="account_opening">Opening balance</string>
     <string name="account_opening_help">What this account held before your first record in FINORA. Enter 0.00 for a new account.</string>
     <string name="account_save">Save account</string>
+    <!-- T65.3/D65/D69 categories -->
+    <string name="category_intro">Default categories can’t be changed. Tap your own to edit.</string>
+    <plurals name="category_count">
+        <item quantity="one">%1$d category</item>
+        <item quantity="other">%1$d categories</item>
+    </plurals>
+    <string name="category_no_si">No Sinhala name</string>
+    <string name="category_add">Add category</string>
+    <string name="category_edit">Edit category</string>
+    <string name="category_type_note">The type can’t be changed after saving.</string>
+    <string name="category_type_fixed">The type can’t be changed.</string>
+    <string name="category_name_en">Name in English</string>
+    <string name="category_name_si_help">Shown when the app is in Sinhala.</string>
+    <string name="category_need_or_want">Need or want</string>
+    <string name="category_need_help">Needs are essentials such as rent and food; wants are extras. Insights and advice compare the two.</string>
+    <string name="category_preview">Preview</string>
+    <string name="category_icon_help">The icon comes from the name; new names use the tag icon.</string>
+    <string name="category_save">Save category</string>
 </resources>

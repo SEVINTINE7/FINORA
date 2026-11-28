@@ -59,7 +59,6 @@
     <string name="records_remove">ඉවත් කරන්න</string>
     <string name="records_edit">සංස්කරණය කරන්න</string>
     <string name="records_save">සුරකින්න</string>
-    <string name="records_name">නම</string>
     <string name="records_loading">කරුණාකර රැඳී සිටින්න…</string>
     <string name="records_empty">තවම පෙන්වීමට කිසිවක් නැත.</string>
     <string name="records_uncertain">සුරැකීමේ ප්‍රතිඵලය නොදනී. නැවත එක් කිරීමට පෙර ලැයිස්තුව පරීක්ෂා කරන්න.</string>
@@ -86,13 +85,11 @@
     <string name="account_archived">සංරක්ෂිතයි</string>
     <string name="account_remove_message">මෙම ගිණුම ඉවත් කරන්නද? ගනුදෙනු ඇති ගිණුම් සංරක්ෂණය වේ.</string>
     <string name="category_list_title">කාණ්ඩ</string>
-    <string name="category_form_title">කාණ්ඩ විස්තර</string>
-    <string name="category_kind">කාණ්ඩ වර්ගය</string>
+    <string name="category_kind">වර්ගය</string>
     <string name="category_income">ආදායම්</string>
     <string name="category_expense">වියදම්</string>
     <string name="category_name_si">සිංහල නම (අත්‍යවශ්‍ය නොවේ)</string>
     <string name="category_name_si_invalid">සිංහල නම සඳහා අක්ෂර 60ක් දක්වා භාවිත කරන්න.</string>
-    <string name="category_classification">වර්ගීකරණය</string>
     <string name="category_unspecified">සඳහන් කර නැත</string>
     <string name="category_need">අවශ්‍යතාව</string>
     <string name="category_want">අභිලාෂය</string>
@@ -586,4 +583,22 @@
     <string name="account_opening">ආරම්භක ශේෂය</string>
     <string name="account_opening_help">FINORA හි ඔබේ පළමු සටහනට පෙර මෙම ගිණුමේ තිබූ මුදල. නව ගිණුමක් නම් 0.00 යොදන්න.</string>
     <string name="account_save">ගිණුම සුරකින්න</string>
+    <!-- T65.3/D65/D69 categories -->
+    <string name="category_intro">පෙරනිමි කාණ්ඩ වෙනස් කළ නොහැක. සංස්කරණය කිරීමට ඔබේම කාණ්ඩයක් තට්ටු කරන්න.</string>
+    <plurals name="category_count">
+        <item quantity="one">කාණ්ඩ %1$d</item>
+        <item quantity="other">කාණ්ඩ %1$d</item>
+    </plurals>
+    <string name="category_no_si">සිංහල නමක් නැත</string>
+    <string name="category_add">කාණ්ඩයක් එක් කරන්න</string>
+    <string name="category_edit">කාණ්ඩය සංස්කරණය කරන්න</string>
+    <string name="category_type_note">සුරැකීමෙන් පසු වර්ගය වෙනස් කළ නොහැක.</string>
+    <string name="category_type_fixed">වර්ගය වෙනස් කළ නොහැක.</string>
+    <string name="category_name_en">ඉංග්‍රීසි නම</string>
+    <string name="category_name_si_help">යෙදුම සිංහලෙන් ඇති විට පෙන්වයි.</string>
+    <string name="category_need_or_want">අවශ්‍යතාවද අභිලාෂයද</string>
+    <string name="category_need_help">අවශ්‍යතා යනු කුලිය සහ ආහාර වැනි අත්‍යවශ්‍ය දේවල්ය; අභිලාෂ යනු අමතර දේවල්ය. අවබෝධ සහ උපදෙස් මේ දෙක සසඳයි.</string>
+    <string name="category_preview">පෙරදසුන</string>
+    <string name="category_icon_help">අයිකනය නමෙන් තීරණය වේ; නව නම් සඳහා ටැග් අයිකනය භාවිත වේ.</string>
+    <string name="category_save">කාණ්ඩය සුරකින්න</string>
 </resources>
