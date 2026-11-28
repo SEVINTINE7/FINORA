@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$Sdk,
-    [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9]+$')][string]$Serial,
+    [Parameter(Mandatory)][ValidatePattern('^(?:[A-Za-z0-9]+|emulator-5582)$')][string]$Serial,
     [Parameter(Mandatory)][string]$AppApk,
     [Parameter(Mandatory)][string]$TestApk,
     [Parameter(Mandatory)][string]$Evidence,
@@ -10,7 +10,8 @@ param(
     [string]$ResumeArtifacts,
     [switch]$OnlySmsPaste,
     [SecureString]$PerformanceWorkerPassword,
-    [string]$TraceProcessor
+    [string]$TraceProcessor,
+    [switch]$EmulatorPreflight
 )
 
 $ErrorActionPreference = 'Stop'
@@ -53,6 +54,7 @@ function Owned-Users {
     @(Users | ForEach-Object { if ($_ -match ('UserInfo\{(\d+):' + [regex]::Escape($profile) + ':')) { $Matches[1] } })
 }
 function Package-Paths {
+    if ($EmulatorPreflight) { return }
     foreach ($id in 'lk.finora.app.acceptance','lk.finora.app.acceptance.test') {
         Adb shell pm path --user 10 $id
     }
@@ -90,8 +92,17 @@ function Apk-Signer([string]$path) {
     $signers[0]
 }
 
-if ((Adb get-state) -cne 'device' -or ((Adb shell getprop ro.product.model) -join '').Trim() -cne 'HMD CREST' -or
-        ((Adb shell getprop ro.build.version.sdk) -join '').Trim() -cne '34') {
+if ($EmulatorPreflight) {
+    if (!$PerformanceWorkerPassword -or $Serial -cne 'emulator-5582' -or $env:ADB_SERVER_PORT -ne '5039' -or
+            (@(Adb emu avd name)[0]).Trim() -cne 'FINORA_T55_Evaluation' -or
+            ((Adb shell getprop ro.hardware) -join '').Trim() -notin 'ranchu','goldfish') {
+        throw 'Preflight requires the dedicated evaluation emulator.'
+    }
+} elseif ($Serial -like 'emulator-*') {
+    throw 'Explicit emulator preflight required.'
+}
+if ((Adb get-state) -cne 'device' -or (!$EmulatorPreflight -and ( ((Adb shell getprop ro.product.model) -join '').Trim() -cne 'HMD CREST' -or
+        ((Adb shell getprop ro.build.version.sdk) -join '').Trim() -cne '34'))) {
     throw 'Expected the authorized HMD Crest.'
 }
 $initialUsers = @(User-Ids)
@@ -108,8 +119,10 @@ if ($ResumeProfile) {
 }
 $reverse = @(Adb reverse --list | Where-Object { $_.Trim() } | Sort-Object)
 $paths = @(Package-Paths)
-if (($baseline -join ',') -cne '0,10' -or @(Users | Where-Object { $_ -match 'UserInfo\{10:FINORA-T10-QA:' }).Count -ne 1 -or
-        $paths.Count -ne 2 -or @($reverse -match '(^|\s)tcp:8080(\s|$)').Count) {
+if (($EmulatorPreflight -and ($baseline -join ',') -cne '0') -or
+        (!$EmulatorPreflight -and (($baseline -join ',') -cne '0,10' -or
+            @(Users | Where-Object { $_ -match 'UserInfo\{10:FINORA-T10-QA:' }).Count -ne 1 -or $paths.Count -ne 2)) -or
+        @($reverse -match '(^|\s)tcp:8080(\s|$)').Count) {
     throw 'Existing users, Sahan APK paths or USB mapping differ from the required baseline.'
 }
 foreach ($id in $baseline) {
@@ -143,6 +156,22 @@ try {
     }
     if ((Current-User) -cne $user) { Adb shell am switch-user $user | Out-Null }
     Wait-State { (Current-User) -ceq $user -and ((Adb shell am get-started-user-state $user) -join '').Trim() -ceq 'RUNNING_UNLOCKED' } 120 'Temporary Android user is not active and unlocked.'
+    if ($PerformanceWorkerPassword) {
+        Adb shell settings --user $user put system screen_off_timeout 900000 | Out-Null
+        if (((Adb shell settings --user $user get system screen_off_timeout) -join '').Trim() -cne '900000') {
+            throw 'The temporary test user screen timeout could not be verified.'
+        }
+    }
+    if ($EmulatorPreflight) {
+        # The read-only AVD can leave its keyguard over a freshly switched user.
+        Adb shell input keyevent KEYCODE_WAKEUP | Out-Null
+        Adb shell input keyevent KEYCODE_MENU | Out-Null
+        Adb shell wm dismiss-keyguard | Out-Null
+        Adb shell cmd statusbar collapse | Out-Null
+        Wait-State {
+            -not (@(Adb shell dumpsys window policy) -match '\bshowing=true\b')
+        } 15 'The dedicated emulator keyguard is still showing.'
+    }
     $dump = (Adb shell dumpsys user) -join [char]10
     $pattern = 'UserInfo\{' + $user + ':' + [regex]::Escape($profile) + ':[^}]+\}[^\r\n]*(?:\r?\n[ \t]*)?serialNo=(\d+)'
     $identities = [regex]::Matches($dump,$pattern)
@@ -167,7 +196,7 @@ try {
     Adb reverse --no-rebind tcp:8080 tcp:8080 | Out-Null
     $mapped = $true
     if ($PerformanceWorkerPassword) {
-        & (Join-Path $PSScriptRoot 'Invoke-FinoraPerformanceTrials.ps1') -AdbPath $adb -Serial $Serial -UserId ([int]$user) -UserSerial $userSerial -WorkerPassword $PerformanceWorkerPassword -Evidence $Evidence -TraceProcessor $TraceProcessor
+        & (Join-Path $PSScriptRoot 'Invoke-FinoraPerformanceTrials.ps1') -AdbPath $adb -Serial $Serial -UserId ([int]$user) -UserSerial $userSerial -WorkerPassword $PerformanceWorkerPassword -Evidence $Evidence -TraceProcessor $TraceProcessor -EmulatorPreflight:$EmulatorPreflight
         return
     }
     $suite = 'lk.finora.app.acceptance.UserJourneyTest'
@@ -248,7 +277,8 @@ try {
             foreach ($id in $baseline) {
                 if (@(Candidate-Packages $id -IncludeUninstalled).Count) { throw 'Candidate package remains on original user.' }
             }
-            Write-Host 'Owner, original users and Sahan APK paths verified.'
+            if ($EmulatorPreflight) { Write-Host 'Original emulator user and package baseline verified.' }
+            else { Write-Host 'Owner, original users and Sahan APK paths verified.' }
         } catch { $cleanup.Add('Android baseline verification') }
     }
     if ($cleanup.Count) { throw ('Handset cleanup unverified: ' + ($cleanup -join ', ')) }

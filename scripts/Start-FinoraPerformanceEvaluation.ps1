@@ -7,7 +7,8 @@ param(
  [Parameter(Mandatory)][string]$JavaHome,
  [Parameter(Mandatory)][string]$MySqlBin,
  [Parameter(Mandatory)][string]$Serial,
- [int]$DbPort=3360
+ [int]$DbPort=3360,
+ [switch]$EmulatorPreflight
 )
 $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot -Parent
@@ -24,7 +25,12 @@ if ((Get-FileHash -LiteralPath $jar).Hash -ine $ApiSha256 -or $ApiRevision -cnot
 git -C $repo diff --quiet $ApiRevision -- api/src/main api/pom.xml
 if ($LASTEXITCODE) {throw 'API production source differs from executable provenance.'}
 $adb=Join-Path $Sdk 'platform-tools/adb.exe'
-if ($Serial -cnotmatch '^[A-Za-z0-9]+$') { throw 'Invalid authorized handset serial.' }
+if ($EmulatorPreflight) {
+    if ($Serial -cne 'emulator-5582' -or $env:ADB_SERVER_PORT -ne '5039' -or
+        (@(& $adb -s $Serial emu avd name)[0]).Trim() -cne 'FINORA_T55_Evaluation') {
+        throw 'Preflight requires the dedicated evaluation AVD on private ADB.'
+    }
+} elseif ($Serial -cnotmatch '^[A-Za-z0-9]+$') { throw 'Invalid authorized handset serial.' }
 $psFields=@(& $adb -s $Serial shell ps -p 1 -o 'PID,CMDLINE')
 if ($LASTEXITCODE -or -not ($psFields -match '^\s*PID\s+CMDLINE\s*$')) {
     throw 'Handset does not support the exact Perfetto process-identity check.'
@@ -135,7 +141,7 @@ try {
     if(!$versions.Count -or $versions[-1] -ne '25'){throw 'Disposable schema did not reach candidate V25.'}
     $app=Join-Path $repo 'android/app/build/outputs/apk/v1/debug/app-v1-debug.apk'
     $test=Join-Path $repo 'android/app/build/outputs/apk/androidTest/v1/debug/app-v1-debug-androidTest.apk'
-    & (Join-Path $PSScriptRoot 'Invoke-FinoraHandsetJourneys.ps1') -Sdk $Sdk -Serial $Serial -AppApk $app -TestApk $test -Evidence $session -ApiPid $api.Id -PerformanceWorkerPassword $keys['worker'] -TraceProcessor (Join-Path $RetainedEvaluation 'execution41-trace-processor.exe')
+    & (Join-Path $PSScriptRoot 'Invoke-FinoraHandsetJourneys.ps1') -Sdk $Sdk -Serial $Serial -AppApk $app -TestApk $test -Evidence $session -ApiPid $api.Id -PerformanceWorkerPassword $keys['worker'] -TraceProcessor (Join-Path $RetainedEvaluation 'execution41-trace-processor.exe') -EmulatorPreflight:$EmulatorPreflight
 } finally {
     if($api -and !$api.HasExited){Stop-Process -InputObject $api}
     if($db -and !$db.HasExited){

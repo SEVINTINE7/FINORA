@@ -636,3 +636,44 @@ preserved FINORA-T10-QA and its installed packages, restored the reverse
 mapping baseline, and removed the recovered remote trace. The session-owned
 ADB, API and database listeners were gone. T55.2 remains open, including the
 formal device classification and measurement acceptance decision.
+
+## Launcher lifecycle qualification on the isolated emulator, 28 November 2026
+
+The build with `-PfinoraFinalHandset=true -PfinoraT55Capture=true` assembled
+the V1 debug app and its Android test APK using Android Studio JBR. The marker
+is limited to the opt-in debug package and observes the two expected Home
+balances in a natural pre-draw. It leaves the normal app and release code
+paths unchanged. The evaluation API reused the verified V25-compatible JAR.
+
+The dedicated `FINORA_T55_Evaluation` AVD ran read-only on Android API 37
+(1080×2400, approximately 4 GB RAM) with private ADB. The launcher injected
+a failure while the foreground capture was active. The guarded finalizer
+found the capture by its quoted `PID,CMDLINE` field list, interrupted the
+exact process, waited for it to flush, pulled the trace and verified remote
+removal. Subsequent routes ran. An earlier trial confirmed that insufficient
+Home and Budgets presentation matches blocked their corresponding full
+cohorts while independent routes continued.
+
+The final preflight exited successfully. Insights cleared the 3/3 rehearsal
+gate. The full capture retained all five warm-ups and 30 measured attempts
+without a reported trace loss. Of the measured attempts, 27 qualified and
+three remained unqualified. Of the warm-ups, three qualified and two remained
+unqualified. [Emulator warm rows](t55-performance/emulator-lifecycle-insights.csv).
+
+All five external launches followed `am force-stop` and Android confirmed
+`LaunchState: COLD`. The query uses the system-server process-start request
+as its start boundary. Five first app presentations and three usable Home
+presentations qualified. The other two usable outcomes remain unqualified.
+The first-app boundary can include empty or loading content. The usable
+boundary requires both synthetic financial balances in the traversal that
+matches a presented Home surface. The external launches used no
+instrumentation runner, though tracing and the debug-only marker were active.
+[Emulator cold rows](t55-performance/emulator-lifecycle-cold.csv).
+Cold trace SHA-256: `a69149ada4492c6725eb6a392f9fb6480516de995c28a2c5b4055be4e8661489`.
+
+The 826-transaction digest and eight fixture counts matched before and after.
+The emulator temporary user and reverse were removed, the original emulator
+user was restored, and the launcher, private ADB, API and disposable MySQL
+listeners stopped. This preflight was emulator-only. The previous
+30/30 Records handset cohort remains source-equivalent. Formal T55.2
+acceptance remains open.

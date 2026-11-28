@@ -1,12 +1,13 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$AdbPath,
-    [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9]+$')][string]$Serial,
+    [Parameter(Mandatory)][ValidatePattern('^(?:[A-Za-z0-9]+|emulator-5582)$')][string]$Serial,
     [Parameter(Mandatory)][ValidateRange(1,65535)][int]$UserId,
     [Parameter(Mandatory)][ValidatePattern('^[1-9][0-9]*$')][string]$UserSerial,
     [Parameter(Mandatory)][SecureString]$WorkerPassword,
     [Parameter(Mandatory)][string]$Evidence,
-    [Parameter(Mandatory)][string]$TraceProcessor
+    [Parameter(Mandatory)][string]$TraceProcessor,
+    [switch]$EmulatorPreflight
 )
 $ErrorActionPreference = 'Stop'
 $app = 'lk.finora.app.t57handset'
@@ -24,6 +25,11 @@ function Confirm-Profile {
     $users = @(Target shell pm list users | Where-Object { $_ -match ('UserInfo\{'+$UserId+':FINORA-T57-[a-f0-9]{8}:') })
     if ($active -cne [string]$UserId -or $users.Count -ne 1) { throw 'Performance profile ownership changed.' }
 }
+if ($EmulatorPreflight -ne ($Serial -ceq 'emulator-5582') -or
+    ($EmulatorPreflight -and ($env:ADB_SERVER_PORT -ne '5039' -or
+        (@(Target emu avd name)[0]).Trim() -cne 'FINORA_T55_Evaluation'))) {
+    throw 'Unexpected performance target.'
+}
 Confirm-Profile
 $fingerprint = ((Target shell getprop ro.build.fingerprint) -join '').Trim()
 if ($fingerprint -cnotmatch '^[A-Za-z0-9._/:+=,-]+$') { throw 'Invalid handset fingerprint.' }
@@ -34,20 +40,18 @@ $metadata = [ordered]@{
     board=((Target shell getprop ro.product.board) -join '').Trim()
     resolution=((Target shell wm size) -join '; ').Trim()
     memory=(@(Target shell head -n 1 /proc/meminfo) -join '').Trim()
-    classification='HMD Crest; formal mid-range classification unapproved'
-    cohort='Targeted warm Home, Insights and Budgets; three trace checks, five warm-ups and 30 measured attempts per qualifying route'
+    classification=if ($EmulatorPreflight) {'Dedicated emulator; lifecycle-only evidence'} else {'HMD Crest; formal mid-range classification unapproved'}
+    cohort=if ($EmulatorPreflight) {'Guarded recovery, Insights rehearsal and full capture, and five external cold launches'} else {'Targeted warm Home, Insights and Budgets; three trace checks, five warm-ups and 30 measured attempts per qualifying route'}
 }
 $metadata | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $Evidence 'device.json')
 $cfg = @"
 buffers { size_kb: 65536 fill_policy: RING_BUFFER }
 buffers { size_kb: 8192 fill_policy: RING_BUFFER }
-duration_ms: 300000
+duration_ms: 600000
 write_into_file: true
 file_write_period_ms: 1000
-max_file_size_bytes: 268435456
 data_sources { config { name: "linux.ftrace" target_buffer: 0 ftrace_config {
   ftrace_events: "ftrace/print"
-  ftrace_events: "sched/sched_process_fork"
   atrace_categories: "gfx" atrace_categories: "view" atrace_categories: "am"
   atrace_apps: "$app"
 } } }
@@ -72,10 +76,13 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$calibration, [swit
     $cfg | Set-Content -LiteralPath $configuration -Encoding utf8NoBOM
     $traceProcess = Start-Process $AdbPath -ArgumentList '-s',$Serial,'shell','-T','perfetto','--txt','-c','-','-o',$remote -PassThru -WindowStyle Hidden -RedirectStandardInput $configuration -RedirectStandardOutput (Join-Path $Evidence "$name-perfetto.log") -RedirectStandardError (Join-Path $Evidence "$name-perfetto-error.log")
     $timingStatus = [Collections.Generic.List[string]]::new()
+    $script:captureClean = $false
+    $executionFailure = $null
     try {
         Start-Sleep -Seconds 3
         if ($traceProcess.HasExited) { throw 'Perfetto exited before the first measurement.' }
         Confirm-Profile
+        if ($name -eq 'preflight-failure') { throw 'Injected emulator capture-body failure.' }
         if ($ExternalCold) {
             foreach ($attempt in 1..5) {
                 Confirm-Profile
@@ -83,21 +90,37 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$calibration, [swit
                 $launch = @(& $AdbPath -s $Serial shell am start -W --user $UserId -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n "$app/lk.finora.app.ui.login.LoginActivity")
                 $result = $LASTEXITCODE
                 Set-Content -LiteralPath (Join-Path $Evidence "external-cold-$attempt.log") -Value (@("ADB_EXIT=$result")+$launch)
+                if ($result -or !($launch -match '^Status: ok$') -or !($launch -match '^LaunchState: COLD$')) {
+                    $executionFailure = 'Android activity manager did not confirm every cold launch.'
+                }
                 Start-Sleep -Seconds 5
             }
         } else {
             $invocation = @('shell','am','instrument','--user',"$UserId",'-w','-r','-e','class',$suite,
-                '-e','finoraPerformancePilot','true','-e','finoraPerformanceHandset','true',
+                '-e','finoraPerformancePilot','true',
+                '-e',$(if ($EmulatorPreflight) {'finoraPerformanceEmulatorPreflight'} else {'finoraPerformanceHandset'}),'true',
                 '-e','finoraBuildFingerprint',$fingerprint,'-e','finoraTestUserSerial',$UserSerial)
             Send-WorkerPassword
             $invocation += @('-e','finoraTraceRoute',$route)
             if ($calibration) { $invocation += @('-e','finoraTraceCheck','true') }
-            $testResult = @(& $AdbPath -s $Serial @invocation $runner)
-            $testExit = $LASTEXITCODE
-            Set-Content -LiteralPath (Join-Path $Evidence "$name-test-1.log") -Value (@("ADB_EXIT=$testExit") + $testResult)
-            if ($testExit) { throw 'Instrumented transport failed before a complete test result.' }
+            $testLog = Join-Path $Evidence "$name-test-1.log"
+            $test = Start-Process $AdbPath -ArgumentList (@('-s',$Serial) + $invocation + $runner) -PassThru -WindowStyle Hidden `
+                -RedirectStandardOutput $testLog -RedirectStandardError (Join-Path $Evidence "$name-test-error.log")
+            if (!$test.WaitForExit(240000)) {
+                Confirm-Profile
+                Target shell am force-stop --user $UserId $app | Out-Null
+                if (!$test.WaitForExit(5000)) { Stop-Process -InputObject $test }
+                $executionFailure = 'Instrumented route exceeded its transport deadline.'
+            } elseif ($test.ExitCode -ne 0) {
+                $executionFailure = "Instrumented route transport exit $($test.ExitCode)."
+            }
+            $testResult = @(Get-Content -LiteralPath $testLog)
             foreach ($status in ($testResult -cmatch '^INSTRUMENTATION_STATUS: finoraTiming=')) { $timingStatus.Add($status) }
+            if (!($testResult -match '^OK \(1 test\)')) { $executionFailure ??= 'Instrumented route did not pass.' }
         }
+        if ($traceProcess.HasExited) { throw 'Perfetto ended before the cohort completed.' }
+    } catch {
+        $executionFailure = $_.Exception.Message
     } finally {
         if (!$traceProcess.HasExited) {
             $needle = '^\s*([1-9][0-9]*)\s+.*\bperfetto\b.*' + [regex]::Escape($remote) + '\s*$'
@@ -108,16 +131,36 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$calibration, [swit
         }
         if ($traceProcess.ExitCode -ne 0) { throw 'Perfetto failed to finish recording.' }
         Confirm-Profile
-        Target pull $remote $path | Out-Null
+        for ($retry=0; ; $retry++) {
+            try { Target pull $remote $path | Out-Null; break }
+            catch { if ($retry -ge 2) { throw }; Start-Sleep -Seconds 1 }
+        }
         Target shell rm -- $remote | Out-Null
         Target shell test '!' -e $remote | Out-Null
+        $script:captureClean = $true
     }
+    $integrity = @(& $TraceProcessor -Q "SELECT name,value FROM stats WHERE value>0 AND (severity='data_loss' OR name IN ('traced_buf_chunks_overwritten','traced_buf_trace_writer_packet_loss'))" $path 2> (Join-Path $Evidence "$name-integrity.log"))
+    if ($LASTEXITCODE) { throw 'Trace integrity check could not run.' }
+    $lost = @($integrity | ConvertFrom-Csv)
+    if ($lost.Count) {
+        $integrity | Set-Content -LiteralPath (Join-Path $Evidence "$name-data-loss.csv")
+        $executionFailure ??= 'Perfetto reported data loss.'
+    }
+    if ($name -eq 'preflight-failure') { throw $executionFailure }
     if ($ExternalCold) {
         $coldSql = Join-Path (Split-Path $PSScriptRoot -Parent) 'docs/t55-performance/handset-external-cold.sql'
         $coldRows = @(& $TraceProcessor -q $coldSql $path 2> (Join-Path $Evidence 'external-cold-query.log'))
         if ($LASTEXITCODE) { throw 'External cold frame trace query failed.' }
         $coldRows | Set-Content -LiteralPath (Join-Path $Evidence 'external-cold-frames.csv')
-        Write-Host 'External cold launch logs and completed trace retained.'
+        $coldFrames = @($coldRows | ConvertFrom-Csv)
+        $coldQualified = @($coldFrames | Where-Object usable_home_ms -cmatch '^\d+(?:\.\d+)?$').Count
+        Write-Host "External cold: $coldQualified usable Home presentations qualified."
+        if ($executionFailure) { throw $executionFailure }
+        $firstPresentations = @($coldFrames | Where-Object first_presentation_ms -cmatch '^\d+(?:\.\d+)?$').Count
+        if ($coldFrames.Count -ne 5 -or ($EmulatorPreflight -and ($coldQualified -lt 1 -or $firstPresentations -ne 5)) -or
+            (!$EmulatorPreflight -and $coldQualified -ne 5)) {
+            throw 'Incomplete external cold presentation results.'
+        }
         return
     }
     $traceRows = @(& $TraceProcessor -q $sql $path 2> (Join-Path $Evidence "$name-trace-processor.log"))
@@ -144,7 +187,7 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$calibration, [swit
             $outcome=if ($null -eq $event) {'UNRECORDED'} else {$event[0]}
             if ($null -eq $event) { $event = @($outcome,$null,$null,$null) }
             $render = $null
-            if ($outcome -eq 'COMMITTED' -and $frame.Count -eq 1 -and $frame[0].qualified_ms -cmatch '^\d+(?:\.\d+)?$') {
+            if (!$lost.Count -and $outcome -eq 'COMMITTED' -and $frame.Count -eq 1 -and $frame[0].qualified_ms -cmatch '^\d+(?:\.\d+)?$') {
                 $render=$frame[0].qualified_ms
                 $outcome='QUALIFIED'
                 $qualified++
@@ -156,18 +199,42 @@ function Capture-Cohort([string]$name, [string]$route, [bool]$calibration, [swit
     }
     $rows | Export-Csv -NoTypeInformation -LiteralPath (Join-Path $Evidence 'handset-measurements.csv')
     Write-Host "$name completed; $qualified displayed frames qualified."
-    if (!$calibration) { return ($qualified -eq 35) }
-    return ($qualified -ge 1 -and $timingStatus.Count -eq 3 -and @($frames | Select-Object -ExpandProperty sample -Unique).Count -eq 3)
+    if ($executionFailure) { throw $executionFailure }
+    if (!$calibration) {
+        if ($EmulatorPreflight) { return ($timingStatus.Count -eq 35 -and $observed.Count -eq 35 -and $qualified -gt 0) }
+        return ($qualified -eq 35)
+    }
+    return ($qualified -eq 3 -and $timingStatus.Count -eq 3 -and $frames.Count -eq 3)
 }
-$incomplete = [Collections.Generic.List[string]]::new()
-foreach ($route in 'HOME','INSIGHTS','PLAN') {
-    $name=$route.ToLowerInvariant()
-    if (!(Capture-Cohort "$name-calibration" $route $true)) {
-        Write-Warning "$route capture rehearsal did not qualify. Full cohort not started."
-        $incomplete.Add($route)
-    } elseif (!(Capture-Cohort $name $route $false)) {
-        $incomplete.Add($route)
+if ($EmulatorPreflight) {
+    try { Capture-Cohort 'preflight-failure' 'HOME' $true }
+    catch {
+        if (!$script:captureClean -or $_.Exception.Message -ne 'Injected emulator capture-body failure.') { throw }
+        Write-Host 'Injected capture failure recovered: trace flushed, retrieved and removed.'
     }
 }
-Capture-Cohort 'external-cold' 'HOME' $false -ExternalCold
+$incomplete = [Collections.Generic.List[string]]::new()
+$routes = if ($EmulatorPreflight) { @('INSIGHTS') } else { @('HOME','INSIGHTS','PLAN') }
+foreach ($route in $routes) {
+    $name=$route.ToLowerInvariant()
+    try {
+        if (!(Capture-Cohort "$name-calibration" $route $true)) {
+            throw 'Fewer than three rehearsal frames qualified. Full cohort not started.'
+        }
+        if (!(Capture-Cohort $name $route $false)) {
+            throw 'One or more timed attempts did not qualify.'
+        }
+    } catch {
+        if (!$script:captureClean) { throw }
+        Confirm-Profile
+        $incomplete.Add($route)
+        Write-Warning "$route incomplete: $($_.Exception.Message)"
+    }
+}
+try { Capture-Cohort 'external-cold' 'HOME' $false -ExternalCold }
+catch {
+    if (!$script:captureClean) { throw }
+    $incomplete.Add('external-cold')
+    Write-Warning $_.Exception.Message
+}
 if ($incomplete.Count) { throw ('Incomplete displayed cohorts: ' + ($incomplete -join ', ')) }

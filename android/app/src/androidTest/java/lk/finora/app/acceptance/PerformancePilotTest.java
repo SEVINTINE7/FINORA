@@ -79,7 +79,10 @@ public class PerformancePilotTest {
         Context app = runner.getTargetContext();
         boolean handset = "true".equals(args.getString("finoraPerformanceHandset"));
         boolean emulator = "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE);
-        assertEquals(handset ? "lk.finora.app.t57handset" : "lk.finora.app.acceptance", app.getPackageName());
+        boolean preflight = "true".equals(args.getString("finoraPerformanceEmulatorPreflight"));
+        if (preflight) assertTrue(emulator && !handset);
+        assertEquals(handset || preflight ? "lk.finora.app.t57handset" : "lk.finora.app.acceptance",
+                app.getPackageName());
         assertTrue(BuildConfig.DEBUG && "http://127.0.0.1:8080/".equals(BuildConfig.API_BASE_URL));
         assertEquals(!handset, emulator);
         long serial = app.getSystemService(UserManager.class).getSerialNumberForUser(Process.myUserHandle());
@@ -121,7 +124,7 @@ public class PerformancePilotTest {
             String traceRoute = args.getString("finoraTraceRoute");
             for (Route route : Route.values()) {
                 if (traceRoute != null && route != Route.valueOf(traceRoute)) continue;
-                int attempts = traceCheck ? (traceRoute == null ? 1 : 3) : handset ? 35 : 15;
+                int attempts = traceCheck ? (traceRoute == null ? 1 : 3) : handset || preflight ? 35 : 15;
                 for (int n = 1; n <= attempts; n++) {
                     tab(switch (route) {
                         case HOME -> R.string.records_tab;
