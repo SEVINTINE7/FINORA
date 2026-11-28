@@ -36,6 +36,7 @@
         <activity android:name=".ui.help.FaqActivity" android:exported="false" />
         <activity android:name=".ui.support.DiagnosticQueueActivity" android:exported="false" />
         <activity android:name=".ui.support.SupportActivity" android:exported="false" />
+        <activity android:name=".ui.support.SupportNewActivity" android:exported="false" />
         <activity android:name=".ui.staff.StaffAccessActivity" android:exported="false" />
         <activity android:name=".ui.insights.InsightsActivity" android:exported="false" />
         <activity android:name=".ui.insights.ScoreDetailsActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />

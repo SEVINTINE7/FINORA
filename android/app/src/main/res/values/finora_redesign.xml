@@ -122,4 +122,17 @@
         <item name="android:layout_marginStart">68dp</item>
         <item name="android:background">@color/finora_card_line</item>
     </style>
+    <!-- T68.3: status chip (icon + word, never colour alone). Colours and icon are set in code. -->
+    <style name="Finora.StatusChip" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">24dp</item>
+        <item name="android:background">@drawable/finora_pill</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

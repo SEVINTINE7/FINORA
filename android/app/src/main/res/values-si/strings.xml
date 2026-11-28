@@ -748,4 +748,20 @@
     <string name="password_mismatch">නව මුරපද නොගැළපේ.</string>
     <string name="password_changed">මුරපදය වෙනස් විය. නව මුරපදයෙන් නැවත පිවිසෙන්න.</string>
     <string name="password_signout_note">මුරපදය වෙනස් කිරීමෙන් ඔබ සියලු උපාංගවලින් ඉවත් වේ.</string>
+    <!-- T68.3/D72 Help and Support -->
+    <string name="faq_more_title">තවමත් උදව් අවශ්‍යද?</string>
+    <string name="faq_more_text">FINORA කණ්ඩායමට ඉල්ලීමක් යවන්න. මාතෘකාවක් තෝරන්න; පුද්ගලික විස්තර යවනු නොලැබේ.</string>
+    <string name="support_reload">පිළිතුරු සඳහා පරීක්ෂා කරන්න</string>
+    <string name="support_your_requests">ඔබේ ඉල්ලීම්</string>
+    <string name="support_no_requests">ඔබ තවම ඉල්ලීමක් යවා නැත.</string>
+    <string name="support_request_number">ඉල්ලීම #%1$d</string>
+    <string name="support_you_sent">ඔබ යැව්වේ</string>
+    <string name="support_team">FINORA කණ්ඩායම</string>
+    <string name="support_no_replies">තවම පිළිතුරක් නැත. පසුව නැවත පරීක්ෂා කරන්න.</string>
+    <string name="support_thread_note">පිළිතුරු FINORA කණ්ඩායම විසින් පරීක්ෂා කළ සම්මත පිළිතුරු වේ. කිසිවිටෙක මුරපද හෝ කේත බෙදා නොගන්න.</string>
+    <string name="support_new_question">ඔබට උදව් අවශ්‍ය කුමකටද?</string>
+    <string name="support_will_send">අපි යවන්නේ</string>
+    <string name="support_pick_topic">ඉල්ලීම බැලීමට මාතෘකාවක් තෝරන්න.</string>
+    <string name="support_send">ඉල්ලීම යවන්න</string>
+    <string name="support_sent_toast">ඉල්ලීම යවන ලදී</string>
 </resources>

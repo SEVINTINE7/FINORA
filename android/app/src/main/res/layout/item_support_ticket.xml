@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T68.3/D72 one support request: topic icon, topic, request number, status chip (icon + word). -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Finora.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="18dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="64dp"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="12dp">
+        <ImageView
+            android:id="@+id/link_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/finora_circle"
+            android:backgroundTint="@color/finora_success_surface"
+            android:importantForAccessibility="no"
+            android:padding="10dp"
+            app:tint="@color/finora_green" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/link_title"
+                style="@style/FinoraText.RowTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/link_text"
+                style="@style/FinoraText.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/finora_muted" />
+            <TextView
+                android:id="@+id/support_ticket_status"
+                style="@style/Finora.StatusChip"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/support_ticket_chevron"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/finora_ic_chevron_right"
+            app:tint="@color/finora_muted" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -43,6 +43,9 @@ import lk.finora.app.ui.main.MainActivity;
 import lk.finora.app.ui.settings.ChangePasswordActivity;
 import lk.finora.app.ui.settings.EditProfileActivity;
 import lk.finora.app.ui.settings.SettingsActivity;
+import lk.finora.app.ui.help.FaqActivity;
+import lk.finora.app.ui.support.SupportActivity;
+import lk.finora.app.ui.support.SupportNewActivity;
 
 /**
  * T68 review run against a local dev API. Registers a disposable synthetic user (or signs in finoraShotEmail),
@@ -83,6 +86,8 @@ public final class T68ScreenshotTest {
             settings(out, tag);
             profile(out, tag);
             password(out, tag);
+            help(out, tag);
+            support(out, tag);
         } finally {
             var session = tokens.session();
             if (session != null) tokens.clear(session);
@@ -152,6 +157,50 @@ public final class T68ScreenshotTest {
             });
             T62ScreenshotTest.settle();
             screen.onActivity(a -> T62ScreenshotTest.capture(a, new File(out, "t68-password-error-" + tag + ".png")));
+        }
+    }
+
+    private void help(File out, String tag) {
+        try (var screen = ActivityScenario.launch(FaqActivity.class)) {
+            await(screen, a -> a.findViewById(R.id.faq_open_support) != null, "help shown");
+            screen.onActivity(a -> {
+                T62ScreenshotTest.capture(a, new File(out, "t68-help-" + tag + ".png"));
+                drawWhole(a.findViewById(R.id.faq_page), new File(out, "t68-help-full-" + tag + ".png"));
+            });
+        }
+    }
+
+    /** Sends one standard Sign-in request for the disposable user, then shows the list and its thread. */
+    private void support(File out, String tag) {
+        try (var screen = ActivityScenario.launch(SupportActivity.class)) {
+            await(screen, a -> a.findViewById(R.id.support_empty).getVisibility() == View.VISIBLE
+                    || ((android.view.ViewGroup) a.findViewById(R.id.support_list)).getChildCount() > 0, "support list");
+            screen.onActivity(a -> T62ScreenshotTest.capture(a, new File(out, "t68-support-empty-" + tag + ".png")));
+        }
+        var create = ActivityScenario.launch(SupportNewActivity.class);
+        await(create, a -> ((android.view.ViewGroup) a.findViewById(R.id.support_topics)).getChildCount() == 4, "topics");
+        create.onActivity(a -> T62ScreenshotTest.capture(a, new File(out, "t68-support-new-" + tag + ".png")));
+        create.onActivity(a -> ((android.view.ViewGroup) a.findViewById(R.id.support_topics)).getChildAt(0).performClick());
+        T62ScreenshotTest.settle();
+        create.onActivity(a -> {
+            assertTrue(a.findViewById(R.id.support_send).isEnabled());
+            T62ScreenshotTest.capture(a, new File(out, "t68-support-new-chosen-" + tag + ".png"));
+            a.findViewById(R.id.support_send).performClick();
+        });
+        long end = SystemClock.uptimeMillis() + 60_000;
+        while (create.getState() != androidx.lifecycle.Lifecycle.State.DESTROYED && SystemClock.uptimeMillis() < end) {
+            SystemClock.sleep(300);
+        }
+        assertEquals("request sent", androidx.lifecycle.Lifecycle.State.DESTROYED, create.getState());
+        try (var screen = ActivityScenario.launch(SupportActivity.class)) {
+            await(screen, a -> ((android.view.ViewGroup) a.findViewById(R.id.support_list)).getChildCount() > 0, "card");
+            screen.onActivity(a -> {
+                T62ScreenshotTest.capture(a, new File(out, "t68-support-list-" + tag + ".png"));
+                ((android.view.ViewGroup) a.findViewById(R.id.support_list)).getChildAt(0).performClick();
+            });
+            await(screen, a -> a.findViewById(R.id.support_thread_group).getVisibility() == View.VISIBLE
+                    && a.findViewById(R.id.support_status).getVisibility() == View.GONE, "thread");
+            screen.onActivity(a -> T62ScreenshotTest.capture(a, new File(out, "t68-support-thread-" + tag + ".png")));
         }
     }
 

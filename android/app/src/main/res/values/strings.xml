@@ -750,4 +750,20 @@
     <string name="password_mismatch">The new passwords do not match.</string>
     <string name="password_changed">Password changed. Sign in again with your new password.</string>
     <string name="password_signout_note">Changing your password signs you out on every device.</string>
+    <!-- T68.3/D72 Help and Support -->
+    <string name="faq_more_title">Still need help?</string>
+    <string name="faq_more_text">Send a request to the FINORA team. Pick a topic; no personal details are sent.</string>
+    <string name="support_reload">Check for replies</string>
+    <string name="support_your_requests">Your requests</string>
+    <string name="support_no_requests">You have not sent a request yet.</string>
+    <string name="support_request_number">Request #%1$d</string>
+    <string name="support_you_sent">You sent</string>
+    <string name="support_team">FINORA team</string>
+    <string name="support_no_replies">No reply yet. Check again later.</string>
+    <string name="support_thread_note">Replies are standard answers checked by the FINORA team. Never share passwords or codes.</string>
+    <string name="support_new_question">What do you need help with?</string>
+    <string name="support_will_send">We will send</string>
+    <string name="support_pick_topic">Choose a topic to see the request.</string>
+    <string name="support_send">Send request</string>
+    <string name="support_sent_toast">Request sent</string>
 </resources>

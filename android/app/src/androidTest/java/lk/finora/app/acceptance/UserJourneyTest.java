@@ -772,13 +772,36 @@ public class UserJourneyTest {
         instrumentation.runOnMainSync(() -> {
             var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
                     .stream().filter(lk.finora.app.ui.help.FaqActivity.class::isInstance).findFirst().orElseThrow();
-            var content = (android.view.ViewGroup) activity.findViewById(android.R.id.content);
-            var scroll = (ScrollView) content.getChildAt(0);
-            var labels = (android.view.ViewGroup) scroll.getChildAt(0);
-            assertEquals(9, labels.getChildCount());
-            for (int index = 0; index < labels.getChildCount(); index++) {
-                var label = (android.widget.TextView) labels.getChildAt(index);
-                assertEquals(index == 0 || index % 2 == 1, androidx.core.view.ViewCompat.isAccessibilityHeading(label));
+            // T68.3: four expandable entries. Open every answer, then check headings and that no text is cut.
+            var labels = new java.util.ArrayList<android.widget.TextView>();
+            labels.add(activity.findViewById(R.id.faq_heading));
+            labels.add(activity.findViewById(R.id.faq_title));
+            for (int entry : new int[]{R.id.faq_login, R.id.faq_navigation, R.id.faq_language, R.id.faq_privacy}) {
+                var item = activity.findViewById(entry);
+                var header = item.findViewById(R.id.faq_header);
+                assertTrue(androidx.core.view.ViewCompat.isAccessibilityHeading(header));
+                if (item.findViewById(R.id.faq_answer).getVisibility() != android.view.View.VISIBLE) header.performClick();
+                assertEquals(android.view.View.VISIBLE, item.findViewById(R.id.faq_answer).getVisibility());
+                labels.add(item.findViewById(R.id.faq_question));
+                labels.add(item.findViewById(R.id.faq_answer));
+            }
+            assertTrue(androidx.core.view.ViewCompat.isAccessibilityHeading(labels.get(0)));
+            assertTrue(androidx.core.view.ViewCompat.isAccessibilityHeading(labels.get(1)));
+        });
+        instrumentation.waitForIdleSync();
+        instrumentation.runOnMainSync(() -> {
+            var activity = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                    .stream().filter(lk.finora.app.ui.help.FaqActivity.class::isInstance).findFirst().orElseThrow();
+            var labels = new java.util.ArrayList<android.widget.TextView>();
+            labels.add(activity.findViewById(R.id.faq_heading));
+            labels.add(activity.findViewById(R.id.faq_title));
+            for (int entry : new int[]{R.id.faq_login, R.id.faq_navigation, R.id.faq_language, R.id.faq_privacy}) {
+                var item = activity.findViewById(entry);
+                labels.add(item.findViewById(R.id.faq_question));
+                labels.add(item.findViewById(R.id.faq_answer));
+            }
+            for (int index = 0; index < labels.size(); index++) {
+                var label = labels.get(index);
                 var layout = label.getLayout();
                 assertNotNull(layout);
                 assertTrue(layout.getHeight() <= label.getHeight() - label.getCompoundPaddingTop()
@@ -1894,9 +1917,12 @@ public class UserJourneyTest {
             awaitButton(R.string.support_create);
             onView(withText(R.string.support_catalog)).check(doesNotExist());
             clickText(R.string.support_create);
-            dialogChoice(app.getString(R.string.support_sign_in));
-            confirm();
-            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+            awaitActivity(lk.finora.app.ui.support.SupportNewActivity.class);
+            clickText(R.string.support_sign_in);
+            awaitText("I need help signing in.");
+            clickText(R.string.support_send);
+            awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
+            await(By.descContains(app.getString(R.string.support_sign_in) + " · "
                     + app.getString(R.string.sms_diagnostic_open)));
             pressBack();
             awaitActivity(MainActivity.class);
@@ -1951,8 +1977,8 @@ public class UserJourneyTest {
             awaitActivity(MainActivity.class);
             tab(R.string.more_tab);
             clickText(R.string.support_tickets);
-            awaitButton(R.string.support_replies);
-            clickText(R.string.support_replies);
+            await(By.descContains(app.getString(R.string.support_sign_in) + " · "));
+            clickText(R.string.support_sign_in);
             awaitText(englishReply);
             awaitText(sinhalaReply);
         }

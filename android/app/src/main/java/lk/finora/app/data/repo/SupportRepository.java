@@ -24,6 +24,8 @@ public final class SupportRepository {
             this.body = body;
         }
         public String label(Context context) { return context.getString(label); }
+        /** The standard English request text that is sent for this topic (shown before sending, T68.3). */
+        public String body() { return body; }
         public static Topic matching(String subject) {
             for (Topic option : values()) if (option.subject.equals(subject)) return option;
             return null;

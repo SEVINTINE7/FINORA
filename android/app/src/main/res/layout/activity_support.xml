@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T68.3/D72 Support requests for a USER: privacy note, request cards with status chips, a thread view with
+     the sent request and the team's replies, and "New support request". STAFF keep the T47/T48 screen (T70). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="MergeRootFrame">
+
+    <ScrollView
+        android:id="@+id/support_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/finora_screen_margin"
+            android:paddingTop="8dp"
+            android:paddingEnd="@dimen/finora_screen_margin"
+            android:paddingBottom="96dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/support_heading"
+                    style="@style/FinoraText.Greeting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/support_tickets" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/support_reload"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/support_reload"
+                    app:icon="@drawable/finora_ic_refresh"
+                    app:iconTint="@color/finora_ink" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/support_status"
+                style="@style/FinoraText.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:accessibilityLiveRegion="polite"
+                android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/support_retry"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/finora_touch"
+                android:text="@string/records_retry"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/support_list_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/support_privacy"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/finora_pill"
+                    android:drawablePadding="10dp"
+                    android:padding="12dp"
+                    android:text="@string/support_privacy"
+                    android:textColor="@color/finora_ink"
+                    app:drawableStartCompat="@drawable/finora_ic_shield"
+                    app:drawableTint="@color/finora_green" />
+                <TextView
+                    android:id="@+id/support_list_title"
+                    style="@style/FinoraText.Label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="8dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="@string/support_your_requests" />
+                <LinearLayout
+                    android:id="@+id/support_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+                <TextView
+                    android:id="@+id/support_empty"
+                    style="@style/FinoraText.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="10dp"
+                    android:gravity="center_vertical"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="@string/support_no_requests"
+                    android:textColor="@color/finora_muted"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/finora_ic_empty"
+                    app:drawableTint="@color/finora_muted" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/support_thread_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <include
+                    android:id="@+id/support_thread_card"
+                    layout="@layout/item_support_ticket" />
+                <TextView
+                    android:id="@+id/support_sent_label"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="6dp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:text="@string/support_you_sent"
+                    android:textColor="@color/finora_muted"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/support_sent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/finora_bubble_sent"
+                    android:paddingStart="14dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="12dp"
+                    android:textColor="@color/finora_action_ink"
+                    android:textSize="14sp" />
+                <LinearLayout
+                    android:id="@+id/support_replies"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+                <TextView
+                    android:id="@+id/support_thread_note"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/finora_pill"
+                    android:drawablePadding="10dp"
+                    android:padding="12dp"
+                    android:text="@string/support_thread_note"
+                    android:textColor="@color/finora_ink"
+                    app:drawableStartCompat="@drawable/finora_ic_info"
+                    app:drawableTint="@color/finora_green" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/support_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="@string/support_create"
+        android:textColor="@color/finora_action_ink"
+        app:backgroundTint="@color/finora_green"
+        app:icon="@drawable/finora_ic_add"
+        app:iconTint="@color/finora_action_ink" />
+</FrameLayout>

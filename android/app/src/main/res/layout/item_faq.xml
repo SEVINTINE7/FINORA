@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T68.3/D72 one expandable FAQ entry: icon, question (heading) and chevron; the answer opens below. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/faq_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="64dp"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp">
+        <ImageView
+            android:id="@+id/faq_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/finora_circle"
+            android:backgroundTint="@color/finora_success_surface"
+            android:importantForAccessibility="no"
+            android:padding="8dp"
+            app:tint="@color/finora_green" />
+        <TextView
+            android:id="@+id/faq_question"
+            style="@style/FinoraText.RowTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1" />
+        <ImageView
+            android:id="@+id/faq_chevron"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/finora_ic_chevron_down"
+            app:tint="@color/finora_muted" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/faq_answer"
+        style="@style/FinoraText.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="14dp"
+        android:lineSpacingMultiplier="1.15"
+        android:visibility="gone" />
+</LinearLayout>
