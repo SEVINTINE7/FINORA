@@ -8,6 +8,21 @@ Record the protocol version, approved participant information and consent revisi
 
 Rehearse the six tasks with a separate synthetic account. Write the expected app state for each task on the moderator-only scenario card. Prepare synthetic starting states for later tasks so a failed earlier task does not determine a later outcome. Use an isolated provider-disabled API. Allocate a random participant code and keep any required consent record separately.
 
+## Moderator rehearsal on the D65–D71 UI
+
+Use the existing six task prompts verbatim. This map is for the moderator's synthetic rehearsal and recovery between tasks.
+
+| Task | Route and moderator check |
+| --- | --- |
+| Sign in | Common Login opens the assigned USER Home with the synthetic greeting and current figures. |
+| Add the expense | Records opens the grouped list directly. Use Add transaction, then verify the exact dated LKR 500 expense and wallet in its day group. |
+| Find the budget | Plan → Budgets. Check the selected fixture month and the Shopping card's used, limit and left or over labels. |
+| Explain the score | Insights → Spending insights and health score. Read the score ring, component reasons and unavailable states. Open Score details to inspect the declaration controls if needed. |
+| Add the contribution | Plan → Goals → active fixture goal. Check the saved LKR 500 contribution and the updated goal progress. |
+| Explain advice | Insights → Spending insights and health score → Advice. Keep providers disabled and use the visible V1 Rule-based banner and checked figures. |
+
+Rehearse the run on a separate synthetic fixture before the approved pilot. Keep the existing scenario dates and starting states with the moderator. Confirm the expected route and exact LKR result for each task before using it.
+
 ## Run order
 
 1. Read the participant information, allow questions, and document consent before starting observations. A refusal ends the session.
@@ -41,3 +56,17 @@ test vectors are not participant data and do not define the group acceptance sta
 ## T55.4 separate protocol
 
 Keep advice comparison outside the V1 app runtime and this SUS session. Before collecting comparison data, obtain an explicit decision on whether to run it. If approved, predefine the paired unit, primary outcome, randomization and blinding, exclusions, handling of unavailable or fallback advice, analysis, and reporting. New provider requests require reconciled billing and separate explicit authorization.
+
+### Draft comparison materials for approval
+
+Prepare matched, synthetic fixture pairs offline. Both artifacts in a pair must use the same snapshot, approved fact keys and verified LKR oracles. One artifact is canonical RULE advice. The other is a verified AI response retained under an authorized evaluation on that same case. Exclude unavailable or rejected AI artifacts and record the exclusion before participant assignment. A fallback event supplies the RULE artifact only.
+
+Use the existing protocol review to select a primary rating and a paired analysis before collecting data. Mask the origin with random A/B labels and counterbalance order. Store the assignment key separately from coded ratings. This study does not change D03 or the single V1 advice and rating flow.
+
+Blank comparison record
+
+```csv
+protocol,participant_code,fixture_id,pair_id,order_code,rating_first,rating_second,incomplete_reason,artifact_revisions
+```
+
+The existing materials support preparation for approval. Recruitment, comparison collection and analysis still require the team and lecturer decisions, genuine consent and eligible artifact pairs.

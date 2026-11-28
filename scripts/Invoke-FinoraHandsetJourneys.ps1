@@ -8,7 +8,9 @@ param(
     [Parameter(Mandatory)][int]$ApiPid,
     [ValidatePattern('^$|^FINORA-T57-[a-f0-9]{8}$')][string]$ResumeProfile,
     [string]$ResumeArtifacts,
-    [switch]$OnlySmsPaste
+    [switch]$OnlySmsPaste,
+    [SecureString]$PerformanceWorkerPassword,
+    [string]$TraceProcessor
 )
 
 $ErrorActionPreference = 'Stop'
@@ -23,6 +25,10 @@ $profile = 'FINORA-T57-' + [guid]::NewGuid().ToString('N').Substring(0,8)
 if ($ResumeArtifacts -and !$ResumeProfile) { throw 'Retained APKs require the exact prior temporary profile.' }
 if ($ResumeProfile) { $profile = $ResumeProfile }
 $user = $null
+if ($PerformanceWorkerPassword -and ($ResumeProfile -or $ResumeArtifacts -or $OnlySmsPaste -or
+        !(Test-Path -LiteralPath $TraceProcessor -PathType Leaf))) {
+    throw 'Performance trials require a fresh guarded profile and the retained trace processor.'
+}
 $creationAttempted = $false
 $mapped = $false
 $cleanup = [Collections.Generic.List[string]]::new()
@@ -160,6 +166,10 @@ try {
     Confirm-Api
     Adb reverse --no-rebind tcp:8080 tcp:8080 | Out-Null
     $mapped = $true
+    if ($PerformanceWorkerPassword) {
+        & (Join-Path $PSScriptRoot 'Invoke-FinoraPerformanceTrials.ps1') -AdbPath $adb -Serial $Serial -UserId ([int]$user) -UserSerial $userSerial -WorkerPassword $PerformanceWorkerPassword -Evidence $Evidence -TraceProcessor $TraceProcessor
+        return
+    }
     $suite = 'lk.finora.app.acceptance.UserJourneyTest'
     $methods = @(
         'registerLoginAndManageFinancialRecordsWithSmsDenied',

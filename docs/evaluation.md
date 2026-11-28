@@ -554,3 +554,27 @@ The approved HMD Crest API 34 session ran Home, Records and Insights once each. 
 The launcher stopped the API and MySQL and removed its USB reverse mapping. Automated profile cleanup needed a follow-up. Android acknowledged removal of the exact temporary user. A read-back confirmed Owner was foreground, the temporary profile was absent, both Sahan APK paths matched, and no reverse mappings or session listeners remained. The dataset digest and eight counts matched before and after the session.
 
 These are calibration observations. T55.2 remains in progress pending the approved device classification, routes, cohort, statistic and independent acceptance.
+
+## D65–D71 provisional HMD Crest measurements (28 November 2026)
+
+One temporary profile ran the V1 debug acceptance build from main `b2262bfaca2d94ed200bce122682d0ddc4c054e9`. HMD Crest, board Arrow, Android 14 (API 34), 1080 × 2400, and 5,543,588 kB reported RAM. The project has no recorded mid-range classification approval for this handset. The temporary profile used English and USB reverse to the provider-disabled loopback API. The retained API executable from `7c706f7534cecd5ef7abd6aaf2ff9acffdf54b37` is source-equivalent for the API. Its SHA-256 is `9a586e1d0f21f96205cef9d57886258f625ebdeb912183caa9adb1633089dfa2`.
+
+App APK SHA-256 `caf79c69163dbb87ada05853a6106eecd455615ebd5ee305431b49d6bdc32881`. Measured instrumentation APK SHA-256 `b0fd2ae3a8b145fd01e0b60ada9ebc94aa9267ce2e40408a6a03d10e2caf7d08`. Both APKs used the matching debug certificate and their installed bytes matched the candidate files. The API migrated only a disposable copy to V25. The two canonical owners' eight counts and 826-transaction SHA-256 `14e563da86de67d4f295b6a9f8577d76ec781128b9c91900e6a1b54c96069944` matched before and after. The frozen data directory was never started or migrated.
+
+Measured durations use a monotonic action marker, the first traversal meeting the screen's content oracle, and a unique FrameTimeline match to an actual presentation. The reported percentile is nearest rank. Warm-up rows are excluded. [Sanitized observation rows and trace hashes](t55-performance/handset-redesign-observations.csv)
+
+| Route / cohort | Planned | Qualified | Unqualified | Unrecorded | Failed or not run | Median ms | p95 ms | Max ms |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| Records warm | 30 | 30 | 0 | 0 | 0 | 87.597 | 150.135 | 163.762 |
+| Home warm | 30 | 0 | 26 | 4 | 0 observed | — | — | — |
+| Insights warm | 30 | 0 | 27 | 3 | 0 observed | — | — | — |
+| Plan to Budgets warm | 30 | 0 | 0 | 0 | 30 not run | — | — | — |
+| Home fresh-process activity launch | 5 | 5 | 0 | 0 | 0 | 1,167.915 | 1,210.928 | 1,210.928 |
+
+All five Records warm-ups qualified. Home warm-up rows were unrecorded. Insights retained two unqualified warm-up traversals and three unrecorded warm-up rows. The first Budgets warm-up failed before action dispatch because both a heading and a button used the same label. The remaining four warm-ups and all warm attempts for Budgets were not run. The retained Home and Insights warm traces lacked enough presentation coverage. Unrecorded rows retain no timing or success claim. No explicit timeout was retained.
+
+The cold samples forced a process stop before each instrumentation launch. The reported boundary begins at the instrumented activity-launch action and ends at the displayed usable Home. The traces have no consistent process-start timestamp, so these rows supply no full process-start-to-display statistic. With five attempts, nearest-rank p95 equals the maximum.
+
+The follow-up test matches the clickable navigation button and streams each timing status directly through instrumentation. The host runner waits for the foreground Perfetto capture to finish before retrieving it. The updated instrumentation built offline and the SQL replayed on retained traces. The post-run fixes still need handset requalification under a separately authorized session. The formal device classification, acceptance statistic, routes and cohort decision, T16/T38 closure, and independent review remain open. No two-second acceptance verdict was assigned.
+
+Android returned to Owner. The temporary user and candidate packages were removed, both Sahan QA packages remained, and the USB reverse, API, MySQL and session-started ADB listeners were removed or stopped. The isolated database copy and traces were retained locally as evidence. No provider traffic or participant data collection occurred.
