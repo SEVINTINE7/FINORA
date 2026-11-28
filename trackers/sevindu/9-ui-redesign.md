@@ -1,4 +1,4 @@
-# Sevindu 9 — Screen-by-screen UI redesign (T62–T71, T73)
+# Sevindu 9 — Screen-by-screen UI redesign (T62–T71, T73, T74)
 Rules and workflow: see `CLAUDE.md`. Status lives in `trackers/INDEX.md`. Decisions D61, D65, D67.
 
 Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigation). T58 stays Sahan's task. This job replaces the remaining code-built, default-widget layouts screen by screen with the approved D65 design. The colours stay unchanged. The Login screen is out of scope.
@@ -118,11 +118,12 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 ### T68 · Settings, help and support · `UX-08`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/settings/`, `and:ui/help/`, `and:ui/support/SupportActivity`, `and:ui/main/` (More tab), `res:layout/`
 - [ ] T68.1 Mockups of More tab, Settings, Help (FAQ) and Support tickets approved by Sevindu
-- [ ] T68.2 More tab as a grouped list and Settings (profile, language, alerts, data rights)
-- [ ] T68.3 Help (expandable FAQ) and Support (ticket list, ticket thread, new ticket)
+- [ ] T68.2 More tab as a grouped list and Settings (profile card, Profile group with "Edit profile" and "Change password" rows shown disabled with "Available soon" until T74 (D72), language, alerts, data rights)
+- [ ] T68.3 Help (expandable FAQ) and Support (ticket list, ticket thread, new ticket as a full screen with topic tiles and no confirm dialog, D72)
 - [ ] T68.4 Screenshots approved
 
 **Handoff notes:**
+- T68.1 (2026-11-28): 6 artboards on https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v16): More tab, Settings, Help, Support requests, Request thread, New support request. Sevindu dropped the new-request confirm and asked for profile/password buttons (D72, new task T74). Waiting for final approval before T68.2.
 
 ### T69 · Register and password reset · `UX-09`
 **Lead:** Sevindu · **Support:** Sahan (review; T61.4 owner) · **Depends on:** T62 · **Touches:** `and:ui/register/`, `and:ui/login/PasswordResetActivity`, `res:layout/`
@@ -158,5 +159,20 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [ ] T73.3 AI advice: staged messages while waiting ("Reading this month's totals", "Checking the advice numbers"), with no amounts in them. When the LLM times out or fails the number check, rule-based advice replaces the loader without an error flash (rule 3)
 - [ ] T73.4 Use the shared view on Insights, History, CSV import preview, Staff and Admin lists, and as a progress indicator inside the Sign in button
 - [ ] T73.5 Screenshots approved
+
+**Handoff notes:**
+
+---
+
+### T74 · Edit profile and change password · `UX-13`
+**Lead:** Sevindu · **Support:** Sahan (Android screens), Thilina (QA) · **Depends on:** T68 (Settings layout), T61 (mail, for email change) · **Touches:** `api:user/`, `api:auth/`, `mig:`, `docs/api-contract.md`, `and:ui/settings/`, `and:data/repo/MeRepository`, `res:layout/`, `res:values*/`
+**Detail: outline** — expand before coding (exact fields, endpoints, error codes, tests) and show to Sevindu.
+
+New requirement from Sevindu on 2026-11-28 (D72): a signed-in USER cannot change their password, email or other profile details. `PATCH /api/v1/me` already accepts `fullName` and `language`, but the app only uses it for language, and there are no endpoints for email or password changes.
+- [ ] T74.1 Outline expanded and approved: fields, endpoints, validation, error JSON, which sessions are revoked, audit events
+- [ ] T74.2 API change password: current password + new password (same rules as Register), wrong current password → 400 without saying which part failed, rate-limited, other refresh tokens revoked, no password in logs; tests
+- [ ] T74.3 API change email: password confirmation + code emailed to the new address (reuses the T61 mail sender), `CONFLICT` if the email is taken, old address told of the change; tests
+- [ ] T74.4 Android Edit profile (name, email with code step) and Change password screens, `FLAG_SECURE`, inline errors, EN + SI strings; enable the T68 Settings rows
+- [ ] T74.5 `docs/api-contract.md` updated; unit + Espresso tests; screenshots approved
 
 **Handoff notes:**
