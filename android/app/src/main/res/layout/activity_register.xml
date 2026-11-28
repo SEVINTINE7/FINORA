@@ -1,117 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T69.2/D72 matches the Login style: navy brand header with back, then the surface sheet. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/register_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fillViewport="true"
+    android:scrollbars="none">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/finora_outer_margin">
-
-        <TextView
-            android:id="@+id/register_heading"
-            style="@style/FinoraText.Heading"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical">
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/register_title" />
-
-        <EditText
-            android:id="@+id/register_email"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/register_brand_art"
+                android:layout_width="@dimen/finora_art_size"
+                android:layout_height="@dimen/finora_art_size"
+                android:layout_gravity="end|bottom"
+                android:alpha="0.26"
+                android:importantForAccessibility="no"
+                android:src="@drawable/finora_orbit" />
+            <LinearLayout
+                android:id="@+id/register_brand_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingTop="@dimen/finora_space_xs"
+                android:paddingEnd="@dimen/finora_outer_margin"
+                android:paddingBottom="@dimen/finora_space_xl">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <ImageButton
+                        android:id="@+id/register_back_button"
+                        android:layout_width="@dimen/finora_touch"
+                        android:layout_height="@dimen/finora_touch"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/reset_back_sign_in"
+                        android:src="@drawable/finora_nav_up"
+                        app:tint="@color/finora_on_navy" />
+                    <TextView
+                        style="@style/FinoraText.Wordmark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:drawablePadding="@dimen/finora_space_xs"
+                        android:gravity="center_vertical"
+                        android:importantForAccessibility="no"
+                        android:text="@string/app_name"
+                        app:drawableStartCompat="@drawable/finora_mark" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/register_headline"
+                    style="@style/FinoraText.Display"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="@dimen/finora_space_s"
+                    android:textSize="30sp"
+                    android:text="@string/register_headline" />
+            </LinearLayout>
+        </FrameLayout>
+        <LinearLayout
+            android:id="@+id/register_sheet"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:autofillHints="emailAddress"
-            android:hint="@string/register_email"
-            android:inputType="textEmailAddress"
-            android:minHeight="@dimen/finora_touch" />
-
-        <EditText
-            android:id="@+id/register_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:autofillHints="name"
-            android:hint="@string/register_name"
-            android:inputType="textPersonName|textCapWords"
-            android:minHeight="@dimen/finora_touch" />
-
-        <EditText
-            android:id="@+id/register_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="newPassword"
-            android:hint="@string/register_password"
-            android:inputType="textPassword"
-            android:minHeight="@dimen/finora_touch" />
-
-        <TextView
-            style="@style/FinoraText.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/register_password_rule" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/register_language"
-            android:text="@string/register_language" />
-
-        <Spinner
-            android:id="@+id/register_language"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:minHeight="@dimen/finora_touch" />
-
-        <TextView
-            android:id="@+id/register_consent_heading"
-            style="@style/FinoraText.Label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/register_consent_heading" />
-
-        <TextView
-            style="@style/FinoraText.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/register_consent_text" />
-
-        <CheckBox
-            android:id="@+id/register_over18"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/finora_touch"
-            android:text="@string/register_over18" />
-
-        <CheckBox
-            android:id="@+id/register_consent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:minHeight="@dimen/finora_touch"
-            android:text="@string/register_consent" />
-
-        <Button
-            android:id="@+id/register_submit"
-            style="@style/FinoraButton.Primary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/finora_space_s"
-            android:text="@string/register_submit" />
-
-        <include android:id="@+id/register_feedback" layout="@layout/view_state" />
-
-        <Button
-            android:id="@+id/register_back"
-            style="@style/FinoraButton.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/finora_space_s"
-            android:text="@string/register_have_account" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/finora_sheet"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/finora_outer_margin"
+            android:paddingTop="@dimen/finora_space_xl"
+            android:paddingEnd="@dimen/finora_outer_margin"
+            android:paddingBottom="@dimen/finora_space_xl">
+            <TextView
+                android:id="@+id/register_heading"
+                style="@style/FinoraText.Heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/register_title" />
+            <TextView
+                android:id="@+id/register_intro"
+                style="@style/FinoraText.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                android:text="@string/register_intro" />
+            <TextView
+                style="@style/FinoraText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_m"
+                android:labelFor="@+id/register_name"
+                android:text="@string/register_name" />
+            <LinearLayout
+                android:id="@+id/register_name_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                android:background="@drawable/finora_field"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="@dimen/finora_icon"
+                    android:layout_height="@dimen/finora_icon"
+                    android:layout_marginStart="@dimen/finora_space_m"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/finora_ic_person" />
+                <EditText
+                    android:id="@id/register_name"
+                    style="@style/FinoraInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autofillHints="name"
+                    android:imeOptions="actionNext"
+                    android:inputType="textPersonName|textCapWords" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/register_name_error"
+                style="@style/FinoraText.FieldError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:visibility="gone" />
+            <TextView
+                style="@style/FinoraText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_m"
+                android:labelFor="@+id/register_email"
+                android:text="@string/register_email" />
+            <LinearLayout
+                android:id="@+id/register_email_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                android:background="@drawable/finora_field"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="@dimen/finora_icon"
+                    android:layout_height="@dimen/finora_icon"
+                    android:layout_marginStart="@dimen/finora_space_m"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/finora_ic_mail" />
+                <EditText
+                    android:id="@id/register_email"
+                    style="@style/FinoraInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autofillHints="emailAddress"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/register_email_error"
+                style="@style/FinoraText.FieldError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:visibility="gone" />
+            <TextView
+                style="@style/FinoraText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_m"
+                android:labelFor="@+id/register_password"
+                android:text="@string/register_password" />
+            <LinearLayout
+                android:id="@+id/register_password_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                android:background="@drawable/finora_field"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="@dimen/finora_icon"
+                    android:layout_height="@dimen/finora_icon"
+                    android:layout_marginStart="@dimen/finora_space_m"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/finora_ic_lock" />
+                <EditText
+                    android:id="@id/register_password"
+                    style="@style/FinoraInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autofillHints="newPassword"
+                    android:imeOptions="actionDone|flagNoPersonalizedLearning"
+                    android:inputType="textPassword"
+                    android:saveEnabled="false" />
+                <ImageButton
+                    android:id="@+id/register_password_visibility"
+                    style="@style/FinoraButton.Secondary"
+                    android:layout_width="@dimen/finora_touch"
+                    android:layout_height="@dimen/finora_touch"
+                    android:minHeight="@dimen/finora_touch"
+                    android:padding="0dp"
+                    android:contentDescription="@string/login_show_password"
+                    android:src="@drawable/finora_ic_eye"
+                    app:tint="@color/finora_secondary_text" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/register_password_error"
+                style="@style/FinoraText.FieldError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/register_rules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                android:orientation="vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+                <TextView
+                    android:id="@+id/register_rule_length"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="24dp"
+                    android:text="@string/password_rule_length"
+                    app:drawableStartCompat="@drawable/finora_ic_dot" />
+                <TextView
+                    android:id="@+id/register_rule_letter"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="24dp"
+                    android:text="@string/password_rule_letter"
+                    app:drawableStartCompat="@drawable/finora_ic_dot" />
+                <TextView
+                    android:id="@+id/register_rule_digit"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="24dp"
+                    android:text="@string/password_rule_digit"
+                    app:drawableStartCompat="@drawable/finora_ic_dot" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/register_language_label"
+                style="@style/FinoraText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_m"
+                android:text="@string/register_language" />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/register_language"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/register_language_en"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/finora_touch"
+                    android:text="@string/language_english" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/register_language_si"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/finora_touch"
+                    android:text="@string/language_sinhala" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Finora.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_l">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:id="@+id/register_consent_heading"
+                        style="@style/FinoraText.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="8dp"
+                        android:gravity="center_vertical"
+                        android:text="@string/register_consent_heading"
+                        app:drawableStartCompat="@drawable/finora_ic_shield"
+                        app:drawableTint="@color/finora_green" />
+                    <LinearLayout
+                        android:id="@+id/register_consent_rows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/register_over18"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_s"
+                android:minHeight="@dimen/finora_touch"
+                android:text="@string/register_over18"
+                android:textColor="@color/finora_ink"
+                android:textSize="15sp" />
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/register_consent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/finora_touch"
+                android:text="@string/register_consent"
+                android:textColor="@color/finora_ink"
+                android:textSize="15sp" />
+            <Button
+                android:id="@+id/register_submit"
+                style="@style/FinoraButton.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_m"
+                android:text="@string/register_submit" />
+            <TextView
+                android:id="@+id/register_submit_hint"
+                style="@style/FinoraText.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                android:gravity="center_horizontal"
+                android:text="@string/register_submit_hint"
+                android:textColor="@color/finora_muted" />
+            <include android:id="@+id/register_feedback" layout="@layout/view_state" />
+            <Button
+                android:id="@+id/register_back"
+                style="@style/FinoraButton.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/finora_space_xs"
+                android:text="@string/register_have_account" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

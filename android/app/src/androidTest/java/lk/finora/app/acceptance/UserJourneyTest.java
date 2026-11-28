@@ -574,10 +574,11 @@ public class UserJourneyTest {
     private void checkRecoveryText(String language, float scale, java.util.List<String> problems) {
         clickId(R.id.forgot_password);
         checkScreenText(lk.finora.app.ui.login.PasswordResetActivity.class, language, scale, problems);
-        typeFixture(onView(withHint(R.string.admin_new_email)), "synthetic-layout@example.test");
+        typeFixture(onView(withId(R.id.reset_email)), "synthetic-layout@example.test");
         clickText(R.string.reset_request);
-        awaitText(app.getString(R.string.reset_check_mail));
+        awaitText(app.getString(R.string.reset_code_title));
         checkScreenText(lk.finora.app.ui.login.PasswordResetActivity.class, language, scale, problems);
+        pressBack();  // T69.2: back to the email step, then out
         pressBack();
         awaitActivity(LoginActivity.class);
     }
@@ -941,14 +942,17 @@ public class UserJourneyTest {
         try (var screen = ActivityScenario.launch(LoginActivity.class)) {
             clickId(R.id.forgot_password);
             awaitActivity(lk.finora.app.ui.login.PasswordResetActivity.class);
-            typeFixture(onView(withHint(R.string.admin_new_email)), "unknown-" + UUID.randomUUID() + "@example.test");
+            typeFixture(onView(withId(R.id.reset_email)), "unknown-" + UUID.randomUUID() + "@example.test");
             clickText(R.string.reset_request);
-            awaitText(app.getString(R.string.reset_check_mail));
-            typeFixture(onView(withHint(R.string.reset_code)), "012345");
-            typeFixture(onView(withHint(R.string.admin_new_password)), "Synthetic2026");
+            awaitText(app.getString(R.string.reset_code_title));
+            typeFixture(onView(withId(R.id.reset_code_input)), "012345");
+            typeFixture(onView(withId(R.id.reset_password)), "Synthetic2026");
+            typeFixture(onView(withId(R.id.reset_repeat)), "Synthetic2026");
             onView(allOf(withText(R.string.reset_confirm), isAssignableFrom(android.widget.Button.class)))
                     .perform(reveal(), activateControl());
             awaitText(app.getString(R.string.reset_code_invalid));
+            pressBack();  // T69.2: Back from the code step returns to the email step first
+            awaitText(app.getString(R.string.reset_title));
             pressBack();
             awaitActivity(LoginActivity.class);
             chooseTestLanguage("si");
@@ -985,11 +989,12 @@ public class UserJourneyTest {
                     throw new AssertionError("Unable to attach the isolated reset fixture", exception);
                 }
             });
-            typeFixture(onView(withHint(R.string.admin_new_email)), "synthetic-reset@example.test");
+            typeFixture(onView(withId(R.id.reset_email)), "synthetic-reset@example.test");
             clickText(R.string.reset_request);
-            awaitText(app.getString(R.string.reset_check_mail));
-            typeFixture(onView(withHint(R.string.reset_code)), "012345");
-            typeFixture(onView(withHint(R.string.admin_new_password)), "Synthetic2026");
+            awaitText(app.getString(R.string.reset_code_title));
+            typeFixture(onView(withId(R.id.reset_code_input)), "012345");
+            typeFixture(onView(withId(R.id.reset_password)), "Synthetic2026");
+            typeFixture(onView(withId(R.id.reset_repeat)), "Synthetic2026");
             onView(allOf(withText(R.string.reset_confirm), isAssignableFrom(android.widget.Button.class)))
                     .perform(reveal(), activateControl());
             awaitActivity(LoginActivity.class);
@@ -1306,7 +1311,8 @@ public class UserJourneyTest {
             InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> LocaleHelper.apply("SI"));
             var sinhala = new android.content.res.Configuration(app.getResources().getConfiguration());
             sinhala.setLocale(java.util.Locale.forLanguageTag("si"));
-            awaitText(app.createConfigurationContext(sinhala).getString(R.string.register_consent_heading));
+            // T69.2: the taller consent card can leave the heading above the restored scroll position.
+            awaitShown(app.createConfigurationContext(sinhala).getString(R.string.register_consent_heading));
             checkConsentGate();
         }
     }
@@ -1316,7 +1322,7 @@ public class UserJourneyTest {
                 R.id.register_language, R.id.register_consent_heading, R.id.register_over18, R.id.register_consent}) {
             onView(withId(field)).perform(reveal()).check(matches(isDisplayed()));
         }
-        onView(withText(R.string.register_consent_text)).perform(reveal()).check(matches(isDisplayed()));
+        onView(withText(R.string.register_consent_records)).perform(reveal()).check(matches(isDisplayed()));
         onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));
         clickId(R.id.register_over18);
         onView(withId(R.id.register_submit)).check(matches(not(isEnabled())));

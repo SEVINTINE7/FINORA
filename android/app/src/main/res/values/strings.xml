@@ -766,4 +766,31 @@
     <string name="support_pick_topic">Choose a topic to see the request.</string>
     <string name="support_send">Send request</string>
     <string name="support_sent_toast">Request sent</string>
+    <!-- T69.2/D72 Register and password reset -->
+    <string name="register_headline">Start making sense\nof your money.</string>
+    <string name="register_intro">Track your spending, see your patterns and get a money health score.</string>
+    <string name="password_rule_length">At least 8 characters</string>
+    <string name="password_rule_letter">At least one letter</string>
+    <string name="password_rule_digit">At least one number</string>
+    <string name="password_rule_met">%1$s, done</string>
+    <string name="password_rule_missing">%1$s, not yet</string>
+    <string name="register_consent_records">Your records stay yours</string>
+    <string name="register_consent_sms">SMS stays on your phone</string>
+    <string name="register_consent_ai">AI sees totals only</string>
+    <string name="register_consent_bank">No bank logins</string>
+    <string name="register_consent_control">You stay in control</string>
+    <string name="register_submit_hint">Tick both boxes to create your account.</string>
+    <string name="reset_back_sign_in">Back to sign in</string>
+    <string name="reset_headline_email">Locked out?\nLet us fix that.</string>
+    <string name="reset_headline_code">Almost there.</string>
+    <string name="reset_title">Reset your password</string>
+    <string name="reset_intro">Enter the email for your FINORA account. We will send a 6-digit code to it.</string>
+    <string name="reset_step_email">1 · Your email</string>
+    <string name="reset_step_code">2 · Code and new password</string>
+    <string name="reset_step_of">Step %1$d of 2</string>
+    <string name="reset_note">FINORA staff will never ask you for this code. Do not share it with anyone.</string>
+    <string name="reset_code_title">Enter the code</string>
+    <string name="reset_code_sent">If an account uses %1$s, a 6-digit code is on its way. It works for 15 minutes.</string>
+    <string name="reset_resend">Send a new code</string>
+    <string name="reset_resent">If the account exists, a new code is on its way.</string>
 </resources>

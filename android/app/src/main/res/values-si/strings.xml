@@ -764,4 +764,31 @@
     <string name="support_pick_topic">ඉල්ලීම බැලීමට මාතෘකාවක් තෝරන්න.</string>
     <string name="support_send">ඉල්ලීම යවන්න</string>
     <string name="support_sent_toast">ඉල්ලීම යවන ලදී</string>
+    <!-- T69.2/D72 Register and password reset -->
+    <string name="register_headline">ඔබේ මුදල් ගැන\nපැහැදිලි වන්න.</string>
+    <string name="register_intro">ඔබේ වියදම් සටහන් කරන්න, රටා බලන්න සහ මූල්‍ය සෞඛ්‍ය ලකුණක් ලබා ගන්න.</string>
+    <string name="password_rule_length">අවම වශයෙන් අක්ෂර 8ක්</string>
+    <string name="password_rule_letter">අවම වශයෙන් එක් අකුරක්</string>
+    <string name="password_rule_digit">අවම වශයෙන් එක් ඉලක්කමක්</string>
+    <string name="password_rule_met">%1$s, සම්පූර්ණයි</string>
+    <string name="password_rule_missing">%1$s, තවම නැත</string>
+    <string name="register_consent_records">ඔබේ වාර්තා ඔබටමයි</string>
+    <string name="register_consent_sms">SMS ඔබේ දුරකථනයේම රැඳේ</string>
+    <string name="register_consent_ai">AI දකින්නේ එකතු පමණි</string>
+    <string name="register_consent_bank">බැංකු පිවිසුම් නැත</string>
+    <string name="register_consent_control">පාලනය ඔබ සතුයි</string>
+    <string name="register_submit_hint">ඔබේ ගිණුම සෑදීමට කොටු දෙකම සලකුණු කරන්න.</string>
+    <string name="reset_back_sign_in">නැවත පිවිසීමට</string>
+    <string name="reset_headline_email">ඇතුළු විය නොහැකිද?\nඅපි එය විසඳමු.</string>
+    <string name="reset_headline_code">තව ටිකයි.</string>
+    <string name="reset_title">ඔබේ මුරපදය යළි සකසන්න</string>
+    <string name="reset_intro">ඔබේ FINORA ගිණුමේ ඊමේල් ලිපිනය ඇතුළත් කරන්න. අපි එයට ඉලක්කම් 6ක කේතයක් යවන්නෙමු.</string>
+    <string name="reset_step_email">1 · ඔබේ ඊමේල්</string>
+    <string name="reset_step_code">2 · කේතය සහ නව මුරපදය</string>
+    <string name="reset_step_of">පියවර 2න් %1$d</string>
+    <string name="reset_note">FINORA කාර්ය මණ්ඩලය කිසිවිටෙක මෙම කේතය ඉල්ලන්නේ නැත. එය කිසිවෙකු සමඟ බෙදා නොගන්න.</string>
+    <string name="reset_code_title">කේතය ඇතුළත් කරන්න</string>
+    <string name="reset_code_sent">%1$s භාවිත කරන ගිණුමක් තිබේ නම්, ඉලක්කම් 6ක කේතයක් එවනු ලැබේ. එය මිනිත්තු 15ක් වලංගුයි.</string>
+    <string name="reset_resend">නව කේතයක් යවන්න</string>
+    <string name="reset_resent">ගිණුම තිබේ නම්, නව කේතයක් එවනු ලැබේ.</string>
 </resources>

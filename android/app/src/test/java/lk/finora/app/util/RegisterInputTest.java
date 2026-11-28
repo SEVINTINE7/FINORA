@@ -28,4 +28,17 @@ public class RegisterInputTest {
         assertFalse(RegisterInput.canSubmit(false, false, false));
         assertFalse(RegisterInput.canSubmit(true, true, true));
     }
+
+    @Test public void checklistRowsTickOneRuleEach() {
+        assertFalse(RegisterInput.hasLength("Abc1234"));
+        assertTrue(RegisterInput.hasLength("Abc12345"));
+        assertFalse(RegisterInput.hasLength("a".repeat(73)));
+        assertTrue(RegisterInput.hasLetter("1234567x"));
+        assertFalse(RegisterInput.hasLetter("12345678"));
+        assertFalse(RegisterInput.hasLetter("ඉලක්කම්12345"));
+        assertTrue(RegisterInput.hasDigit("password9"));
+        assertFalse(RegisterInput.hasDigit("password"));
+        assertTrue(RegisterInput.hasStrongPassword("Lanka2026"));
+        assertFalse(RegisterInput.hasStrongPassword("Lanka"));
+    }
 }

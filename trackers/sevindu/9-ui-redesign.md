@@ -133,11 +133,14 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 
 ### T69 · Register and password reset · `UX-09`
 **Lead:** Sevindu · **Support:** Sahan (review; T61.4 owner) · **Depends on:** T62 · **Touches:** `and:ui/register/`, `and:ui/login/PasswordResetActivity`, `res:layout/`
-- [ ] T69.1 Mockups of Register and Password reset (email step, code + new password step) matching the existing Login style, approved by Sevindu
-- [ ] T69.2 Register (consent, over-18, language) and Password reset; the Login screen itself unchanged
+- [x] T69.1 Mockups of Register and Password reset (email step, code + new password step) matching the existing Login style, approved by Sevindu
+- [x] T69.2 Register (consent, over-18, language) and Password reset; the Login screen itself unchanged
 - [ ] T69.3 Screenshots approved
 
 **Handoff notes:**
+- T69.1 (2026-11-28): Register, Reset email and Reset code boards on the design canvas, approved by Sevindu. Adds a "Repeat new password" field to reset (client check only).
+- T69.2 (2026-11-28): `activity_register.xml` and new `activity_password_reset.xml` in the Login style; shared `ui/login/AuthForm` (navy window/insets, field errors, eye button, live rule checklist). Consent card keeps the exact `register_consent_text` bullets, adding titles and icons. Back from reset step 2 goes to step 1.
+- Checks: 199 unit tests (RegisterInputTest rule rows), lint 4 = baseline. Pixel_8: consent gate EN+SI, invalid reset code (live API), successful reset (fake), FAQ probe at 130% (registers through the new screen) pass. `T69ScreenshotTest` (arg finoraT69Shots, no account or mail) captured EN/SI light+dark and 130%. Tests now find reset fields by id; Sinhala strings need a native read.
 
 ### T70 · Staff screens · `UX-10`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/staff/`, `and:ui/support/DiagnosticQueueActivity`, `and:ui/support/FormatSampleActivity`, `res:layout/`
