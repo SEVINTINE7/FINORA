@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T70.3/D72 Send a saved reply (STAFF): the request, approved replies as tiles, English or Sinhala, the exact
+     text the user will see, and Send pinned at the bottom. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/finora_screen_margin"
+            android:paddingTop="8dp"
+            android:paddingEnd="@dimen/finora_screen_margin"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/staff_reply_heading"
+                style="@style/FinoraText.Greeting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="@string/support_reply" />
+
+            <include
+                android:id="@+id/staff_reply_ticket"
+                layout="@layout/item_support_ticket" />
+
+            <TextView
+                android:id="@+id/staff_reply_choose"
+                style="@style/FinoraText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/staff_reply_choose" />
+            <RadioGroup
+                android:id="@+id/staff_reply_choices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+            <TextView
+                android:id="@+id/staff_reply_none"
+                style="@style/FinoraText.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/staff_reply_none"
+                android:textColor="@color/finora_muted"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/staff_reply_language_label"
+                style="@style/FinoraText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/language_selector" />
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/staff_reply_language"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:checkedButton="@id/staff_reply_en"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/staff_reply_en"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/finora_touch"
+                    android:text="@string/language_english" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/staff_reply_si"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/finora_touch"
+                    android:text="@string/language_sinhala" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                style="@style/FinoraText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/staff_reply_preview" />
+            <TextView
+                android:id="@+id/staff_reply_preview"
+                style="@style/FinoraText.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/finora_bubble_reply"
+                android:padding="14dp"
+                android:text="@string/staff_reply_pick"
+                android:textColor="@color/finora_ink" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/finora_surface"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingTop="12dp"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:paddingBottom="16dp">
+        <TextView
+            android:id="@+id/records_status"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:paddingBottom="8dp"
+            android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/staff_reply_send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:minHeight="56dp"
+            android:text="@string/staff_reply_send"
+            android:textSize="16sp"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/finora_ic_mail"
+            app:iconGravity="textStart" />
+    </LinearLayout>
+</LinearLayout>

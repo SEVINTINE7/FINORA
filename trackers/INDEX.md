@@ -75,7 +75,7 @@ The [criterion audit](../docs/sahan-final-audit.md) supports **81/84 verified** 
 | T67 | Redesign import screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | review |
 | T68 | Redesign settings, help, support | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | review |
 | T69 | Redesign register and password reset | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | review |
-| T70 | Redesign staff screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | in-progress |
+| T70 | Redesign staff screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | review |
 | T71 | Redesign admin screens | Sevindu | Sahan | T62 | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |
 | T72 | One sign-in page for every role | Sevindu | Sahan, Thilina | T46, T59 (D66) | [sevindu/8-admin-accounts.md](sevindu/8-admin-accounts.md) | todo |
 | T73 | Loading animation for slow screens | Sevindu | Sahan, Thilina | T62 (D67) | [sevindu/9-ui-redesign.md](sevindu/9-ui-redesign.md) | todo |

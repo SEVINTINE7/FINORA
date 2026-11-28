@@ -32,11 +32,13 @@ public final class SupportRows {
             case "DRAFT" -> R.string.support_draft_state;
             case "ACTIVE" -> R.string.support_active;
             case "RETIRED" -> R.string.support_retired;
+            case "ACKNOWLEDGED" -> R.string.sms_diagnostic_acknowledged;
             default -> R.string.sms_diagnostic_unknown;
         };
     }
 
-    /** Open: green with an info mark; In progress: amber with a clock; Closed and others: grey with a tick. */
+    /** Open: green info mark; Active: green tick; In progress, Draft, Acknowledged: amber clock; Retired: grey archive;
+     *  Closed and others: grey tick. */
     public static void status(TextView chip, String key) {
         Context context = chip.getContext();
         int surface;
@@ -48,10 +50,20 @@ public final class SupportRows {
                 ink = R.color.finora_green;
                 icon = R.drawable.finora_ic_info;
             }
-            case "IN_PROGRESS" -> {
+            case "ACTIVE" -> {
+                surface = R.color.finora_success_surface;
+                ink = R.color.finora_green;
+                icon = R.drawable.finora_ic_check;
+            }
+            case "IN_PROGRESS", "DRAFT", "ACKNOWLEDGED" -> {
                 surface = R.color.finora_warn_fill;
                 ink = R.color.finora_warn_ink;
                 icon = R.drawable.finora_ic_clock;
+            }
+            case "RETIRED" -> {
+                surface = R.color.finora_neutral_surface;
+                ink = R.color.finora_ink;
+                icon = R.drawable.finora_ic_archive;
             }
             default -> {
                 surface = R.color.finora_neutral_surface;

@@ -137,7 +137,7 @@ public class UserJourneyTest {
                 awaitButton(R.string.support_approve);
                 clickText(R.string.support_approve);
                 confirm();
-                await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+                await(By.descContains(app.getString(R.string.support_sign_in) + " · "
                         + app.getString(R.string.support_active)));
                 pressBack();
                 awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
@@ -1150,8 +1150,9 @@ public class UserJourneyTest {
             clickText(R.string.sms_format_sample_check);
             typeFixture(onView(withHint(R.string.sms_format_synthetic_sample)), "Synthetic unmatched text");
             clickText(R.string.sms_format_sample_check);
-            awaitText(app.getString(R.string.sms_format_sample_result,
-                    app.getString(R.string.sms_format_approved_match), app.getString(R.string.sms_format_sample_unmatched)));
+            // T70.3: the two results are separate lines with an icon each.
+            awaitText(app.getString(R.string.sms_format_approved_match));
+            awaitText(app.getString(R.string.sms_format_sample_unmatched));
         }
     }
 
@@ -1951,27 +1952,33 @@ public class UserJourneyTest {
             openCatalog();
             clickText(R.string.support_approve);
             confirm();
-            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+            await(By.descContains(app.getString(R.string.support_sign_in) + " · "
                     + app.getString(R.string.support_active)));
+            pressBack();
+            awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
             clickText(R.string.support_tickets);
+            awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
             awaitButton(R.string.support_claim);
             clickText(R.string.support_claim);
             confirm();
             awaitButton(R.string.support_reply);
             sendReply(englishReply);
             sendReply(sinhalaReply);
+            pressBack();
+            awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
             clickText(R.string.support_catalog);
+            awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
             awaitButton(R.string.support_retire);
             clickText(R.string.support_retire);
             confirm();
-            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+            await(By.descContains(app.getString(R.string.support_sign_in) + " · "
                     + app.getString(R.string.support_retired)));
             clickText(R.string.support_draft);
             dialogChoice(app.getString(R.string.support_sign_in));
             confirm();
-            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+            await(By.descContains(app.getString(R.string.support_sign_in) + " · "
                     + app.getString(R.string.support_draft_state)));
-            await(By.textContains(app.getString(R.string.support_sign_in) + " · "
+            await(By.descContains(app.getString(R.string.support_sign_in) + " · "
                     + app.getString(R.string.support_retired)));
             pressBack();
             awaitActivity(lk.finora.app.ui.staff.StaffHomeActivity.class);
@@ -1991,20 +1998,25 @@ public class UserJourneyTest {
     }
 
     private void openCatalog() {
-        clickText(R.string.support_tickets);
-        awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
-        awaitButton(R.string.support_catalog);
+        // T70.2: Staff home opens Saved replies directly.
         clickText(R.string.support_catalog);
+        awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
         awaitButton(R.string.support_draft);
     }
 
     private void sendReply(String text) {
+        // T70.3: one screen with reply tiles, a language toggle and the exact text, instead of three dialogs.
         clickText(R.string.support_reply);
-        dialogChoice(app.getString(R.string.support_sign_in));
-        dialogChoice(text);
-        onView(withId(android.R.id.message)).inRoot(isDialog()).check(matches(withText(text)));
-        confirm();
-        awaitText(app.getString(R.string.sms_diagnostic_updated));
+        awaitActivity(lk.finora.app.ui.support.StaffReplyActivity.class);
+        awaitText(app.getString(R.string.support_sign_in));
+        clickText(R.string.support_sign_in);
+        if (text.codePoints().anyMatch(point -> Character.UnicodeScript.of(point) == Character.UnicodeScript.SINHALA)) {
+            clickId(R.id.staff_reply_si);
+        }
+        awaitText(text);
+        clickId(R.id.staff_reply_send);
+        awaitActivity(lk.finora.app.ui.support.SupportActivity.class);
+        awaitButton(R.string.support_reply);
     }
 
     private void signInStaff(String email, String password) {

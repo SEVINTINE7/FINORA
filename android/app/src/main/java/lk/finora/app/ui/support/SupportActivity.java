@@ -5,17 +5,14 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import lk.finora.app.R;
-import lk.finora.app.databinding.ActivityFinoraScreenBinding;
-import lk.finora.app.ui.ScreenControls;
+import lk.finora.app.data.repo.SupportRepository.Revision;
 import lk.finora.app.data.repo.SupportRepository.Ticket;
 import lk.finora.app.data.repo.SupportRepository.Topic;
 import lk.finora.app.ui.SecureActivity;
@@ -24,7 +21,7 @@ public final class SupportActivity extends SecureActivity {
     /** Staff home "Saved replies" opens the catalog directly (T70.2). */
     public static final String CATALOG = "catalog";
     private SupportViewModel model;
-    private LinearLayout rows;
+    private StaffCards cards;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -34,21 +31,18 @@ public final class SupportActivity extends SecureActivity {
             return;
         }
         if (model.staff) {
-            // STAFF keep the T47/T48 screen until T70.
-            var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
-            rows = binding.screenPage;
-            setContentView(binding.getRoot());
+            if (state == null && getIntent().getBooleanExtra(CATALOG, false)) model.showCatalog = true;
+            bindStaff();
         } else {
             bindUser();
         }
-        if (state == null && model.staff && getIntent().getBooleanExtra(CATALOG, false)) model.showCatalog = true;
         model.work.changes.observe(this, ignored -> render());
         model.load();
     }
 
     private void render() {
         if (!model.work.isCurrent()) {
-            if (rows != null) rows.removeAllViews();
+            if (cards != null) cards.clear();
             finish();
             return;
         }
@@ -56,92 +50,118 @@ public final class SupportActivity extends SecureActivity {
             renderUser();
             return;
         }
-        rows.removeAllViews();
-        int title = model.showCatalog ? R.string.support_catalog : R.string.support_tickets;
-        ViewCompat.setAccessibilityHeading(label(getString(title)), true);
-        if (model.work.busy()) {
-            label(getString(R.string.records_loading));
+        boolean busy = model.work.busy();
+        StaffCards.status(this, busy, model.work.error, model.notice);
+        cards.clear();
+        if (busy) return;
+        if (model.showCatalog) renderCatalog();
+        else renderQueue();
+    }
+
+    // ---- T70.3/D72 STAFF screens: request queue and saved replies (catalog) ----
+
+    private void bindStaff() {
+        getWindow().setBackgroundDrawableResource(R.color.finora_surface);
+        setContentView(R.layout.activity_staff_list);
+        cards = new StaffCards(this);
+        boolean catalog = model.showCatalog;
+        StaffCards.frame(this, catalog ? R.string.support_catalog : R.string.support_tickets,
+                getString(catalog ? R.string.staff_catalog_note : R.string.staff_queue_note),
+                catalog ? R.drawable.finora_ic_shield : R.drawable.finora_ic_info);
+        findViewById(R.id.staff_list_reload).setOnClickListener(view -> model.load());
+        findViewById(R.id.staff_list_retry).setOnClickListener(view -> model.load());
+        if (catalog) {
+            var fab = (com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton)
+                    findViewById(R.id.staff_list_fab);
+            fab.setText(R.string.support_draft);
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(view -> draftTopic());
+        }
+    }
+
+    private void renderQueue() {
+        var waiting = new java.util.ArrayList<Ticket>();
+        var mine = new java.util.ArrayList<Ticket>();
+        for (var ticket : model.tickets) {
+            if ("OPEN".equals(ticket.status()) && ticket.subject() == null) waiting.add(ticket);
+            else mine.add(ticket);
+        }
+        if (model.work.error != 0 && model.tickets.isEmpty()) return;
+        cards.section(getString(R.string.staff_waiting_section, waiting.size()));
+        if (waiting.isEmpty()) cards.line(getString(R.string.staff_none_waiting));
+        for (var ticket : waiting) {
+            String summary = getString(R.string.support_ticket_summary, ticket.id(),
+                    getString(R.string.support_tickets), state(ticket.status()));
+            View card = cards.card(R.drawable.finora_ic_mail, StaffCards.Tone.ACCENT,
+                    getString(R.string.staff_topic_hidden), getString(R.string.support_request_number, ticket.id()),
+                    summary);
+            StaffCards.chip(card, ticket.status());
+            cards.action(card, R.string.support_claim, R.drawable.finora_ic_tick, true, summary,
+                    () -> confirm(R.string.support_claim, summary, () -> model.claim(ticket.id())));
+        }
+        cards.section(getString(R.string.staff_assigned_section, mine.size()));
+        if (mine.isEmpty()) cards.line(getString(R.string.staff_none_assigned));
+        for (var ticket : mine) {
+            var topic = Topic.matching(ticket.subject());
+            String name = topic == null ? getString(R.string.support_tickets) : topic.label(this);
+            String summary = getString(R.string.support_ticket_summary, ticket.id(), name, state(ticket.status()));
+            View card = cards.card(SupportRows.icon(topic), StaffCards.Tone.ACCENT, name,
+                    getString(R.string.support_request_number, ticket.id()), summary);
+            StaffCards.chip(card, ticket.status());
+            if ("IN_PROGRESS".equals(ticket.status())) {
+                StaffCards.stack(card);
+                cards.action(card, R.string.support_reply, R.drawable.finora_ic_mail, true, summary,
+                        () -> startActivity(new Intent(this, StaffReplyActivity.class)
+                                .putExtra(StaffReplyActivity.TICKET, ticket.id())
+                                .putExtra(StaffReplyActivity.SUBJECT, ticket.subject())));
+                cards.action(card, R.string.support_close, R.drawable.finora_ic_check, false, summary,
+                        () -> confirm(R.string.support_close, summary, () -> model.close(ticket.id())));
+            }
+        }
+    }
+
+    private void renderCatalog() {
+        if (model.work.error != 0 && model.catalog.isEmpty()) return;
+        if (model.catalog.isEmpty()) {
+            cards.line(getString(R.string.staff_no_saved_replies));
             return;
         }
-        if (model.work.error != 0) label(getString(model.work.error));
-        if (model.notice != 0) label(getString(model.notice));
-        button(R.string.records_retry, model::load);
-        if (model.showCatalog) {
-            button(R.string.support_tickets, () -> model.catalog(false));
-            button(R.string.support_draft, () -> topics(true));
-            for (var revision : model.catalog) {
-                String titleText = revision.topic().label(this) + " · " + state(revision.state());
+        String[][] groups = {{"DRAFT"}, {"ACTIVE"}, {"RETIRED"}};
+        int[] headings = {R.string.staff_section_draft, R.string.support_active, R.string.support_retired};
+        for (int g = 0; g < groups.length; g++) {
+            String key = groups[g][0];
+            var items = model.catalog.stream().filter(item -> key.equals(item.state()))
+                    .collect(java.util.stream.Collectors.toList());
+            if (items.isEmpty()) continue;
+            cards.section(getString(headings[g]));
+            for (Revision revision : items) {
+                String name = revision.topic().label(this);
                 String copy = revision.english() + "\n\n" + revision.sinhala();
-                label(titleText + "\n" + copy);
-                if ("DRAFT".equals(revision.state())) button(R.string.support_approve,
+                String summary = name + " · " + state(revision.state());
+                View card = cards.card(SupportRows.icon(revision.topic()), StaffCards.Tone.ACCENT, name,
+                        getString(R.string.staff_revision_number, revision.id()), summary + "\n" + copy);
+                StaffCards.chip(card, revision.state());
+                cards.quote(card, revision.english());
+                cards.quote(card, revision.sinhala());
+                if ("DRAFT".equals(revision.state())) StaffCards.stack(card);
+                if ("DRAFT".equals(revision.state())) cards.action(card, R.string.support_approve,
+                        R.drawable.finora_ic_check, true, summary,
                         () -> confirm(R.string.support_approve, copy, () -> model.approve(revision.id())));
-                if (!"RETIRED".equals(revision.state())) button(R.string.support_retire,
+                if (!"RETIRED".equals(revision.state())) cards.action(card, R.string.support_retire,
+                        R.drawable.finora_ic_archive, false, summary,
                         () -> confirm(R.string.support_retire, copy, () -> model.retire(revision.id())));
             }
-            return;
         }
-        if (model.viewedTicket > 0) {
-            button(R.string.support_tickets, () -> model.catalog(false));
-            if (model.replies.isEmpty()) label(getString(R.string.records_empty));
-            for (var reply : model.replies) label(reply.body());
-            return;
-        }
-        if (model.staff) button(R.string.support_catalog, () -> model.catalog(true));
-        else {
-            label(getString(R.string.support_privacy));
-            button(R.string.support_create, () -> topics(false));
-        }
-        if (model.tickets.isEmpty() && model.work.error == 0) label(getString(R.string.records_empty));
-        for (var ticket : model.tickets) {
-            var topic = Topic.matching(ticket.subject());
-            String summary = getString(R.string.support_ticket_summary, ticket.id(),
-                    topic == null ? getString(R.string.support_tickets) : topic.label(this), state(ticket.status()));
-            label(summary);
-            if (!model.staff) rowAction(R.string.support_replies, summary, () -> model.openReplies(ticket.id()));
-            else if ("OPEN".equals(ticket.status()) && ticket.subject() == null) {
-                rowAction(R.string.support_claim, summary,
-                        () -> confirm(R.string.support_claim, summary, () -> model.claim(ticket.id())));
-            } else if ("IN_PROGRESS".equals(ticket.status())) {
-                rowAction(R.string.support_close, summary,
-                        () -> confirm(R.string.support_close, summary, () -> model.close(ticket.id())));
-                rowAction(R.string.support_reply, summary, () -> chooseReply(ticket.id()));
-            }
-        }
-        if (model.staff) button(R.string.support_load_replies, model::browseReplies);
     }
 
-    private void chooseReply(long ticket) {
-        var choices = model.catalog.stream().filter(item -> "ACTIVE".equals(item.state()))
-                .collect(java.util.stream.Collectors.toList());
-        if (choices.isEmpty()) {
-            label(getString(R.string.support_no_reply));
-            return;
-        }
-        String[] names = choices.stream().map(item -> item.topic().label(this)).toArray(String[]::new);
-        showSecure(new AlertDialog.Builder(this).setTitle(R.string.support_reply)
-                .setItems(names, (dialog, which) -> {
-                    var selected = choices.get(which);
-                    if (!model.work.isCurrent()) return;
-                    showSecure(new AlertDialog.Builder(this).setTitle(R.string.support_reply)
-                            .setItems(new String[]{selected.english(), selected.sinhala()}, (language, index) -> {
-                                if (!model.work.isCurrent()) return;
-                                confirm(R.string.support_reply, index == 0 ? selected.english() : selected.sinhala(),
-                                        () -> model.reply(ticket, selected.id(), index == 0 ? "EN" : "SI"));
-                            }).create());
-                }).create());
-    }
-
-    private void topics(boolean drafting) {
+    /** Draft a saved reply: pick a topic; the server fills the approved English and Sinhala wording. */
+    private void draftTopic() {
+        if (!model.work.isCurrent() || model.work.busy()) return;
         Topic[] topics = Topic.values();
         String[] names = java.util.Arrays.stream(topics).map(topic -> topic.label(this)).toArray(String[]::new);
-        int title = drafting ? R.string.support_draft : R.string.support_create;
-        showSecure(new AlertDialog.Builder(this).setTitle(title).setItems(names, (dialog, which) -> {
+        showSecure(new AlertDialog.Builder(this).setTitle(R.string.support_draft).setItems(names, (dialog, which) -> {
             if (!model.work.isCurrent()) return;
-            String message = names[which] + (drafting ? "" : "\n\n" + getString(R.string.support_privacy));
-            confirm(title, message, () -> {
-                if (drafting) model.draft(topics[which]);
-                else model.create(topics[which]);
-            });
+            confirm(R.string.support_draft, names[which], () -> model.draft(topics[which]));
         }).create());
     }
 
@@ -157,25 +177,6 @@ public final class SupportActivity extends SecureActivity {
         return getString(SupportRows.stateLabel(key));
     }
 
-    private TextView label(String text) {
-        var view = ScreenControls.text(this);
-        view.setText(text);
-        rows.addView(view);
-        return view;
-    }
-
-    private Button button(int id, Runnable action) {
-        var button = ScreenControls.action(this);
-        button.setText(id);
-        button.setOnClickListener(view -> action.run());
-        rows.addView(button);
-        return button;
-    }
-
-    private void rowAction(int id, String summary, Runnable action) {
-        button(id, action).setContentDescription(getString(id) + ". " + summary);
-    }
-
     // ---- T68.3/D72 USER screen: request cards, a thread view, and New support request ----
 
     private boolean resumedOnce;
@@ -183,7 +184,7 @@ public final class SupportActivity extends SecureActivity {
     @Override protected void onResume() {
         super.onResume();
         // A request sent from New support request shows up when the list comes back.
-        if (model != null && !model.staff && resumedOnce && model.viewedTicket == 0 && model.work.isCurrent()) {
+        if (model != null && resumedOnce && model.viewedTicket == 0 && model.work.isCurrent() && !model.work.busy()) {
             model.load();
         }
         resumedOnce = true;

@@ -2,19 +2,14 @@ package lk.finora.app.ui.support;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 import lk.finora.app.R;
-import lk.finora.app.databinding.ActivityFinoraScreenBinding;
-import lk.finora.app.ui.ScreenControls;
+import lk.finora.app.data.repo.SmsDiagnosticRepository;
 import lk.finora.app.ui.SecureActivity;
 
 public final class DiagnosticQueueActivity extends SecureActivity {
     private DiagnosticQueueViewModel model;
-    private LinearLayout rows;
+    private StaffCards cards;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -23,9 +18,13 @@ public final class DiagnosticQueueActivity extends SecureActivity {
             finish();
             return;
         }
-        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
-        rows = binding.screenPage;
-        setContentView(binding.getRoot());
+        getWindow().setBackgroundDrawableResource(R.color.finora_surface);
+        setContentView(R.layout.activity_staff_list);
+        cards = new StaffCards(this);
+        StaffCards.frame(this, model.admin ? R.string.sms_diagnostic_admin : R.string.sms_diagnostic_queue,
+                getString(R.string.staff_diag_note), R.drawable.finora_ic_shield);
+        findViewById(R.id.staff_list_reload).setOnClickListener(view -> model.load());
+        findViewById(R.id.staff_list_retry).setOnClickListener(view -> model.load());
         model.work.changes.observe(this, ignored -> render());
     }
 
@@ -37,92 +36,109 @@ public final class DiagnosticQueueActivity extends SecureActivity {
         }
     }
 
+    /** T70.3/D72: grouped parser failures as cards (counts only, rule 4); ADMIN also sees flags and NSB revisions. */
     private void render() {
         if (!model.work.isCurrent()) {
-            if (rows != null) rows.removeAllViews();
+            if (cards != null) cards.clear();
             finish();
             return;
         }
-        rows.removeAllViews();
-        var heading = label(getString(R.string.sms_diagnostic_queue));
-        androidx.core.view.ViewCompat.setAccessibilityHeading(heading, true);
-        if (model.work.busy()) {
-            label(getString(R.string.records_loading));
-            return;
-        }
-        if (model.work.error != 0) label(getString(model.work.error));
-        if (model.notice != 0) label(getString(model.notice));
+        boolean busy = model.work.busy();
+        StaffCards.status(this, busy, model.work.error, model.notice);
+        cards.clear();
+        if (busy) return;
         for (int index = 0; index < model.sampleResults.size(); index++) {
-            label(getString(R.string.sms_format_fixture_result, index + 1, getString(
+            cards.line(getString(R.string.sms_format_fixture_result, index + 1, getString(
                     model.sampleResults.get(index) ? R.string.sms_format_sample_matched
                             : R.string.sms_format_sample_unmatched)));
         }
-        addButton(R.string.records_retry, model::load);
+        if (model.admin) renderFormats();
         if (model.admin) {
-            label(getString(R.string.sms_format_nsb));
-            addButton(R.string.sms_format_draft, this::draft);
-            addButton(R.string.sms_format_sample_check, () -> startActivity(
-                    new android.content.Intent(this, FormatSampleActivity.class)));
-            for (var revision : model.revisions) {
-                String summary = getString(R.string.sms_format_revision, revision.version(),
-                        getString(revision.active() ? R.string.support_active
-                                : revision.published() ? R.string.sms_format_published : R.string.support_draft_state));
-                label(summary);
-                confirmRow(R.string.sms_format_validate_approved, summary, () -> model.validate(revision.version()));
-                if (!revision.published()) {
-                    addButton(R.string.records_edit, () -> startActivity(new android.content.Intent(
-                            this, FormatSampleActivity.class).putExtra(FormatSampleActivity.REVISION, revision.version())));
-                    rows.getChildAt(rows.getChildCount() - 1)
-                            .setContentDescription(getString(R.string.records_edit) + ". " + summary);
-                    confirmRow(R.string.sms_format_publish, summary, () -> model.publish(revision.version()));
-                    confirmRow(R.string.records_remove, summary, () -> model.discard(revision.version()));
-                } else if (!revision.active()) confirmRow(R.string.sms_format_activate, summary,
-                        () -> model.activate(revision.version()));
-                else confirmRow(R.string.sms_format_disable, summary,
-                        () -> model.deactivate(revision.version()));
-            }
+            if (!model.escalations.isEmpty()) cards.section(getString(R.string.staff_diag_flags));
+        } else if (model.work.error == 0) {
+            cards.section(getString(R.string.staff_diag_groups));
         }
-        if (model.groups.isEmpty() && model.escalations.isEmpty()) label(getString(R.string.records_empty));
+        if (model.groups.isEmpty() && model.escalations.isEmpty() && model.work.error == 0) {
+            cards.line(getString(model.admin ? R.string.staff_diag_no_flags : R.string.staff_diag_none));
+        }
         for (var group : model.groups) {
-            String summary = getString(R.string.sms_diagnostic_count, bank(group.bankCode()),
-                    group.errorCode().name(), group.formatVersion() == null ? getString(R.string.sms_diagnostic_unknown)
-                            : group.formatVersion().toString(), group.reports());
-            label(summary);
-            confirmRow(R.string.sms_diagnostic_flag, summary, () -> model.flag(group));
+            String bank = bank(group.bankCode());
+            String version = group.formatVersion() == null ? getString(R.string.sms_diagnostic_unknown)
+                    : group.formatVersion().toString();
+            String summary = getString(R.string.sms_diagnostic_count, bank, group.errorCode().name(), version,
+                    group.reports());
+            View card = cards.card(R.drawable.finora_ic_alert, StaffCards.Tone.WARN, problem(group.errorCode()),
+                    group.bankCode() == null ? getString(R.string.staff_diag_bank_unknown)
+                            : getString(R.string.staff_diag_meta, bank, version),
+                    getString(R.string.staff_diag_description, problem(group.errorCode()), bank, version,
+                            group.reports()));
+            StaffCards.count(card, group.reports());
+            cards.action(card, R.string.sms_diagnostic_flag, R.drawable.finora_ic_flag, false, summary,
+                    () -> confirm(R.string.sms_diagnostic_flag, summary, () -> model.flag(group)));
         }
+        if (!model.admin && !model.groups.isEmpty()) cards.line(getString(R.string.staff_diag_hint));
         for (var escalation : model.escalations) {
             boolean open = "OPEN".equals(escalation.status());
-            String summary = getString(R.string.sms_diagnostic_escalation, bank(escalation.bankCode()),
-                    escalation.errorCode().name(), getString(open ? R.string.sms_diagnostic_open
-                            : R.string.sms_diagnostic_acknowledged));
-            label(summary);
-            confirmRow(open ? R.string.sms_diagnostic_ack : R.string.sms_diagnostic_close,
-                    summary, () -> model.advance(escalation));
+            String bank = bank(escalation.bankCode());
+            String summary = getString(R.string.sms_diagnostic_escalation, bank, escalation.errorCode().name(),
+                    getString(open ? R.string.sms_diagnostic_open : R.string.sms_diagnostic_acknowledged));
+            View card = cards.card(R.drawable.finora_ic_flag, StaffCards.Tone.WARN, problem(escalation.errorCode()),
+                    bank, summary);
+            StaffCards.chip(card, escalation.status());
+            int action = open ? R.string.sms_diagnostic_ack : R.string.sms_diagnostic_close;
+            cards.action(card, action, open ? R.drawable.finora_ic_tick : R.drawable.finora_ic_check, true, summary,
+                    () -> confirm(action, summary, () -> model.advance(escalation)));
         }
+    }
+
+    /** ADMIN tools: draft a revision, test a format locally, and one card per NSB deployment revision. */
+    private void renderFormats() {
+        cards.section(getString(R.string.staff_diag_formats));
+        View tools = cards.card(R.drawable.finora_ic_file, StaffCards.Tone.ACCENT, getString(R.string.sms_format_nsb),
+                null, getString(R.string.sms_format_nsb));
+        StaffCards.stack(tools);
+        String nsb = getString(R.string.sms_format_nsb);
+        cards.action(tools, R.string.sms_format_sample_check, R.drawable.finora_ic_scan, true, nsb, () -> startActivity(
+                new android.content.Intent(this, FormatSampleActivity.class)));
+        cards.action(tools, R.string.sms_format_draft, R.drawable.finora_ic_add, false, nsb, this::draft);
+        for (var revision : model.revisions) {
+            String summary = getString(R.string.sms_format_revision, revision.version(),
+                    getString(revision.active() ? R.string.support_active
+                            : revision.published() ? R.string.sms_format_published : R.string.support_draft_state));
+            View card = cards.card(R.drawable.finora_ic_file, revision.active() ? StaffCards.Tone.ACCENT
+                    : StaffCards.Tone.NEUTRAL, summary, null, summary);
+            StaffCards.stack(card);
+            cards.action(card, R.string.sms_format_validate_approved, R.drawable.finora_ic_check, false, summary,
+                    () -> confirm(R.string.sms_format_validate_approved, summary, () -> model.validate(revision.version())));
+            if (!revision.published()) {
+                cards.action(card, R.string.records_edit, R.drawable.finora_ic_edit, false, summary,
+                        () -> startActivity(new android.content.Intent(this, FormatSampleActivity.class)
+                                .putExtra(FormatSampleActivity.REVISION, revision.version())));
+                cards.action(card, R.string.sms_format_publish, R.drawable.finora_ic_tick, true, summary,
+                        () -> confirm(R.string.sms_format_publish, summary, () -> model.publish(revision.version())));
+                cards.action(card, R.string.records_remove, R.drawable.finora_ic_delete, false, summary,
+                        () -> confirm(R.string.records_remove, summary, () -> model.discard(revision.version())));
+            } else if (!revision.active()) {
+                cards.action(card, R.string.sms_format_activate, R.drawable.finora_ic_tick, true, summary,
+                        () -> confirm(R.string.sms_format_activate, summary, () -> model.activate(revision.version())));
+            } else {
+                cards.action(card, R.string.sms_format_disable, R.drawable.finora_ic_pause, false, summary,
+                        () -> confirm(R.string.sms_format_disable, summary, () -> model.deactivate(revision.version())));
+            }
+        }
+    }
+
+    private String problem(SmsDiagnosticRepository.Code code) {
+        return getString(switch (code) {
+            case FORMAT_UNRECOGNIZED -> R.string.staff_diag_unrecognized;
+            case FORMAT_AMBIGUOUS -> R.string.staff_diag_ambiguous;
+            case REQUIRED_FIELD_INVALID -> R.string.staff_diag_field;
+            case FORMAT_UNAVAILABLE -> R.string.staff_diag_unavailable;
+        });
     }
 
     private String bank(String value) {
         return value == null ? getString(R.string.sms_diagnostic_unknown) : value;
-    }
-
-    private TextView label(String text) {
-        var view = ScreenControls.text(this);
-        view.setText(text);
-        rows.addView(view);
-        return view;
-    }
-
-    private void addButton(int text, Runnable action) {
-        var button = ScreenControls.action(this);
-        button.setText(text);
-        button.setOnClickListener(view -> action.run());
-        rows.addView(button);
-    }
-
-    private void confirmRow(int text, String summary, Runnable action) {
-        addButton(text, () -> confirm(text, summary, action));
-        View child = rows.getChildAt(rows.getChildCount() - 1);
-        child.setContentDescription(getString(text) + ". " + summary);
     }
 
     private void draft() {

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T70.3 saved-reply text: a thin line on the start edge. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="3dp" android:gravity="start|fill_vertical">
+        <shape><solid android:color="@color/finora_card_line" /></shape>
+    </item>
+</layer-list>

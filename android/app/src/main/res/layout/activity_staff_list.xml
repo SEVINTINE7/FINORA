@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T70.3/D72 STAFF list screens (Support requests, Saved replies, SMS diagnostics): heading with refresh, status
+     line and retry, a note, then sections of cards built by StaffCards. The floating button is optional. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="MergeRootFrame">
+
+    <ScrollView
+        android:id="@+id/staff_list_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/finora_screen_margin"
+            android:paddingTop="8dp"
+            android:paddingEnd="@dimen/finora_screen_margin"
+            android:paddingBottom="@dimen/finora_fab_clearance">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/staff_list_heading"
+                    style="@style/FinoraText.Greeting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/staff_list_reload"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/support_reload"
+                    app:icon="@drawable/finora_ic_refresh"
+                    app:iconTint="@color/finora_ink" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/staff_list_status"
+                style="@style/FinoraText.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:accessibilityLiveRegion="polite"
+                android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/staff_list_retry"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/finora_touch"
+                android:text="@string/records_retry"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/staff_list_note"
+                style="@style/FinoraText.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/finora_pill"
+                android:drawablePadding="10dp"
+                android:padding="12dp"
+                android:textColor="@color/finora_ink"
+                app:drawableStartCompat="@drawable/finora_ic_shield"
+                app:drawableTint="@color/finora_green" />
+
+            <LinearLayout
+                android:id="@+id/staff_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/staff_list_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:icon="@drawable/finora_ic_add" />
+</FrameLayout>
