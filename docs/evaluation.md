@@ -677,3 +677,54 @@ user was restored, and the launcher, private ADB, API and disposable MySQL
 listeners stopped. This preflight was emulator-only. The previous
 30/30 Records handset cohort remains source-equivalent. Formal T55.2
 acceptance remains open.
+
+## Targeted HMD Crest warm cohorts and independent cold launch, 28 November 2026
+
+One isolated HMD Crest session followed the successful emulator lifecycle
+preflight. The handset reported Android 14/API 34, build
+`00WW_1_59I`, 1080×2400 and 5,543,588 kB total RAM. Four model-verified
+ADB round trips preceded profile creation. The tested harness was
+`2418cbf4a837451f40ed35d6e425ebd2f20e7287`. The provider-disabled
+V25 API reused the verified JAR and disposable synthetic fixture.
+
+| Timing in ms | Attempts | Qualified | Failures / timeouts / unqualified | Median | Nearest-rank p95 | Max |
+| --- | ---: | ---: | --- | ---: | ---: | ---: |
+| Home warm | 30 | 30 | 0 / 0 / 0 | 123.616 | 143.380 | 192.390 |
+| Records warm, retained | 30 | 30 | 0 / 0 / 0 | 87.597 | 150.135 | 163.762 |
+| Insights warm | 30 | 30 | 0 / 0 / 0 | 201.519 | 325.799 | 349.957 |
+| Budgets warm | 30 | 30 | 0 / 0 / 0 | 168.346 | 189.719 | 192.134 |
+| Cold: first app presentation | 5 | 5 | 0 / 0 / 0 | 773.879 | 851.188 | 851.188 |
+| Cold: usable Home presentation | 5 | 5 | 0 / 0 / 0 | 1633.954 | 1730.653 | 1730.653 |
+
+Every new warm route qualified 3/3 rehearsal frames and 5/5 warm-ups before
+or in its full capture. The [114 raw warm rows](t55-performance/handset-targeted-final-warm.csv)
+include those uncounted phases and all 90 measured observations. Perfetto
+reported no data loss. The prior source-equivalent Records cohort remains
+linked in its original section. The budget screen is labeled `PLAN` in
+the raw route field.
+
+The five [raw cold rows](t55-performance/handset-targeted-final-cold.csv)
+came from force-stops and external launcher activity starts. Android reported
+`COLD` for all five. Both boundaries start at the system-server process-start
+request. First app presentation can contain loading content. Usable Home
+requires the same presented frame as the natural pre-draw with LKR 60,000.00
+income and LKR 40,000.00 expenses. There was no instrumentation runner on
+the cold start path. The debug readiness observer and tracing were active.
+The historical runner-mediated cold observations are a separate method. Five
+cold samples provide limited percentile resolution.
+
+Verified debug APK SHA-256 values:
+- App `06a08b5910f8b02b50a08917f665cbdca0b23704f6f61650d604bcee37e4a820`
+- Android test `0f2155780351e5f483c13ba2eeB8d27acc69ed2d0a3ab97c70663931a5cad692`
+- Signer `863fd92f2b8a4b4ff071062669525d5f866dbfa6752acfcef0f8eaac46092f6f`
+
+The disposable V25 copy matched the benchmark digest and all eight counts
+before and after. The frozen database was untouched. Final read-back
+verified temporary user removal after the Android user-stop transition,
+restored Owner and Sahan's original QA profile and package paths, and
+confirmed the reverse mapping baseline. Session traces were removed from
+the phone. No session Perfetto, API, MySQL or ADB listener remained.
+
+These measurements complete the requested physical cohorts. Formal T55.2
+acceptance still requires the documented device classification and
+measurement criteria and independent review.
