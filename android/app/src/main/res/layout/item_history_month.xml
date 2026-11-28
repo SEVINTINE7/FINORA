@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T66.3/D70 one month: name, score in words and as a badge, income/expense/net with sign and icon, pattern labels,
+     and a note when the month was rebuilt or is being recalculated. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Finora.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/month_name"
+                    style="@style/FinoraText.RowTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag="@string/finora_heading_tag"
+                    android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/month_score_text"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/finora_muted" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/month_badge"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/finora_circle"
+                android:gravity="center"
+                android:importantForAccessibility="noHideDescendants"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/month_badge_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/month_badge_caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/history_of_100"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/month_amounts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/month_patterns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"
+            app:chipSpacingHorizontal="6dp"
+            app:chipSpacingVertical="6dp" />
+
+        <TextView
+            android:id="@+id/month_note"
+            style="@style/FinoraText.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/finora_muted"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/finora_ic_clock"
+            app:drawableTint="@color/finora_muted" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -86,13 +86,18 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 ### T66 · Insights, advice and history · `UX-06`
 **Lead:** Sevindu · **Support:** Sahan (review), Thilina (advice wording) · **Depends on:** T62 · **Touches:** `and:ui/insights/`, `and:ui/advice/`, `and:ui/history/`, `res:layout/`
 - [x] T66.1 Mockups of Insights, Advice and History approved by Sevindu
-- [ ] T66.2 Insights (pattern cards with charts and text equivalents) and Advice (advice cards, rating control; `beta`/`v1` flavour behaviour kept)
-- [ ] T66.3 History (score/month timeline)
+- [x] T66.2 Insights (pattern cards with charts and text equivalents) and Advice (advice cards, rating control; `beta`/`v1` flavour behaviour kept)
+- [x] T66.3 History (score/month timeline)
 - [ ] T66.4 Screenshots approved
 
 **Handoff notes:**
 - T66.1 (2026-11-28): 4 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v12) — Insights (full scroll), Score details, Advice (full scroll), Monthly history (full scroll). Approved with all four D70 changes: score first, Score details page, advice controls, history newest first.
 - Mockup numbers are synthetic but follow `ScoreCalculator`/`PatternRules`: October 2026 income 85,000, expense 63,400 (the demo account's real totals), savings 2,000 → parts 45 + 20 + 6.30 + 4.71 + 7.65 = 83.66 → 84; wants 36,550 (43%), weekend 27,000 over 9 days vs 36,400 over 22 weekdays, income days 21,500 (33.91%). Goal plan uses the demo "Laptop for study" (99,000 left, 8 months → 12,375). The demo account currently has no patterns and no score (declarations missing) — T66.2 screenshots need seeded data.
+- T66.2 (2026-11-28): new `InsightRules`, `ScoreRules`, `LimitBar`, `ScoreDetailsActivity`/`ViewModel` (declarations moved off Insights into their own page), `AdviceRules`; `InsightsActivity`, `AdviceActivity` (new `MONTH` extra, `v1`/`ADVICE_MODE` unchanged) and layouts rewritten. Unit tests 189/0, lint at the 4-warning baseline. `UserJourneyTest#bilingualUserRoutesFitText` passes at 100%; at 130% its only problem is the GoalFormActivity Sinhala "කාල සීමාවක් නැත" tile (not T66).
+- T66.3 (2026-11-28): `HistoryActivity` + `HistoryRules`: 6/12/24 toggle, period switch, trend chart broken at unscored months with a spoken summary, month cards newest first. Guarded `T66ScreenshotTest` (`finoraT66Shots`) passed in EN/SI × light/dark + EN 130% (font scale restored to 1.0).
+- Demo data seeded on the dev DB (synthetic account): five extra October expenses, Keells (id 15) changed to 1,850, declarations for Aug–Nov, dirty history rows for Jun–Sep (Aug marked reconstructed). October scores 81 (mockup 84 assumed savings of 2,000).
+- `UserJourneyTest` journey: stale T62 amounts fixed ("85,000.00"); it now passes Insights but stops at Advice because the dev API returned LLM "Verified advice" where the test expects rule-based. Not run: D58GoalPicker/EvaluationJourneys (need the T55 evaluation setup).
+- Sinhala review needed: the D58 coaching text and catalogue items come from the API in English on the Sinhala screens (unchanged behaviour).
 
 ### T67 · Import screens · `UX-07`
 **Lead:** Sevindu · **Support:** Sahan (review; SMS owner) · **Depends on:** T62 · **Touches:** `and:ui/sms/`, `and:ui/importer/`, `res:layout/`
