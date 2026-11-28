@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T66/D70 single-choice chip (Advice goal picker): the chosen chip is filled and shows a tick, not colour alone. -->
+<com.google.android.material.chip.Chip xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Finora.FilterChip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:checkable="true"
+    android:textSize="14sp"
+    app:checkedIcon="@drawable/finora_ic_tick"
+    app:checkedIconTint="@color/finora_action_ink"
+    app:checkedIconVisible="true"
+    app:chipMinHeight="40dp"
+    app:closeIconVisible="false" />

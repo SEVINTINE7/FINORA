@@ -1,65 +1,64 @@
 package lk.finora.app.ui.insights;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import lk.finora.app.R;
-import lk.finora.app.databinding.ActivityFinoraInsightsBinding;
-import lk.finora.app.ui.ScreenControls;
-import lk.finora.app.ui.SecureActivity;
-import lk.finora.app.data.repo.InsightsRepository.Declaration;
 import lk.finora.app.data.repo.InsightsRepository.Insight;
 import lk.finora.app.data.repo.InsightsRepository.Part;
+import lk.finora.app.databinding.ActivityFinoraInsightsBinding;
+import lk.finora.app.databinding.ItemInsightBinding;
+import lk.finora.app.databinding.ItemScorePartBinding;
+import lk.finora.app.ui.Money;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
-import lk.finora.app.ui.insights.InsightsViewModel.DeclarationDraft;
+import lk.finora.app.ui.advice.AdviceActivity;
 
+/** T66.2/D65/D70 Insights: score first (ring and five parts), then one card per spending pattern. */
 public final class InsightsActivity extends SecureActivity {
     private InsightsViewModel model;
-    private LinearLayout results;
-    private TextView month;
-    private Button previous;
-    private Button next;
-    private AlertDialog editor;
-    private Supplier<DeclarationDraft> currentDraft;
-    private boolean restoreEditor;
+    private ActivityFinoraInsightsBinding view;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         model = new ViewModelProvider(this).get(InsightsViewModel.class);
         if (!AccountListActivity.verify(this, model.patternsWork)) return;
-        restoreEditor = model.rotatedDraft != null;
-        var binding = ActivityFinoraInsightsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        ViewCompat.setAccessibilityHeading(binding.insightsTitle, true);
-        ViewCompat.setAccessibilityHeading(binding.insightsMonth, true);
-        previous = binding.insightsPrevious;
-        next = binding.insightsNext;
-        previous.setOnClickListener(view -> model.shift(-1));
-        next.setOnClickListener(view -> model.shift(1));
-        month = binding.insightsMonth;
-        results = binding.insightsResults;
-        for (Work work : new Work[]{model.patternsWork, model.scoreWork, model.declarationWork}) {
+        getWindow().setBackgroundDrawableResource(R.color.finora_surface);
+        view = ActivityFinoraInsightsBinding.inflate(getLayoutInflater());
+        setContentView(view.getRoot());
+        for (View heading : new View[]{view.insightsTitle, view.insightsPartsHeading, view.insightsPatternsHeading}) {
+            ViewCompat.setAccessibilityHeading(heading, true);
+        }
+        view.insightsSwitch.switchPrevious.setOnClickListener(ignored -> model.shift(-1));
+        view.insightsSwitch.switchNext.setOnClickListener(ignored -> model.shift(1));
+        view.insightsRetry.setOnClickListener(ignored -> model.load());
+        view.insightsUpdate.setOnClickListener(ignored -> {
+            if (!model.busy() && model.patternsWork.isCurrent()) {
+                startActivity(new Intent(this, ScoreDetailsActivity.class)
+                        .putExtra(ScoreDetailsActivity.MONTH, model.month.toString()));
+            }
+        });
+        view.insightsAdvice.setOnClickListener(ignored -> {
+            if (model.patternsWork.isCurrent()) {
+                startActivity(new Intent(this, AdviceActivity.class).putExtra(AdviceActivity.MONTH, model.month.toString()));
+            }
+        });
+        for (Work work : new Work[]{model.patternsWork, model.scoreWork}) {
             work.changes.observe(this, ignored -> render());
         }
     }
@@ -69,259 +68,249 @@ public final class InsightsActivity extends SecureActivity {
         if (!isFinishing() && AccountListActivity.verify(this, model.patternsWork)) model.load();
     }
 
+    private Locale locale() { return getResources().getConfiguration().getLocales().get(0); }
+
     private void render() {
-        if (!AccountListActivity.verify(this, model.patternsWork)) {
-            if (editor != null) editor.dismiss();
-            if (results != null) results.removeAllViews();
+        if (!AccountListActivity.verify(this, model.patternsWork)) return;
+        String month = model.month.format(DateTimeFormatter.ofPattern("LLLL yyyy", locale()));
+        view.insightsSwitch.switchLabel.setText(month);
+        boolean busy = model.busy();
+        view.insightsSwitch.switchPrevious.setEnabled(!busy && model.month.minusMonths(1).getYear() >= 1000);
+        view.insightsSwitch.switchNext.setEnabled(!busy && model.month.plusMonths(1).getYear() <= 9999);
+        view.insightsUpdate.setEnabled(!busy);
+        view.insightsAdviceText.setText(getString(R.string.insight_see_advice, month));
+
+        int error = 0;
+        for (Work work : new Work[]{model.patternsWork, model.scoreWork}) if (error == 0) error = work.error;
+        view.insightsStatus.setVisibility(busy || error != 0 ? View.VISIBLE : View.GONE);
+        view.insightsStatus.setText(busy ? getString(R.string.records_loading) : error != 0 ? getString(error) : "");
+        view.insightsRetry.setVisibility(!busy && error != 0 ? View.VISIBLE : View.GONE);
+
+        renderScore();
+        renderPatterns();
+    }
+
+    private void renderScore() {
+        var score = model.score;
+        boolean shown = score != null;
+        view.insightsScoreCard.setVisibility(shown || model.scoreWork.busy() ? View.VISIBLE : View.GONE);
+        view.insightsPartsHeader.setVisibility(shown ? View.VISIBLE : View.GONE);
+        view.insightsPartsCard.setVisibility(shown ? View.VISIBLE : View.GONE);
+        view.insightsParts.removeAllViews();
+        if (!shown) {
+            view.insightsScoreRing.setProgressCompat(0, false);
+            view.insightsScoreValue.setText("");
+            view.insightsScoreText.setText(R.string.records_loading);
+            view.insightsScoreSummary.setContentDescription(getString(R.string.score_heading));
             return;
         }
-        results.removeAllViews();
-        month.setText(model.month.format(DateTimeFormatter.ofPattern("LLLL yyyy",
-                getResources().getConfiguration().getLocales().get(0))));
-        previous.setEnabled(!model.busy() && model.month.getYear() >= 1000
-                && model.month.minusMonths(1).getYear() >= 1000);
-        next.setEnabled(!model.busy() && model.month.plusMonths(1).getYear() <= 9999);
-        if (model.patterns != null) {
-            if (model.patterns.length == 0) line(results, getString(R.string.insight_empty), false);
-            for (Insight row : model.patterns) showInsight(row);
-        }
-        line(results, getString(R.string.score_heading), true);
-        if (model.score != null) {
-            line(results, model.score.total() == null ? getString(R.string.score_unavailable)
-                    : getString(R.string.score_total, model.score.total().toString()), false);
-            for (Part part : model.score.parts()) showPart(part);
-        }
-        if (model.declaration != null && !model.busy()) {
-            results.addView(button(R.string.score_inputs, this::editDeclaration));
-        }
-        if (model.busy()) line(results, getString(R.string.records_loading), false);
-        for (Work work : new Work[]{model.patternsWork, model.scoreWork, model.declarationWork}) {
-            if (work.error != 0) {
-                line(results, getString(work.error), false);
-                results.addView(button(R.string.records_retry, model::load));
-                break;
-            }
-        }
-        line(results, getString(R.string.score_disclaimer), false);
-        if (restoreEditor && model.declaration != null && !model.busy()) {
-            restoreEditor = false;
-            editDeclaration();
-        }
+        String text = score.total() == null ? getString(R.string.score_unavailable)
+                : getString(R.string.score_total, score.total().toString());
+        view.insightsScoreRing.setProgressCompat(score.total() == null ? 0 : score.total(), false);
+        view.insightsScoreValue.setText(score.total() == null ? "–" : score.total().toString());
+        view.insightsScoreText.setText(text);
+        view.insightsScoreSummary.setContentDescription(getString(R.string.score_heading) + ". " + text);
+        view.insightsPartsCount.setText(getResources().getQuantityString(R.plurals.score_parts_count,
+                score.parts().length, score.parts().length));
+        for (int i = 0; i < score.parts().length; i++) showPart(score.parts()[i], i == 0);
     }
 
-    private void showInsight(Insight row) {
-        Map<String, BigDecimal> facts = row.facts();
-        int title;
-        String detail;
-        switch (row.type()) {
-            case "HIGH_WANTS" -> {
-                title = R.string.insight_wants;
-                detail = share(facts, "wants", "wantsRatio", R.string.insight_income_share);
-            }
-            case "HIGH_FIXED_BILLS" -> {
-                title = R.string.insight_bills;
-                detail = share(facts, "fixedBills", "fixedBillsRatio", R.string.insight_income_share);
-            }
-            case "PAYDAY_SPENDING" -> {
-                title = R.string.insight_payday;
-                detail = share(facts, "paydaySpend", "paydayShare", R.string.insight_expense_share);
-            }
-            case "WEEKEND_SPENDING" -> {
-                title = R.string.insight_weekend;
-                detail = evidence(facts, R.string.insight_weekend_values,
-                        "weekendSpend", "weekendDailyAverage", "weekdayDailyAverage");
-            }
-            default -> { return; }
+    private void showPart(Part part, boolean first) {
+        var row = ItemScorePartBinding.inflate(getLayoutInflater(), view.insightsParts, false);
+        row.partDivider.setVisibility(first ? View.GONE : View.VISIBLE);
+        String name = getString(InsightRules.partName(part.key()));
+        row.partName.setText(name);
+        String weight = Integer.toString(part.weight());
+        String spokenPoints;
+        if (part.points() != null) {
+            String points = InsightRules.points(part.points());
+            row.partPoints.setText(getString(R.string.score_part_points, points, weight));
+            spokenPoints = getString(R.string.score_part_spoken, name, points, weight);
+        } else {
+            int status = "NOT_APPLICABLE".equals(part.status()) ? R.string.score_not_applicable : R.string.score_unavailable;
+            row.partPoints.setText("NOT_APPLICABLE".equals(part.status()) ? getString(status)
+                    : getString(R.string.score_part_points, "–", weight));
+            row.partPoints.setTextColor(getColor(R.color.finora_muted));
+            spokenPoints = name + ": " + getString(status);
         }
-        line(results, getString(title), true);
-        line(results, getString(R.string.insight_period, row.from(), row.to()), false);
-        line(results, detail, false);
+        row.partBar.setProgressCompat(InsightRules.partProgress(part.points(), part.weight()), false);
+        row.partReason.setText(InsightRules.reason(part.reasonKey()));
+        String facts = part.points() == null ? null : facts(part);
+        row.partFacts.setVisibility(facts == null ? View.GONE : View.VISIBLE);
+        row.partFacts.setText(facts);
+        row.partRow.setContentDescription(spokenPoints + " " + row.partReason.getText() + (facts == null ? "" : " " + facts));
+        view.insightsParts.addView(row.getRoot());
     }
 
-    private String share(Map<String, BigDecimal> facts, String amount, String ratio, int label) {
-        if (facts.get(amount) == null || facts.get(ratio) == null) return getString(R.string.records_failed);
-        return getString(label, number(facts.get(amount)), percent(facts.get(ratio)));
+    private String facts(Part part) {
+        Map<String, BigDecimal> facts = part.facts();
+        return switch (part.key()) {
+            case "SPENDING_CONTROL" -> money(facts, R.string.score_fact_spending, "income", "consumption");
+            case "DEBT_PAYMENTS", "GOAL_PROGRESS" -> money(facts, R.string.score_fact_progress, "credited", "target");
+            case "SAVINGS" -> facts.get("supported") == null || facts.get("targetRate") == null
+                    ? getString(R.string.records_failed)
+                    : getString(R.string.score_fact_savings, Money.rupees(this, facts.get("supported")),
+                            InsightRules.percent(facts.get("targetRate"), locale()));
+            default -> money(facts, R.string.score_fact_emergency, "reserve", "monthlyNeeds");
+        };
     }
 
-    private String evidence(Map<String, BigDecimal> facts, int label, String... keys) {
+    private String money(Map<String, BigDecimal> facts, int label, String... keys) {
         Object[] values = new Object[keys.length];
         for (int i = 0; i < keys.length; i++) {
             BigDecimal value = facts.get(keys[i]);
             if (value == null) return getString(R.string.records_failed);
-            values[i] = number(value);
+            values[i] = Money.rupees(this, value);
         }
         return getString(label, values);
     }
 
-    private void showPart(Part part) {
-        int label = switch (part.key()) {
-            case "SPENDING_CONTROL" -> R.string.score_spending;
-            case "DEBT_PAYMENTS" -> R.string.score_debt;
-            case "GOAL_PROGRESS" -> R.string.score_goals;
-            case "SAVINGS" -> R.string.score_savings;
-            default -> R.string.score_emergency;
-        };
-        line(results, getString(label), true);
-        if (part.points() != null) {
-            line(results, getString(R.string.score_points, number(part.points()), Integer.toString(part.weight())), false);
-        } else {
-            line(results, getString("NOT_APPLICABLE".equals(part.status())
-                    ? R.string.score_not_applicable : R.string.score_unavailable), false);
-        }
-        int reason = switch (part.reasonKey()) {
-            case "ZERO_INCOME" -> R.string.score_zero_income;
-            case "SPENDING_EXCEEDS_INCOME" -> R.string.score_spending_exceeds;
-            case "SPENDING_BREAK_EVEN" -> R.string.score_spending_equal;
-            case "SPENDING_WITHIN_INCOME" -> R.string.score_spending_within;
-            case "SAVINGS_TARGET_MET" -> R.string.score_savings_met;
-            case "SAVINGS_BELOW_TARGET" -> R.string.score_savings_below;
-            case "DEBT_INPUT_MISSING" -> R.string.score_debt_missing;
-            case "NO_APPLICABLE_TRACKED_DEBT" -> R.string.score_debt_na;
-            case "DEBT_PAID_MARKER_PROXY" -> R.string.score_debt_basis;
-            case "GOAL_INPUT_MISSING" -> R.string.score_goal_missing;
-            case "NO_APPLICABLE_GOALS" -> R.string.score_goal_na;
-            case "GOAL_RECORDED_PROGRESS" -> R.string.score_goal_basis;
-            case "EMERGENCY_DECLARATION_MISSING" -> R.string.score_reserve_missing;
-            case "ESSENTIAL_BASELINE_UNAVAILABLE" -> R.string.score_needs_missing;
-            case "EMERGENCY_USER_DECLARED" -> R.string.score_reserve_basis;
-            default -> R.string.records_failed;
-        };
-        line(results, getString(reason), false);
-        if (part.points() == null) return;
-        Map<String, BigDecimal> facts = part.facts();
-        String supporting = switch (part.key()) {
-            case "SPENDING_CONTROL" -> evidence(facts, R.string.score_fact_spending, "income", "consumption");
-            case "DEBT_PAYMENTS", "GOAL_PROGRESS" -> evidence(facts, R.string.score_fact_progress, "credited", "target");
-            case "SAVINGS" -> facts.get("supported") == null || facts.get("targetRate") == null
-                    ? getString(R.string.records_failed)
-                    : getString(R.string.score_fact_savings, number(facts.get("supported")),
-                            percent(facts.get("targetRate")));
-            default -> evidence(facts, R.string.score_fact_emergency, "reserve", "monthlyNeeds");
-        };
-        line(results, supporting, false);
+    private void renderPatterns() {
+        view.insightsResults.removeAllViews();
+        var rows = model.patterns;
+        int shown = 0;
+        if (rows != null) for (Insight row : rows) if (showInsight(row)) shown++;
+        boolean known = rows != null;
+        view.insightsPatternsHeader.setVisibility(known ? View.VISIBLE : View.GONE);
+        view.insightsPatternsCount.setText(getResources().getQuantityString(R.plurals.insight_count, shown, shown));
+        view.insightsEmpty.setVisibility(known && shown == 0 ? View.VISIBLE : View.GONE);
+        view.insightsAdvice.setVisibility(known ? View.VISIBLE : View.GONE);
     }
 
-    private void editDeclaration() {
-        if (!model.patternsWork.isCurrent() || model.declaration == null || model.busy()) return;
-        var fields = new LinearLayout(this);
-        fields.setOrientation(LinearLayout.VERTICAL);
-        var scroll = new ScrollView(this);
-        scroll.setBackgroundColor(getColor(R.color.finora_surface));
-        scroll.addView(fields);
-        var current = model.declaration;
-        DeclarationDraft draft = model.rotatedDraft;
-        model.rotatedDraft = null;
-        if (draft == null) {
-            draft = new DeclarationDraft(current.emergencyReserve() == null ? "" : number(current.emergencyReserve()),
-                    current.reserveAsOf(), current.noApplicableDebt(), current.noApplicableGoals());
-        }
-        var reserve = field(fields, R.string.score_reserve, draft.amount());
-        reserve.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
-                | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        var date = field(fields, R.string.score_reserve_date, draft.date());
-        date.setInputType(android.text.InputType.TYPE_CLASS_DATETIME
-                | android.text.InputType.TYPE_DATETIME_VARIATION_DATE);
-        var debt = choice(fields, R.string.score_no_debt, draft.noDebt());
-        var goals = choice(fields, R.string.score_no_goals, draft.noGoals());
-        currentDraft = () -> new DeclarationDraft(reserve.getText().toString(), date.getText().toString(),
-                selected(debt), selected(goals));
-        editor = new AlertDialog.Builder(this).setTitle(R.string.score_inputs).setView(scroll)
-                .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.records_save, null).create();
-        editor.setOnDismissListener(dialog -> {
-            editor = null;
-            currentDraft = null;
-        });
-        showSecure(editor);
-        editor.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-            try {
-                Declaration value = parse(reserve.getText().toString(), date.getText().toString(), model.month,
-                        LocalDate.now(ZoneId.of("Asia/Colombo")), selected(debt), selected(goals));
-                if (!model.patternsWork.isCurrent() || model.busy()) return;
-                model.save(value);
-                editor.dismiss();
-            } catch (IllegalArgumentException invalid) {
-                reserve.setError(getString(R.string.score_input_invalid));
+    private boolean showInsight(Insight row) {
+        int title = InsightRules.title(row.type());
+        if (title == 0) return false;
+        var card = ItemInsightBinding.inflate(getLayoutInflater(), view.insightsResults, false);
+        card.insightIcon.setImageResource(InsightRules.icon(row.type()));
+        card.insightTitle.setText(title);
+        ViewCompat.setAccessibilityHeading(card.insightTitle, true);
+        card.insightPeriod.setText(getString(R.string.insight_period, date(row.from()), date(row.to())));
+        Map<String, BigDecimal> facts = row.facts();
+        String[] keys = InsightRules.shareKeys(row.type());
+        if (keys != null) {
+            BigDecimal amount = facts.get(keys[0]);
+            BigDecimal ratio = facts.get(keys[1]);
+            BigDecimal limit = facts.get("threshold");
+            if (amount == null || ratio == null) {
+                card.insightText.setText(R.string.records_failed);
+            } else {
+                String share = InsightRules.percent(ratio, locale());
+                card.insightText.setText(getString(InsightRules.shareText(row.type()), Money.rupees(this, amount), share));
+                var bar = new LimitBar(this);
+                bar.set(ratio.floatValue(), limit == null ? -1 : limit.floatValue());
+                bar.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                card.insightChart.addView(bar, new ViewGroup.LayoutParams(-1, -2));
+                if (limit != null) {
+                    String limitText = InsightRules.percent(limit, locale());
+                    card.insightChip.setText(getString(R.string.insight_above, limitText));
+                    card.insightChart.addView(scale(limitText, limit.floatValue()));
+                    card.insightChart.setContentDescription(getString(R.string.insight_share_spoken, share, limitText));
+                } else {
+                    card.insightChip.setVisibility(View.GONE);
+                }
             }
+            if ("PAYDAY_SPENDING".equals(row.type())) {
+                card.insightPeriod.setText(getString(R.string.insight_note_period, getString(R.string.insight_payday_help),
+                        getString(R.string.insight_period, date(row.from()), date(row.to()))));
+            }
+        } else {
+            BigDecimal total = facts.get("weekendSpend");
+            BigDecimal weekend = facts.get("weekendDailyAverage");
+            BigDecimal weekday = facts.get("weekdayDailyAverage");
+            String times = InsightRules.times(facts);
+            if (total == null || weekend == null || weekday == null) {
+                card.insightText.setText(R.string.records_failed);
+                card.insightChip.setVisibility(View.GONE);
+            } else {
+                card.insightText.setText(getString(R.string.insight_weekend_values, Money.rupees(this, total),
+                        Money.rupees(this, weekend), Money.rupees(this, weekday)));
+                if (times != null) card.insightChip.setText(getString(R.string.insight_times, times));
+                else card.insightChip.setVisibility(View.GONE);
+                card.insightChart.addView(pair(weekend, weekday));
+                card.insightChart.setContentDescription(getString(R.string.insight_weekend_spoken,
+                        Money.rupees(this, weekend), Money.rupees(this, weekday)));
+            }
+        }
+        view.insightsResults.addView(card.getRoot());
+        return true;
+    }
+
+    /** 0% · limit · 100% labels under a share bar. */
+    private View scale(String limit, float position) {
+        var row = new android.widget.FrameLayout(this);
+        var params = new android.widget.FrameLayout.LayoutParams(-1, -2);
+        params.topMargin = dp(22);
+        row.setLayoutParams(params);
+        row.addView(small("0%", Gravity.START), new android.widget.FrameLayout.LayoutParams(-2, -2, Gravity.START));
+        row.addView(small("100%", Gravity.END), new android.widget.FrameLayout.LayoutParams(-2, -2, Gravity.END));
+        TextView marker = small(getString(R.string.insight_limit, limit), Gravity.CENTER);
+        row.addView(marker, new android.widget.FrameLayout.LayoutParams(-2, -2));
+        row.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            float x = (r - l) * position - marker.getWidth() / 2f;
+            if (getWindow().getDecorView().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+                x = (r - l) * (1 - position) - marker.getWidth() / 2f;
+            }
+            marker.setX(Math.max(0, Math.min(x, (r - l) - marker.getWidth())));
         });
+        return row;
     }
 
-    @Override protected void onDestroy() {
-        if (isChangingConfigurations() && editor != null && editor.isShowing()
-                && currentDraft != null && model.patternsWork.isCurrent()) {
-            model.rotatedDraft = currentDraft.get();
-        }
-        if (editor != null) editor.dismiss();
-        super.onDestroy();
+    /** Two bars: weekend daily average and weekday daily average, scaled to the larger. */
+    private View pair(BigDecimal weekend, BigDecimal weekday) {
+        var row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.BOTTOM);
+        row.setPadding(dp(24), 0, dp(24), 0);
+        BigDecimal max = weekend.max(weekday);
+        row.addView(column(getString(R.string.insight_weekend_day), weekend, max, R.color.finora_chart_3),
+                new LinearLayout.LayoutParams(0, -2, 1));
+        row.addView(column(getString(R.string.insight_weekday), weekday, max, R.color.finora_chart_5),
+                new LinearLayout.LayoutParams(0, -2, 1));
+        return row;
     }
 
-    static Declaration parse(String amount, String date, YearMonth month, LocalDate today,
-                             Boolean noDebt, Boolean noGoals) {
-        amount = amount.trim();
-        date = date.trim();
-        if (amount.isEmpty() && date.isEmpty()) return new Declaration(null, null, noDebt, noGoals);
-        if (!amount.matches("[0-9]{1,13}([.,][0-9]{1,2})?") || !date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
-            throw new IllegalArgumentException();
-        }
+    private View column(String label, BigDecimal value, BigDecimal max, int color) {
+        var column = new LinearLayout(this);
+        column.setOrientation(LinearLayout.VERTICAL);
+        column.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
+        TextView amount = small(Money.rupees(this, value), Gravity.CENTER);
+        amount.setTextColor(getColor(R.color.finora_ink));
+        amount.setTypeface(null, android.graphics.Typeface.BOLD);
+        column.addView(amount);
+        var bar = new View(this);
+        var shape = new android.graphics.drawable.GradientDrawable();
+        float radius = dp(8);
+        shape.setCornerRadii(new float[]{radius, radius, radius, radius, dp(3), dp(3), dp(3), dp(3)});
+        shape.setColor(getColor(color));
+        bar.setBackground(shape);
+        int height = max.signum() <= 0 ? 0 : value.multiply(BigDecimal.valueOf(dp(96)))
+                .divide(max, 0, java.math.RoundingMode.HALF_UP).intValue();
+        var params = new LinearLayout.LayoutParams(dp(56), Math.max(dp(4), height));
+        params.topMargin = dp(4);
+        column.addView(bar, params);
+        TextView name = small(label, Gravity.CENTER);
+        name.setPadding(0, dp(4), 0, 0);
+        column.addView(name);
+        return column;
+    }
+
+    private TextView small(String text, int gravity) {
+        var label = new TextView(this);
+        label.setText(text);
+        label.setTextSize(12);
+        label.setGravity(gravity);
+        label.setTextColor(getColor(R.color.finora_muted));
+        label.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        return label;
+    }
+
+    private String date(String iso) {
         try {
-            LocalDate parsed = LocalDate.parse(date);
-            if (!YearMonth.from(parsed).equals(month) || parsed.isAfter(today)) throw new IllegalArgumentException();
-        } catch (java.time.DateTimeException invalid) {
-            throw new IllegalArgumentException(invalid);
+            return LocalDate.parse(iso).format(DateTimeFormatter.ofPattern("d MMM yyyy", locale()));
+        } catch (RuntimeException invalid) {
+            return iso;
         }
-        return new Declaration(new BigDecimal(amount.replace(',', '.')), date, noDebt, noGoals);
     }
 
-    private RadioGroup choice(LinearLayout target, int label, Boolean value) {
-        line(target, getString(label), true);
-        var group = new RadioGroup(this);
-        for (int labelId : new int[]{R.string.score_unknown, R.string.score_yes, R.string.score_no}) {
-            var option = new RadioButton(this);
-            option.setId(View.generateViewId());
-            option.setText(labelId);
-            group.addView(option);
-        }
-        group.check(group.getChildAt(value == null ? 0 : value ? 1 : 2).getId());
-        target.addView(group);
-        return group;
-    }
-
-    private Boolean selected(RadioGroup group) {
-        int index = group.indexOfChild(group.findViewById(group.getCheckedRadioButtonId()));
-        return index < 1 ? null : index == 1;
-    }
-
-    private EditText field(LinearLayout target, int label, String value) {
-        var edit = ScreenControls.field(this);
-        edit.setHint(label);
-        edit.setText(value);
-        ScreenControls.addField(target, edit);
-        return edit;
-    }
-
-    private Button button(int label, Runnable action) {
-        var button = ScreenControls.action(this);
-        button.setText(label);
-        button.setOnClickListener(view -> action.run());
-        return button;
-    }
-
-    private TextView line(LinearLayout target, String text, boolean heading) {
-        var view = ScreenControls.text(this);
-        view.setText(text);
-        view.setTextColor(getColor(R.color.finora_ink));
-        view.setTextSize(heading ? 20 : 16);
-        int padding = Math.round(6 * getResources().getDisplayMetrics().density);
-        view.setPadding(0, padding, 0, padding);
-        ViewCompat.setAccessibilityHeading(view, heading);
-        target.addView(view, new LinearLayout.LayoutParams(-1, -2));
-        return view;
-    }
-
-    private String number(BigDecimal value) { return value.toPlainString(); }
-
-    private String percent(BigDecimal value) {
-        var format = NumberFormat.getPercentInstance(getResources().getConfiguration().getLocales().get(0));
-        format.setMaximumFractionDigits(2);
-        return format.format(value);
-    }
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 }

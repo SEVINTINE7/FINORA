@@ -1695,8 +1695,8 @@ public class UserJourneyTest {
             awaitActivity(MainActivity.class);
 
             tab(R.string.home_tab);
-            await(By.desc(app.getString(R.string.dashboard_income, "85000.00")));
-            await(By.desc(app.getString(R.string.dashboard_expense, "1250.75")));
+            await(By.desc(app.getString(R.string.dashboard_income, "85,000.00")));
+            await(By.desc(app.getString(R.string.dashboard_expense, "1,250.75")));
             tab(R.string.insights_tab);
             clickText(R.string.insight_open);
             awaitShown(app.getString(R.string.score_spending_within));

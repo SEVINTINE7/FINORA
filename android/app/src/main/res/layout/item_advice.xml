@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T66.2/D70 one advice item: icon, heading, the advice text and its checked figures as small labels. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Finora.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- The icon sits in a tinted circle, which a compound drawable cannot draw. -->
+        <LinearLayout
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
+            <ImageView
+                android:id="@+id/advice_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/finora_circle"
+                android:importantForAccessibility="no"
+                android:padding="10dp" />
+            <TextView
+                android:id="@+id/advice_item_title"
+                style="@style/FinoraText.RowTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:tag="@string/finora_heading_tag" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/advice_item_text"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:lineSpacingMultiplier="1.15"
+            android:textColor="@color/finora_ink" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/advice_figures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:chipSpacingHorizontal="6dp"
+            app:chipSpacingVertical="6dp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

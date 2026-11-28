@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T66.2/D70 one spending pattern: icon, title, period, word chip, a small chart and the same facts in words. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Finora.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/insight_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/finora_circle"
+                android:backgroundTint="@color/finora_warn_fill"
+                android:importantForAccessibility="no"
+                android:padding="10dp"
+                app:tint="@color/finora_warn_ink" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/insight_title"
+                    style="@style/FinoraText.RowTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag="@string/finora_heading_tag" />
+                <TextView
+                    android:id="@+id/insight_period"
+                    style="@style/FinoraText.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/finora_muted" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/insight_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/finora_badge"
+                android:backgroundTint="@color/finora_warn_fill"
+                android:gravity="center_vertical"
+                android:importantForAccessibility="no"
+                android:minHeight="26dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textColor="@color/finora_warn_ink"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/insight_chart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/insight_text"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/finora_ink" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

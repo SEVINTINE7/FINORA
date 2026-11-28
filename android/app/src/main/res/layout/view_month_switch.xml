@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T66/D70 shared month switcher: previous, the month (read out when it changes), next. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:background="@drawable/finora_pill"
+    android:gravity="center_vertical"
+    android:minHeight="52dp"
+    android:orientation="horizontal"
+    android:padding="2dp">
+
+    <ImageButton
+        android:id="@+id/switch_previous"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/dashboard_previous"
+        android:src="@drawable/finora_ic_chevron_left"
+        android:tooltipText="@string/dashboard_previous"
+        app:tint="@color/finora_ink" />
+
+    <TextView
+        android:id="@+id/switch_label"
+        style="@style/FinoraText.Label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:accessibilityLiveRegion="polite"
+        android:gravity="center"
+        android:textSize="16sp" />
+
+    <ImageButton
+        android:id="@+id/switch_next"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/dashboard_next"
+        android:src="@drawable/finora_ic_chevron_right"
+        android:tooltipText="@string/dashboard_next"
+        app:tint="@color/finora_ink" />
+</LinearLayout>

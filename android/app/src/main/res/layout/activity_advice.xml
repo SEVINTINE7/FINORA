@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- T66.2/D65/D70 Advice: month switcher, Verified/Rule-based banner, goal chips, one card per advice item with its
+     checked figures, the 1–5 rating row and the disclaimer. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/advice_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/finora_screen_margin"
+        android:paddingTop="4dp"
+        android:paddingEnd="@dimen/finora_screen_margin"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:id="@+id/advice_heading"
+            style="@style/FinoraText.Greeting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="@string/finora_heading_tag"
+            android:text="@string/advice_title" />
+
+        <include
+            android:id="@+id/advice_switch"
+            layout="@layout/view_month_switch" />
+
+        <TextView
+            android:id="@+id/advice_status"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/advice_retry"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="@string/records_retry"
+            android:visibility="gone" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/advice_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/finora_success_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="14dp">
+                <ImageView
+                    android:id="@+id/advice_banner_icon"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/finora_ic_shield"
+                    app:tint="@color/finora_green" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/advice_banner_title"
+                        style="@style/FinoraText.RowTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:tag="@string/finora_heading_tag"
+                        android:textColor="@color/finora_green" />
+                    <TextView
+                        android:id="@+id/advice_banner_text"
+                        style="@style/FinoraText.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/finora_ink" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/advice_goal_label"
+            style="@style/Finora.FormLabel"
+            android:labelFor="@+id/advice_goals"
+            android:text="@string/advice_goal_prompt"
+            android:visibility="gone" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@id/advice_goals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:chipSpacingHorizontal="8dp"
+            app:selectionRequired="true"
+            app:singleSelection="true" />
+
+        <TextView
+            android:id="@+id/advice_empty"
+            style="@style/FinoraText.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/advice_empty"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/advice_items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/advice_rating_card"
+            style="@style/Widget.Finora.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardCornerRadius="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+                <TextView
+                    android:id="@+id/advice_rating_prompt"
+                    style="@style/FinoraText.RowTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag="@string/finora_heading_tag"
+                    android:text="@string/advice_rating_prompt" />
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/advice_rating"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:singleSelection="true" />
+                <LinearLayout
+                    android:id="@+id/advice_rating_scale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:importantForAccessibility="noHideDescendants"
+                    android:orientation="horizontal">
+                    <TextView
+                        style="@style/FinoraText.Caption"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/advice_rating_low"
+                        android:textColor="@color/finora_muted" />
+                    <TextView
+                        style="@style/FinoraText.Caption"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:text="@string/advice_rating_high"
+                        android:textColor="@color/finora_muted" />
+                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/advice_submit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="56dp"
+                    android:text="@string/advice_send_rating"
+                    android:textSize="16sp"
+                    app:cornerRadius="28dp" />
+                <TextView
+                    android:id="@+id/advice_rated"
+                    style="@style/FinoraText.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/finora_ic_star"
+                    app:drawableTint="@color/finora_green" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            style="@style/FinoraText.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/score_disclaimer"
+            android:textColor="@color/finora_muted" />
+    </LinearLayout>
+</ScrollView>

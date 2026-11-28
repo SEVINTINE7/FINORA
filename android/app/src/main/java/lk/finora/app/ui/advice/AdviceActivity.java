@@ -1,48 +1,89 @@
 package lk.finora.app.ui.advice;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.ScrollView;
 import android.widget.TextView;
+
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+
 import java.io.IOException;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import lk.finora.app.data.api.GoalDto;
-import lk.finora.app.data.repo.GoalRepository;
 
 import lk.finora.app.R;
-import lk.finora.app.databinding.ActivityFinoraScreenBinding;
-import lk.finora.app.ui.ScreenControls;
-import lk.finora.app.ui.SecureActivity;
+import lk.finora.app.data.api.GoalDto;
 import lk.finora.app.data.repo.AccountRepository;
+import lk.finora.app.data.repo.GoalRepository;
 import lk.finora.app.data.repo.MonthlyRepository;
 import lk.finora.app.data.repo.MonthlyRepository.Advice;
 import lk.finora.app.data.repo.MonthlyRepository.Rating;
+import lk.finora.app.databinding.ActivityAdviceBinding;
+import lk.finora.app.databinding.ItemAdviceBinding;
+import lk.finora.app.ui.Money;
+import lk.finora.app.ui.SecureActivity;
 import lk.finora.app.ui.accounts.AccountListActivity;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
-import lk.finora.app.ui.budgets.BudgetListActivity;
 
+/** T66.2/D65/D70 Advice: banner, goal chips, one card per item with its checked figures, 1–5 rating. */
 public final class AdviceActivity extends SecureActivity {
+    /** T66.2: the month to open (yyyy-MM), e.g. from Insights; defaults to the current month. */
+    public static final String MONTH = "lk.finora.app.ADVICE_MONTH";
     private Model model;
-    private LinearLayout page;
+    private ActivityAdviceBinding view;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         model = new ViewModelProvider(this).get(Model.class);
         if (!AccountListActivity.verify(this, model.work)) return;
-        var binding = ActivityFinoraScreenBinding.inflate(getLayoutInflater());
-        page = binding.screenPage;
-        setContentView(binding.getRoot());
+        if (!model.opened) {
+            model.opened = true;
+            String extra = getIntent().getStringExtra(MONTH);
+            if (extra != null) {
+                YearMonth requested = YearMonth.parse(extra);
+                if (!requested.isAfter(YearMonth.now(ZoneId.of("Asia/Colombo")))) model.month = requested;
+            }
+        }
+        getWindow().setBackgroundDrawableResource(R.color.finora_surface);
+        view = ActivityAdviceBinding.inflate(getLayoutInflater());
+        setContentView(view.getRoot());
+        ViewCompat.setAccessibilityHeading(view.adviceHeading, true);
+        ViewCompat.setAccessibilityHeading(view.adviceBannerTitle, true);
+        ViewCompat.setAccessibilityHeading(view.adviceRatingPrompt, true);
+        view.adviceSwitch.switchPrevious.setOnClickListener(ignored -> model.shift(-1));
+        view.adviceSwitch.switchNext.setOnClickListener(ignored -> model.shift(1));
+        view.adviceRetry.setOnClickListener(ignored -> model.load());
+        view.adviceSubmit.setOnClickListener(ignored -> model.rate());
+        for (int value = 1; value <= 5; value++) {
+            var button = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+            button.setId(View.generateViewId());
+            button.setText(String.valueOf(value));
+            button.setTextSize(17);
+            button.setMinHeight(dp(52));
+            button.setContentDescription(getString(R.string.advice_rating_option, Integer.toString(value)));
+            view.adviceRating.addView(button, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        }
+        view.adviceRating.addOnButtonCheckedListener((group, id, checked) -> {
+            if (!checked) {
+                if (group.getCheckedButtonId() == View.NO_ID && !model.work.busy()) model.selected = 0;
+            } else {
+                model.selected = group.indexOfChild(group.findViewById(id)) + 1;
+            }
+            view.adviceSubmit.setEnabled(model.selected > 0 && !model.work.busy());
+            markRating();
+        });
         model.work.changes.observe(this, ignored -> render());
     }
 
@@ -51,62 +92,113 @@ public final class AdviceActivity extends SecureActivity {
         if (!isFinishing() && AccountListActivity.verify(this, model.work) && !model.reconcile) model.load();
     }
 
+    private Locale locale() { return getResources().getConfiguration().getLocales().get(0); }
+
     private void render() {
-        page.removeAllViews();
         if (!AccountListActivity.verify(this, model.work)) return;
-        line(getString(R.string.advice_title), true);
-        line(BudgetListActivity.monthLabel(model.month), true);
-        if (!model.reconcile) {
-            button(R.string.dashboard_previous, () -> model.shift(-1));
-            button(R.string.dashboard_next, () -> model.shift(1));
-        }
-        line(getString(R.string.score_disclaimer), false);
+        boolean busy = model.work.busy();
+        view.adviceSwitch.switchLabel.setText(model.month.format(DateTimeFormatter.ofPattern("LLLL yyyy", locale())));
+        view.adviceSwitch.getRoot().setVisibility(model.reconcile ? View.GONE : View.VISIBLE);
+        view.adviceSwitch.switchPrevious.setEnabled(!busy && model.month.minusMonths(1).getYear() >= 1000);
+        view.adviceSwitch.switchNext.setEnabled(!busy
+                && model.month.isBefore(YearMonth.now(ZoneId.of("Asia/Colombo"))));
+        int message = busy ? R.string.records_loading : model.work.error;
+        view.adviceStatus.setText(message == 0 ? "" : getString(message));
+        view.adviceStatus.setVisibility(message == 0 ? View.GONE : View.VISIBLE);
+        view.adviceRetry.setText(model.reconcile ? R.string.advice_check_rating : R.string.records_retry);
+        view.adviceRetry.setVisibility(!busy && model.work.error != 0 ? View.VISIBLE : View.GONE);
         renderGoalPicker();
-        if (model.work.busy()) line(getString(R.string.records_loading), false);
-        if (model.work.error != 0) {
-            line(getString(model.work.error), false);
-            button(model.reconcile ? R.string.advice_check_rating : R.string.records_retry, model::load);
-        }
-        if (model.reconcile || model.work.busy() || model.result == null) return;
-        if (model.result.items().isEmpty()) {
-            line(getString(R.string.advice_empty), false);
-            return;
-        }
-        line(getString(model.result.verified() ? R.string.advice_verified : R.string.advice_rules), true);
-        for (var item : model.result.items()) {
-            Integer section = SECTIONS.get(item.actionId());
-            if (section != null) {
-                line(getString(section), true);
-                line(item.text(), false);
-                if (!item.numbers().isEmpty()) line(getString(R.string.advice_section_figures, figures(item)), false);
-                continue;
-            }
-            line(adviceText(item), false);
-            for (var fact : item.numbers()) {
-                line(getString(R.string.advice_figure, fact.value().toPlainString(), fact.unit(), fact.period()), false);
-            }
-        }
-        if (model.result.rating() != null) {
-            line(getString(R.string.advice_rated, model.result.rating().toString()), false);
-            return;
-        }
-        line(getString(R.string.advice_rating_prompt), true);
-        var options = new RadioGroup(this);
-        for (int value = 1; value <= 5; value++) {
-            var radio = new RadioButton(this);
-            radio.setId(View.generateViewId());
-            radio.setText(getString(R.string.advice_rating_option, Integer.toString(value)));
-            radio.setTextColor(getColor(R.color.finora_ink));
-            options.addView(radio);
-            if (model.selected == value) options.check(radio.getId());
-        }
-        page.addView(options);
-        Button save = button(R.string.advice_send_rating, model::rate);
-        save.setEnabled(model.selected > 0);
-        options.setOnCheckedChangeListener((group, id) -> {
-            model.selected = group.indexOfChild(group.findViewById(id)) + 1;
-            save.setEnabled(model.selected > 0);
+
+        view.adviceItems.removeAllViews();
+        boolean ready = !model.reconcile && !busy && model.result != null;
+        boolean any = ready && !model.result.items().isEmpty();
+        view.adviceEmpty.setVisibility(ready && !any ? View.VISIBLE : View.GONE);
+        view.adviceBanner.setVisibility(any ? View.VISIBLE : View.GONE);
+        view.adviceRatingCard.setVisibility(any ? View.VISIBLE : View.GONE);
+        if (!any) return;
+        boolean verified = model.result.verified();
+        view.adviceBannerTitle.setText(verified ? R.string.advice_verified : R.string.advice_rules);
+        view.adviceBannerText.setText(verified ? R.string.advice_verified_help : R.string.advice_rules_help);
+        view.adviceBannerIcon.setImageResource(verified ? R.drawable.finora_ic_shield : R.drawable.finora_ic_info);
+        view.adviceBanner.setCardBackgroundColor(getColor(verified ? R.color.finora_success_surface : R.color.finora_neutral_surface));
+        view.adviceBannerTitle.setTextColor(getColor(verified ? R.color.finora_green : R.color.finora_ink));
+        view.adviceBannerIcon.setImageTintList(ColorStateList.valueOf(getColor(verified ? R.color.finora_green : R.color.finora_muted)));
+        for (var item : model.result.items()) showItem(item);
+        renderRating();
+    }
+
+    private void showItem(MonthlyRepository.Item item) {
+        var card = ItemAdviceBinding.inflate(getLayoutInflater(), view.adviceItems, false);
+        int section = AdviceRules.section(item.actionId());
+        card.adviceItemTitle.setText(section != 0 ? section : R.string.advice_next_step);
+        ViewCompat.setAccessibilityHeading(card.adviceItemTitle, true);
+        card.adviceItemText.setText(section != 0 ? item.text() : adviceText(item));
+        card.adviceIcon.setImageResource(AdviceRules.icon(item.actionId()));
+        int[][] tones = {
+                {R.color.finora_success_surface, R.color.finora_green},
+                {R.color.finora_warn_fill, R.color.finora_warn_ink},
+                {R.color.finora_neutral_surface, R.color.finora_chart_2},
+                {R.color.finora_neutral_surface, R.color.finora_muted}};
+        int[] tone = tones[AdviceRules.tone(item.actionId())];
+        card.adviceIcon.setBackgroundTintList(ColorStateList.valueOf(getColor(tone[0])));
+        card.adviceIcon.setImageTintList(ColorStateList.valueOf(getColor(tone[1])));
+        var figures = AdviceRules.distinct(item.numbers());
+        card.adviceFigures.setVisibility(figures.isEmpty() ? View.GONE : View.VISIBLE);
+        for (var fact : figures) card.adviceFigures.addView(figure(fact));
+        view.adviceItems.addView(card.getRoot());
+    }
+
+    private TextView figure(MonthlyRepository.Fact fact) {
+        var label = new TextView(this);
+        String value = AdviceRules.plain(fact.value());
+        label.setText(switch (fact.unit()) {
+            case "PERCENT" -> getString(R.string.advice_unit_percent, value);
+            case "MONTHS" -> getString(R.string.advice_unit_months, value);
+            default -> Money.rupees(this, fact.value());
         });
+        label.setTextSize(13);
+        label.setTypeface(null, android.graphics.Typeface.BOLD);
+        label.setTextColor(getColor(R.color.finora_ink));
+        label.setGravity(Gravity.CENTER_VERTICAL);
+        label.setMinHeight(dp(28));
+        label.setPadding(dp(8), 0, dp(8), 0);
+        var shape = new android.graphics.drawable.GradientDrawable();
+        shape.setCornerRadius(dp(8));
+        shape.setColor(getColor(R.color.finora_surface));
+        shape.setStroke(dp(1), getColor(R.color.finora_card_line));
+        label.setBackground(shape);
+        return label;
+    }
+
+    private void renderRating() {
+        Integer rated = model.result.rating();
+        boolean open = rated == null;
+        view.adviceRating.setVisibility(open ? View.VISIBLE : View.GONE);
+        view.adviceRatingScale.setVisibility(open ? View.VISIBLE : View.GONE);
+        view.adviceSubmit.setVisibility(open ? View.VISIBLE : View.GONE);
+        view.adviceRated.setVisibility(open ? View.GONE : View.VISIBLE);
+        if (!open) {
+            view.adviceRated.setText(getString(R.string.advice_rated, rated.toString()));
+            return;
+        }
+        int want = model.selected;
+        if (want > 0) view.adviceRating.check(view.adviceRating.getChildAt(want - 1).getId());
+        else view.adviceRating.clearChecked();
+        model.selected = want;
+        for (int i = 0; i < view.adviceRating.getChildCount(); i++) {
+            view.adviceRating.getChildAt(i).setEnabled(!model.work.busy());
+        }
+        view.adviceSubmit.setEnabled(model.selected > 0 && !model.work.busy());
+    }
+
+    /** The chosen rating shows a tick as well as its fill, so the choice never relies on colour alone. */
+    private void markRating() {
+        for (int i = 0; i < view.adviceRating.getChildCount(); i++) {
+            var button = (MaterialButton) view.adviceRating.getChildAt(i);
+            button.setIconResource(button.isChecked() ? R.drawable.finora_ic_tick : 0);
+            button.setIconPadding(dp(2));
+            button.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
+        }
     }
 
     /** D58 coaching sections and their headings; other action ids are the T25 catalogue. */
@@ -116,45 +208,27 @@ public final class AdviceActivity extends SecureActivity {
             "SALARY_PLAN", R.string.advice_section_salary);
 
     private void renderGoalPicker() {
-        if (model.goals == null || model.goals.isEmpty()) return;
-        line(getString(R.string.advice_goal_prompt), true);
-        var options = new RadioGroup(this);
-        RadioButton none = goalOption(options, getString(R.string.advice_goal_none), model.goalId == null);
-        none.setOnClickListener(view -> model.selectGoal(null));
-        for (GoalDto goal : model.goals) {
-            RadioButton option = goalOption(options, goal.name(), Long.valueOf(goal.id()).equals(model.goalId));
-            option.setOnClickListener(view -> model.selectGoal(goal.id()));
-        }
-        page.addView(options);
+        boolean show = model.goals != null && !model.goals.isEmpty();
+        view.adviceGoalLabel.setVisibility(show ? View.VISIBLE : View.GONE);
+        view.adviceGoals.setVisibility(show ? View.VISIBLE : View.GONE);
+        view.adviceGoals.removeAllViews();
+        if (!show) return;
+        for (GoalDto goal : model.goals) goalChip(goal.name(), goal.id());
+        goalChip(getString(R.string.advice_goal_none), null);
     }
 
-    private RadioButton goalOption(RadioGroup group, String text, boolean checked) {
-        var radio = new RadioButton(this);
-        radio.setId(View.generateViewId());
-        radio.setText(text);
-        radio.setTextColor(getColor(R.color.finora_ink));
-        radio.setEnabled(!model.work.busy());
-        group.addView(radio);
-        if (checked) group.check(radio.getId());
-        return radio;
-    }
-
-    private String figures(MonthlyRepository.Item item) {
-        StringBuilder out = new StringBuilder();
-        for (var fact : item.numbers()) {
-            if (out.length() > 0) out.append(" · ");
-            String value = fact.value().stripTrailingZeros().toPlainString();
-            out.append(switch (fact.unit()) {
-                case "PERCENT" -> getString(R.string.advice_unit_percent, value);
-                case "MONTHS" -> getString(R.string.advice_unit_months, value);
-                default -> getString(R.string.advice_unit_lkr, fact.value().toPlainString());
-            });
-        }
-        return out.toString();
+    private void goalChip(String text, Long id) {
+        var chip = (Chip) getLayoutInflater().inflate(R.layout.item_choice_chip, view.adviceGoals, false);
+        chip.setId(View.generateViewId());
+        chip.setText(text);
+        view.adviceGoals.addView(chip);
+        chip.setChecked(java.util.Objects.equals(id, model.goalId));
+        chip.setEnabled(!model.work.busy() && !model.reconcile);
+        chip.setOnClickListener(ignored -> model.selectGoal(id));
     }
 
     private String adviceText(MonthlyRepository.Item item) {
-        if (!"si".equals(getResources().getConfiguration().getLocales().get(0).getLanguage())) return item.text();
+        if (!"si".equals(locale().getLanguage())) return item.text();
         return switch (item.actionId()) {
             case "REVIEW_SPENDING_DEFICIT" -> localText(item, R.string.advice_action_deficit, "SPENDING_DEFICIT");
             case "REVIEW_HIGH_WANTS" -> localText(item, R.string.advice_action_wants, "WANTS", "WANTS_REFERENCE");
@@ -179,23 +253,7 @@ public final class AdviceActivity extends SecureActivity {
         return getString(label, amounts);
     }
 
-    private Button button(int title, Runnable action) {
-        var control = ScreenControls.action(this);
-        control.setText(title);
-        control.setEnabled(!model.work.busy());
-        control.setOnClickListener(view -> action.run());
-        page.addView(control);
-        return control;
-    }
-
-    private void line(String value, boolean heading) {
-        var label = ScreenControls.text(this);
-        label.setText(value);
-        label.setTextColor(getColor(R.color.finora_ink));
-        label.setTextSize(heading ? 20 : 16);
-        ViewCompat.setAccessibilityHeading(label, heading);
-        page.addView(label);
-    }
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     public static final class Model extends ViewModel {
         final Work work = new Work(() -> { result = null; selected = 0; reconcile = false; goals = null; goalId = null; });
@@ -208,6 +266,8 @@ public final class AdviceActivity extends SecureActivity {
         /** Active goals for the picker (names stay on the phone; only the id is sent). Null until loaded. */
         List<GoalDto> goals;
         Long goalId;
+        /** The launch month extra is applied once. */
+        boolean opened;
 
         void load() {
             if (!work.isCurrent() || work.busy()) return;

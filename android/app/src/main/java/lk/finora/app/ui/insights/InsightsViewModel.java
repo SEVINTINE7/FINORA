@@ -9,31 +9,19 @@ import java.util.HashSet;
 
 import lk.finora.app.data.repo.AccountRepository;
 import lk.finora.app.data.repo.InsightsRepository;
-import lk.finora.app.data.repo.InsightsRepository.Declaration;
 import lk.finora.app.data.repo.InsightsRepository.Insight;
 import lk.finora.app.data.repo.InsightsRepository.Score;
 import lk.finora.app.ui.accounts.AccountListViewModel.Work;
-import okhttp3.Response;
-import lk.finora.app.R;
 
 public final class InsightsViewModel extends ViewModel {
     final Work patternsWork = new Work(() -> patterns = null);
     final Work scoreWork = new Work(() -> score = null);
-    final Work declarationWork = new Work(() -> {
-        declaration = null;
-        rotatedDraft = null;
-    });
     private final InsightsRepository repository = patternsWork.requests == null ? null
             : new InsightsRepository(patternsWork.requests);
     YearMonth month = YearMonth.now(ZoneId.of("Asia/Colombo"));
     Insight[] patterns;
     Score score;
-    Declaration declaration;
-    DeclarationDraft rotatedDraft;
-
-    record DeclarationDraft(String amount, String date, Boolean noDebt, Boolean noGoals) {}
-
-    boolean busy() { return patternsWork.busy() || scoreWork.busy() || declarationWork.busy(); }
+    boolean busy() { return patternsWork.busy() || scoreWork.busy(); }
 
     void shift(int by) {
         if (busy()) return;
@@ -47,7 +35,6 @@ public final class InsightsViewModel extends ViewModel {
         if (!patternsWork.isCurrent() || busy()) return;
         patterns = null;
         score = null;
-        declaration = null;
         var selected = month;
         patternsWork.run(() -> repository.insights(selected), response -> {
             var rows = AccountRepository.read(response, Insight[].class);
@@ -60,8 +47,6 @@ public final class InsightsViewModel extends ViewModel {
             return rows;
         }, rows -> patterns = rows, false);
         loadScore();
-        declarationWork.run(() -> repository.declaration(selected),
-                response -> readDeclaration(response, selected), value -> declaration = value, false);
     }
 
     private void loadScore() {
@@ -107,32 +92,8 @@ public final class InsightsViewModel extends ViewModel {
                 && ("UNAVAILABLE".equals(part.status()) || "NOT_APPLICABLE".equals(part.status()));
     }
 
-    void save(Declaration values) {
-        if (busy() || declaration == null) return;
-        var selected = month;
-        declarationWork.run(() -> repository.declaration(selected, values),
-                response -> readDeclaration(response, selected), value -> {
-                    declaration = value;
-                    loadScore();
-                }, false, failure -> {
-                    // Refetch persisted values before any later write if the outcome may be uncertain.
-                    if (!(failure instanceof AccountRepository.HttpFailure http) || http.status >= 500) {
-                        declaration = null;
-                        score = null;
-                        declarationWork.error = R.string.score_save_uncertain;
-                    }
-                });
-    }
-
-    private static Declaration readDeclaration(Response response, YearMonth month) throws IOException {
-        var value = AccountRepository.read(response, InsightsRepository.DeclarationResult.class);
-        if (!month.toString().equals(value.month())) throw new IOException("Invalid declaration month");
-        return value.values();
-    }
-
     @Override protected void onCleared() {
         patternsWork.close();
         scoreWork.close();
-        declarationWork.close();
     }
 }

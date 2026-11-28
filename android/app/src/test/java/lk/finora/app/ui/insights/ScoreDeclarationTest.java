@@ -15,11 +15,11 @@ public class ScoreDeclarationTest {
     private static final LocalDate TODAY = MONTH.atDay(24);
 
     @Test public void preservesZeroAndNullableDeclarations() {
-        var blank = InsightsActivity.parse("", "", MONTH, TODAY, null, false);
+        var blank = ScoreRules.parse("", "", MONTH, TODAY, null, false);
         assertNull(blank.emergencyReserve());
         assertNull(blank.noApplicableDebt());
         assertEquals(Boolean.FALSE, blank.noApplicableGoals());
-        var zero = InsightsActivity.parse("0,00", "2026-11-24", MONTH, TODAY, true, null);
+        var zero = ScoreRules.parse("0,00", "2026-11-24", MONTH, TODAY, true, null);
         assertEquals(new BigDecimal("0.00"), zero.emergencyReserve());
         assertEquals("2026-11-24", zero.reserveAsOf());
         assertEquals(Boolean.TRUE, zero.noApplicableDebt());
@@ -33,6 +33,6 @@ public class ScoreDeclarationTest {
     }
 
     private static void parse(String amount, String date) {
-        InsightsActivity.parse(amount, date, MONTH, TODAY, null, null);
+        ScoreRules.parse(amount, date, MONTH, TODAY, null, null);
     }
 }
