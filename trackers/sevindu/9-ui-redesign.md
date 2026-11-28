@@ -53,7 +53,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [x] T64.1 Mockups of Goal list, Goal detail, Goal form and Planning (daily guide + simulator) approved by Sevindu on 2026-11-28 (design canvas row "T64 · Goals and planning"; D68)
 - [x] T64.2 Goal list (progress cards, focus-goal marker), Goal detail (contributions list) and Goal form
 - [x] T64.3 Planning screen: daily guide card and simulator inputs/results
-- [ ] T64.4 Screenshots approved
+- [x] T64.4 Screenshots approved
 
 **Handoff notes:**
 - T64.1 (2026-11-28): 5 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 — GoalList, GoalDetail, GoalForm, PlanGuide, PlanSimulator (Planning is one activity, two modes). Approved with all four D68 changes: focus badge, date pickers + deadline toggle, More/Less adjustment + Simulate shortcut, monthly hint on Add goal.
@@ -64,6 +64,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - T64.3 (2026-11-28, verified on Pixel_8): `activity_planning.xml` + `item_planning_cut.xml`; `PlanningActivity` uses ViewBinding, pure rules in `PlanningRules` (+5 unit tests). Guide: Rs. fields with help, income date from the calendar (`model.incomeDate`, Clear date), tracked-bills card (confirm needed → scrolls into view; confirmed ✓), allowance card with the deductions. Simulation: goal, savings now, More/Less + Amount (D68, sent negated for Less), category cut rows, finish-month card.
 - Every guide/simulation status has its own message (`PlanningRules.guideMessage/simulationMessage`); result cards and the bills row still speak the old sentences (journey tests now use `descContains`). New help line: a cut cannot exceed last month's recorded category spending (the API's rule; it previously surfaced only as "Check the values"). `planning_invalid_date` removed.
 - Checks: 176 unit tests, lint 4 = baseline; planning journeys (guide+simulation, rotation lock, choice-retry) + Form/Dashboard/Records fixtures pass on Pixel_8 with `finoraIsolatedEmulator`; ShellNavigation flaked once after FinancialFormTest, passed 2/2 alone. `T64ScreenshotTest` planning part passed EN/SI × light/dark + EN 130%. SI uses traditional month names (උදුවප්, බක්) from Android locale data — native review.
+- T64.4 (2026-11-28): Sevindu approved the goal (T64.2) and planning (T64.3) screenshots, EN/SI × light/dark + EN 130%. T64 done.
 
 ### T65 · Accounts and categories · `UX-05`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/accounts/`, `and:ui/categories/`, `res:layout/`
