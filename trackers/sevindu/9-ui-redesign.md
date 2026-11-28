@@ -105,7 +105,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [x] T67.1 Mockups of SMS access, Paste SMS and CSV import approved by Sevindu
 - [x] T67.2 SMS access (permission explanation) and Paste SMS (parsed-field confirmation rows); rule 1 unchanged: only confirmed amount/date/merchant/type leave the phone
 - [x] T67.3 CSV import (file pick, preview table, confirm)
-- [ ] T67.4 Screenshots approved
+- [x] T67.4 Screenshots approved
 
 **Handoff notes:**
 - T67.1 (2026-11-28): 5 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v13): SMS access (first visit), SMS access after a scan, Paste SMS, Review SMS transactions (full-screen sheet), CSV import preview. Approved as D71; CSV problem rows show the API reason as sent.
@@ -113,6 +113,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - T67.3 (2026-11-28): CsvImportActivity is a RecyclerView (view_csv_header + item_import_txn rows) with summary tiles and a pinned "Import N selected rows" bar; VM keeps the file name. Rows still opt-in. Unused SMS/CSV strings removed.
 - Checks: 189 unit tests pass, lint at 4-warning baseline; device: smsRefusal and SmsPrivacy pass; text-fit passes on the T67 screens but flakes later on BillList/Main route waits. Paste journey still stops at LLM "Rule-based guidance" (as T66).
 - Screenshots: T67ScreenshotTest (arg finoraT67Shots) via scratchpad shots67.sh, EN/SI light/dark + EN 130%. Sinhala needs a native read. Duplicate tile shows 0 (needs a prior CSV import).
+- T67.4 (2026-11-28): 70 screenshots approved by Sevindu at https://claude.ai/artifact/UVBC4RED3C73c4tFe1egGW. Leftovers: native Sinhala read; account picker truncates at 130%.
 
 ### T68 · Settings, help and support · `UX-08`
 **Lead:** Sevindu · **Support:** Sahan (review) · **Depends on:** T62 · **Touches:** `and:ui/settings/`, `and:ui/help/`, `and:ui/support/SupportActivity`, `and:ui/main/` (More tab), `res:layout/`
