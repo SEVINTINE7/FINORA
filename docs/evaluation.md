@@ -554,3 +554,177 @@ The approved HMD Crest API 34 session ran Home, Records and Insights once each. 
 The launcher stopped the API and MySQL and removed its USB reverse mapping. Automated profile cleanup needed a follow-up. Android acknowledged removal of the exact temporary user. A read-back confirmed Owner was foreground, the temporary profile was absent, both Sahan APK paths matched, and no reverse mappings or session listeners remained. The dataset digest and eight counts matched before and after the session.
 
 These are calibration observations. T55.2 remains in progress pending the approved device classification, routes, cohort, statistic and independent acceptance.
+
+## D65–D71 provisional HMD Crest measurements (28 November 2026)
+
+One temporary profile ran the V1 debug acceptance build from main `b2262bfaca2d94ed200bce122682d0ddc4c054e9`. HMD Crest, board Arrow, Android 14 (API 34), 1080 × 2400, and 5,543,588 kB reported RAM. The project has no recorded mid-range classification approval for this handset. The temporary profile used English and USB reverse to the provider-disabled loopback API. The retained API executable from `7c706f7534cecd5ef7abd6aaf2ff9acffdf54b37` is source-equivalent for the API. Its SHA-256 is `9a586e1d0f21f96205cef9d57886258f625ebdeb912183caa9adb1633089dfa2`.
+
+App APK SHA-256 `caf79c69163dbb87ada05853a6106eecd455615ebd5ee305431b49d6bdc32881`. Measured instrumentation APK SHA-256 `b0fd2ae3a8b145fd01e0b60ada9ebc94aa9267ce2e40408a6a03d10e2caf7d08`. Both APKs used the matching debug certificate and their installed bytes matched the candidate files. The API migrated only a disposable copy to V25. The two canonical owners' eight counts and 826-transaction SHA-256 `14e563da86de67d4f295b6a9f8577d76ec781128b9c91900e6a1b54c96069944` matched before and after. The frozen data directory was never started or migrated.
+
+Measured durations use a monotonic action marker, the first traversal meeting the screen's content oracle, and a unique FrameTimeline match to an actual presentation. The reported percentile is nearest rank. Warm-up rows are excluded. [Sanitized observation rows and trace hashes](t55-performance/handset-redesign-observations.csv)
+
+| Route / cohort | Planned | Qualified | Unqualified | Unrecorded | Failed or not run | Median ms | p95 ms | Max ms |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| Records warm | 30 | 30 | 0 | 0 | 0 | 87.597 | 150.135 | 163.762 |
+| Home warm | 30 | 0 | 26 | 4 | 0 observed | — | — | — |
+| Insights warm | 30 | 0 | 27 | 3 | 0 observed | — | — | — |
+| Plan to Budgets warm | 30 | 0 | 0 | 0 | 30 not run | — | — | — |
+| Home fresh-process activity launch | 5 | 5 | 0 | 0 | 0 | 1,167.915 | 1,210.928 | 1,210.928 |
+
+All five Records warm-ups qualified. Home warm-up rows were unrecorded. Insights retained two unqualified warm-up traversals and three unrecorded warm-up rows. The first Budgets warm-up failed before action dispatch because both a heading and a button used the same label. The remaining four warm-ups and all warm attempts for Budgets were not run. The retained Home and Insights warm traces lacked enough presentation coverage. Unrecorded rows retain no timing or success claim. No explicit timeout was retained.
+
+The cold samples forced a process stop before each instrumentation launch. The reported boundary begins at the instrumented activity-launch action and ends at the displayed usable Home. The traces have no consistent process-start timestamp, so these rows supply no full process-start-to-display statistic. With five attempts, nearest-rank p95 equals the maximum.
+
+The follow-up test matches the clickable navigation button and streams each timing status directly through instrumentation. The host runner waits for the foreground Perfetto capture to finish before retrieving it. The updated instrumentation built offline and the SQL replayed on retained traces. The post-run fixes still need handset requalification under a separately authorized session. The formal device classification, acceptance statistic, routes and cohort decision, T16/T38 closure, and independent review remain open. No two-second acceptance verdict was assigned.
+
+Android returned to Owner. The temporary user and candidate packages were removed, both Sahan QA packages remained, and the USB reverse, API, MySQL and session-started ADB listeners were removed or stopped. The isolated database copy and traces were retained locally as evidence. No provider traffic or participant data collection occurred.
+### Targeted warm follow-up and retained cold replay (28 November 2026)
+
+This additional HMD Crest session used the same application APK from the earlier D65–D71 run, SHA-256 `caf79c69163dbb87ada05853a6106eecd455615ebd5ee305431b49d6bdc32881`. The corrected instrumentation APK SHA-256 was `e8854ef5ffa9d36b992f423c74918a039ea13b563695eb9bed7e0fdd5e5c4b78`. Both installed bytes and the matching debug signer were verified. The PR #43 base added tracker changes only. Records retains 30 qualified warm observations from the same source and dataset. No additional Records or cold launch was run.
+
+| Warm route | Capture rehearsal | Full warm cohort |
+| --- | --- | --- |
+| Home | 3/3 displayed frames recovered at 138.375, 179.770 and 211.580 ms, listed in ascending order | Not started |
+| Insights | 3/3 displayed frames recovered at 211.349, 214.790 and 267.398 ms, listed in ascending order | Not started |
+| Plan to Budgets | ADB transport failed before instrumentation. No rehearsal action was recorded. | Not started |
+
+The automated gate stopped on the handset's unsupported `ps -o ARGS` field at trace finalization. The exact session-owned traces were recovered, replayed, and removed from the handset after capture. The [sanitized calibration rows](t55-performance/handset-targeted-warm-calibration.csv) include the Budget transport failure and unstarted slots. Rehearsals remain outside measured warm cohorts.
+
+The launcher now uses `PID,CMDLINE` to verify the exact Perfetto command. It preflights this field before any profile change, retains the ADB exit status, and reports incomplete cohorts as a failure. The device accepted the corrected field and the exact trace-owner match during recovery. The amended launcher still needs a connected end-to-end run for the three missing warm cohorts.
+
+The retained cold trace supplies five unique Android `system_server` `Start proc` operations, each after the previous Home presentation and before the next measured launch action. The [SQL](t55-performance/handset-cold-process-request.sql) joins each to its qualified displayed Home frame and [retains all five timings](t55-performance/handset-cold-process-request.csv). Process-start request to displayed Home had median **2,151.854 ms**, nearest-rank p95 **2,251.399 ms**, and maximum **2,251.399 ms**. This interval includes instrumentation startup. It does not establish kernel fork time or launcher-tap latency. The earlier activity-action statistic remains separately valid. No formal two-second verdict was assigned.
+
+The disposable V25 copy matched all eight canonical-owner counts and the 826-transaction fingerprint before and after the session. Read-back confirmed the temporary profile and candidate packages were absent, Owner and Sahan's two QA packages were preserved, and no session Perfetto, USB reverse, API, MySQL or ADB processes or mappings remained. The frozen database was untouched.
+
+## HMD Crest trace finalizer recovery, 28 November 2026
+
+The one approved temporary-profile session used PR #43 head
+`2a9e761e44d7e709967f900a90852f5d93015127`. Upstream
+`0e175d8a776b69ad6b656f8e387640edcab65ebf` changed only decisions and
+trackers since the previously inspected baseline. The qualified Records
+cohort is retained (30/30, median 87.597 ms, p95 150.135 ms, max 163.762 ms).
+
+Home's three rehearsal attempts committed and all three qualified on replay of
+the recovered Perfetto trace (168.890, 180.206 and 181.542 ms). The
+[raw timing rows](t55-performance/handset-home-finalizer-recovery.csv) use the
+ready marker's traversal and the corresponding SurfaceFlinger presentations.
+The callback timestamp can be later than presentation, so it is corroborating
+diagnostic evidence and is excluded from the duration.
+
+The direct ADB trace-finalization preflight succeeded. The full launcher
+failed during Home calibration finalization with `ps: bad CMDLINE` because
+PowerShell constructs an array from the unquoted field list at the wrapper
+boundary. Passing the quoted field through that same wrapper identified the
+exact trace PID, allowed an interrupt and flush, and recovered the trace.
+The runner and preflight now both pass a single quoted argument. No warm
+measured cohort (Home, Insights or Budgets) started. No measured attempts
+were discarded. The launcher correction was verified at the argument and
+trace-recovery boundaries, with a complete connected rerun still pending.
+
+The prepared external cold route force-stops the app and starts the real launcher
+activity through Android's activity manager, without an instrumentation runner.
+Its query reports system-server process-start request to first MainActivity
+presentation, which may contain placeholder content. A replay on the retained
+instrumentation-mediated trace exercised the query and returned three observed
+presentations and two unmatched starts. That replay does not establish independent
+cold startup. The new external route did not run after the warm capture fault,
+and there is no newly confirmed production performance defect.
+
+The disposable database matched the frozen 826-transaction digest before and
+after the session. Cleanup returned to Owner, removed the temporary user,
+preserved FINORA-T10-QA and its installed packages, restored the reverse
+mapping baseline, and removed the recovered remote trace. The session-owned
+ADB, API and database listeners were gone. T55.2 remains open, including the
+formal device classification and measurement acceptance decision.
+
+## Launcher lifecycle qualification on the isolated emulator, 28 November 2026
+
+The build with `-PfinoraFinalHandset=true -PfinoraT55Capture=true` assembled
+the V1 debug app and its Android test APK using Android Studio JBR. The marker
+is limited to the opt-in debug package and observes the two expected Home
+balances in a natural pre-draw. It leaves the normal app and release code
+paths unchanged. The evaluation API reused the verified V25-compatible JAR.
+
+The dedicated `FINORA_T55_Evaluation` AVD ran read-only on Android API 37
+(1080×2400, approximately 4 GB RAM) with private ADB. The launcher injected
+a failure while the foreground capture was active. The guarded finalizer
+found the capture by its quoted `PID,CMDLINE` field list, interrupted the
+exact process, waited for it to flush, pulled the trace and verified remote
+removal. Subsequent routes ran. An earlier trial confirmed that insufficient
+Home and Budgets presentation matches blocked their corresponding full
+cohorts while independent routes continued.
+
+The final preflight exited successfully. Insights cleared the 3/3 rehearsal
+gate. The full capture retained all five warm-ups and 30 measured attempts
+without a reported trace loss. Of the measured attempts, 27 qualified and
+three remained unqualified. Of the warm-ups, three qualified and two remained
+unqualified. [Emulator warm rows](t55-performance/emulator-lifecycle-insights.csv).
+
+All five external launches followed `am force-stop` and Android confirmed
+`LaunchState: COLD`. The query uses the system-server process-start request
+as its start boundary. Five first app presentations and three usable Home
+presentations qualified. The other two usable outcomes remain unqualified.
+The first-app boundary can include empty or loading content. The usable
+boundary requires both synthetic financial balances in the traversal that
+matches a presented Home surface. The external launches used no
+instrumentation runner, though tracing and the debug-only marker were active.
+[Emulator cold rows](t55-performance/emulator-lifecycle-cold.csv).
+Cold trace SHA-256: `a69149ada4492c6725eb6a392f9fb6480516de995c28a2c5b4055be4e8661489`.
+
+The 826-transaction digest and eight fixture counts matched before and after.
+The emulator temporary user and reverse were removed, the original emulator
+user was restored, and the launcher, private ADB, API and disposable MySQL
+listeners stopped. This preflight was emulator-only. The previous
+30/30 Records handset cohort remains source-equivalent. Formal T55.2
+acceptance remains open.
+
+## Targeted HMD Crest warm cohorts and independent cold launch, 28 November 2026
+
+One isolated HMD Crest session followed the successful emulator lifecycle
+preflight. The handset reported Android 14/API 34, build
+`00WW_1_59I`, 1080×2400 and 5,543,588 kB total RAM. Four model-verified
+ADB round trips preceded profile creation. The tested harness was
+`2418cbf4a837451f40ed35d6e425ebd2f20e7287`. The provider-disabled
+V25 API reused the verified JAR and disposable synthetic fixture.
+
+| Timing in ms | Attempts | Qualified | Failures / timeouts / unqualified | Median | Nearest-rank p95 | Max |
+| --- | ---: | ---: | --- | ---: | ---: | ---: |
+| Home warm | 30 | 30 | 0 / 0 / 0 | 123.616 | 143.380 | 192.390 |
+| Records warm, retained | 30 | 30 | 0 / 0 / 0 | 87.597 | 150.135 | 163.762 |
+| Insights warm | 30 | 30 | 0 / 0 / 0 | 201.519 | 325.799 | 349.957 |
+| Budgets warm | 30 | 30 | 0 / 0 / 0 | 168.346 | 189.719 | 192.134 |
+| Cold: first app presentation | 5 | 5 | 0 / 0 / 0 | 773.879 | 851.188 | 851.188 |
+| Cold: usable Home presentation | 5 | 5 | 0 / 0 / 0 | 1633.954 | 1730.653 | 1730.653 |
+
+Every new warm route qualified 3/3 rehearsal frames and 5/5 warm-ups before
+or in its full capture. The [114 raw warm rows](t55-performance/handset-targeted-final-warm.csv)
+include those uncounted phases and all 90 measured observations. Perfetto
+reported no data loss. The prior source-equivalent Records cohort remains
+linked in its original section. The budget screen is labeled `PLAN` in
+the raw route field.
+
+The five [raw cold rows](t55-performance/handset-targeted-final-cold.csv)
+came from force-stops and external launcher activity starts. Android reported
+`COLD` for all five. Both boundaries start at the system-server process-start
+request. First app presentation can contain loading content. Usable Home
+requires the same presented frame as the natural pre-draw with LKR 60,000.00
+income and LKR 40,000.00 expenses. There was no instrumentation runner on
+the cold start path. The debug readiness observer and tracing were active.
+The historical runner-mediated cold observations are a separate method. Five
+cold samples provide limited percentile resolution.
+
+Verified debug APK SHA-256 values:
+- App `06a08b5910f8b02b50a08917f665cbdca0b23704f6f61650d604bcee37e4a820`
+- Android test `0f2155780351e5f483c13ba2eeB8d27acc69ed2d0a3ab97c70663931a5cad692`
+- Signer `863fd92f2b8a4b4ff071062669525d5f866dbfa6752acfcef0f8eaac46092f6f`
+
+The disposable V25 copy matched the benchmark digest and all eight counts
+before and after. The frozen database was untouched. Final read-back
+verified temporary user removal after the Android user-stop transition,
+restored Owner and Sahan's original QA profile and package paths, and
+confirmed the reverse mapping baseline. Session traces were removed from
+the phone. No session Perfetto, API, MySQL or ADB listener remained.
+
+These measurements complete the requested physical cohorts. Formal T55.2
+acceptance still requires the documented device classification and
+measurement criteria and independent review.

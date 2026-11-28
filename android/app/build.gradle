@@ -16,6 +16,10 @@ if (!releaseApi.isEmpty()) {
 def env = { String name -> providers.environmentVariable(name).orElse('').get() }
 def handsetAcceptance = providers.gradleProperty('finoraHandsetAcceptance').orElse('false').get() == 'true'
 def finalHandset = providers.gradleProperty('finoraFinalHandset').orElse('false').get() == 'true'
+def t55Capture = providers.gradleProperty('finoraT55Capture').orElse('false').get() == 'true'
+if (t55Capture && !finalHandset) {
+    throw new GradleException('T55 capture requires the isolated t57handset debug package')
+}
 if (handsetAcceptance && finalHandset) {
     throw new GradleException('Choose only one handset acceptance package')
 }
@@ -82,8 +86,14 @@ android {
         }
     }
 
+    if (t55Capture) {
+        sourceSets.debug.java.srcDir('src/t55/java')
+    }
+
     buildTypes {
         debug {
+            manifestPlaceholders.finoraDebugApplication = t55Capture ?
+                    'lk.finora.app.t55.ColdHomeApplication' : 'android.app.Application'
             if (finalHandset) {
                 applicationIdSuffix '.t57handset'
             } else if (handsetAcceptance) {

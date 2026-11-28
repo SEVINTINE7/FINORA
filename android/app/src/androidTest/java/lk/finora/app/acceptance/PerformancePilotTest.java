@@ -46,7 +46,7 @@ import lk.finora.app.ui.budgets.BudgetListActivity;
 import lk.finora.app.ui.insights.InsightsActivity;
 import lk.finora.app.ui.login.LoginActivity;
 import lk.finora.app.ui.main.MainActivity;
-import lk.finora.app.ui.transactions.TransactionActivity;
+
 import org.hamcrest.Matcher;
 import org.junit.Assume;
 import org.junit.Test;
@@ -75,13 +75,25 @@ public class PerformancePilotTest {
     @Test public void measure() throws Exception {
         var runner = InstrumentationRegistry.getInstrumentation();
         var args = InstrumentationRegistry.getArguments();
-        Assume.assumeTrue("Dedicated emulator pilot only", "true".equals(args.getString("finoraPerformancePilot")));
+        Assume.assumeTrue("Explicit isolated performance run only", "true".equals(args.getString("finoraPerformancePilot")));
         Context app = runner.getTargetContext();
-        assertEquals("lk.finora.app.acceptance", app.getPackageName());
+        boolean handset = "true".equals(args.getString("finoraPerformanceHandset"));
+        boolean emulator = "ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE);
+        boolean preflight = "true".equals(args.getString("finoraPerformanceEmulatorPreflight"));
+        if (preflight) assertTrue(emulator && !handset);
+        assertEquals(handset || preflight ? "lk.finora.app.t57handset" : "lk.finora.app.acceptance",
+                app.getPackageName());
         assertTrue(BuildConfig.DEBUG && "http://127.0.0.1:8080/".equals(BuildConfig.API_BASE_URL));
-        assertTrue("ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE));
-        assertEquals(args.getString("finoraTestUserSerial"), Long.toString(app.getSystemService(UserManager.class)
-                .getSerialNumberForUser(Process.myUserHandle())));
+        assertEquals(!handset, emulator);
+        long serial = app.getSystemService(UserManager.class).getSerialNumberForUser(Process.myUserHandle());
+        assertEquals(args.getString("finoraTestUserSerial"), Long.toString(serial));
+        if (handset) {
+            assertTrue(Build.VERSION.SDK_INT == 34 && serial > 0);
+            assertEquals("HMD CREST", Build.MODEL);
+            assertEquals(Build.FINGERPRINT, args.getString("finoraBuildFingerprint"));
+            assertTrue(app.checkSelfPermission(android.Manifest.permission.READ_SMS)
+                    == android.content.pm.PackageManager.PERMISSION_DENIED);
+        }
         assertEquals(YearMonth.of(2026, 11), YearMonth.now(ZoneId.of("Asia/Colombo")));
         var sessions = TokenStore.open(app);
         String coldIndex = args.getString("finoraFreshIndex");
@@ -106,13 +118,14 @@ public class PerformancePilotTest {
                     .setText("finora-t55-perf-worker@example.invalid")));
             onView(withId(R.id.password)).perform(act(view -> ((EditText) view).setText(password)));
             onView(withId(R.id.sign_in)).perform(act(View::performClick));
-            assertTrue(UiDevice.getInstance(runner).wait(Until.hasObject(By.desc(
-                    app.getString(R.string.dashboard_income, "60000.00"))), 20_000));
+            assertTrue(UiDevice.getInstance(runner).wait(Until.hasObject(By.res(app.getPackageName(),
+                    "dashboard_income_amount").text(Money.rupees(app, new java.math.BigDecimal("60000.00")))), 20_000));
             boolean traceCheck = "true".equals(args.getString("finoraTraceCheck"));
             String traceRoute = args.getString("finoraTraceRoute");
             for (Route route : Route.values()) {
-                if (traceCheck && traceRoute != null && route != Route.valueOf(traceRoute)) continue;
-                for (int n = 1; n <= (traceCheck ? (traceRoute == null ? 1 : 3) : 15); n++) {
+                if (traceRoute != null && route != Route.valueOf(traceRoute)) continue;
+                int attempts = traceCheck ? (traceRoute == null ? 1 : 3) : handset || preflight ? 35 : 15;
+                for (int n = 1; n <= attempts; n++) {
                     tab(switch (route) {
                         case HOME -> R.string.records_tab;
                         case RECORDS -> R.string.home_tab;
@@ -122,8 +135,8 @@ public class PerformancePilotTest {
                     sample(app, route, traceCheck ? "trace-check" : n <= 5 ? "warmup" : "warm", n <= 5 ? n : n - 5,
                             started -> onView(route == Route.HOME || route == Route.RECORDS
                                     ? withId(route.button)
-                                    : withText(route.button)).perform(act(view -> { started.run(); view.performClick(); })));
-                    if (route != Route.HOME && route != Route.RECORDS) pressBack();
+                                    : org.hamcrest.Matchers.allOf(withText(route.button), isAssignableFrom(android.widget.Button.class))).perform(act(view -> { started.run(); view.performClick(); })));
+                    if (route.destination != MainActivity.class) pressBack();
                 }
             }
             if ("true".equals(args.getString("finoraHttpProbe"))) measureHttp(sessions);
@@ -178,7 +191,7 @@ public class PerformancePilotTest {
         runner.runOnMainSync(() -> monitor.addLifecycleCallback(callback));
         Runnable start = () -> {
             probe.markAction();
-            if (route == Route.HOME) {
+            if (route.destination == MainActivity.class) {
                 for (Activity activity : monitor.getActivitiesInStage(Stage.RESUMED)) watch.accept(activity);
             }
         };
@@ -188,15 +201,22 @@ public class PerformancePilotTest {
                 else runner.runOnMainSync(start);
             });
             var result = probe.await(TIMEOUT);
-            android.util.Log.i("FinoraPerfPilot", route.name() + "," + cohort + "," + index + ","
+            report(route.name() + "," + cohort + "," + index + ","
                     + result.outcome() + "," + result.actionNs() + "," + result.contentReadyNs()
                     + "," + result.frameCommittedNs());
         } catch (RuntimeException | AssertionError failure) {
-            android.util.Log.i("FinoraPerfPilot", route.name() + "," + cohort + "," + index + ",FAILED,0,0,0");
+            report(route.name() + "," + cohort + "," + index + ",FAILED,0,0,0");
             throw failure;
         } finally {
             runner.runOnMainSync(() -> monitor.removeLifecycleCallback(callback));
         }
+    }
+
+    private static void report(String row) {
+        android.util.Log.i("FinoraPerfPilot", row);
+        var status = new android.os.Bundle();
+        status.putString("finoraTiming", row);
+        InstrumentationRegistry.getInstrumentation().sendStatus(2, status);
     }
 
     private static boolean usable(Context app, Route route, View root) {
@@ -208,11 +228,13 @@ public class PerformancePilotTest {
                     java.time.LocalDate.now(java.time.ZoneId.of("Asia/Colombo"))))
                     && hasText(root, text -> text.contains(app.getString(R.string.form_rupees_prefix).trim()));
             case PLAN -> visible.test("Shopping")
-                    && hasText(root, text -> text.contains("LKR") && text.contains("5000"));
-            case INSIGHTS -> hasText(root, text -> text.matches("[0-9]+ out of 100"))
-                    && (visible.test(app.getString(R.string.insight_empty))
-                        || hasText(root, text -> text.startsWith("Period:")))
-                    && !visible.test(app.getString(R.string.records_loading));
+                    && hasText(root, text -> text.contains(Money.rupees(app, new java.math.BigDecimal("5000.00"))));
+            case INSIGHTS -> root.findViewById(R.id.insights_score_value) instanceof TextView score
+                    && score.getText().toString().matches("[0-9]{1,3}")
+                    && score.getGlobalVisibleRect(new Rect())
+                    && root.findViewById(R.id.insights_status).getVisibility() == View.GONE
+                    && root.findViewById(R.id.insights_parts) instanceof ViewGroup parts
+                    && parts.getChildCount() == 5;
         };
     }
 
