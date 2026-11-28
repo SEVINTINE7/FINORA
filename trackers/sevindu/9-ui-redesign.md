@@ -88,7 +88,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - [x] T66.1 Mockups of Insights, Advice and History approved by Sevindu
 - [x] T66.2 Insights (pattern cards with charts and text equivalents) and Advice (advice cards, rating control; `beta`/`v1` flavour behaviour kept)
 - [x] T66.3 History (score/month timeline)
-- [ ] T66.4 Screenshots approved
+- [x] T66.4 Screenshots approved
 
 **Handoff notes:**
 - T66.1 (2026-11-28): 4 artboards added to https://claude.ai/artifact/HSXdxkzAczzeM2Q1WS7X14 (canvas v12) — Insights (full scroll), Score details, Advice (full scroll), Monthly history (full scroll). Approved with all four D70 changes: score first, Score details page, advice controls, history newest first.
@@ -98,6 +98,7 @@ Builds on the T58 Material 3 foundation (theme, colours, fonts, bottom navigatio
 - Demo data seeded on the dev DB (synthetic account): five extra October expenses, Keells (id 15) changed to 1,850, declarations for Aug–Nov, dirty history rows for Jun–Sep (Aug marked reconstructed). October scores 81 (mockup 84 assumed savings of 2,000).
 - `UserJourneyTest` journey: stale T62 amounts fixed ("85,000.00"); it now passes Insights but stops at Advice because the dev API returned LLM "Verified advice" where the test expects rule-based. Not run: D58GoalPicker/EvaluationJourneys (need the T55 evaluation setup).
 - Sinhala review needed: the D58 coaching text and catalogue items come from the API in English on the Sinhala screens (unchanged behaviour).
+- T66.4 (2026-11-28): Sevindu approved the 60 T66 screenshots (EN/SI, light/dark, EN 130%) from the review page https://claude.ai/artifact/XHXuDBzTgLizBMvA4hLRZw. Sinhala strings still need a native-speaker read.
 
 ### T67 · Import screens · `UX-07`
 **Lead:** Sevindu · **Support:** Sahan (review; SMS owner) · **Depends on:** T62 · **Touches:** `and:ui/sms/`, `and:ui/importer/`, `res:layout/`
